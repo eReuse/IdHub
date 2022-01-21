@@ -1,0 +1,667 @@
+{
+  "contractName": "DocumentProofsInterface",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_hash",
+          "type": "string"
+        }
+      ],
+      "name": "stampDocument",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_hash",
+          "type": "string"
+        }
+      ],
+      "name": "checkStamp",
+      "outputs": [
+        {
+          "name": "b",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.25;\r\n\r\ncontract DocumentProofsInterface {\r\n    struct StampData{\r\n        uint256 timestamp;\r\n        bool stamp;\r\n    }\r\n    mapping(string => StampData) documents;\r\n\r\n    function stampDocument(string _hash) public;\r\n    function checkStamp(string _hash) \r\n    public view\r\n    returns(bool b);\r\n}\r\n",
+  "sourcePath": "C:\\Users\\marc\\Documents\\trublo_contracts_api\\contracts\\DocumentProofsInterface.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
+    "exportedSymbols": {
+      "DocumentProofsInterface": [
+        950
+      ]
+    },
+    "id": 951,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 928,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".25"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:4"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 950,
+        "linearizedBaseContracts": [
+          950
+        ],
+        "name": "DocumentProofsInterface",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "DocumentProofsInterface.StampData",
+            "id": 933,
+            "members": [
+              {
+                "constant": false,
+                "id": 930,
+                "name": "timestamp",
+                "nodeType": "VariableDeclaration",
+                "scope": 933,
+                "src": "95:17:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 929,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "95:7:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 932,
+                "name": "stamp",
+                "nodeType": "VariableDeclaration",
+                "scope": 933,
+                "src": "123:10:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 931,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "123:4:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "StampData",
+            "nodeType": "StructDefinition",
+            "scope": 950,
+            "src": "68:73:4",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 937,
+            "name": "documents",
+            "nodeType": "VariableDeclaration",
+            "scope": 950,
+            "src": "147:38:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$933_storage_$",
+              "typeString": "mapping(string => struct DocumentProofsInterface.StampData)"
+            },
+            "typeName": {
+              "id": 936,
+              "keyType": {
+                "id": 934,
+                "name": "string",
+                "nodeType": "ElementaryTypeName",
+                "src": "155:6:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "147:28:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$933_storage_$",
+                "typeString": "mapping(string => struct DocumentProofsInterface.StampData)"
+              },
+              "valueType": {
+                "contractScope": null,
+                "id": 935,
+                "name": "StampData",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 933,
+                "src": "165:9:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_StampData_$933_storage_ptr",
+                  "typeString": "struct DocumentProofsInterface.StampData"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 942,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "stampDocument",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 940,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 939,
+                  "name": "_hash",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 942,
+                  "src": "217:12:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 938,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "217:6:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "216:14:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 941,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "237:0:4"
+            },
+            "scope": 950,
+            "src": "194:44:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 949,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "checkStamp",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 945,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 944,
+                  "name": "_hash",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 949,
+                  "src": "264:12:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 943,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "264:6:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "263:14:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 948,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 947,
+                  "name": "b",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 949,
+                  "src": "309:6:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 946,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "309:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "308:8:4"
+            },
+            "scope": 950,
+            "src": "244:73:4",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 951,
+        "src": "28:292:4"
+      }
+    ],
+    "src": "0:322:4"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
+      "exportedSymbols": {
+        "DocumentProofsInterface": [
+          950
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".25"
+          ]
+        },
+        "id": 928,
+        "name": "PragmaDirective",
+        "src": "0:24:4"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            950
+          ],
+          "name": "DocumentProofsInterface",
+          "scope": 951
+        },
+        "children": [
+          {
+            "attributes": {
+              "canonicalName": "DocumentProofsInterface.StampData",
+              "name": "StampData",
+              "scope": 950,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "timestamp",
+                  "scope": 933,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 929,
+                    "name": "ElementaryTypeName",
+                    "src": "95:7:4"
+                  }
+                ],
+                "id": 930,
+                "name": "VariableDeclaration",
+                "src": "95:17:4"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "stamp",
+                  "scope": 933,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "bool",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "bool",
+                      "type": "bool"
+                    },
+                    "id": 931,
+                    "name": "ElementaryTypeName",
+                    "src": "123:4:4"
+                  }
+                ],
+                "id": 932,
+                "name": "VariableDeclaration",
+                "src": "123:10:4"
+              }
+            ],
+            "id": 933,
+            "name": "StructDefinition",
+            "src": "68:73:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "documents",
+              "scope": 950,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(string => struct DocumentProofsInterface.StampData)",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(string => struct DocumentProofsInterface.StampData)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "string",
+                      "type": "string"
+                    },
+                    "id": 934,
+                    "name": "ElementaryTypeName",
+                    "src": "155:6:4"
+                  },
+                  {
+                    "attributes": {
+                      "contractScope": null,
+                      "name": "StampData",
+                      "referencedDeclaration": 933,
+                      "type": "struct DocumentProofsInterface.StampData"
+                    },
+                    "id": 935,
+                    "name": "UserDefinedTypeName",
+                    "src": "165:9:4"
+                  }
+                ],
+                "id": 936,
+                "name": "Mapping",
+                "src": "147:28:4"
+              }
+            ],
+            "id": 937,
+            "name": "VariableDeclaration",
+            "src": "147:38:4"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": false,
+              "documentation": null,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "stampDocument",
+              "payable": false,
+              "scope": 950,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_hash",
+                      "scope": 942,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 938,
+                        "name": "ElementaryTypeName",
+                        "src": "217:6:4"
+                      }
+                    ],
+                    "id": 939,
+                    "name": "VariableDeclaration",
+                    "src": "217:12:4"
+                  }
+                ],
+                "id": 940,
+                "name": "ParameterList",
+                "src": "216:14:4"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 941,
+                "name": "ParameterList",
+                "src": "237:0:4"
+              }
+            ],
+            "id": 942,
+            "name": "FunctionDefinition",
+            "src": "194:44:4"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "documentation": null,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "checkStamp",
+              "payable": false,
+              "scope": 950,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_hash",
+                      "scope": 949,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 943,
+                        "name": "ElementaryTypeName",
+                        "src": "264:6:4"
+                      }
+                    ],
+                    "id": 944,
+                    "name": "VariableDeclaration",
+                    "src": "264:12:4"
+                  }
+                ],
+                "id": 945,
+                "name": "ParameterList",
+                "src": "263:14:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "b",
+                      "scope": 949,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 946,
+                        "name": "ElementaryTypeName",
+                        "src": "309:4:4"
+                      }
+                    ],
+                    "id": 947,
+                    "name": "VariableDeclaration",
+                    "src": "309:6:4"
+                  }
+                ],
+                "id": 948,
+                "name": "ParameterList",
+                "src": "308:8:4"
+              }
+            ],
+            "id": 949,
+            "name": "FunctionDefinition",
+            "src": "244:73:4"
+          }
+        ],
+        "id": 950,
+        "name": "ContractDefinition",
+        "src": "28:292:4"
+      }
+    ],
+    "id": 951,
+    "name": "SourceUnit",
+    "src": "0:322:4"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.26+commit.4563c3fc.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2022-01-20T11:26:29.977Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

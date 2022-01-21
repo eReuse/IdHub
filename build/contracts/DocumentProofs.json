@@ -1,0 +1,1861 @@
+{
+  "contractName": "DocumentProofs",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_hash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "stampProof",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_hash",
+          "type": "string"
+        }
+      ],
+      "name": "stampDocument",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_hash",
+          "type": "string"
+        }
+      ],
+      "name": "checkStamp",
+      "outputs": [
+        {
+          "name": "b",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.4.26+commit.4563c3fc\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"_hash\",\"type\":\"string\"}],\"name\":\"stampDocument\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_hash\",\"type\":\"string\"}],\"name\":\"checkStamp\",\"outputs\":[{\"name\":\"b\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_hash\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"stampProof\",\"type\":\"event\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"project:/contracts/DocumentProofs.sol\":\"DocumentProofs\"},\"evmVersion\":\"byzantium\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/DocumentProofs.sol\":{\"keccak256\":\"0x324e3faa15f44a2235feceddb154448c92511b7c6da6a87daa14f6c8cd12e270\",\"urls\":[\"bzzr://e413488d60b0b6ca3f4403b8ccc3a84daf7577e1cda6527b1fc961d7aef28c3e\"]},\"project:/contracts/DocumentProofsInterface.sol\":{\"keccak256\":\"0xbcd7820d00213b20eff769dca4e95375edb535b7a1cef0b4510205ca8248c223\",\"urls\":[\"bzzr://3c8c0ca200b45058f56e1378727f9756b7de205f59b71c6e1e2075b2f5718c97\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610384806100206000396000f30060806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632ddfc84914610051578063fe957f16146100ba575b600080fd5b34801561005d57600080fd5b506100b8600480360381019080803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919291929050505061013b565b005b3480156100c657600080fd5b50610121600480360381019080803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091929192905050506102a3565b604051808215151515815260200191505060405180910390f35b61014361033c565b428160000181815250506001816020019015159081151581525050806000836040518082805190602001908083835b6020831015156101975780518252602082019150602081019050602083039250610172565b6001836020036101000a03801982511681845116808217855250505050505090500191505090815260200160405180910390206000820151816000015560208201518160010160006101000a81548160ff0219169083151502179055509050507f392469bea5b175ca504dc04c18096ab8e3fd5231cebf813f256079d94c2610be8282600001516040518080602001838152602001828103825284818151815260200191508051906020019080838360005b83811015610264578082015181840152602081019050610249565b50505050905090810190601f1680156102915780820380516001836020036101000a031916815260200191505b50935050505060405180910390a15050565b6000600115156000836040518082805190602001908083835b6020831015156102e157805182526020820191506020810190506020830392506102bc565b6001836020036101000a038019825116818451168082178552505050505050905001915050908152602001604051809103902060010160009054906101000a900460ff16151514156103365760019050610337565b5b919050565b60408051908101604052806000815260200160001515815250905600a165627a7a723058205b666d4f6a2ab684d15141e67b1aeacc397658c36845c9abbff882a1d81533fb0029",
+  "deployedBytecode": "0x60806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632ddfc84914610051578063fe957f16146100ba575b600080fd5b34801561005d57600080fd5b506100b8600480360381019080803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919291929050505061013b565b005b3480156100c657600080fd5b50610121600480360381019080803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091929192905050506102a3565b604051808215151515815260200191505060405180910390f35b61014361033c565b428160000181815250506001816020019015159081151581525050806000836040518082805190602001908083835b6020831015156101975780518252602082019150602081019050602083039250610172565b6001836020036101000a03801982511681845116808217855250505050505090500191505090815260200160405180910390206000820151816000015560208201518160010160006101000a81548160ff0219169083151502179055509050507f392469bea5b175ca504dc04c18096ab8e3fd5231cebf813f256079d94c2610be8282600001516040518080602001838152602001828103825284818151815260200191508051906020019080838360005b83811015610264578082015181840152602081019050610249565b50505050905090810190601f1680156102915780820380516001836020036101000a031916815260200191505b50935050505060405180910390a15050565b6000600115156000836040518082805190602001908083835b6020831015156102e157805182526020820191506020810190506020830392506102bc565b6001836020036101000a038019825116818451168082178552505050505050905001915050908152602001604051809103902060010160009054906101000a900460ff16151514156103365760019050610337565b5b919050565b60408051908101604052806000815260200160001515815250905600a165627a7a723058205b666d4f6a2ab684d15141e67b1aeacc397658c36845c9abbff882a1d81533fb0029",
+  "sourceMap": "133:647:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;133:647:3;;;;;;;",
+  "deployedSourceMap": "133:647:3:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;;8:9:-1;5:2;;;30:1;27;20:12;5:2;362:267:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;651:126;;8:9:-1;5:2;;;30:1;27;20:12;5:2;651:126:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;416:27;;:::i;:::-;477:15;454:10;:20;;:38;;;;;522:4;503:10;:16;;:23;;;;;;;;;;;556:10;537:9;547:5;537:16;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;537:16:3;;;;;;;;;;;;;;;;;;;;;:29;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;582:39;593:5;600:10;:20;;;582:39;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;582:39:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;;:::o;651:126::-;705:6;752:4;726:30;;:9;736:5;726:16;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;726:16:3;;;;;;;;;;;;;;;;;;;;;:22;;;;;;;;;;;;:30;;;723:46;;;765:4;758:11;;;;723:46;651:126;;;;:::o;133:647::-;;;;;;;;;;;;;;;;;;;;;;:::o",
+  "source": "pragma solidity ^0.4.25;\r\n\r\n//import \"project:/contracts/DocumentProofsInterface.sol\";\r\nimport \"./DocumentProofsInterface.sol\";\r\n\r\n\r\ncontract DocumentProofs {\r\n    struct StampData{\r\n        uint256 timestamp;\r\n        bool stamp;\r\n    }\r\n    mapping(string => StampData) documents;\r\n\r\n    event stampProof(string _hash, uint256 timestamp);\r\n    //API DONE\r\n    function stampDocument(string _hash) public{\r\n        StampData memory stamp_data;\r\n        stamp_data.timestamp = block.timestamp;\r\n        stamp_data.stamp = true;\r\n        documents[_hash] = stamp_data;\r\n        emit stampProof(_hash, stamp_data.timestamp);\r\n    }\r\n    //API DONE\r\n    function checkStamp(string _hash) public view returns(bool b){\r\n        if(documents[_hash].stamp == true) return true;\r\n    }\r\n}",
+  "sourcePath": "C:\\Users\\marc\\Documents\\trublo_contracts_api\\contracts\\DocumentProofs.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/DocumentProofs.sol",
+    "exportedSymbols": {
+      "DocumentProofs": [
+        926
+      ]
+    },
+    "id": 927,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 858,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".25"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:3"
+      },
+      {
+        "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
+        "file": "./DocumentProofsInterface.sol",
+        "id": 859,
+        "nodeType": "ImportDirective",
+        "scope": 927,
+        "sourceUnit": 951,
+        "src": "88:39:3",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 926,
+        "linearizedBaseContracts": [
+          926
+        ],
+        "name": "DocumentProofs",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "DocumentProofs.StampData",
+            "id": 864,
+            "members": [
+              {
+                "constant": false,
+                "id": 861,
+                "name": "timestamp",
+                "nodeType": "VariableDeclaration",
+                "scope": 864,
+                "src": "191:17:3",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 860,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "191:7:3",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 863,
+                "name": "stamp",
+                "nodeType": "VariableDeclaration",
+                "scope": 864,
+                "src": "219:10:3",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 862,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "219:4:3",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "StampData",
+            "nodeType": "StructDefinition",
+            "scope": 926,
+            "src": "164:73:3",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 868,
+            "name": "documents",
+            "nodeType": "VariableDeclaration",
+            "scope": 926,
+            "src": "243:38:3",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$864_storage_$",
+              "typeString": "mapping(string => struct DocumentProofs.StampData)"
+            },
+            "typeName": {
+              "id": 867,
+              "keyType": {
+                "id": 865,
+                "name": "string",
+                "nodeType": "ElementaryTypeName",
+                "src": "251:6:3",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "243:28:3",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$864_storage_$",
+                "typeString": "mapping(string => struct DocumentProofs.StampData)"
+              },
+              "valueType": {
+                "contractScope": null,
+                "id": 866,
+                "name": "StampData",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 864,
+                "src": "261:9:3",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_StampData_$864_storage_ptr",
+                  "typeString": "struct DocumentProofs.StampData"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "anonymous": false,
+            "documentation": null,
+            "id": 874,
+            "name": "stampProof",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 873,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 870,
+                  "indexed": false,
+                  "name": "_hash",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 874,
+                  "src": "307:12:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 869,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "307:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 872,
+                  "indexed": false,
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 874,
+                  "src": "321:17:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 871,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "321:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "306:33:3"
+            },
+            "src": "290:50:3"
+          },
+          {
+            "body": {
+              "id": 907,
+              "nodeType": "Block",
+              "src": "405:224:3",
+              "statements": [
+                {
+                  "assignments": [],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 880,
+                      "name": "stamp_data",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 908,
+                      "src": "416:27:3",
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_StampData_$864_memory_ptr",
+                        "typeString": "struct DocumentProofs.StampData"
+                      },
+                      "typeName": {
+                        "contractScope": null,
+                        "id": 879,
+                        "name": "StampData",
+                        "nodeType": "UserDefinedTypeName",
+                        "referencedDeclaration": 864,
+                        "src": "416:9:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_StampData_$864_storage_ptr",
+                          "typeString": "struct DocumentProofs.StampData"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 881,
+                  "initialValue": null,
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "416:27:3"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 887,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 882,
+                        "name": "stamp_data",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 880,
+                        "src": "454:10:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_StampData_$864_memory_ptr",
+                          "typeString": "struct DocumentProofs.StampData memory"
+                        }
+                      },
+                      "id": 884,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "timestamp",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 861,
+                      "src": "454:20:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 885,
+                        "name": "block",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1076,
+                        "src": "477:5:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_block",
+                          "typeString": "block"
+                        }
+                      },
+                      "id": 886,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "timestamp",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "477:15:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "src": "454:38:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 888,
+                  "nodeType": "ExpressionStatement",
+                  "src": "454:38:3"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 893,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 889,
+                        "name": "stamp_data",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 880,
+                        "src": "503:10:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_StampData_$864_memory_ptr",
+                          "typeString": "struct DocumentProofs.StampData memory"
+                        }
+                      },
+                      "id": 891,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "stamp",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 863,
+                      "src": "503:16:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "74727565",
+                      "id": 892,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "522:4:3",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "true"
+                    },
+                    "src": "503:23:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 894,
+                  "nodeType": "ExpressionStatement",
+                  "src": "503:23:3"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 899,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "baseExpression": {
+                        "argumentTypes": null,
+                        "id": 895,
+                        "name": "documents",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 868,
+                        "src": "537:9:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$864_storage_$",
+                          "typeString": "mapping(string memory => struct DocumentProofs.StampData storage ref)"
+                        }
+                      },
+                      "id": 897,
+                      "indexExpression": {
+                        "argumentTypes": null,
+                        "id": 896,
+                        "name": "_hash",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 876,
+                        "src": "547:5:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_string_memory_ptr",
+                          "typeString": "string memory"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "537:16:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_StampData_$864_storage",
+                        "typeString": "struct DocumentProofs.StampData storage ref"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 898,
+                      "name": "stamp_data",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 880,
+                      "src": "556:10:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_StampData_$864_memory_ptr",
+                        "typeString": "struct DocumentProofs.StampData memory"
+                      }
+                    },
+                    "src": "537:29:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_StampData_$864_storage",
+                      "typeString": "struct DocumentProofs.StampData storage ref"
+                    }
+                  },
+                  "id": 900,
+                  "nodeType": "ExpressionStatement",
+                  "src": "537:29:3"
+                },
+                {
+                  "eventCall": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 902,
+                        "name": "_hash",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 876,
+                        "src": "593:5:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_string_memory_ptr",
+                          "typeString": "string memory"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 903,
+                          "name": "stamp_data",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 880,
+                          "src": "600:10:3",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_StampData_$864_memory_ptr",
+                            "typeString": "struct DocumentProofs.StampData memory"
+                          }
+                        },
+                        "id": 904,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "timestamp",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 861,
+                        "src": "600:20:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_string_memory_ptr",
+                          "typeString": "string memory"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "id": 901,
+                      "name": "stampProof",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 874,
+                      "src": "582:10:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
+                        "typeString": "function (string memory,uint256)"
+                      }
+                    },
+                    "id": 905,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "582:39:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 906,
+                  "nodeType": "EmitStatement",
+                  "src": "577:44:3"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 908,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "stampDocument",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 877,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 876,
+                  "name": "_hash",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 908,
+                  "src": "385:12:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 875,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "385:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "384:14:3"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 878,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "405:0:3"
+            },
+            "scope": 926,
+            "src": "362:267:3",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 924,
+              "nodeType": "Block",
+              "src": "712:65:3",
+              "statements": [
+                {
+                  "condition": {
+                    "argumentTypes": null,
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 920,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "baseExpression": {
+                          "argumentTypes": null,
+                          "id": 915,
+                          "name": "documents",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 868,
+                          "src": "726:9:3",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$864_storage_$",
+                            "typeString": "mapping(string memory => struct DocumentProofs.StampData storage ref)"
+                          }
+                        },
+                        "id": 917,
+                        "indexExpression": {
+                          "argumentTypes": null,
+                          "id": 916,
+                          "name": "_hash",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 910,
+                          "src": "736:5:3",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_string_memory_ptr",
+                            "typeString": "string memory"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "726:16:3",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_StampData_$864_storage",
+                          "typeString": "struct DocumentProofs.StampData storage ref"
+                        }
+                      },
+                      "id": 918,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "stamp",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 863,
+                      "src": "726:22:3",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "argumentTypes": null,
+                      "hexValue": "74727565",
+                      "id": 919,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "752:4:3",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "true"
+                    },
+                    "src": "726:30:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": null,
+                  "id": 923,
+                  "nodeType": "IfStatement",
+                  "src": "723:46:3",
+                  "trueBody": {
+                    "expression": {
+                      "argumentTypes": null,
+                      "hexValue": "74727565",
+                      "id": 921,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "765:4:3",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "true"
+                    },
+                    "functionReturnParameters": 914,
+                    "id": 922,
+                    "nodeType": "Return",
+                    "src": "758:11:3"
+                  }
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 925,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "checkStamp",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 911,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 910,
+                  "name": "_hash",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 925,
+                  "src": "671:12:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 909,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "671:6:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "670:14:3"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 914,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 913,
+                  "name": "b",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 925,
+                  "src": "705:6:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 912,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "705:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "704:8:3"
+            },
+            "scope": 926,
+            "src": "651:126:3",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 927,
+        "src": "133:647:3"
+      }
+    ],
+    "src": "0:780:3"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/DocumentProofs.sol",
+      "exportedSymbols": {
+        "DocumentProofs": [
+          926
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".25"
+          ]
+        },
+        "id": 858,
+        "name": "PragmaDirective",
+        "src": "0:24:3"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 951,
+          "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
+          "file": "./DocumentProofsInterface.sol",
+          "scope": 927,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 859,
+        "name": "ImportDirective",
+        "src": "88:39:3"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            926
+          ],
+          "name": "DocumentProofs",
+          "scope": 927
+        },
+        "children": [
+          {
+            "attributes": {
+              "canonicalName": "DocumentProofs.StampData",
+              "name": "StampData",
+              "scope": 926,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "timestamp",
+                  "scope": 864,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "uint256",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "uint256",
+                      "type": "uint256"
+                    },
+                    "id": 860,
+                    "name": "ElementaryTypeName",
+                    "src": "191:7:3"
+                  }
+                ],
+                "id": 861,
+                "name": "VariableDeclaration",
+                "src": "191:17:3"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "stamp",
+                  "scope": 864,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "bool",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "bool",
+                      "type": "bool"
+                    },
+                    "id": 862,
+                    "name": "ElementaryTypeName",
+                    "src": "219:4:3"
+                  }
+                ],
+                "id": 863,
+                "name": "VariableDeclaration",
+                "src": "219:10:3"
+              }
+            ],
+            "id": 864,
+            "name": "StructDefinition",
+            "src": "164:73:3"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "documents",
+              "scope": 926,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(string => struct DocumentProofs.StampData)",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(string => struct DocumentProofs.StampData)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "string",
+                      "type": "string"
+                    },
+                    "id": 865,
+                    "name": "ElementaryTypeName",
+                    "src": "251:6:3"
+                  },
+                  {
+                    "attributes": {
+                      "contractScope": null,
+                      "name": "StampData",
+                      "referencedDeclaration": 864,
+                      "type": "struct DocumentProofs.StampData"
+                    },
+                    "id": 866,
+                    "name": "UserDefinedTypeName",
+                    "src": "261:9:3"
+                  }
+                ],
+                "id": 867,
+                "name": "Mapping",
+                "src": "243:28:3"
+              }
+            ],
+            "id": 868,
+            "name": "VariableDeclaration",
+            "src": "243:38:3"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "documentation": null,
+              "name": "stampProof"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "name": "_hash",
+                      "scope": 874,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 869,
+                        "name": "ElementaryTypeName",
+                        "src": "307:6:3"
+                      }
+                    ],
+                    "id": 870,
+                    "name": "VariableDeclaration",
+                    "src": "307:12:3"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "name": "timestamp",
+                      "scope": 874,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 871,
+                        "name": "ElementaryTypeName",
+                        "src": "321:7:3"
+                      }
+                    ],
+                    "id": 872,
+                    "name": "VariableDeclaration",
+                    "src": "321:17:3"
+                  }
+                ],
+                "id": 873,
+                "name": "ParameterList",
+                "src": "306:33:3"
+              }
+            ],
+            "id": 874,
+            "name": "EventDefinition",
+            "src": "290:50:3"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "stampDocument",
+              "payable": false,
+              "scope": 926,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_hash",
+                      "scope": 908,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 875,
+                        "name": "ElementaryTypeName",
+                        "src": "385:6:3"
+                      }
+                    ],
+                    "id": 876,
+                    "name": "VariableDeclaration",
+                    "src": "385:12:3"
+                  }
+                ],
+                "id": 877,
+                "name": "ParameterList",
+                "src": "384:14:3"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 878,
+                "name": "ParameterList",
+                "src": "405:0:3"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "assignments": [
+                        null
+                      ],
+                      "initialValue": null
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "constant": false,
+                          "name": "stamp_data",
+                          "scope": 908,
+                          "stateVariable": false,
+                          "storageLocation": "memory",
+                          "type": "struct DocumentProofs.StampData",
+                          "value": null,
+                          "visibility": "internal"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "contractScope": null,
+                              "name": "StampData",
+                              "referencedDeclaration": 864,
+                              "type": "struct DocumentProofs.StampData"
+                            },
+                            "id": 879,
+                            "name": "UserDefinedTypeName",
+                            "src": "416:9:3"
+                          }
+                        ],
+                        "id": 880,
+                        "name": "VariableDeclaration",
+                        "src": "416:27:3"
+                      }
+                    ],
+                    "id": 881,
+                    "name": "VariableDeclarationStatement",
+                    "src": "416:27:3"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "timestamp",
+                              "referencedDeclaration": 861,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 880,
+                                  "type": "struct DocumentProofs.StampData memory",
+                                  "value": "stamp_data"
+                                },
+                                "id": 882,
+                                "name": "Identifier",
+                                "src": "454:10:3"
+                              }
+                            ],
+                            "id": 884,
+                            "name": "MemberAccess",
+                            "src": "454:20:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "timestamp",
+                              "referencedDeclaration": null,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1076,
+                                  "type": "block",
+                                  "value": "block"
+                                },
+                                "id": 885,
+                                "name": "Identifier",
+                                "src": "477:5:3"
+                              }
+                            ],
+                            "id": 886,
+                            "name": "MemberAccess",
+                            "src": "477:15:3"
+                          }
+                        ],
+                        "id": 887,
+                        "name": "Assignment",
+                        "src": "454:38:3"
+                      }
+                    ],
+                    "id": 888,
+                    "name": "ExpressionStatement",
+                    "src": "454:38:3"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "member_name": "stamp",
+                              "referencedDeclaration": 863,
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 880,
+                                  "type": "struct DocumentProofs.StampData memory",
+                                  "value": "stamp_data"
+                                },
+                                "id": 889,
+                                "name": "Identifier",
+                                "src": "503:10:3"
+                              }
+                            ],
+                            "id": 891,
+                            "name": "MemberAccess",
+                            "src": "503:16:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "74727565",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "bool",
+                              "type": "bool",
+                              "value": "true"
+                            },
+                            "id": 892,
+                            "name": "Literal",
+                            "src": "522:4:3"
+                          }
+                        ],
+                        "id": 893,
+                        "name": "Assignment",
+                        "src": "503:23:3"
+                      }
+                    ],
+                    "id": 894,
+                    "name": "ExpressionStatement",
+                    "src": "503:23:3"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "struct DocumentProofs.StampData storage ref"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": true,
+                              "type": "struct DocumentProofs.StampData storage ref"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 868,
+                                  "type": "mapping(string memory => struct DocumentProofs.StampData storage ref)",
+                                  "value": "documents"
+                                },
+                                "id": 895,
+                                "name": "Identifier",
+                                "src": "537:9:3"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 876,
+                                  "type": "string memory",
+                                  "value": "_hash"
+                                },
+                                "id": 896,
+                                "name": "Identifier",
+                                "src": "547:5:3"
+                              }
+                            ],
+                            "id": 897,
+                            "name": "IndexAccess",
+                            "src": "537:16:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 880,
+                              "type": "struct DocumentProofs.StampData memory",
+                              "value": "stamp_data"
+                            },
+                            "id": 898,
+                            "name": "Identifier",
+                            "src": "556:10:3"
+                          }
+                        ],
+                        "id": 899,
+                        "name": "Assignment",
+                        "src": "537:29:3"
+                      }
+                    ],
+                    "id": 900,
+                    "name": "ExpressionStatement",
+                    "src": "537:29:3"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_string_memory_ptr",
+                                  "typeString": "string memory"
+                                },
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 874,
+                              "type": "function (string memory,uint256)",
+                              "value": "stampProof"
+                            },
+                            "id": 901,
+                            "name": "Identifier",
+                            "src": "582:10:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 876,
+                              "type": "string memory",
+                              "value": "_hash"
+                            },
+                            "id": 902,
+                            "name": "Identifier",
+                            "src": "593:5:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "timestamp",
+                              "referencedDeclaration": 861,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 880,
+                                  "type": "struct DocumentProofs.StampData memory",
+                                  "value": "stamp_data"
+                                },
+                                "id": 903,
+                                "name": "Identifier",
+                                "src": "600:10:3"
+                              }
+                            ],
+                            "id": 904,
+                            "name": "MemberAccess",
+                            "src": "600:20:3"
+                          }
+                        ],
+                        "id": 905,
+                        "name": "FunctionCall",
+                        "src": "582:39:3"
+                      }
+                    ],
+                    "id": 906,
+                    "name": "EmitStatement",
+                    "src": "577:44:3"
+                  }
+                ],
+                "id": 907,
+                "name": "Block",
+                "src": "405:224:3"
+              }
+            ],
+            "id": 908,
+            "name": "FunctionDefinition",
+            "src": "362:267:3"
+          },
+          {
+            "attributes": {
+              "constant": true,
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "checkStamp",
+              "payable": false,
+              "scope": 926,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_hash",
+                      "scope": 925,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 909,
+                        "name": "ElementaryTypeName",
+                        "src": "671:6:3"
+                      }
+                    ],
+                    "id": 910,
+                    "name": "VariableDeclaration",
+                    "src": "671:12:3"
+                  }
+                ],
+                "id": 911,
+                "name": "ParameterList",
+                "src": "670:14:3"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "b",
+                      "scope": 925,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 912,
+                        "name": "ElementaryTypeName",
+                        "src": "705:4:3"
+                      }
+                    ],
+                    "id": 913,
+                    "name": "VariableDeclaration",
+                    "src": "705:6:3"
+                  }
+                ],
+                "id": 914,
+                "name": "ParameterList",
+                "src": "704:8:3"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "falseBody": null
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "==",
+                          "type": "bool"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "stamp",
+                              "referencedDeclaration": 863,
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "struct DocumentProofs.StampData storage ref"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 868,
+                                      "type": "mapping(string memory => struct DocumentProofs.StampData storage ref)",
+                                      "value": "documents"
+                                    },
+                                    "id": 915,
+                                    "name": "Identifier",
+                                    "src": "726:9:3"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 910,
+                                      "type": "string memory",
+                                      "value": "_hash"
+                                    },
+                                    "id": 916,
+                                    "name": "Identifier",
+                                    "src": "736:5:3"
+                                  }
+                                ],
+                                "id": 917,
+                                "name": "IndexAccess",
+                                "src": "726:16:3"
+                              }
+                            ],
+                            "id": 918,
+                            "name": "MemberAccess",
+                            "src": "726:22:3"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "74727565",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "bool",
+                              "type": "bool",
+                              "value": "true"
+                            },
+                            "id": 919,
+                            "name": "Literal",
+                            "src": "752:4:3"
+                          }
+                        ],
+                        "id": 920,
+                        "name": "BinaryOperation",
+                        "src": "726:30:3"
+                      },
+                      {
+                        "attributes": {
+                          "functionReturnParameters": 914
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "74727565",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "bool",
+                              "type": "bool",
+                              "value": "true"
+                            },
+                            "id": 921,
+                            "name": "Literal",
+                            "src": "765:4:3"
+                          }
+                        ],
+                        "id": 922,
+                        "name": "Return",
+                        "src": "758:11:3"
+                      }
+                    ],
+                    "id": 923,
+                    "name": "IfStatement",
+                    "src": "723:46:3"
+                  }
+                ],
+                "id": 924,
+                "name": "Block",
+                "src": "712:65:3"
+              }
+            ],
+            "id": 925,
+            "name": "FunctionDefinition",
+            "src": "651:126:3"
+          }
+        ],
+        "id": 926,
+        "name": "ContractDefinition",
+        "src": "133:647:3"
+      }
+    ],
+    "id": 927,
+    "name": "SourceUnit",
+    "src": "0:780:3"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.26+commit.4563c3fc.Emscripten.clang"
+  },
+  "networks": {
+    "457": {
+      "events": {},
+      "links": {},
+      "address": "0x1cAb6FB707eB4Cbf8540057422132B1D2b185d45",
+      "transactionHash": "0xf867a6d1436d1cbc526db8dbd5bf3d0d1fc2d9f0b3ff0c5853b69434ed3c9656"
+    },
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xc57C7251EFe6365Be84bE276b215ed5Df9C05448",
+      "transactionHash": "0xbf254bb76b448dda31ed9a14f280aa6fac2b1c79b8d4522a06936e2243ecfcf6"
+    }
+  },
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2022-01-20T11:26:36.432Z",
+  "networkType": "ethereum",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

@@ -1,0 +1,9 @@
+api: 
+    build: ./
+    container_name: trubloDemo_api # name of the built image
+    ports:
+      - "3005:3005"
+    restart: always
+    volumes:
+      - ./src:/home/node/app/src:rw
+      - ./build/contracts:/home/node/app/build/contracts:rw

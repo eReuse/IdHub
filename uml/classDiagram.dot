@@ -1,0 +1,25 @@
+
+digraph UmlClassDiagram {
+rankdir=BT
+color=black
+arrowhead=open
+node [shape=record, style=filled, fillcolor=gray95]
+subgraph  graph_0 {
+label="..\contracts"
+0 [label="{DepositDevice| Public:\l\ \ \ factory: DeviceFactoryInterface\l\ \ \ data: DevData\l\ \ \ registerProofs: RegisterProofData[]\l\ \ \ issueProofs: IssueProofData[]\l\ \ \ genericProofs: GenericProofData[]\l| Internal:\l\ \ \ \ generateRegisterProof(proof_data: RegisterProofData)\l\ \ \ \ generateIssueProof(proof_data: IssueProofData)\lPublic:\l\ \ \ \ \<\<event\>\> proofGenerated(proofHash: bytes32)\l\ \ \ \ \<\<event\>\> registerProof(deviceAddress: address, chid: string, timestamp: uint)\l\ \ \ \ \<\<event\>\> issueProof(deviceAddress: address, did: string, documentSignature: string, registerID: string, timestamp: uint)\l\ \ \ \ \<\<event\>\> genericProof(deviceAddress: address, registerID: string, documentSignature: string, documentType: string, timestamp: uint)\l\ \ \ \ \<\<event\>\> DeviceRecycled(deviceAddress: address)\l\ \ \ \ constructor(_chid: string, _sender: address, _factory: address)\l\ \ \ \ issueDID(_did: string, _registerID: string, _documentSignature: string)\l\ \ \ \ generateGenericProof(_registerID: string, _documentSignature: string, _type: string)\l\ \ \ \ getData(): (_data: DevData)\l\ \ \ \ getIssueProofs(): (_data: IssueProofData[])\l\ \ \ \ getGenericProofs(): (_data: GenericProofData[])\l}"]
+"0struct0" [label="{\<\<struct\>\>\nDevData|did: string\lchid: string\lregisterID: string\lregisterDate: uint\lowner: address\l}"]
+"0struct0" -> 0 [arrowhead=diamond, weight=3]
+"0struct1" [label="{\<\<struct\>\>\nRegisterProofData|chid: string\ltimestamp: uint\lblockNumber: uint\l}"]
+"0struct1" -> 0 [arrowhead=diamond, weight=3]
+"0struct2" [label="{\<\<struct\>\>\nIssueProofData|did: string\lregisterID: string\ldocumentSignature: string\ltimestamp: uint\lblockNumber: uint\l}"]
+"0struct2" -> 0 [arrowhead=diamond, weight=3]
+"0struct3" [label="{\<\<struct\>\>\nGenericProofData|registerID: string\ldocumentSignature: string\ldocumentType: string\ltimestamp: uint\lblockNumber: uint\l}"]
+"0struct3" -> 0 [arrowhead=diamond, weight=3]
+1 [label="{DeviceFactory| Public:\l\ \ \ deployed_devices: mapping\(address=\>address[]\)\l\ \ \ translation: mapping\(string=\>address\)\l\ \ \ owners: address[]\l\ \ \ devices: address[]\l| Internal:\l\ \ \ \ registerOwner(owner: address)\l\ \ \ \ deleteOwnership(owner: address)\lPublic:\l\ \ \ \ \<\<event\>\> DeviceRegistered(_deviceAddress: address)\l\ \ \ \ registerDevice(_chid: string): (_device: address)\l\ \ \ \ getDeployedDevices(): (_deployed_devices: address[])\l\ \ \ \ getAllDeployedDevices(): (_devices: address[])\l\ \ \ \ getAddressFromChid(_chid: string): (_address: address)\l}"]
+2 [label="{\<\<Abstract\>\>\nDeviceFactoryInterface| Public:\l\ \ \ deployed_devices: mapping\(address=\>address[]\)\l\ \ \ translation: mapping\(string=\>address\)\l\ \ \ owners: address[]\l\ \ \ devices: address[]\l| Internal:\l\ \ \ \ \<\<abstract\>\> registerOwner(owner: address)\l\ \ \ \ \<\<abstract\>\> deleteOwnership(owner: address)\lPublic:\l\ \ \ \ \<\<abstract\>\> registerDevice(_chid: string): (_device: address)\l\ \ \ \ \<\<abstract\>\> getDeployedDevices(): (_deployed_devices: address[])\l\ \ \ \ \<\<abstract\>\> getAllDeployedDevices(): (_address: address[])\l\ \ \ \ \<\<abstract\>\> getAddressFromChid(_chid: string): (_address: address)\l}"]
+3 [label="{Ownable| Public:\l\ \ \ owner: address\l| Internal:\l\ \ \ \ _transferOwnership(_newOwner: address)\lPublic:\l\ \ \ \ \<\<event\>\> OwnershipRenounced(previousOwner: address)\l\ \ \ \ \<\<event\>\> OwnershipTransferred(previousOwner: address, newOwner: address)\l\ \ \ \ \<\<modifier\>\> onlyOwner()\l\ \ \ \ constructor()\l\ \ \ \ renounceOwnership()\l\ \ \ \ transferOwnership(_newOwner: address)\l}"]
+}
+0 -> 3 [arrowhead=empty, arrowsize=3, weight=4, ]
+0 -> 2 []
+1 -> 0 [style=dashed, ]
+}
