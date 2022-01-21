@@ -33,3 +33,4 @@ $docker-compose up
 - [truffle-config.js](truffle-config.js): can define several truffle settings. Mainly used to define blockchain nodes to where contracts will be deployed.
 - [demo.js](demo.js): demo console client to test API calls.
 - [migrations](migrations): scripts that define how contracts will be migrated to a network.
+- [uml](uml): uml class diagram generated with the "sol2uml" tool.
