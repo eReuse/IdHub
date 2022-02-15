@@ -169,9 +169,9 @@ app.post("/deRegisterDevice", async (req, res, next) => {
 
 app.post("/issuePassport", async (req, res, next) => {
   const deviceDPP = req.body.DeviceDPP;
-  const documentID = req.body.DocumentID;
-  const documentSignature = req.body.DocumentSignature;
-  const issuerID = req.body.IssuerID;
+  const documentID = req.body.DocumentID ?? "";
+  const documentSignature = req.body.DocumentSignature ?? "";
+  const issuerID = req.body.IssuerID ?? "";
   
   try{
     console.log(`Called /issuePassport with DPP: ${deviceDPP}`)
@@ -229,10 +229,10 @@ app.post("/issuePassport", async (req, res, next) => {
 
 app.post("/generateProof", async (req, res, next) => {
   const deviceCHID = req.body.DeviceCHID;
-  const issuerID = req.body.IssuerID;
-  const documentID = req.body.DocumentID;
-  const documentSignature = req.body.DocumentSignature;
-  const documentType = req.body.Type;
+  const issuerID = req.body.IssuerID ?? "";
+  const documentID = req.body.DocumentID ?? "";
+  const documentSignature = req.body.DocumentSignature ?? "";
+  const documentType = req.body.Type ?? "";
 
   try{
     console.log(`Called /generateProof with chid: ${deviceCHID}`)
