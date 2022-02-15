@@ -14,10 +14,10 @@ const host = "0.0.0.0"
 
 const DeviceFactory = require('../../build/contracts/DeviceFactory.json');
 //457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['5777'].address;
+const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['457'].address;
 
-const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
-//const privateKey = "92ef10a0fdac0901d81e46fa42f6444645b0fb252cca8ae2a585f3fb2686fa2d"
+//const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
+const privateKey = "92ef10a0fdac0901d81e46fa42f6444645b0fb252cca8ae2a585f3fb2686fa2d"
 
 const deviceFactoryIface = new ethers.utils.Interface(
   require('../../build/contracts/DeviceFactory.json').abi
@@ -27,8 +27,8 @@ const depositDeviceIface = new ethers.utils.Interface(
 )
 
 const provider = new ethers.providers.JsonRpcProvider(
-  //"HTTP://10.1.3.30:8545"
-  "HTTP://127.0.0.1:7545"
+  "HTTP://10.1.3.30:8545"
+  //"HTTP://127.0.0.1:7545"
 )
 
 
