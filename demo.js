@@ -49,7 +49,8 @@ async function getAllDeployedDevices(){
 
 async function register_device(){
     params = {
-        DeviceCHID: rl.question("Device CHID: ")
+        DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("registerDevice",params)
     print_post_result(res,false)
@@ -57,7 +58,8 @@ async function register_device(){
 
 async function deRegisterDevice(){
     params = {
-        DeviceCHID: rl.question("Device CHID: ")
+        DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("deRegisterDevice",params)
     print_post_result(res,false)
@@ -69,7 +71,8 @@ async function generateProof(){
         IssuerID: rl.question("Issuer ID: "),
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
-        Type: rl.question("Document type: ")
+        Type: rl.question("Document type: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("generateProof",params)
     print_post_result(res,false)
@@ -121,6 +124,7 @@ async function getRecycleProofs(){
 async function getProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("getProofs",params)
     print_post_result(res,true)
@@ -129,6 +133,7 @@ async function getProofs(){
 async function getIssueProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("getIssueProofs",params)
     print_post_result(res,true)
@@ -137,6 +142,7 @@ async function getIssueProofs(){
 async function getRegisterProofsByCHID(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("getRegisterProofsByCHID",params)
     print_post_result(res,true)
@@ -145,6 +151,7 @@ async function getRegisterProofsByCHID(){
 async function getDeRegisterProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("getDeRegisterProofs",params)
     print_post_result(res,true)
@@ -184,9 +191,26 @@ async function issuePassport(){
         DeviceDPP: rl.question("Device DPP: "),
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
-        IssuerID: rl.question("IssuerID: "),
+        IssuerID: rl.question("IssuerID: "), 
+        api_token: rl.question("api_token: "),
     }
     const res = await make_post("issuePassport",params)
+    print_post_result(res,false)
+}
+
+async function registerUser(){
+    params = {
+        privateKey: rl.question("privateKey: "),
+    }
+    const res = await make_post("registerUser",params)
+    print_post_result(res,false)
+}
+
+async function invalidateUser(){
+    params = {
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("invalidateUser",params)
     print_post_result(res,false)
 }
 
@@ -199,6 +223,8 @@ function menu(){
     "[6] Get register proof.\n"+
     "[7] DeRegister device.\n"+
     "[8] Get deRegister proof.\n"+
+    "[9] Register new user.\n"+
+    "[a] Invalidate user.\n" +
     "\nChoose an option:" 
     
 }
@@ -241,6 +267,12 @@ async function main(){
                 break;
             case '8':
                 await getDeRegisterProofs()
+                break;
+            case '9':
+                await registerUser()
+                break;
+            case 'a':
+                await invalidateUser()
                 break;
         }
     }  

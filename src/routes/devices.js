@@ -2,6 +2,14 @@ const express = require('express')
 const ethers = require("ethers")
 const { BadRequest, NotFound ,Forbidden} = require("../utils/errors")
 var bodyParser = require('body-parser')
+const storage = require('node-persist');
+const generate = require('generate-api-key');
+const CryptoJS = require('crypto-js');
+
+storage.init();
+
+const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 const app = express()
 app.use(bodyParser.json())
 app.use(
@@ -33,7 +41,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 
 
 const signer = new ethers.Wallet(privateKey, provider)
-const deviceFactoryContract = new ethers.Contract(
+const defaultDeviceFactoryContract = new ethers.Contract(
   DEVICEFACTORY_ADDRESS,
   require('../../build/contracts/DeviceFactory.json').abi,
   signer
@@ -49,7 +57,7 @@ app.get('/', (req, res) => {
 })
 
 async function chid_to_deviceAdress(chid){
-  var response =  await deviceFactoryContract.getAddressFromChid(chid)
+  var response =  await defaultDeviceFactoryContract.getAddressFromChid(chid)
   return response
 }
 
@@ -58,13 +66,55 @@ function is_device_address_valid(deviceAddress){
                            //0x0000000000000000000000000000000000000000
 }
 
-function createContract(deviceAddress, contractPath){
-  const depositDeviceContract = new ethers.Contract(
-    deviceAddress,
+function generate_token() {
+  const prefix = generate({ length: 15, pool: characters })
+  const token = generate({ length: 64, pool: characters, prefix: prefix })
+  const salt = generate({ length: 64, pool: characters })
+
+  var split_token = token.split(".");
+
+  const hash = CryptoJS.SHA3(split_token[1] + salt, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
+
+  return {prefix:prefix, token:token, salt: salt, hash: hash }
+}
+
+async function check_token(token) {
+  if (token == undefined) return false
+  var split_token = token.split(".");
+  const item = await storage.getItem(split_token[0]);
+
+  if(item == undefined) return false
+
+  const hash = CryptoJS.SHA3(split_token[1] + item.salt, { outputLength: 256 }).toString(CryptoJS.enc.Hex)
+  return hash == item.hash
+}
+
+async function delete_token(token){
+  const valid_token = await check_token(token)
+  if(!valid_token) return false
+  var split_token = token.split(".");
+  const result = await storage.removeItem(split_token[0])
+
+  return result.removed
+  
+}
+
+async function get_wallet(token) {
+  var split_token = token.split(".");
+  const item = await storage.getItem(split_token[0]);
+
+  //skip check for undefined as this should only be called after checking the token validity
+  const wallet = new ethers.Wallet(item.eth_priv_key, provider)
+  return wallet
+}
+
+function createContract(address, contractPath, wallet){
+  const contract = new ethers.Contract(
+    address,
     require(contractPath).abi,
-    signer
+    wallet
   )
-  return depositDeviceContract
+  return contract
 }
 
 function getEvents(txReceipt, event, interface) {
@@ -81,24 +131,103 @@ function printNonce(n){
   console.log(`Nonce: ${n}`)
 }
 
+function get_error_object(error){
+  switch (error){
+    case "Device already exists.":
+      return {code:406, message:error}
+    case "CHID not registered.":
+      return {code:406, message:error}
+    case "Incorrect DPP format.":
+      return {code:406, message:error}
+    case "Couldn't register the user.":
+      return {code:500, message:error}
+    case "Invalid API token.":
+      return {code:500, message:error}
+    case "Couldn't invalidate the user.":
+      return {code:500, message:error}
+  }
+  return {code:500, message:"Blockchain service error."}
+}
+
+app.post("/registerUser", async (req, res, next) => {
+  const privateKey = req.body.privateKey ?? ""
+  var wallet
+  try{
+    console.log(`Called /registerUser`)
+    const token_object = generate_token()
+    if (privateKey == "") {
+      wallet = ethers.Wallet.createRandom()
+    }
+    else{
+      wallet = new ethers.Wallet(privateKey, provider)
+    }
+    await storage.setItem(token_object.prefix, {salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey})
+    res.json({
+      status: "Success.",
+      data: {
+        api_token: token_object.token,
+        eth_pub_key: wallet.address,
+        eth_priv_key: wallet.privateKey
+      }
+    })
+  }
+  catch (e){
+    const error_object = get_error_object("Couldn't register the user.")
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
+  }
+
+})
+
+
+app.post("/invalidateUser", async (req, res, next) => {
+  const api_token = req.body.api_token;
+  try{
+    console.log(`Called /invalidateUser`)
+    const deleted = await delete_token(api_token)
+    if (!deleted) throw new BadRequest("Invalid API token.")
+    res.json({
+      status: "Success.",
+      data: {
+        deleted_token: api_token
+      }
+    })
+  }
+  catch (e){
+    const error_object = get_error_object("Couldn't invalidate the user.")
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
+  }
+
+})
+
+
+
 app.post("/registerDevice", async (req, res, next) => {
 
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
   try{
     console.log(`Called /registerDevice with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var existingDeviceAddress = await chid_to_deviceAdress(chid)
-    if (is_device_address_valid(existingDeviceAddress)){
-      res.status(406);
-      res.json({
-        status: "Device already exists.",
-      })
+    if (is_device_address_valid(existingDeviceAddress) || chid == ""){
       throw new BadRequest("Device already exists.")
     }
 
-    var n = nonce++
-    printNonce(n)
-    var txResponse = await deviceFactoryContract.registerDevice(chid, {gasLimit:6721975,nonce:n})
+    const deviceFactoryContract = createContract(DEVICEFACTORY_ADDRESS,"../../build/contracts/DeviceFactory.json",wallet)
+
+    var txResponse = await deviceFactoryContract.registerDevice(chid, {gasLimit:6721975})
     var txReceipt = await txResponse.wait()
     var args = getEvents(txReceipt, 'DeviceRegistered',deviceFactoryIface)
 
@@ -112,38 +241,36 @@ app.post("/registerDevice", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "Device already exists.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/deRegisterDevice", async (req, res, next) => {
 
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
 
   try{
     console.log(`Called /deRegisterDevice with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(chid)
 
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-      status: "CHID not registered.",
-    })
-    throw new BadRequest("CHID not registered.")
+      throw new BadRequest("CHID not registered.")
     }
     
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
-    var n = nonce++
-    printNonce(n)
-    var txResponse = await depositDeviceContract.deRegisterDevice(chid, {gasLimit:6721975,nonce:n})
+    var txResponse = await depositDeviceContract.deRegisterDevice(chid, {gasLimit:6721975})
     var txReceipt = await txResponse.wait()
 
     var args = getEvents(txReceipt, 'deRegisterProof',depositDeviceIface)
@@ -157,54 +284,46 @@ app.post("/deRegisterDevice", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/issuePassport", async (req, res, next) => {
-  const deviceDPP = req.body.DeviceDPP;
+  const deviceDPP = req.body.DeviceDPP ?? "";
   const documentID = req.body.DocumentID ?? "";
   const documentSignature = req.body.DocumentSignature ?? "";
   const issuerID = req.body.IssuerID ?? "";
+  const api_token = req.body.api_token;
   
   try{
     console.log(`Called /issuePassport with DPP: ${deviceDPP}`)
+
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
 
     var splitDeviceDPP = deviceDPP.split(":");
     const deviceCHID = splitDeviceDPP[0];
     const devicePHID = splitDeviceDPP[1];
 
-    if (devicePHID == undefined)  {
-      res.status(406);
-      res.json({
-        status: "Incorrect DPP format.",
-      })
+    if (devicePHID == "" || splitDeviceDPP.length <2)  {
       throw new BadRequest("Incorrect DPP format.")
     }
 
     var deviceAddress = await chid_to_deviceAdress(deviceCHID)
 
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
-    n = nonce++
-
-    printNonce(n)
-
-    const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, documentID, documentSignature, issuerID, {gasLimit:6721975,nonce:n})
+    const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, documentID, documentSignature, issuerID, {gasLimit:6721975})
     const txReceipt = await txResponse.wait()
     var args = getEvents(txReceipt, 'issueProof',depositDeviceIface)
     res.status(201);
@@ -217,41 +336,38 @@ app.post("/issuePassport", async (req, res, next) => {
 
   }
   catch (e) {
-    if (e.message != "CHID not registered." && e.message != "Incorrect DPP format.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/generateProof", async (req, res, next) => {
-  const deviceCHID = req.body.DeviceCHID;
+  const deviceCHID = req.body.DeviceCHID ?? "";
   const issuerID = req.body.IssuerID ?? "";
   const documentID = req.body.DocumentID ?? "";
   const documentSignature = req.body.DocumentSignature ?? "";
   const documentType = req.body.Type ?? "";
+  const api_token = req.body.api_token;
 
   try{
     console.log(`Called /generateProof with chid: ${deviceCHID}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(deviceCHID)
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
-    n = nonce++
-    printNonce(n)
-
-    const txResponse = await depositDeviceContract.generateGenericProof(deviceCHID, issuerID, documentID, documentSignature, documentType, {gasLimit:6721975,nonce:n})
+    const txResponse = await depositDeviceContract.generateGenericProof(deviceCHID, issuerID, documentID, documentSignature, documentType, {gasLimit:6721975})
     const txReceipt = await txResponse.wait()
     var args = getEvents(txReceipt, 'genericProof',depositDeviceIface)
     res.status(201);
@@ -264,31 +380,31 @@ app.post("/generateProof", async (req, res, next) => {
 
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/getProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
   try{
     console.log(`Called /getProofs with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(chid)
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json",wallet)
 
     const value = await depositDeviceContract.getGenericProofs();
     var data = []
@@ -312,32 +428,32 @@ app.post("/getProofs", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/getIssueProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
 
   try{
     console.log(`Called /getIssueProofs with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(chid)
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
     const value = await depositDeviceContract.getIssueProofs();
     var data = []
@@ -360,35 +476,31 @@ app.post("/getIssueProofs", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 app.post("/getRegisterProofsByCHID", async (req, res, next) => {
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
   try{
     console.log(`Called /getRegisterProofsByCHID with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(chid)
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = new ethers.Contract(
-      deviceAddress,
-      require('../../build/contracts/DepositDevice.json').abi,
-      signer
-    )
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
     const value = await depositDeviceContract.getRegisterProofs();
     var data = []
@@ -409,32 +521,32 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
 
 
 app.post("/getDeRegisterProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID;
+  const chid = req.body.DeviceCHID ?? "";
+  const api_token = req.body.api_token;
   try{
     console.log(`Called /getDeRegisterProofs with chid: ${chid}`)
 
+    const valid_token = await check_token(api_token)
+    if(!valid_token) throw new BadRequest("Invalid API token.")
+    const wallet = await get_wallet(api_token)
+
     var deviceAddress = await chid_to_deviceAdress(chid)
     if (!is_device_address_valid(deviceAddress)) {
-      res.status(406);
-      res.json({
-        status: "CHID not registered.",
-      })
       throw new BadRequest("CHID not registered.")
     }
 
-    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json")
+    const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
     const value = await depositDeviceContract.getDeRegisterProofs();
     var data = []
@@ -455,12 +567,11 @@ app.post("/getDeRegisterProofs", async (req, res, next) => {
     })
   }
   catch (e) {
-    if (e.message != "CHID not registered.") {
-      res.status(500);
-      res.json({
-        status: "Blockchain service error.",
-      })
-    }
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
     next(e)
   }
 })
