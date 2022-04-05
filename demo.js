@@ -13,8 +13,8 @@ const ereuse_api= "http://dlt.example.com:3005"
 
 function print_post_result(res, read){
     console.clear()
-    console.log("ERROR:  " + res + "\n\n\n");
-    if(res.data == undefined) console.log("\n " + res.response.data.status + " \n");
+    //console.log("ERROR:  " + res + "\n\n\n");
+    if(res.data == undefined) console.log(res.response.data.data);
     else {
         console.log("")
         if (!read)
@@ -27,7 +27,12 @@ function print_post_result(res, read){
 
 async function make_post(route,params){
     try{
-        return await axios.post(`${api_url}/${route}`, params)
+        dlt=["ethereum","iota","cosmos"]
+        return await axios.post(`${api_url}/${route}`, params, {
+            headers: {
+                 dlt: dlt
+                }
+            })
     }
     catch(err){
         return err

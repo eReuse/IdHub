@@ -1,0 +1,58 @@
+PS C:\Users\T4U\Desktop\iota\trublo_contracts_api\src\routes> node .\test-iota.js      
+Debugger attached.
+User {
+  doc: {
+    id: 'did:iota:2BzAkiw8ppLQHrcXEpdWYK4wGPCiWoVev8isJCGpDu8H',
+    authentication: [ [Object] ],
+    created: '2022-04-05T18:33:05Z',
+    updated: '2022-04-05T18:33:05Z',
+    proof: {
+      type: 'JcsEd25519Signature2020',
+      verificationMethod: '#key',
+      signatureValue: '2VEccvmwqjKjH4wHAAxUxAwS8Z6zv124KjJbdFJ12NcJgLEXkHBK53b1bgxNWuPbb8mhv74Vb5WK2GqmT9XvcMje'
+    }
+  },
+  key: {
+    type: 'ed25519',
+    public: 'EoKZc9R77ekvcfXaaDDdjj6e6Y4UU657y3hDKhUEVDqH',
+    secret: '8PYfr9L1FiMVXMYmKsTSbTVLCNVSsCNi44EHaiHXNt8Y',
+    encoding: 'base58'
+  }
+}
+Log Channel {
+  channelAddress: '35cf698467a14d14bee4895a353b92e66b156b8b0d90923d0906dab6d56d19600000000000000000:630427415b02b2c7dfeb2f58',
+  seed: 'immvcziyvsffxvowjyvhofrwgeilymlwceibbcoubzphqdfosllrdwjekpemdlqeuzynboqv'     
+}
+Channel address: 35cf698467a14d14bee4895a353b92e66b156b8b0d90923d0906dab6d56d19600000000000000000:630427415b02b2c7dfeb2f58
+Writing channel data 1
+Writing channel data 2
+Writing channel data 3
+Writing channel data 4
+Writing channel data 5
+Read from channel:
+{
+  created: '2022-04-05T18:36:38.856Z',
+  type: 'log',
+  payload: { log: 'This is log file #5' }
+}
+{
+  created: '2022-04-05T18:36:05.947Z',
+  type: 'log',
+  payload: { log: 'This is log file #4' }
+}
+{
+  created: '2022-04-05T18:35:47.698Z',
+  type: 'log',
+  payload: { log: 'This is log file #3' }
+}
+{
+  created: '2022-04-05T18:35:30.886Z',
+  type: 'log',
+  payload: { log: 'This is log file #2' }
+}
+{
+  created: '2022-04-05T18:35:07.886Z',
+  type: 'log',
+  payload: { log: 'This is log file #1' }
+}
+Waiting for the debugger to disconnect...

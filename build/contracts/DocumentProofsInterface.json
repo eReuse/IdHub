@@ -41,7 +41,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.25;\r\n\r\ncontract DocumentProofsInterface {\r\n    struct StampData{\r\n        uint256 timestamp;\r\n        bool stamp;\r\n    }\r\n    mapping(string => StampData) documents;\r\n\r\n    function stampDocument(string _hash) public;\r\n    function checkStamp(string _hash) \r\n    public view\r\n    returns(bool b);\r\n}\r\n",
-  "sourcePath": "C:\\Users\\T4U\\Desktop\\gitlab\\trublo_contracts_api\\contracts\\DocumentProofsInterface.sol",
+  "sourcePath": "C:\\Users\\T4U\\Desktop\\iota\\trublo_contracts_api\\contracts\\DocumentProofsInterface.sol",
   "ast": {
     "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
     "exportedSymbols": {
@@ -657,7 +657,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2022-02-15T14:04:01.578Z",
+  "updatedAt": "2022-04-05T17:31:04.462Z",
   "devdoc": {
     "methods": {}
   },

@@ -74,7 +74,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.25;\r\n\r\ncontract DeviceFactoryInterface {\r\n    mapping(address => address[]) deployed_devices;\r\n    mapping(string => address) translation;\r\n    address[] owners;\r\n    address[] devices;\r\n\r\n    //function transfer(address current_owner, address _new_owner) public;\r\n    function registerDevice(string _chid)public returns (address _device);\r\n    function registerOwner(address owner) internal;\r\n    function deleteOwnership(address owner) internal;\r\n    //function recycle(address _owner) public;\r\n    function getDeployedDevices() public view returns (address[] _deployed_devices);\r\n    function getAllDeployedDevices() public view returns (address[] _address);\r\n    function getAddressFromChid(string _chid) public view returns (address _address);\r\n}\r\n",
-  "sourcePath": "C:\\Users\\T4U\\Desktop\\gitlab\\trublo_contracts_api\\contracts\\DeviceFactoryInterface.sol",
+  "sourcePath": "C:\\Users\\T4U\\Desktop\\iota\\trublo_contracts_api\\contracts\\DeviceFactoryInterface.sol",
   "ast": {
     "absolutePath": "project:/contracts/DeviceFactoryInterface.sol",
     "exportedSymbols": {
@@ -1398,7 +1398,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2022-02-15T14:04:01.575Z",
+  "updatedAt": "2022-04-05T17:31:04.458Z",
   "devdoc": {
     "methods": {}
   },

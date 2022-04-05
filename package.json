@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@iota/is-client": "^0.1.2",
     "@truffle/hdwallet-provider": "^1.5.1",
     "axios": "^0.24.0",
     "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.0",
     "ethers": "^5.5.1",
     "express": "^4.17.1",
     "generate-api-key": "^1.0.0",

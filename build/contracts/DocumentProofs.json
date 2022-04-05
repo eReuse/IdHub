@@ -58,7 +58,7 @@
   "sourceMap": "133:647:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;133:647:3;;;;;;;",
   "deployedSourceMap": "133:647:3:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;;8:9:-1;5:2;;;30:1;27;20:12;5:2;362:267:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;651:126;;8:9:-1;5:2;;;30:1;27;20:12;5:2;651:126:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;416:27;;:::i;:::-;477:15;454:10;:20;;:38;;;;;522:4;503:10;:16;;:23;;;;;;;;;;;556:10;537:9;547:5;537:16;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;537:16:3;;;;;;;;;;;;;;;;;;;;;:29;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;582:39;593:5;600:10;:20;;;582:39;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;582:39:3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;362:267;;:::o;651:126::-;705:6;752:4;726:30;;:9;736:5;726:16;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;726:16:3;;;;;;;;;;;;;;;;;;;;;:22;;;;;;;;;;;;:30;;;723:46;;;765:4;758:11;;;;723:46;651:126;;;;:::o;133:647::-;;;;;;;;;;;;;;;;;;;;;;:::o",
   "source": "pragma solidity ^0.4.25;\r\n\r\n//import \"project:/contracts/DocumentProofsInterface.sol\";\r\nimport \"./DocumentProofsInterface.sol\";\r\n\r\n\r\ncontract DocumentProofs {\r\n    struct StampData{\r\n        uint256 timestamp;\r\n        bool stamp;\r\n    }\r\n    mapping(string => StampData) documents;\r\n\r\n    event stampProof(string _hash, uint256 timestamp);\r\n    //API DONE\r\n    function stampDocument(string _hash) public{\r\n        StampData memory stamp_data;\r\n        stamp_data.timestamp = block.timestamp;\r\n        stamp_data.stamp = true;\r\n        documents[_hash] = stamp_data;\r\n        emit stampProof(_hash, stamp_data.timestamp);\r\n    }\r\n    //API DONE\r\n    function checkStamp(string _hash) public view returns(bool b){\r\n        if(documents[_hash].stamp == true) return true;\r\n    }\r\n}",
-  "sourcePath": "C:\\Users\\T4U\\Desktop\\gitlab\\trublo_contracts_api\\contracts\\DocumentProofs.sol",
+  "sourcePath": "C:\\Users\\T4U\\Desktop\\iota\\trublo_contracts_api\\contracts\\DocumentProofs.sol",
   "ast": {
     "absolutePath": "project:/contracts/DocumentProofs.sol",
     "exportedSymbols": {
@@ -1836,6 +1836,12 @@
     "version": "0.4.26+commit.4563c3fc.Emscripten.clang"
   },
   "networks": {
+    "456": {
+      "events": {},
+      "links": {},
+      "address": "0xB8382aF4258E92c6c5Dc0dF840981e5CF4b27394",
+      "transactionHash": "0x2edb33a49bcb5005f85bfdd2918697e9fca253fe3f07fb65c23c4310067ecc77"
+    },
     "457": {
       "events": {},
       "links": {},
@@ -1850,7 +1856,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2022-02-15T14:04:07.241Z",
+  "updatedAt": "2022-04-05T17:31:09.548Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
