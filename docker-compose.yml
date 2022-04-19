@@ -1,8 +1,8 @@
 api: 
     build: ./
-    container_name: trubloDemo_api # name of the built image
+    container_name: trubloDemo_api_multiacc # name of the built image
     ports:
-      - "3005:3005"
+      - "3010:3010"
     restart: always
     volumes:
       - ./src:/home/node/app/src:rw
