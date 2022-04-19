@@ -36,7 +36,7 @@ app.use(
     extended: true,
   })
 )
-const port = 3005
+const port = 3010
 const host = "0.0.0.0"
 
 const DeviceFactory = require('../../build/contracts/DeviceFactory.json');
