@@ -3,7 +3,7 @@ const { defaultConfig } = require('./configuration-iota');
 const storage = require('node-persist');
 const {readFileSync} = require('fs');
 
-const identity_file= "./eReuse-test-30737-identity.json"
+const identity_file= "./adminIdentity.json"
 
 async function create_identity() {
     const identityClient = new IdentityClient(defaultConfig);

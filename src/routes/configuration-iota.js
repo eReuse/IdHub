@@ -3,6 +3,8 @@ const { ApiVersion, ClientConfig } =require('@iota/is-client');
 const dotenv = require('dotenv');
 
 dotenv.config();
+// TODO: This dotenv config should be updated. It picks up the .env file from the directory where the node command is called.
+// Thus, it will only get the correct data if the API is started from the src/routes directory. 👨‍🦲
 
 const defaultConfig = {
     isGatewayUrl: process.env.API_URL,

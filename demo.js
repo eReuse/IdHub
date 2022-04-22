@@ -7,9 +7,11 @@ const { SHA3 } = require('sha3');
 const axios = require('axios')
 var api_url
 //const abc3_api= "http://10.1.1.24:3005"
-const abc3_api= "http://127.0.0.1:3005"
-const abc4_api= "http://10.1.1.25:3005"
-const ereuse_api= "http://dlt.example.com:3005"
+const localhost_3005= "http://127.0.0.1:3005"
+const localhost_3010= "http://127.0.0.1:3010"
+const ereuse_api_3005= "http://dlt.example.com:3005"
+const ereuse_api_3010= "http://dlt.example.com:3010"
+
 
 function print_post_result(res, read){
     console.clear()
@@ -236,13 +238,15 @@ function menu(){
 
 async function main(){
     var select = rl.question(
-    "[1] abc3\n"+
-    "[2] abc4\n"+
-    "[3] ereuse\n"+
+    "[1] localhost:3005\n"+
+    "[2] localhost:3010\n"+
+    "[3] ereuse:3005\n"+
+    "[4] ereuse:3010\n"+
     "\nSelect endpoint: ")
-    if (select == 1) api_url=abc3_api
-    else if(select == 2) api_url = abc4_api
-    else api_url = ereuse_api
+    if (select == 1) api_url=localhost_3005
+    else if(select == 2) api_url = localhost_3010
+    else if (select == 3) api_url = ereuse_api_3005
+    else api_url = ereuse_api_3010
     console.clear()
     var option;
     while(true){

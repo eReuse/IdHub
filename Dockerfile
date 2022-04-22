@@ -8,4 +8,5 @@ RUN npm install express -save && npm install ethers --save && npm install crypto
 COPY --chown=node:node src ./src
 
 EXPOSE 3010
-CMD ["node", "./src/routes/devices.js"]
+WORKDIR /home/node/app/src/routes
+CMD ["node", "./devices.js"]
