@@ -6,6 +6,7 @@ const storage = require('node-persist');
 const generate = require('generate-api-key');
 const CryptoJS = require('crypto-js');
 const iota = require("./iota-helper")
+const ethereum = require("./ethereum-config.js")
 
 const ethereum_name = "ethereum"
 const iota_name = "iota"
@@ -36,38 +37,10 @@ app.use(
     extended: true,
   })
 )
-const port = 3010
-const host = "0.0.0.0"
 
-const DeviceFactory = require('../../build/contracts/DeviceFactory.json');
-//457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['456'].address;
-
-//const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
-const privateKey = "92ef10a0fdac0901d81e46fa42f6444645b0fb252cca8ae2a585f3fb2686fa2d"
-
-const deviceFactoryIface = new ethers.utils.Interface(
-  require('../../build/contracts/DeviceFactory.json').abi
-)
-const depositDeviceIface = new ethers.utils.Interface(
-  require('../../build/contracts/DepositDevice.json').abi
-)
-
-const provider = new ethers.providers.JsonRpcProvider(
-  "HTTP://10.1.3.30:8545"
-  //"HTTP://127.0.0.1:7545"
-)
-
-
-const signer = new ethers.Wallet(privateKey, provider)
-const defaultDeviceFactoryContract = new ethers.Contract(
-  DEVICEFACTORY_ADDRESS,
-  require('../../build/contracts/DeviceFactory.json').abi,
-  signer
-)
 var nonce
 
-signer.getTransactionCount().then(n => {
+ethereum.signer.getTransactionCount().then(n => {
   nonce = n
 })
 
@@ -76,7 +49,7 @@ app.get('/', (req, res) => {
 })
 
 async function chid_to_deviceAdress(chid){
-  var response =  await defaultDeviceFactoryContract.getAddressFromChid(chid)
+  var response =  await ethereum.defaultDeviceFactoryContract.getAddressFromChid(chid)
   return response
 }
 
@@ -123,7 +96,7 @@ async function get_wallet(token) {
   const item = await storage.getItem(split_token[0]);
 
   //skip check for undefined as this should only be called after checking the token validity
-  const wallet = new ethers.Wallet(item.eth_priv_key, provider)
+  const wallet = new ethers.Wallet(item.eth_priv_key, ethereum.provider)
   return wallet
 }
 
@@ -191,7 +164,7 @@ app.post("/registerUser", async (req, res, next) => {
       wallet = ethers.Wallet.createRandom()
     }
     else{
-      wallet = new ethers.Wallet(privateKey, provider)
+      wallet = new ethers.Wallet(privateKey, ethereum.provider)
     }
 
     //Creation of IOTA identity.
@@ -287,17 +260,15 @@ app.post("/registerDevice", async (req, res, next) => {
     if (dlt.includes(ethereum_name)) {
       try {
         const wallet = await get_wallet(api_token)
-
         var existingDeviceAddress = await chid_to_deviceAdress(chid)
         if (is_device_address_valid(existingDeviceAddress) || chid == "") {
           throw new BadRequest("Device already exists.")
         }
 
-        const deviceFactoryContract = createContract(DEVICEFACTORY_ADDRESS, "../../build/contracts/DeviceFactory.json", wallet)
-
+        const deviceFactoryContract = createContract(ethereum.DEVICEFACTORY_ADDRESS, "../../build/contracts/DeviceFactory.json", wallet)
         var txResponse = await deviceFactoryContract.registerDevice(chid, { gasLimit: 6721975 })
         var txReceipt = await txResponse.wait()
-        var args = getEvents(txReceipt, 'DeviceRegistered', deviceFactoryIface)
+        var args = getEvents(txReceipt, 'DeviceRegistered', ethereum.deviceFactoryIface)
 
         response_data.ethereum = {
           deviceAddress: args._deviceAddress,
@@ -307,6 +278,7 @@ app.post("/registerDevice", async (req, res, next) => {
         n_errors++
         console.log("ETHEREUM ERROR")
         const error_object = get_error_object(e.message)
+        //console.log(e.message)
         response_data.iota = {
           error: error_object.message
         }
@@ -356,7 +328,7 @@ app.post("/deRegisterDevice", async (req, res, next) => {
     var txResponse = await depositDeviceContract.deRegisterDevice(chid, {gasLimit:6721975})
     var txReceipt = await txResponse.wait()
 
-    var args = getEvents(txReceipt, 'deRegisterProof',depositDeviceIface)
+    var args = getEvents(txReceipt, 'deRegisterProof',ethereum.depositDeviceIface)
 
     res.status(201);
     res.json({
@@ -446,7 +418,7 @@ app.post("/issuePassport", async (req, res, next) => {
 
         const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, documentID, documentSignature, issuerID, { gasLimit: 6721975 })
         const txReceipt = await txResponse.wait()
-        var args = getEvents(txReceipt, 'issueProof', depositDeviceIface)
+        var args = getEvents(txReceipt, 'issueProof', ethereum.depositDeviceIface)
 
         response_data.ethereum = {
           timestamp: parseInt(Number(args.timestamp), 10)
@@ -543,7 +515,7 @@ app.post("/generateProof", async (req, res, next) => {
 
         const txResponse = await depositDeviceContract.generateGenericProof(deviceCHID, issuerID, documentID, documentSignature, documentType, { gasLimit: 6721975 })
         const txReceipt = await txResponse.wait()
-        var args = getEvents(txReceipt, 'genericProof', depositDeviceIface)
+        var args = getEvents(txReceipt, 'genericProof', ethereum.depositDeviceIface)
 
         response_data.ethereum = {
           timestamp: parseInt(Number(args.timestamp), 10)
@@ -893,8 +865,8 @@ app.post("/getDeRegisterProofs", async (req, res, next) => {
   }
 })
 
-app.listen(port, host, () => {
-  console.log(`Example app listening at http://${host}:${port}`)
+app.listen(ethereum.port, ethereum.host, () => {
+  console.log(`Example app listening at http://${ethereum.host}:${ethereum.port}`)
 })
 
 module.exports = app
