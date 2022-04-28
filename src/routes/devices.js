@@ -218,29 +218,40 @@ app.post("/invalidateUser", async (req, res, next) => {
 
 })
 
+class Parameters {
+  constructor(req) {
+    this.api_token = req.body.api_token ?? "";
+    this.deviceCHID = req.body.DeviceCHID ?? "";
+    this.deviceDPP = req.body.DeviceDPP ?? "";
+    this.documentID = req.body.DocumentID ?? "";
+    this.documentSignature = req.body.DocumentSignature ?? "";
+    this.issuerID = req.body.IssuerID ?? "";
+    this.type = req.body.Type ?? "";
+    this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
+  }
+}
 
 
 app.post("/registerDevice", async (req, res, next) => {
-  const dlt = get_dlt(req)
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
+
   var response_data ={}
   var n_errors = 0
   try{
-    console.log(`Called /registerDevice with chid: ${chid}`)
+    console.log(`Called /registerDevice with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
-        if ((await iota.lookup_device_channel(chid) != false) || chid == "") {
+        if ((await iota.lookup_device_channel(parameters.deviceCHID) != false) || parameters.deviceCHID == "") {
           throw new BadRequest("Device already exists.")
         }
 
-        var iota_creation_response = await iota.create_device_channel(iota_id, chid)
+        var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
 
         response_data.iota = {
           channelAddress: iota_creation_response.retChannel,
@@ -257,16 +268,16 @@ app.post("/registerDevice", async (req, res, next) => {
       }
     }
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
-        var existingDeviceAddress = await chid_to_deviceAdress(chid)
-        if (is_device_address_valid(existingDeviceAddress) || chid == "") {
+        const wallet = await get_wallet(parameters.api_token)
+        var existingDeviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
+        if (is_device_address_valid(existingDeviceAddress) || parameters.deviceCHID == "") {
           throw new BadRequest("Device already exists.")
         }
 
         const deviceFactoryContract = createContract(ethereum.DEVICEFACTORY_ADDRESS, "../../build/contracts/DeviceFactory.json", wallet)
-        var txResponse = await deviceFactoryContract.registerDevice(chid, { gasLimit: 6721975 })
+        var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, { gasLimit: 6721975 })
         var txReceipt = await txResponse.wait()
         var args = getEvents(txReceipt, 'DeviceRegistered', ethereum.deviceFactoryIface)
 
@@ -284,8 +295,6 @@ app.post("/registerDevice", async (req, res, next) => {
         }
       }
     }
-    
-
     
     res.status(201);
     if(n_errors>0){
@@ -306,18 +315,16 @@ app.post("/registerDevice", async (req, res, next) => {
 })
 
 app.post("/deRegisterDevice", async (req, res, next) => {
-
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
 
   try{
-    console.log(`Called /deRegisterDevice with chid: ${chid}`)
+    console.log(`Called /deRegisterDevice with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
-    const wallet = await get_wallet(api_token)
+    const wallet = await get_wallet(parameters.api_token)
 
-    var deviceAddress = await chid_to_deviceAdress(chid)
+    var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
 
     if (!is_device_address_valid(deviceAddress)) {
       throw new BadRequest("CHID not registered.")
@@ -325,7 +332,7 @@ app.post("/deRegisterDevice", async (req, res, next) => {
     
     const depositDeviceContract = createContract(deviceAddress,"../../build/contracts/DepositDevice.json", wallet)
 
-    var txResponse = await depositDeviceContract.deRegisterDevice(chid, {gasLimit:6721975})
+    var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, {gasLimit:6721975})
     var txReceipt = await txResponse.wait()
 
     var args = getEvents(txReceipt, 'deRegisterProof',ethereum.depositDeviceIface)
@@ -349,24 +356,17 @@ app.post("/deRegisterDevice", async (req, res, next) => {
 })
 
 app.post("/issuePassport", async (req, res, next) => {
-  const deviceDPP = req.body.DeviceDPP ?? "";
-  const documentID = req.body.DocumentID ?? "";
-  const documentSignature = req.body.DocumentSignature ?? "";
-  const issuerID = req.body.IssuerID ?? "";
-  const api_token = req.body.api_token;
-
+  const parameters = new Parameters(req)
   var response_data={}
   var n_errors=0
-
-  const dlt = get_dlt(req)
   
   try{
-    console.log(`Called /issuePassport with DPP: ${deviceDPP}`)
+    console.log(`Called /issuePassport with DPP: ${parameters.deviceDPP}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    var splitDeviceDPP = deviceDPP.split(":");
+    var splitDeviceDPP = parameters.deviceDPP.split(":");
     const deviceCHID = splitDeviceDPP[0];
     const devicePHID = splitDeviceDPP[1];
 
@@ -375,9 +375,9 @@ app.post("/issuePassport", async (req, res, next) => {
     }
 
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
         if ((await iota.lookup_device_channel(deviceCHID) == false)) {
           throw new BadRequest("CHID not registered.")
@@ -385,9 +385,9 @@ app.post("/issuePassport", async (req, res, next) => {
 
         var iota_timestamp = await iota.write_device_channel(iota_id, deviceCHID, "proof_of_issue", {
           DeviceDPP: `${deviceCHID}:${devicePHID}`,
-          IssuerID: issuerID,
-          DocumentID: documentID,
-          DocumentSignature: documentSignature
+          IssuerID: parameters.issuerID,
+          DocumentID: parameters.documentID,
+          DocumentSignature: parameters.documentSignature
         })
 
         response_data.iota = {
@@ -404,9 +404,9 @@ app.post("/issuePassport", async (req, res, next) => {
       }
     }
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
+        const wallet = await get_wallet(parameters.api_token)
 
         var deviceAddress = await chid_to_deviceAdress(deviceCHID)
 
@@ -416,7 +416,7 @@ app.post("/issuePassport", async (req, res, next) => {
 
         const depositDeviceContract = createContract(deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
 
-        const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, documentID, documentSignature, issuerID, { gasLimit: 6721975 })
+        const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, parameters.documentID, parameters.documentSignature, parameters.issuerID, { gasLimit: 6721975 })
         const txReceipt = await txResponse.wait()
         var args = getEvents(txReceipt, 'issueProof', ethereum.depositDeviceIface)
 
@@ -454,37 +454,29 @@ app.post("/issuePassport", async (req, res, next) => {
 })
 
 app.post("/generateProof", async (req, res, next) => {
-  const deviceCHID = req.body.DeviceCHID ?? "";
-  const issuerID = req.body.IssuerID ?? "";
-  const documentID = req.body.DocumentID ?? "";
-  const documentSignature = req.body.DocumentSignature ?? "";
-  const documentType = req.body.Type ?? "";
-  const api_token = req.body.api_token;
-
+  const parameters = new Parameters(req)
   var response_data={}
   var n_errors=0
 
-  const dlt = get_dlt(req)
-
   try{
-    console.log(`Called /generateProof with chid: ${deviceCHID}`)
+    console.log(`Called /generateProof with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
-        if ((await iota.lookup_device_channel(deviceCHID) == false)) {
+        if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
           throw new BadRequest("CHID not registered.")
         }
 
-        var iota_timestamp = await iota.write_device_channel(iota_id, deviceCHID, "generic_proof", {
-          IssuerID: issuerID,
-          DocumentID: documentID,
-          DocumentSignature: documentSignature,
-          DocumentType: documentType
+        var iota_timestamp = await iota.write_device_channel(iota_id, parameters.deviceCHID, "generic_proof", {
+          IssuerID: parameters.issuerID,
+          DocumentID: parameters.documentID,
+          DocumentSignature: parameters.documentSignature,
+          DocumentType: parameters.type
         })
 
         response_data.iota = {
@@ -502,18 +494,18 @@ app.post("/generateProof", async (req, res, next) => {
     }
 
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
+        const wallet = await get_wallet(parameters.api_token)
 
-        var deviceAddress = await chid_to_deviceAdress(deviceCHID)
+        var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
         if (!is_device_address_valid(deviceAddress)) {
           throw new BadRequest("CHID not registered.")
         }
 
         const depositDeviceContract = createContract(deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
 
-        const txResponse = await depositDeviceContract.generateGenericProof(deviceCHID, issuerID, documentID, documentSignature, documentType, { gasLimit: 6721975 })
+        const txResponse = await depositDeviceContract.generateGenericProof(parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type, { gasLimit: 6721975 })
         const txReceipt = await txResponse.wait()
         var args = getEvents(txReceipt, 'genericProof', ethereum.depositDeviceIface)
 
@@ -550,28 +542,26 @@ app.post("/generateProof", async (req, res, next) => {
 })
 
 app.post("/getProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
 
-  var dlt = get_dlt(req)
   var response_data={}
   var n_errors = 0
 
   try{
-    console.log(`Called /getProofs with chid: ${chid}`)
+    console.log(`Called /getProofs with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
-        if ((await iota.lookup_device_channel(chid) == false)) {
+        if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
           throw new BadRequest("CHID not registered.")
         }
 
-        var iota_proofs = await iota.read_device_generic_proofs(iota_id, chid)
+        var iota_proofs = await iota.read_device_generic_proofs(iota_id, parameters.deviceCHID)
 
         response_data.iota = iota_proofs
       } catch (e) {
@@ -585,11 +575,11 @@ app.post("/getProofs", async (req, res, next) => {
       }
     }
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
+        const wallet = await get_wallet(parameters.api_token)
 
-        var deviceAddress = await chid_to_deviceAdress(chid)
+        var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
         if (!is_device_address_valid(deviceAddress)) {
           throw new BadRequest("CHID not registered.")
         }
@@ -640,28 +630,26 @@ app.post("/getProofs", async (req, res, next) => {
 })
 
 app.post("/getIssueProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
 
-  var dlt = get_dlt(req)
   var response_data={}
   var n_errors = 0
 
   try{
-    console.log(`Called /getIssueProofs with chid: ${chid}`)
+    console.log(`Called /getIssueProofs with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
-        if ((await iota.lookup_device_channel(chid) == false)) {
+        if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
           throw new BadRequest("CHID not registered.")
         }
 
-        var iota_proofs = await iota.read_device_proofs_of_issue(iota_id, chid)
+        var iota_proofs = await iota.read_device_proofs_of_issue(iota_id, parameters.deviceCHID)
 
         response_data.iota = iota_proofs
       } catch (e) {
@@ -676,11 +664,11 @@ app.post("/getIssueProofs", async (req, res, next) => {
     }
 
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
+        const wallet = await get_wallet(parameters.api_token)
 
-        var deviceAddress = await chid_to_deviceAdress(chid)
+        var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
         if (!is_device_address_valid(deviceAddress)) {
           throw new BadRequest("CHID not registered.")
         }
@@ -732,28 +720,26 @@ app.post("/getIssueProofs", async (req, res, next) => {
 })
 
 app.post("/getRegisterProofsByCHID", async (req, res, next) => {
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
 
-  var dlt = get_dlt(req)
   var response_data={}
   var n_errors = 0
 
   try{
-    console.log(`Called /getRegisterProofsByCHID with chid: ${chid}`)
+    console.log(`Called /getRegisterProofsByCHID with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (dlt.includes(iota_name)) {
+    if (parameters.dlt.includes(iota_name)) {
       try {
-        const iota_id = await get_iota_id(api_token)
+        const iota_id = await get_iota_id(parameters.api_token)
 
-        if ((await iota.lookup_device_channel(chid) == false)) {
+        if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
           throw new BadRequest("CHID not registered.")
         }
 
-        var iota_proofs = await iota.read_device_proofs_of_register(iota_id, chid)
+        var iota_proofs = await iota.read_device_proofs_of_register(iota_id, parameters.deviceCHID)
 
         response_data.iota = iota_proofs
       } catch (e) {
@@ -767,11 +753,11 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
       }
     }
 
-    if (dlt.includes(ethereum_name)) {
+    if (parameters.dlt.includes(ethereum_name)) {
       try {
-        const wallet = await get_wallet(api_token)
+        const wallet = await get_wallet(parameters.api_token)
 
-        var deviceAddress = await chid_to_deviceAdress(chid)
+        var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
         if (!is_device_address_valid(deviceAddress)) {
           throw new BadRequest("CHID not registered.")
         }
@@ -821,16 +807,16 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
 
 
 app.post("/getDeRegisterProofs", async (req, res, next) => {
-  const chid = req.body.DeviceCHID ?? "";
-  const api_token = req.body.api_token;
+  const parameters = new Parameters(req)
+
   try{
-    console.log(`Called /getDeRegisterProofs with chid: ${chid}`)
+    console.log(`Called /getDeRegisterProofs with chid: ${parameters.deviceCHID}`)
 
-    const valid_token = await check_token(api_token)
+    const valid_token = await check_token(parameters.api_token)
     if(!valid_token) throw new BadRequest("Invalid API token.")
-    const wallet = await get_wallet(api_token)
+    const wallet = await get_wallet(parameters.api_token)
 
-    var deviceAddress = await chid_to_deviceAdress(chid)
+    var deviceAddress = await chid_to_deviceAdress(parameters.deviceCHID)
     if (!is_device_address_valid(deviceAddress)) {
       throw new BadRequest("CHID not registered.")
     }
