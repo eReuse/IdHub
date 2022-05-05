@@ -8,7 +8,7 @@ const DeviceFactory = require('../../build/contracts/DeviceFactory.json');
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['5777'].address;
 
 //const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
-const privateKey = "164321cad14fa8aca97b8646c15b87a12e736bbc014669d1a1ec2f0fd361f6da"
+const privateKey = "b813a6eff9690df98380d0d82d4e3ae3e8577658df997ec0352a996ca9ffd98a"
 
 const deviceFactoryIface = new ethers.utils.Interface(
   require('../../build/contracts/DeviceFactory.json').abi
@@ -29,13 +29,12 @@ const defaultDeviceFactoryContract = new ethers.Contract(
   signer
 )
 module.exports = {
-    port: port,
-    host: host,
-    DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
-    deviceFactoryIface: deviceFactoryIface,
-    depositDeviceIface: depositDeviceIface,
-    provider: provider,
-    signer: signer,
-    defaultDeviceFactoryContract: defaultDeviceFactoryContract
-
- }
+  port: port,
+  host: host,
+  DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
+  deviceFactoryIface: deviceFactoryIface,
+  depositDeviceIface: depositDeviceIface,
+  provider: provider,
+  signer: signer,
+  defaultDeviceFactoryContract: defaultDeviceFactoryContract
+}

@@ -29,7 +29,7 @@ function print_post_result(res, read){
 
 async function make_post(route,params){
     try{
-        dlt=["ethereum","iota","cosmos"]
+        dlt=["iota"]
         return await axios.post(`${api_url}/${route}`, params, {
             headers: {
                  dlt: dlt
