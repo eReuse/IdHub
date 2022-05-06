@@ -8,7 +8,7 @@ const DeviceFactory = require('../../build/contracts/DeviceFactory.json');
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['5777'].address;
 
 //const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
-const privateKey = "b813a6eff9690df98380d0d82d4e3ae3e8577658df997ec0352a996ca9ffd98a"
+const privateKey = "3298c8006c8dde10145ccde860539f79fce2e3ddc900c9c4b6769d38f09e8b63"
 
 const deviceFactoryIface = new ethers.utils.Interface(
   require('../../build/contracts/DeviceFactory.json').abi

@@ -23,19 +23,9 @@ app.use(
   })
 )
 
-var nonce
-
-ethereum.signer.getTransactionCount().then(n => {
-  nonce = n
-})
-
 app.get('/', (req, res) => {
   res.send('EREUSE API')
 })
-
-function printNonce(n) {
-  console.log(`Nonce: ${n}`)
-}
 
 function get_error_object(error) {
   switch (error) {
@@ -253,7 +243,6 @@ app.post("/deRegisterDevice", async (req, res, next) => {
 app.post("/issuePassport", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
-  var n_errors = 0
 
   try {
     console.log(`Called /issuePassport with DPP: ${parameters.deviceDPP}`)
@@ -266,7 +255,7 @@ app.post("/issuePassport", async (req, res, next) => {
     const deviceCHID = splitDeviceDPP[0];
     const devicePHID = splitDeviceDPP[1];
 
-    if (devicePHID == "" || splitDeviceDPP.length < 2) {
+    if (devicePHID == "" || splitDeviceDPP.length != 2) {
       throw new BadRequest("Incorrect DPP format.")
     }
 
@@ -289,7 +278,7 @@ app.post("/issuePassport", async (req, res, next) => {
       }
     }
 
-    if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt.includes(ethereum_name)) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(deviceCHID)
@@ -330,7 +319,6 @@ app.post("/issuePassport", async (req, res, next) => {
 app.post("/generateProof", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
-  var n_errors = 0
 
   try {
     console.log(`Called /generateProof with chid: ${parameters.deviceCHID}`)
@@ -358,7 +346,7 @@ app.post("/generateProof", async (req, res, next) => {
       }
     }
 
-    if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt.includes(ethereum_name)) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -398,7 +386,6 @@ app.post("/generateProof", async (req, res, next) => {
 app.post("/getProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
-  var n_errors = 0
 
   try {
     console.log(`Called /getProofs with chid: ${parameters.deviceCHID}`)
@@ -419,7 +406,7 @@ app.post("/getProofs", async (req, res, next) => {
       response_data = iota_proofs
     }
 
-    if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt.includes(ethereum_name)) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -466,7 +453,6 @@ app.post("/getProofs", async (req, res, next) => {
 app.post("/getIssueProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
-  var n_errors = 0
 
   try {
     console.log(`Called /getIssueProofs with chid: ${parameters.deviceCHID}`)
@@ -487,7 +473,7 @@ app.post("/getIssueProofs", async (req, res, next) => {
     }
 
 
-    if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt.includes(ethereum_name)) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -534,7 +520,6 @@ app.post("/getIssueProofs", async (req, res, next) => {
 app.post("/getRegisterProofsByCHID", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
-  var n_errors = 0
 
   try {
     console.log(`Called /getRegisterProofsByCHID with chid: ${parameters.deviceCHID}`)
@@ -555,7 +540,7 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
       response_data = iota_proofs
     }
 
-    if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt.includes(ethereum_name)) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)

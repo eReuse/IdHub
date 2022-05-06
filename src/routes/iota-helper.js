@@ -189,10 +189,11 @@ async function check_iota_index() {
     await storage.init()
     try {
         if (await storage.getItem("iota-index-channel") == undefined) {
-            let channel = await iota.create_index_channel('eReuse-test-index-' + Math.ceil(Math.random() * 100000))
+            let channel = await create_index_channel('eReuse-test-index-' + Math.ceil(Math.random() * 100000))
             await storage.setItem("iota-index-channel", channel)
         }
     } catch (e) {
+        console.log(e)
         console.log("WARNING: Couldn't create iota index channel!")
     }
 }
