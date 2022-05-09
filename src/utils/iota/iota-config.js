@@ -11,7 +11,6 @@ const defaultConfig = {
     apiKey: process.env.API_KEY,
     apiVersion: ApiVersion.v01
 };
-
 module.exports = {defaultConfig};
 // export const defaultManagerConfig: ManagerConfig = {
 //     mongoURL: process.env.MONGO_URL!,

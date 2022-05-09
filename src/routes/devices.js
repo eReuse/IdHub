@@ -1,12 +1,12 @@
-const express = require('express')
-const ethers = require("ethers")
+const express = require('express'),
+router = express.Router();
+
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
-var bodyParser = require('body-parser')
-const storage = require('node-persist');
-const iota = require("./iota-helper")
-const ethereum = require("./ethereum-config.js")
-const ethHelper = require("./ethereum-helper.js")
-const multiacc = require("./multiacc-helper.js")
+const iota = require("../utils/iota/iota-helper.js")
+const ethereum = require("../utils/ethereum/ethereum-config.js")
+const ethHelper = require("../utils/ethereum/ethereum-helper.js")
+const multiacc = require("../utils/multiacc-helper.js");
+
 
 const ethereum_name = "ethereum"
 const iota_name = "iota"
@@ -14,18 +14,6 @@ const cosmos_name = "cosmos"
 
 
 iota.check_iota_index()
-
-const app = express()
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-)
-
-app.get('/', (req, res) => {
-  res.send('EREUSE API')
-})
 
 function get_error_object(error) {
   switch (error) {
@@ -45,69 +33,6 @@ function get_error_object(error) {
   return { code: 500, message: "Blockchain service error." }
 }
 
-app.post("/registerUser", async (req, res, next) => {
-  const privateKey = req.body.privateKey ?? ""
-  var wallet
-  try {
-    console.log(`Called /registerUser`)
-    const token_object = multiacc.generate_token()
-    if (privateKey == "") {
-      wallet = ethers.Wallet.createRandom()
-    }
-    else {
-      wallet = new ethers.Wallet(privateKey, ethereum.provider)
-    }
-
-    //Creation of IOTA identity.
-    //TODO: check if it's provided in request.
-    var iota_id = await iota.create_identity()
-
-    await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id })
-    res.json({
-      status: "Success.",
-      data: {
-        api_token: token_object.token,
-        eth_pub_key: wallet.address,
-        eth_priv_key: wallet.privateKey,
-        iota_id: iota_id
-      }
-    })
-  }
-  catch (e) {
-    const error_object = get_error_object("Couldn't register the user.")
-    res.status(error_object.code);
-    res.json({
-      status: error_object.message,
-    })
-    next(e)
-  }
-
-})
-
-app.post("/invalidateUser", async (req, res, next) => {
-  const api_token = req.body.api_token;
-  try {
-    console.log(`Called /invalidateUser`)
-    const deleted = await multiacc.delete_token(api_token)
-    if (!deleted) throw new BadRequest("Invalid API token.")
-    res.json({
-      status: "Success.",
-      data: {
-        deleted_token: api_token
-      }
-    })
-  }
-  catch (e) {
-    const error_object = get_error_object("Couldn't invalidate the user.")
-    res.status(error_object.code);
-    res.json({
-      status: error_object.message,
-    })
-    next(e)
-  }
-
-})
-
 class Parameters {
   constructor(req) {
     this.api_token = req.body.api_token ?? "";
@@ -117,15 +42,16 @@ class Parameters {
     this.documentSignature = req.body.DocumentSignature ?? "";
     this.issuerID = req.body.IssuerID ?? "";
     this.type = req.body.Type ?? "";
-    this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
+    this.dlt = req.headers.dlt ?? "";
+    //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
   }
 }
 
 function check_dlt(dlt) {
-  if (dlt.length != 1) {
-    throw new BadRequest("Can only call one DLT at a time.")
-  }
-  else if (!dlt.includes("iota") && !dlt.includes("ethereum")) {
+  // if (dlt.length != 1) {
+  //   throw new BadRequest("Can only call one DLT at a time.")
+  // }
+  if (!dlt == iota_name && !dlt == ethereum_name) {
     throw new BadRequest("Invalid DLT identifier")
   }
 }
@@ -136,7 +62,13 @@ function check_undefined_params(params) {
   }
 }
 
-app.post("/registerDevice", async (req, res, next) => {
+router
+
+.get('/', (req, res) => {
+  res.send('EREUSE API')
+})
+
+.post("/registerDevice", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
   try {
@@ -147,7 +79,7 @@ app.post("/registerDevice", async (req, res, next) => {
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) != false)) {
@@ -161,7 +93,7 @@ app.post("/registerDevice", async (req, res, next) => {
       }
     }
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
       var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
       if (ethHelper.is_device_address_valid(existingDeviceAddress)) {
@@ -169,7 +101,7 @@ app.post("/registerDevice", async (req, res, next) => {
       }
 
       const deviceFactoryContract = ethHelper.createContract
-      (ethereum.DEVICEFACTORY_ADDRESS, "../../build/contracts/DeviceFactory.json", wallet)
+      (ethereum.DEVICEFACTORY_ADDRESS, "../../../build/contracts/DeviceFactory.json", wallet)
       var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, { gasLimit: 6721975 })
       var txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
@@ -197,7 +129,7 @@ app.post("/registerDevice", async (req, res, next) => {
   }
 })
 
-app.post("/deRegisterDevice", async (req, res, next) => {
+.post("/deRegisterDevice", async (req, res, next) => {
   const parameters = new Parameters(req)
 
   try {
@@ -215,7 +147,7 @@ app.post("/deRegisterDevice", async (req, res, next) => {
     }
 
     const depositDeviceContract = ethHelper.createContract
-    (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+    (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
     var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975 })
     var txReceipt = await txResponse.wait()
@@ -240,7 +172,7 @@ app.post("/deRegisterDevice", async (req, res, next) => {
   }
 })
 
-app.post("/issuePassport", async (req, res, next) => {
+.post("/issuePassport", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
@@ -259,7 +191,7 @@ app.post("/issuePassport", async (req, res, next) => {
       throw new BadRequest("Incorrect DPP format.")
     }
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(deviceCHID) == false)) {
@@ -278,7 +210,7 @@ app.post("/issuePassport", async (req, res, next) => {
       }
     }
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(deviceCHID)
@@ -288,7 +220,7 @@ app.post("/issuePassport", async (req, res, next) => {
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, parameters.documentID, parameters.documentSignature, parameters.issuerID, { gasLimit: 6721975 })
       const txReceipt = await txResponse.wait()
@@ -316,7 +248,7 @@ app.post("/issuePassport", async (req, res, next) => {
   }
 })
 
-app.post("/generateProof", async (req, res, next) => {
+.post("/generateProof", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
@@ -327,7 +259,7 @@ app.post("/generateProof", async (req, res, next) => {
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
@@ -346,7 +278,7 @@ app.post("/generateProof", async (req, res, next) => {
       }
     }
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -355,7 +287,7 @@ app.post("/generateProof", async (req, res, next) => {
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       const txResponse = await depositDeviceContract.generateGenericProof(parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type, { gasLimit: 6721975 })
       const txReceipt = await txResponse.wait()
@@ -383,7 +315,7 @@ app.post("/generateProof", async (req, res, next) => {
   }
 })
 
-app.post("/getProofs", async (req, res, next) => {
+.post("/getProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
@@ -394,7 +326,7 @@ app.post("/getProofs", async (req, res, next) => {
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
@@ -406,7 +338,7 @@ app.post("/getProofs", async (req, res, next) => {
       response_data = iota_proofs
     }
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -415,7 +347,7 @@ app.post("/getProofs", async (req, res, next) => {
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       const value = await depositDeviceContract.getGenericProofs();
       var data = []
@@ -450,7 +382,7 @@ app.post("/getProofs", async (req, res, next) => {
   }
 })
 
-app.post("/getIssueProofs", async (req, res, next) => {
+.post("/getIssueProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
@@ -461,7 +393,7 @@ app.post("/getIssueProofs", async (req, res, next) => {
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
@@ -473,7 +405,7 @@ app.post("/getIssueProofs", async (req, res, next) => {
     }
 
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -482,7 +414,7 @@ app.post("/getIssueProofs", async (req, res, next) => {
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       const value = await depositDeviceContract.getIssueProofs();
       var data = []
@@ -517,7 +449,7 @@ app.post("/getIssueProofs", async (req, res, next) => {
   }
 })
 
-app.post("/getRegisterProofsByCHID", async (req, res, next) => {
+.post("/getRegisterProofsByCHID", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
@@ -528,7 +460,7 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt.includes(iota_name)) {
+    if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
@@ -540,7 +472,7 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
       response_data = iota_proofs
     }
 
-    else if (parameters.dlt.includes(ethereum_name)) {
+    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -549,7 +481,7 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       const value = await depositDeviceContract.getRegisterProofs();
       var data = []
@@ -582,7 +514,7 @@ app.post("/getRegisterProofsByCHID", async (req, res, next) => {
   }
 })
 
-app.post("/getDeRegisterProofs", async (req, res, next) => {
+.post("/getDeRegisterProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
 
   try {
@@ -599,7 +531,7 @@ app.post("/getDeRegisterProofs", async (req, res, next) => {
     }
 
     const depositDeviceContract = ethHelper.createContract
-    (deviceAddress, "../../build/contracts/DepositDevice.json", wallet)
+    (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
     const value = await depositDeviceContract.getDeRegisterProofs();
     var data = []
@@ -629,8 +561,11 @@ app.post("/getDeRegisterProofs", async (req, res, next) => {
   }
 })
 
-app.listen(ethereum.port, ethereum.host, () => {
-  console.log(`Example app listening at http://${ethereum.host}:${ethereum.port}`)
-})
+// const port = 3010
+// const host = "0.0.0.0"
 
-module.exports = app
+// app.listen(port, host, () => {
+//   console.log(`Example app listening at http://${host}:${port}`)
+// })
+
+module.exports = router

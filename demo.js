@@ -6,6 +6,7 @@ const rl = require("readline-sync");
 const { SHA3 } = require('sha3');
 const axios = require('axios')
 var api_url
+var dlt
 //const abc3_api= "http://10.1.1.24:3005"
 const localhost_3005= "http://127.0.0.1:3005"
 const localhost_3010= "http://127.0.0.1:3010"
@@ -29,7 +30,6 @@ function print_post_result(res, read){
 
 async function make_post(route,params){
     try{
-        dlt=["ethereum"]
         return await axios.post(`${api_url}/${route}`, params, {
             headers: {
                  dlt: dlt
@@ -247,6 +247,15 @@ async function main(){
     else if(select == 2) api_url = localhost_3010
     else if (select == 3) api_url = ereuse_api_3005
     else api_url = ereuse_api_3010
+    console.clear()
+
+    var selectDLT = rl.question(
+    "[1] EREUSE Ethereum\n"+
+    "[2] IOTA\n"+
+    "\nSelect DLT: ")
+    if (selectDLT == 1) dlt = "ethereum"
+    else if(selectDLT == 2) dlt = "iota"    
+    
     console.clear()
     var option;
     while(true){

@@ -1,9 +1,11 @@
 const { IdentityClient, CredentialTypes, UserType, IdentityJson, ChannelClient, AccessRights } = require('@iota/is-client');
-const { defaultConfig } = require('./configuration-iota');
+const { defaultConfig } = require('./iota-config');
 const storage = require('node-persist');
 const { readFileSync } = require('fs');
 
+const relPath = process.cwd() + "/../utils/iota/";
 const identity_file = "./adminIdentity.json"
+const identity_path = relPath + identity_file;
 
 async function create_identity() {
     const identityClient = new IdentityClient(defaultConfig);
@@ -17,7 +19,7 @@ async function create_identity() {
 async function create_device_channel(userIdentity, chid) {
     const channelClient = new ChannelClient(defaultConfig);
     const channelClientUser = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_file).toString());
+    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
     await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
     await channelClientUser.authenticate(userIdentity.doc.id, userIdentity.key.secret);
 
@@ -59,7 +61,8 @@ async function create_device_channel(userIdentity, chid) {
 
 async function create_index_channel(channelName) {
     const channelClient = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_file).toString());
+    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
+    console.log(identity_path)
     await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
 
     console.log("Creating index channel...")
@@ -158,7 +161,7 @@ async function read_device_proofs_of_register(userIdentity, chid) {
 
 async function lookup_device_channel(chid) {
     const channelClient = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_file).toString());
+    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
     await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
 
     console.log("Looking up device address in index channel...")
