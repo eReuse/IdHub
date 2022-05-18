@@ -79,6 +79,7 @@ async function generateProof(){
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
         Type: rl.question("Document type: "),
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("generateProof",params)
@@ -131,6 +132,7 @@ async function getRecycleProofs(){
 async function getProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getProofs",params)
@@ -140,6 +142,7 @@ async function getProofs(){
 async function getIssueProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getIssueProofs",params)
@@ -149,6 +152,7 @@ async function getIssueProofs(){
 async function getRegisterProofsByCHID(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getRegisterProofsByCHID",params)
@@ -199,6 +203,7 @@ async function issuePassport(){
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
         IssuerID: rl.question("IssuerID: "), 
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("issuePassport",params)
@@ -221,6 +226,15 @@ async function invalidateUser(){
     print_post_result(res,false)
 }
 
+async function requestCredential(){
+    params = {
+        CredentialType: rl.question("Credential type: "),
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("requestCredential",params)
+    print_post_result(res,false)
+}
+
 function menu(){
     return "[1] Register device.\n"+
     "[2] Issue a new passport.\n"+
@@ -232,6 +246,7 @@ function menu(){
     "[8] Get deRegister proof.\n"+
     "[9] Register new user.\n"+
     "[a] Invalidate user.\n" +
+    "[b] Request credential.\n" +
     "\nChoose an option:" 
     
 }
@@ -291,6 +306,9 @@ async function main(){
                 break;
             case 'a':
                 await invalidateUser()
+                break;
+            case 'b':
+                await requestCredential()
                 break;
         }
     }  

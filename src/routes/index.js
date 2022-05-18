@@ -14,6 +14,7 @@ const host = "0.0.0.0"
 
 app.use("/", require("./devices"))
 app.use("/", require("./api_management"))
+app.use("/", require("./credentials"))
 
 app.listen(port, host, () => {
     console.log(`Example app listening at http://${host}:${port}`)

@@ -1,14 +1,28 @@
-const { IdentityClient, CredentialTypes, UserType, IdentityJson, ChannelClient, AccessRights } = require('@iota/is-client');
+const { IdentityClient, CredentialTypes, UserType, IdentityJson, ChannelClient, AccessRights } =require('@iota/is-client');
+const { DppClient, toDppIdentity } = require('@iota/is-ict-dpp');
 const { defaultConfig } = require('./iota-config');
 const storage = require('node-persist');
-const { readFileSync } = require('fs');
+const {readFileSync} = require('fs');
 
 const relPath = process.cwd() + "/../utils/iota/";
 const identity_file = "./adminIdentity.json"
 const identity_path = relPath + identity_file;
+const managerIdentityJSON= JSON.parse(readFileSync(identity_path).toString());
+const managerIdentity = toDppIdentity(managerIdentityJSON)
+
+const dppClient = new DppClient(defaultConfig);
+const deviceService = dppClient.devices();
+const identityService = dppClient.identities();
+const eventService = dppClient.events();
+
+const identityClient = new IdentityClient(defaultConfig);
+
+
+function get_timestamp(){
+    return parseInt((new Date().getTime() / 1000).toFixed(0))
+}
 
 async function create_identity() {
-    const identityClient = new IdentityClient(defaultConfig);
     const username = 'eReuse-test-user-' + Math.ceil(Math.random() * 100000);
     console.log("Creating user identity...")
     const userIdentity = await identityClient.create(username);
@@ -17,53 +31,25 @@ async function create_identity() {
 }
 
 async function create_device_channel(userIdentity, chid) {
-    const channelClient = new ChannelClient(defaultConfig);
-    const channelClientUser = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
-    await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
-    await channelClientUser.authenticate(userIdentity.doc.id, userIdentity.key.secret);
-
-    console.log("Creating device channel...")
-    const logChannel = await channelClient.create({
-        name: chid,
-        topics: [{ type: 'eReuse-device', source: chid }]
-    });
-    console.log("Channel created with address: " + logChannel.channelAddress)
-
-    console.log("Requesting access...")
-    await channelClientUser.requestSubscription(logChannel.channelAddress, {
-        accessRights: AccessRights.ReadAndWrite
-    });
-
-    console.log("Granting access...")
-    await channelClient.authorizeSubscription(logChannel.channelAddress, {
-        id: userIdentity.doc.id
-    });
-
-    console.log("Access granted.")
-
-    var timestamp = parseInt((new Date().getTime() / 1000).toFixed(0))
-
-    console.log("Writing proof of register...")
-    await channelClientUser.write(logChannel.channelAddress, {
+    await storage.init()
+    const index_channel = await storage.getItem("iota-index-channel")
+    var timestamp = get_timestamp()
+    const { channelAddress, verifiableCredential } = await deviceService.registerDevice({
+        managerIdentity: managerIdentity,
+        ownerIdentity: toDppIdentity(userIdentity),
+        credentialType: dppClient.getOwnershipCredentialType(),
+        indexChannelAddress: index_channel.channelAddress,
         type: 'proof_of_register',
-        created: new Date().toISOString(),
-        payload: { chid: chid, timestamp: timestamp }
-    })
-    console.log("Proof of register written.")
+        chId: chid,
+        payload: { chid:chid, timestamp: timestamp },
+    });
 
-    await write_index_channel(chid, channelClient, logChannel.channelAddress)
-
-    let retChannel = logChannel.channelAddress
-
-    return { retChannel, timestamp }
+    return { channelAddress, verifiableCredential, timestamp }
 }
 
 async function create_index_channel(channelName) {
     const channelClient = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
-    console.log(identity_path)
-    await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
+    await channelClient.authenticate(managerIdentity.did, managerIdentity.secretKey);
 
     console.log("Creating index channel...")
     const logChannel = await channelClient.create({
@@ -75,52 +61,62 @@ async function create_index_channel(channelName) {
     return logChannel
 }
 
-async function write_device_channel(userIdentity, chid, type, payload) {
-    const channelClient = new ChannelClient(defaultConfig);
-    await channelClient.authenticate(userIdentity.doc.id, userIdentity.key.secret);
-
+async function write_device_channel(userIdentity, credential, chid, type, payload) {
+    let owner_mode = false
+    if (credential.credentialSubject?.role == undefined) owner_mode = true
     const channelAddress = await lookup_device_channel(chid)
 
-    payload.timestamp = parseInt((new Date().getTime() / 1000).toFixed(0))
+    payload.timestamp = get_timestamp()
 
     console.log("Writing proof to device channel...")
-    await channelClient.write(channelAddress, {
-        type: type,
-        created: new Date().toISOString(),
-        payload: payload
-    })
+    if (owner_mode){
+        await eventService.writeOnChannel({
+            channelAddress: channelAddress,
+            payload: payload,
+            subjectIdentity: toDppIdentity(userIdentity),
+            credential: credential,
+            type: type
+        })
+    }
+    else {
+        await eventService.oneShotWrite({
+            managerIdentity: managerIdentity,
+            subjectIdentity: toDppIdentity(userIdentity),
+            payload: payload,
+            channelAddress: channelAddress,
+            credential: credential,
+            type: type
+        })
+    }
     console.log("Proof written.")
 
     return payload.timestamp
 }
 
-async function write_index_channel(chid, channelClient, deviceChannel) {
-    console.log("Writing index to index channel...")
-    await storage.init()
-    const index_channel = await storage.getItem("iota-index-channel")
-    const channelAddress = index_channel.channelAddress
-    await channelClient.write(channelAddress, {
-        type: "index",
-        created: new Date().toISOString(),
-        payload: { chid: chid, channelAddress: deviceChannel }
-    })
-    console.log("Index written.")
-}
-
-async function read_device_channel(userIdentity, chid) {
-    const channelClient = new ChannelClient(defaultConfig);
-    await channelClient.authenticate(userIdentity.doc.id, userIdentity.key.secret);
+async function read_device_channel(userIdentity, credential, chid) {
+    let owner_mode = false
+    if (credential.credentialSubject?.role == undefined) owner_mode = true
 
     const channelAddress = await lookup_device_channel(chid)
+    let channelData;
 
     console.log("Reading device channel data...")
-    const channelData = await channelClient.read(channelAddress);
+    if(owner_mode){
+        channelData = await eventService.readDeviceChannel(channelAddress, toDppIdentity(userIdentity))
+    }
+    else{
+        channelData = await eventService.auditDeviceChannel({
+            managerIdentity: managerIdentity,
+            channelAddress: channelAddress,
+            credential: credential
+        })
+    }
     console.log("Data read.")
     return channelData
 }
 
-async function read_device_proofs_of_issue(userIdentity, chid) {
-    var channelData = await read_device_channel(userIdentity, chid)
+async function read_device_proofs_of_issue(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
     var response = []
 
     channelData.forEach((data) => {
@@ -131,8 +127,8 @@ async function read_device_proofs_of_issue(userIdentity, chid) {
     return response
 }
 
-async function read_device_generic_proofs(userIdentity, chid) {
-    var channelData = await read_device_channel(userIdentity, chid)
+async function read_device_generic_proofs(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
     var response = []
 
     channelData.forEach((data) => {
@@ -143,8 +139,8 @@ async function read_device_generic_proofs(userIdentity, chid) {
     return response
 }
 
-async function read_device_proofs_of_register(userIdentity, chid) {
-    var channelData = await read_device_channel(userIdentity, chid)
+async function read_device_proofs_of_register(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
     var response = []
 
     channelData.forEach((data) => {
@@ -160,24 +156,30 @@ async function read_device_proofs_of_register(userIdentity, chid) {
 }
 
 async function lookup_device_channel(chid) {
-    const channelClient = new ChannelClient(defaultConfig);
-    const ereuseIdentity = JSON.parse(readFileSync(identity_path).toString());
-    await channelClient.authenticate(ereuseIdentity.doc.id, ereuseIdentity.key.secret);
-
     console.log("Looking up device address in index channel...")
     await storage.init()
     const index_channel = await storage.getItem("iota-index-channel")
-    const channelAddress = index_channel.channelAddress
-    const channelData = await channelClient.read(channelAddress);
-    for (let i = 0; i < channelData.length; ++i) {
-        if (channelData[i].log.payload.chid == chid) {
-            console.log("Device found.")
-            return channelData[i].log.payload.channelAddress
-        }
-    }
-    console.log("Device not found.")
 
-    return false
+    try{
+        const deviceChannelAddress = await eventService.lookUpDeviceChannel(chid, index_channel.channelAddress, managerIdentity)
+        return deviceChannelAddress
+    } catch(e){
+        return false
+    }
+    
+}
+
+async function issue_credential(userIdentity, role){
+    const credential = await identityService.createCredential(
+        managerIdentity,
+        userIdentity.doc.id,
+        dppClient.getOwnershipCredentialType(),
+        {
+            role: role
+        }
+    )
+
+    return credential
 }
 
 async function get_iota_id(token) {
@@ -186,6 +188,15 @@ async function get_iota_id(token) {
 
     //skip check for undefined as this should only be called after checking the token validity
     return item.iota_id
+}
+
+async function get_credential(token, type, chid=undefined) {
+    var split_token = token.split(".");
+    const item = await storage.getItem(split_token[0]);
+
+    if(type != "ownership") return item.iota.credentials[type]
+    else return item.iota.credentials[type][chid]
+    
 }
 
 async function check_iota_index() {
@@ -211,5 +222,7 @@ module.exports = {
     write_device_channel,
     lookup_device_channel,
     check_iota_index,
-    get_iota_id
+    get_iota_id,
+    get_credential,
+    issue_credential
 }

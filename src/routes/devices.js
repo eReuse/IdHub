@@ -43,6 +43,7 @@ class Parameters {
     this.issuerID = req.body.IssuerID ?? "";
     this.type = req.body.Type ?? "";
     this.dlt = req.headers.dlt ?? "";
+    this.credentialType = req.body.CredentialType ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
   }
 }
@@ -86,9 +87,20 @@ router
         throw new BadRequest("Device already exists.")
       }
       var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
+      
+      var userData = await multiacc.get_acc_data(parameters.api_token)
+      //it must be possible to do this better (maybe)
+      if (userData.iota.credentials?.ownership == undefined){
+        userData.iota.credentials.ownership = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
+      }
+      else {
+        userData.iota.credentials.ownership[parameters.deviceCHID] = iota_creation_response.verifiableCredential
+      }
+      await multiacc.set_acc_data(parameters.api_token, userData)
 
       response_data = {
-        channelAddress: iota_creation_response.retChannel,
+        channelAddress: iota_creation_response.channelAddress,
+        credential: iota_creation_response.verifiableCredential,
         timestamp: iota_creation_response.timestamp
       }
     }
@@ -198,7 +210,10 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      var iota_timestamp = await iota.write_device_channel(iota_id, deviceCHID, "proof_of_issue", {
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, deviceCHID)
+
+      var iota_timestamp = await iota.write_device_channel(iota_id, credential, deviceCHID, "proof_of_issue", {
         DeviceDPP: `${deviceCHID}:${devicePHID}`,
         IssuerID: parameters.issuerID,
         DocumentID: parameters.documentID,
@@ -266,7 +281,10 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      var iota_timestamp = await iota.write_device_channel(iota_id, parameters.deviceCHID, "generic_proof", {
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+
+      var iota_timestamp = await iota.write_device_channel(iota_id, credential, parameters.deviceCHID, "generic_proof", {
         IssuerID: parameters.issuerID,
         DocumentID: parameters.documentID,
         DocumentSignature: parameters.documentSignature,
@@ -333,7 +351,10 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      var iota_proofs = await iota.read_device_generic_proofs(iota_id, parameters.deviceCHID)
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+
+      var iota_proofs = await iota.read_device_generic_proofs(iota_id, credential, parameters.deviceCHID)
 
       response_data = iota_proofs
     }
@@ -400,7 +421,10 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      var iota_proofs = await iota.read_device_proofs_of_issue(iota_id, parameters.deviceCHID)
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+
+      var iota_proofs = await iota.read_device_proofs_of_issue(iota_id, credential, parameters.deviceCHID)
       response_data = iota_proofs
     }
 
@@ -467,7 +491,10 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      var iota_proofs = await iota.read_device_proofs_of_register(iota_id, parameters.deviceCHID)
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+
+      var iota_proofs = await iota.read_device_proofs_of_register(iota_id, credential, parameters.deviceCHID)
 
       response_data = iota_proofs
     }

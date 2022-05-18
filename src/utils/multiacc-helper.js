@@ -38,8 +38,22 @@ async function delete_token(token) {
 
 }
 
+async function get_acc_data(token){
+  var split_token = token.split(".");
+  const data = await storage.getItem(split_token[0])
+  
+  return data
+}
+
+async function set_acc_data(token, data){
+  var split_token = token.split(".");
+  await storage.updateItem(split_token[0], data)
+}
+
 module.exports = {
   generate_token,
   check_token,
   delete_token,
+  get_acc_data,
+  set_acc_data
 }

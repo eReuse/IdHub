@@ -49,7 +49,7 @@ router
       //TODO: check if it's provided in request.
       var iota_id = await iota.create_identity()
   
-      await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id })
+      await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: {credentials:{}}})
       res.json({
         status: "Success.",
         data: {
