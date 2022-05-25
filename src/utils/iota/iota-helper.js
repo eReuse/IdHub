@@ -120,12 +120,13 @@ async function read_device_proofs_of_issue(userIdentity, credential, chid) {
     var response = []
     var deregister_timestamp = undefined;
 
-    channelData.forEach((data) => {
-        if (data.log.type == "proof_of_deregister") {
-            deregister_timestamp = data.log.payload.timestamp
+    for (var i = 0; i < channelData.length; i+=1) {
+        if (channelData[i].log.type == "proof_of_deregister") {
+            deregister_timestamp = channelData[i].log.payload.timestamp
             console.log("DEREGISTER TIMESTAMP: " + deregister_timestamp)
+            i = channelData.length;
         }
-    })
+    }
 
     //next if prob doable prettier
     if (deregister_timestamp != undefined) {
@@ -177,10 +178,10 @@ async function read_device_deregister_proof(userIdentity, credential, chid) {
     var response = undefined;
     
     for (var i = 0; i < channelData.length; i+=1) {
-        if (data.log.type == "proof_of_deregister") {
+        if (channelData[i].log.type == "proof_of_deregister") {
             console.log("PROOF OF DEREGISTER FOUND. TIMESTAMP:")
-            console.log(data.log.payload.timestamp)
-            response = data.log.payload.timestamp
+            console.log(channelData[i].log.payload.timestamp)
+            response = channelData[i].log.payload.timestamp
             i = channelData.length;
         }
     }

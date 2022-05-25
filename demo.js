@@ -163,6 +163,7 @@ async function getRegisterProofsByCHID(){
 async function getDeRegisterProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
+        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getDeRegisterProofs",params)
