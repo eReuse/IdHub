@@ -143,6 +143,7 @@ router
 
 .post("/deRegisterDevice", async (req, res, next) => {
   const parameters = new Parameters(req)
+  var response_data;
 
   try {
     console.log(`Called /deRegisterDevice with chid: ${parameters.deviceCHID}`)
@@ -150,30 +151,55 @@ router
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
-    const wallet = await ethHelper.get_wallet(parameters.api_token)
 
-    var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+    if (parameters.dlt == iota_name) {
+      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-    if (!ethHelper.is_device_address_valid(deviceAddress)) {
-      throw new BadRequest("CHID not registered.")
+      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      var userData = await multiacc.get_acc_data(parameters.api_token)
+      console.log("USER DATA " + userData)
+
+      //empty payload?
+      var iota_timestamp = await iota.write_device_channel(iota_id, credential, parameters.deviceCHID, "proof_of_deregister", {})
+
+      response_data = {
+        timestamp: iota_timestamp
+      }
     }
 
-    const depositDeviceContract = ethHelper.createContract
-    (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+    else if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
 
-    var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975 })
-    var txReceipt = await txResponse.wait()
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
 
-    var args = ethHelper.getEvents
-    (txReceipt, 'deRegisterProof', ethereum.depositDeviceIface)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+        (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975 })
+      var txReceipt = await txResponse.wait()
+
+      var args = ethHelper.getEvents
+        (txReceipt, 'deRegisterProof', ethereum.depositDeviceIface)
+      response_data = {
+        timestamp: parseInt(Number(args.timestamp), 10)
+      }
+    }
 
     res.status(201);
     res.json({
-      data: {
-        timestamp: parseInt(Number(args.timestamp), 10)
-      },
+      data: response_data
     })
   }
+
   catch (e) {
     const error_object = get_error_object(e.message)
     res.status(error_object.code);
@@ -543,6 +569,7 @@ router
 
 .post("/getDeRegisterProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
+  var response_data;
 
   try {
     console.log(`Called /getDeRegisterProofs with chid: ${parameters.deviceCHID}`)
@@ -550,32 +577,51 @@ router
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
-    const wallet = await ethHelper.get_wallet(parameters.api_token)
 
-    var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
-    if (!ethHelper.is_device_address_valid(deviceAddress)) {
-      throw new BadRequest("CHID not registered.")
+    if (parameters.dlt == iota_name) {
+      const iota_id = await iota.get_iota_id(parameters.api_token)
+
+      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      //TODO: catch error if not found
+      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+
+      var iota_proofs = await iota.read_device_deregister_proof(iota_id, credential, parameters.deviceCHID)
+
+      response_data = iota_proofs
     }
 
-    const depositDeviceContract = ethHelper.createContract
-    (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+    else if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
 
-    const value = await depositDeviceContract.getDeRegisterProofs();
-    var data = []
-    if (value.length != 0) {
-      value.forEach(elem => {
-        let proof_data = {
-          DeviceCHID: elem[0],
-          timestamp: parseInt(Number(elem[1]), 10),
-          blockNumber: parseInt(Number(elem[2]), 10),
-        }
-        data.push(proof_data)
-      })
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+        (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      const value = await depositDeviceContract.getDeRegisterProofs();
+      var data = []
+      if (value.length != 0) {
+        value.forEach(elem => {
+          let proof_data = {
+            DeviceCHID: elem[0],
+            timestamp: parseInt(Number(elem[1]), 10),
+            blockNumber: parseInt(Number(elem[2]), 10),
+          }
+          data.push(proof_data)
+        })
+      }
+      response_data = data
     }
 
     res.status(200);
     res.json({
-      data: data,
+      data: response_data,
     })
   }
   catch (e) {

@@ -118,11 +118,28 @@ async function read_device_channel(userIdentity, credential, chid) {
 async function read_device_proofs_of_issue(userIdentity, credential, chid) {
     var channelData = await read_device_channel(userIdentity, credential, chid)
     var response = []
+    var deregister_timestamp = undefined;
 
     channelData.forEach((data) => {
-        if (data.log.type == "proof_of_issue")
-            response.push(data.log.payload)
+        if (data.log.type == "proof_of_deregister") {
+            deregister_timestamp = data.log.payload.timestamp
+            console.log("DEREGISTER TIMESTAMP: " + deregister_timestamp)
+        }
     })
+
+    //next if prob doable prettier
+    if (deregister_timestamp != undefined) {
+        channelData.forEach((data) => {
+            if (data.log.type == "proof_of_issue" && data.log.payload.timestamp < deregister_timestamp)
+                response.push(data.log.payload)
+        })
+    }
+    else {
+        channelData.forEach((data) => {
+            if (data.log.type == "proof_of_issue")
+                response.push(data.log.payload)
+        })
+    }
 
     return response
 }
@@ -152,6 +169,21 @@ async function read_device_proofs_of_register(userIdentity, credential, chid) {
         }
     })
 
+    return response
+}
+
+async function read_device_deregister_proof(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
+    var response = undefined;
+    
+    for (var i = 0; i < channelData.length; i+=1) {
+        if (data.log.type == "proof_of_deregister") {
+            console.log("PROOF OF DEREGISTER FOUND. TIMESTAMP:")
+            console.log(data.log.payload.timestamp)
+            response = data.log.payload.timestamp
+            i = channelData.length;
+        }
+    }
     return response
 }
 
@@ -219,6 +251,7 @@ module.exports = {
     read_device_proofs_of_issue,
     read_device_generic_proofs,
     read_device_proofs_of_register,
+    read_device_deregister_proof,
     write_device_channel,
     lookup_device_channel,
     check_iota_index,
