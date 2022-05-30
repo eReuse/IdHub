@@ -115,32 +115,29 @@ async function read_device_channel(userIdentity, credential, chid) {
     return channelData
 }
 
-//parameter "proof" is the type of proof we search ("proof_of_deregister, proof_of_issue" etc)
-async function read_specific_device_proofs(userIdentity, credential, chid, proof) {
+async function read_device_proofs_of_issue(userIdentity, credential, chid) {
     var channelData = await read_device_channel(userIdentity, credential, chid)
     var response = []
-    var oldest_deregister = undefined;
+    var deregister_timestamp = undefined;
 
     for (var i = 0; i < channelData.length; i+=1) {
         if (channelData[i].log.type == "proof_of_deregister") {
-            if (oldest_deregister == undefined) {
-                oldest_deregister = channelData[i].log.payload.timestamp
-            }
-            else if (oldest_deregister >= channelData[i].log.payload.timestamp) {
-                oldest_deregister = channelData[i].log.payload.timestamp
-            } 
+            deregister_timestamp = channelData[i].log.payload.timestamp
+            console.log("DEREGISTER TIMESTAMP: " + deregister_timestamp)
+            i = channelData.length;
         }
     }
-    
-    if (oldest_deregister != undefined) {
+
+    //next if prob doable prettier
+    if (deregister_timestamp != undefined) {
         channelData.forEach((data) => {
-            if (data.log.type == proof && data.log.payload.timestamp < oldest_deregister)
+            if (data.log.type == "proof_of_issue" && data.log.payload.timestamp < deregister_timestamp)
                 response.push(data.log.payload)
         })
     }
     else {
         channelData.forEach((data) => {
-            if (data.log.type == proof)
+            if (data.log.type == "proof_of_issue")
                 response.push(data.log.payload)
         })
     }
@@ -148,48 +145,48 @@ async function read_specific_device_proofs(userIdentity, credential, chid, proof
     return response
 }
 
-// async function read_device_generic_proofs(userIdentity, credential, chid) {
-//     var channelData = await read_device_channel(userIdentity, credential, chid)
-//     var response = []
+async function read_device_generic_proofs(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
+    var response = []
 
-//     channelData.forEach((data) => {
-//         if (data.log.type == "generic_proof")
-//             response.push(data.log.payload)
-//     })
+    channelData.forEach((data) => {
+        if (data.log.type == "generic_proof")
+            response.push(data.log.payload)
+    })
 
-//     return response
-// }
+    return response
+}
 
-// async function read_device_proofs_of_register(userIdentity, credential, chid) {
-//     var channelData = await read_device_channel(userIdentity, credential, chid)
-//     var response = []
+async function read_device_proofs_of_register(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
+    var response = []
 
-//     channelData.forEach((data) => {
-//         if (data.log.type == "proof_of_register") {
-//             let proof_data = {
-//                 timestamp: data.log.payload.timestamp
-//             }
-//             response.push(proof_data)
-//         }
-//     })
+    channelData.forEach((data) => {
+        if (data.log.type == "proof_of_register") {
+            let proof_data = {
+                timestamp: data.log.payload.timestamp
+            }
+            response.push(proof_data)
+        }
+    })
 
-//     return response
-// }
+    return response
+}
 
-// async function read_device_deregister_proof(userIdentity, credential, chid) {
-//     var channelData = await read_device_channel(userIdentity, credential, chid)
-//     var response = undefined;
+async function read_device_deregister_proof(userIdentity, credential, chid) {
+    var channelData = await read_device_channel(userIdentity, credential, chid)
+    var response = undefined;
     
-//     for (var i = 0; i < channelData.length; i+=1) {
-//         if (channelData[i].log.type == "proof_of_deregister") {
-//             console.log("PROOF OF DEREGISTER FOUND. TIMESTAMP:")
-//             console.log(channelData[i].log.payload.timestamp)
-//             response = channelData[i].log.payload.timestamp
-//             i = channelData.length;
-//         }
-//     }
-//     return response
-// }
+    for (var i = 0; i < channelData.length; i+=1) {
+        if (channelData[i].log.type == "proof_of_deregister") {
+            console.log("PROOF OF DEREGISTER FOUND. TIMESTAMP:")
+            console.log(channelData[i].log.payload.timestamp)
+            response = channelData[i].log.payload.timestamp
+            i = channelData.length;
+        }
+    }
+    return response
+}
 
 async function lookup_device_channel(chid) {
     console.log("Looking up device address in index channel...")
@@ -252,11 +249,10 @@ module.exports = {
     create_identity,
     create_index_channel,
     create_device_channel,
-    read_specific_device_proofs,
-    // read_device_proofs_of_issue,
-    // read_device_generic_proofs,
-    // read_device_proofs_of_register,
-    // read_device_deregister_proof,
+    read_device_proofs_of_issue,
+    read_device_generic_proofs,
+    read_device_proofs_of_register,
+    read_device_deregister_proof,
     write_device_channel,
     lookup_device_channel,
     check_iota_index,

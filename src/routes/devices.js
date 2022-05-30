@@ -380,7 +380,7 @@ router
       //TODO: catch error if not found
       const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
 
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "generic_proof")
+      var iota_proofs = await iota.read_device_generic_proofs(iota_id, credential, parameters.deviceCHID)
 
       response_data = iota_proofs
     }
@@ -450,7 +450,7 @@ router
       //TODO: catch error if not found
       const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
 
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_issue")
+      var iota_proofs = await iota.read_device_proofs_of_issue(iota_id, credential, parameters.deviceCHID)
       response_data = iota_proofs
     }
 
@@ -520,7 +520,7 @@ router
       //TODO: catch error if not found
       const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
 
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_register")
+      var iota_proofs = await iota.read_device_proofs_of_register(iota_id, credential, parameters.deviceCHID)
 
       response_data = iota_proofs
     }
@@ -588,7 +588,7 @@ router
       //TODO: catch error if not found
       const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
 
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_deregister")
+      var iota_proofs = await iota.read_device_deregister_proof(iota_id, credential, parameters.deviceCHID)
 
       response_data = iota_proofs
     }
