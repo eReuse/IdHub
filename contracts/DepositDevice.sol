@@ -3,13 +3,13 @@ pragma experimental ABIEncoderV2;
 
 import "./DeviceFactoryInterface.sol";
 import "./Ownable.sol";
-
+import "./AddressRoles.sol";
 
 /**
  * @title Ereuse Device basic implementation
  */
 
-contract DepositDevice is Ownable {
+contract DepositDevice is Ownable, AddressRoles {
     // parameters -----------------------------------------------------------
     DeviceFactoryInterface factory;
 
@@ -135,7 +135,7 @@ contract DepositDevice is Ownable {
     //    emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     //}
 
-    function issuePassport(string _chid, string _phid, string _documentID, string _documentSignature, string _issuerID) public onlyOwner registered{
+    function issuePassport(string _chid, string _phid, string _documentID, string _documentSignature, string _issuerID) public onlyOwner registered onlyOpWit{
         IssueProofData memory proof_data;
         proof_data.chid = _chid;
         proof_data.phid = _phid;
@@ -152,7 +152,7 @@ contract DepositDevice is Ownable {
         generateIssueProof(proof_data);
     }
     
-    function generateGenericProof(string _deviceCHID, string _issuerID, string _documentID, string _documentSignature, string _documentType) public onlyOwner registered{
+    function generateGenericProof(string _deviceCHID, string _issuerID, string _documentID, string _documentSignature, string _documentType) public onlyOwner registered onlyOpWit{
         GenericProofData memory proof_data;
         proof_data.chid = _deviceCHID;
         proof_data.issuerID = _issuerID;
@@ -167,7 +167,7 @@ contract DepositDevice is Ownable {
         emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     }
 
-    function deRegisterDevice(string _deviceCHID) public onlyOwner registered{
+    function deRegisterDevice(string _deviceCHID) public onlyOwner registered onlyOp{
         data.deregistered = true;
 
         DeRegisterProofData memory proof_data;

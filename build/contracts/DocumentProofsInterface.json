@@ -46,14 +46,14 @@
     "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
     "exportedSymbols": {
       "DocumentProofsInterface": [
-        950
+        1200
       ]
     },
-    "id": 951,
+    "id": 1201,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 928,
+        "id": 1178,
         "literals": [
           "solidity",
           "^",
@@ -61,7 +61,7 @@
           ".25"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:4"
+        "src": "0:24:5"
       },
       {
         "baseContracts": [],
@@ -69,24 +69,24 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 950,
+        "id": 1200,
         "linearizedBaseContracts": [
-          950
+          1200
         ],
         "name": "DocumentProofsInterface",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "canonicalName": "DocumentProofsInterface.StampData",
-            "id": 933,
+            "id": 1183,
             "members": [
               {
                 "constant": false,
-                "id": 930,
+                "id": 1180,
                 "name": "timestamp",
                 "nodeType": "VariableDeclaration",
-                "scope": 933,
-                "src": "95:17:4",
+                "scope": 1183,
+                "src": "95:17:5",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -94,10 +94,10 @@
                   "typeString": "uint256"
                 },
                 "typeName": {
-                  "id": 929,
+                  "id": 1179,
                   "name": "uint256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "95:7:4",
+                  "src": "95:7:5",
                   "typeDescriptions": {
                     "typeIdentifier": "t_uint256",
                     "typeString": "uint256"
@@ -108,11 +108,11 @@
               },
               {
                 "constant": false,
-                "id": 932,
+                "id": 1182,
                 "name": "stamp",
                 "nodeType": "VariableDeclaration",
-                "scope": 933,
-                "src": "123:10:4",
+                "scope": 1183,
+                "src": "123:10:5",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -120,10 +120,10 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 931,
+                  "id": 1181,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
-                  "src": "123:4:4",
+                  "src": "123:4:5",
                   "typeDescriptions": {
                     "typeIdentifier": "t_bool",
                     "typeString": "bool"
@@ -135,50 +135,50 @@
             ],
             "name": "StampData",
             "nodeType": "StructDefinition",
-            "scope": 950,
-            "src": "68:73:4",
+            "scope": 1200,
+            "src": "68:73:5",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 937,
+            "id": 1187,
             "name": "documents",
             "nodeType": "VariableDeclaration",
-            "scope": 950,
-            "src": "147:38:4",
+            "scope": 1200,
+            "src": "147:38:5",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$933_storage_$",
+              "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$1183_storage_$",
               "typeString": "mapping(string => struct DocumentProofsInterface.StampData)"
             },
             "typeName": {
-              "id": 936,
+              "id": 1186,
               "keyType": {
-                "id": 934,
+                "id": 1184,
                 "name": "string",
                 "nodeType": "ElementaryTypeName",
-                "src": "155:6:4",
+                "src": "155:6:5",
                 "typeDescriptions": {
                   "typeIdentifier": "t_string_storage_ptr",
                   "typeString": "string"
                 }
               },
               "nodeType": "Mapping",
-              "src": "147:28:4",
+              "src": "147:28:5",
               "typeDescriptions": {
-                "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$933_storage_$",
+                "typeIdentifier": "t_mapping$_t_string_memory_$_t_struct$_StampData_$1183_storage_$",
                 "typeString": "mapping(string => struct DocumentProofsInterface.StampData)"
               },
               "valueType": {
                 "contractScope": null,
-                "id": 935,
+                "id": 1185,
                 "name": "StampData",
                 "nodeType": "UserDefinedTypeName",
-                "referencedDeclaration": 933,
-                "src": "165:9:4",
+                "referencedDeclaration": 1183,
+                "src": "165:9:5",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_struct$_StampData_$933_storage_ptr",
+                  "typeIdentifier": "t_struct$_StampData_$1183_storage_ptr",
                   "typeString": "struct DocumentProofsInterface.StampData"
                 }
               }
@@ -189,7 +189,7 @@
           {
             "body": null,
             "documentation": null,
-            "id": 942,
+            "id": 1192,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -197,16 +197,16 @@
             "name": "stampDocument",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 940,
+              "id": 1190,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 939,
+                  "id": 1189,
                   "name": "_hash",
                   "nodeType": "VariableDeclaration",
-                  "scope": 942,
-                  "src": "217:12:4",
+                  "scope": 1192,
+                  "src": "217:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -214,10 +214,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 938,
+                    "id": 1188,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "217:6:4",
+                    "src": "217:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -227,17 +227,17 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "216:14:4"
+              "src": "216:14:5"
             },
             "payable": false,
             "returnParameters": {
-              "id": 941,
+              "id": 1191,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "237:0:4"
+              "src": "237:0:5"
             },
-            "scope": 950,
-            "src": "194:44:4",
+            "scope": 1200,
+            "src": "194:44:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
@@ -245,7 +245,7 @@
           {
             "body": null,
             "documentation": null,
-            "id": 949,
+            "id": 1199,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -253,16 +253,16 @@
             "name": "checkStamp",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 945,
+              "id": 1195,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 944,
+                  "id": 1194,
                   "name": "_hash",
                   "nodeType": "VariableDeclaration",
-                  "scope": 949,
-                  "src": "264:12:4",
+                  "scope": 1199,
+                  "src": "264:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -270,10 +270,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 943,
+                    "id": 1193,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "264:6:4",
+                    "src": "264:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -283,20 +283,20 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "263:14:4"
+              "src": "263:14:5"
             },
             "payable": false,
             "returnParameters": {
-              "id": 948,
+              "id": 1198,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 947,
+                  "id": 1197,
                   "name": "b",
                   "nodeType": "VariableDeclaration",
-                  "scope": 949,
-                  "src": "309:6:4",
+                  "scope": 1199,
+                  "src": "309:6:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -304,10 +304,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 946,
+                    "id": 1196,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "309:4:4",
+                    "src": "309:4:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -317,27 +317,27 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "308:8:4"
+              "src": "308:8:5"
             },
-            "scope": 950,
-            "src": "244:73:4",
+            "scope": 1200,
+            "src": "244:73:5",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 951,
-        "src": "28:292:4"
+        "scope": 1201,
+        "src": "28:292:5"
       }
     ],
-    "src": "0:322:4"
+    "src": "0:322:5"
   },
   "legacyAST": {
     "attributes": {
       "absolutePath": "project:/contracts/DocumentProofsInterface.sol",
       "exportedSymbols": {
         "DocumentProofsInterface": [
-          950
+          1200
         ]
       }
     },
@@ -351,9 +351,9 @@
             ".25"
           ]
         },
-        "id": 928,
+        "id": 1178,
         "name": "PragmaDirective",
-        "src": "0:24:4"
+        "src": "0:24:5"
       },
       {
         "attributes": {
@@ -367,17 +367,17 @@
           "documentation": null,
           "fullyImplemented": false,
           "linearizedBaseContracts": [
-            950
+            1200
           ],
           "name": "DocumentProofsInterface",
-          "scope": 951
+          "scope": 1201
         },
         "children": [
           {
             "attributes": {
               "canonicalName": "DocumentProofsInterface.StampData",
               "name": "StampData",
-              "scope": 950,
+              "scope": 1200,
               "visibility": "public"
             },
             "children": [
@@ -385,7 +385,7 @@
                 "attributes": {
                   "constant": false,
                   "name": "timestamp",
-                  "scope": 933,
+                  "scope": 1183,
                   "stateVariable": false,
                   "storageLocation": "default",
                   "type": "uint256",
@@ -398,20 +398,20 @@
                       "name": "uint256",
                       "type": "uint256"
                     },
-                    "id": 929,
+                    "id": 1179,
                     "name": "ElementaryTypeName",
-                    "src": "95:7:4"
+                    "src": "95:7:5"
                   }
                 ],
-                "id": 930,
+                "id": 1180,
                 "name": "VariableDeclaration",
-                "src": "95:17:4"
+                "src": "95:17:5"
               },
               {
                 "attributes": {
                   "constant": false,
                   "name": "stamp",
-                  "scope": 933,
+                  "scope": 1183,
                   "stateVariable": false,
                   "storageLocation": "default",
                   "type": "bool",
@@ -424,25 +424,25 @@
                       "name": "bool",
                       "type": "bool"
                     },
-                    "id": 931,
+                    "id": 1181,
                     "name": "ElementaryTypeName",
-                    "src": "123:4:4"
+                    "src": "123:4:5"
                   }
                 ],
-                "id": 932,
+                "id": 1182,
                 "name": "VariableDeclaration",
-                "src": "123:10:4"
+                "src": "123:10:5"
               }
             ],
-            "id": 933,
+            "id": 1183,
             "name": "StructDefinition",
-            "src": "68:73:4"
+            "src": "68:73:5"
           },
           {
             "attributes": {
               "constant": false,
               "name": "documents",
-              "scope": 950,
+              "scope": 1200,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "mapping(string => struct DocumentProofsInterface.StampData)",
@@ -460,30 +460,30 @@
                       "name": "string",
                       "type": "string"
                     },
-                    "id": 934,
+                    "id": 1184,
                     "name": "ElementaryTypeName",
-                    "src": "155:6:4"
+                    "src": "155:6:5"
                   },
                   {
                     "attributes": {
                       "contractScope": null,
                       "name": "StampData",
-                      "referencedDeclaration": 933,
+                      "referencedDeclaration": 1183,
                       "type": "struct DocumentProofsInterface.StampData"
                     },
-                    "id": 935,
+                    "id": 1185,
                     "name": "UserDefinedTypeName",
-                    "src": "165:9:4"
+                    "src": "165:9:5"
                   }
                 ],
-                "id": 936,
+                "id": 1186,
                 "name": "Mapping",
-                "src": "147:28:4"
+                "src": "147:28:5"
               }
             ],
-            "id": 937,
+            "id": 1187,
             "name": "VariableDeclaration",
-            "src": "147:38:4"
+            "src": "147:38:5"
           },
           {
             "attributes": {
@@ -497,7 +497,7 @@
               ],
               "name": "stampDocument",
               "payable": false,
-              "scope": 950,
+              "scope": 1200,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -509,7 +509,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "_hash",
-                      "scope": 942,
+                      "scope": 1192,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "string",
@@ -522,19 +522,19 @@
                           "name": "string",
                           "type": "string"
                         },
-                        "id": 938,
+                        "id": 1188,
                         "name": "ElementaryTypeName",
-                        "src": "217:6:4"
+                        "src": "217:6:5"
                       }
                     ],
-                    "id": 939,
+                    "id": 1189,
                     "name": "VariableDeclaration",
-                    "src": "217:12:4"
+                    "src": "217:12:5"
                   }
                 ],
-                "id": 940,
+                "id": 1190,
                 "name": "ParameterList",
-                "src": "216:14:4"
+                "src": "216:14:5"
               },
               {
                 "attributes": {
@@ -543,14 +543,14 @@
                   ]
                 },
                 "children": [],
-                "id": 941,
+                "id": 1191,
                 "name": "ParameterList",
-                "src": "237:0:4"
+                "src": "237:0:5"
               }
             ],
-            "id": 942,
+            "id": 1192,
             "name": "FunctionDefinition",
-            "src": "194:44:4"
+            "src": "194:44:5"
           },
           {
             "attributes": {
@@ -564,7 +564,7 @@
               ],
               "name": "checkStamp",
               "payable": false,
-              "scope": 950,
+              "scope": 1200,
               "stateMutability": "view",
               "superFunction": null,
               "visibility": "public"
@@ -576,7 +576,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "_hash",
-                      "scope": 949,
+                      "scope": 1199,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "string",
@@ -589,19 +589,19 @@
                           "name": "string",
                           "type": "string"
                         },
-                        "id": 943,
+                        "id": 1193,
                         "name": "ElementaryTypeName",
-                        "src": "264:6:4"
+                        "src": "264:6:5"
                       }
                     ],
-                    "id": 944,
+                    "id": 1194,
                     "name": "VariableDeclaration",
-                    "src": "264:12:4"
+                    "src": "264:12:5"
                   }
                 ],
-                "id": 945,
+                "id": 1195,
                 "name": "ParameterList",
-                "src": "263:14:4"
+                "src": "263:14:5"
               },
               {
                 "children": [
@@ -609,7 +609,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "b",
-                      "scope": 949,
+                      "scope": 1199,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "bool",
@@ -622,34 +622,34 @@
                           "name": "bool",
                           "type": "bool"
                         },
-                        "id": 946,
+                        "id": 1196,
                         "name": "ElementaryTypeName",
-                        "src": "309:4:4"
+                        "src": "309:4:5"
                       }
                     ],
-                    "id": 947,
+                    "id": 1197,
                     "name": "VariableDeclaration",
-                    "src": "309:6:4"
+                    "src": "309:6:5"
                   }
                 ],
-                "id": 948,
+                "id": 1198,
                 "name": "ParameterList",
-                "src": "308:8:4"
+                "src": "308:8:5"
               }
             ],
-            "id": 949,
+            "id": 1199,
             "name": "FunctionDefinition",
-            "src": "244:73:4"
+            "src": "244:73:5"
           }
         ],
-        "id": 950,
+        "id": 1200,
         "name": "ContractDefinition",
-        "src": "28:292:4"
+        "src": "28:292:5"
       }
     ],
-    "id": 951,
+    "id": 1201,
     "name": "SourceUnit",
-    "src": "0:322:4"
+    "src": "0:322:5"
   },
   "compiler": {
     "name": "solc",
@@ -657,7 +657,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-05-26T14:52:15.535Z",
+  "updatedAt": "2022-05-30T18:13:42.605Z",
   "devdoc": {
     "methods": {}
   },

@@ -4,8 +4,9 @@ pragma solidity ^0.4.25;
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
+import "./AddressRoles.sol";
 
-contract DeviceFactory {
+contract DeviceFactory is AddressRoles {
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
     address[] owners;
@@ -17,7 +18,7 @@ contract DeviceFactory {
 
     function registerDevice( 
         string _chid
-    ) public returns (address _device) {
+    ) public onlyOp returns (address _device) {
         require(translation[_chid] == address(0), "Can't register an already registered device");
         DepositDevice newContract = new DepositDevice(
             _chid,
