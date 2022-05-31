@@ -23,15 +23,15 @@ contract AddressRoles {
         _;
     }
 
-    modifier onlyOp() {
-        require(checkIfOperator(msg.sender) == true, "The message sender is not an operator");
-        _;
-    }
+    // modifier onlyOp() {
+    //     require(checkIfOperator(msg.sender) == true, "The message sender is not an operator");
+    //     _;
+    // }
 
-    modifier onlyOpWit() {
-        require((checkIfOperator(msg.sender) == true || checkIfWitness(msg.sender) == true), "The message sender is not an operator or witness");
-        _;
-    }
+    // modifier onlyOpWit() {
+    //     require((checkIfOperator(msg.sender) == true || checkIfWitness(msg.sender) == true), "The message sender is not an operator or witness");
+    //     _;
+    // }
 
 
     //Trust Anchor management

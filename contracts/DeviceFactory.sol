@@ -4,9 +4,11 @@ pragma solidity ^0.4.25;
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
-import "./AddressRoles.sol";
+import "./AddressRolesInterface.sol";
 
-contract DeviceFactory is AddressRoles {
+contract DeviceFactory {
+    AddressRolesInterface public roles;
+
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
     address[] owners;
@@ -15,6 +17,14 @@ contract DeviceFactory is AddressRoles {
     //-------  EVENTS  -------//
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
+    constructor(address rolesAddress) public {
+        roles = AddressRolesInterface(rolesAddress);
+    }
+
+    modifier onlyOp() {
+        require(roles.checkIfOperator(msg.sender) == true, "The message sender is not an operator");
+        _;
+    }
 
     function registerDevice( 
         string _chid
@@ -23,7 +33,8 @@ contract DeviceFactory is AddressRoles {
         DepositDevice newContract = new DepositDevice(
             _chid,
             msg.sender,
-            address(this)
+            address(this),
+            address(roles)
         );
         deployed_devices[msg.sender].push(newContract);
         translation[_chid] = newContract;
@@ -82,5 +93,9 @@ contract DeviceFactory is AddressRoles {
 
     function getAddressFromChid(string _chid) public view returns (address _address){
         return translation[_chid];
+    }
+
+    function getRolesAddress() public view returns (address _address){
+        return roles;
     }
 }

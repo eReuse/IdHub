@@ -3,16 +3,16 @@ pragma experimental ABIEncoderV2;
 
 import "./DeviceFactoryInterface.sol";
 import "./Ownable.sol";
-import "./AddressRoles.sol";
+import "./AddressRolesInterface.sol";
 
 /**
  * @title Ereuse Device basic implementation
  */
 
-contract DepositDevice is Ownable, AddressRoles {
+contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
     DeviceFactoryInterface factory;
-
+    AddressRolesInterface roles;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
     struct DevData {
@@ -93,9 +93,11 @@ contract DepositDevice is Ownable, AddressRoles {
     constructor(
         string _chid,
         address _sender,
-        address _factory
+        address _factory,
+        address _roles
     ) public {
         factory = DeviceFactoryInterface(_factory);
+        roles = AddressRolesInterface(_roles);
         data.deregistered = false;
         data.owner = _sender;
         data.chid = _chid;
@@ -109,11 +111,31 @@ contract DepositDevice is Ownable, AddressRoles {
         generateRegisterProof(proof_data);
     }
 
+    modifier onlyOpWitVer() {
+        require((owner == msg.sender || 
+        roles.checkIfOperator(msg.sender) == true || 
+        roles.checkIfWitness(msg.sender) == true || 
+        roles.checkIfVerifier(msg.sender) == true), "The message sender is not an owner, operator, verifier or witness");
+        _;
+    }
+
+    modifier onlyOpWit() {
+        require((owner == msg.sender || 
+        roles.checkIfOperator(msg.sender) == true || 
+        roles.checkIfWitness(msg.sender) == true), "The message sender is not an owner, operator or witness");
+        _;
+    }
+
+    modifier onlyOp() {
+        require((owner == msg.sender || 
+        roles.checkIfOperator(msg.sender) == true), "The message sender is not an owner or operator");
+        _;
+    }
 
     modifier registered() {
     require(data.deregistered == false, "This device is already deregistered");
     _;
-  }
+    }
 
     function generateRegisterProof(RegisterProofData memory proof_data) internal {
         registerProofs.push(proof_data);
@@ -135,7 +157,7 @@ contract DepositDevice is Ownable, AddressRoles {
     //    emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     //}
 
-    function issuePassport(string _chid, string _phid, string _documentID, string _documentSignature, string _issuerID) public onlyOwner registered onlyOpWit{
+    function issuePassport(string _chid, string _phid, string _documentID, string _documentSignature, string _issuerID) public registered onlyOpWit{
         IssueProofData memory proof_data;
         proof_data.chid = _chid;
         proof_data.phid = _phid;
@@ -152,7 +174,7 @@ contract DepositDevice is Ownable, AddressRoles {
         generateIssueProof(proof_data);
     }
     
-    function generateGenericProof(string _deviceCHID, string _issuerID, string _documentID, string _documentSignature, string _documentType) public onlyOwner registered onlyOpWit{
+    function generateGenericProof(string _deviceCHID, string _issuerID, string _documentID, string _documentSignature, string _documentType) public registered onlyOpWit{
         GenericProofData memory proof_data;
         proof_data.chid = _deviceCHID;
         proof_data.issuerID = _issuerID;
@@ -167,7 +189,7 @@ contract DepositDevice is Ownable, AddressRoles {
         emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     }
 
-    function deRegisterDevice(string _deviceCHID) public onlyOwner registered onlyOp{
+    function deRegisterDevice(string _deviceCHID) public registered onlyOp{
         data.deregistered = true;
 
         DeRegisterProofData memory proof_data;
@@ -191,23 +213,23 @@ contract DepositDevice is Ownable, AddressRoles {
     //     generateIssueProof(proof_data);
     // }
 
-    function getData() public view returns (DevData _data) {
+    function getData() public view onlyOpWitVer returns (DevData _data) {
         return data;
     }
 
-    function getRegisterProofs() public view returns (RegisterProofData[] _data) {
+    function getRegisterProofs() public view onlyOpWitVer returns (RegisterProofData[] _data) {
         return registerProofs;
     }
 
-    function getIssueProofs() public view returns (IssueProofData[] _data){
+    function getIssueProofs() public view onlyOpWitVer returns (IssueProofData[] _data){
         return issueProofs;
     }
 
-    function getGenericProofs() public view returns (GenericProofData[] _data){
+    function getGenericProofs() public view onlyOpWitVer returns (GenericProofData[] _data){
         return genericProofs;
     }
 
-    function getDeRegisterProofs() public view returns (DeRegisterProofData[] _data) {
+    function getDeRegisterProofs() public view onlyOpWitVer returns (DeRegisterProofData[] _data) {
         return deRegisterProofs;
     }
 

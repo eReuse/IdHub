@@ -1,6 +1,7 @@
 pragma solidity ^0.4.25;
 
 contract DeviceFactoryInterface {
+    address public roles;
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
     address[] owners;
@@ -14,4 +15,5 @@ contract DeviceFactoryInterface {
     function getDeployedDevices() public view returns (address[] _deployed_devices);
     function getAllDeployedDevices() public view returns (address[] _address);
     function getAddressFromChid(string _chid) public view returns (address _address);
+    function getRolesAddress() public view returns (address _address);
 }
