@@ -7,7 +7,7 @@ contract DeviceFactoryInterface {
     address[] owners;
     address[] devices;
 
-    //function transfer(address current_owner, address _new_owner) public;
+    function transferDevice(address current_owner, address _new_owner) public;
     function registerDevice(string _chid)public returns (address _device);
     function registerOwner(address owner) internal;
     function deleteOwnership(address owner) internal;
@@ -15,5 +15,4 @@ contract DeviceFactoryInterface {
     function getDeployedDevices() public view returns (address[] _deployed_devices);
     function getAllDeployedDevices() public view returns (address[] _address);
     function getAddressFromChid(string _chid) public view returns (address _address);
-    function getRolesAddress() public view returns (address _address);
 }

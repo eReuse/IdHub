@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "./DeviceFactoryInterface.sol";
 import "./Ownable.sol";
-import "./AddressRolesInterface.sol";
+import "./AccessListInterface.sol";
 
 /**
  * @title Ereuse Device basic implementation
@@ -12,7 +12,7 @@ import "./AddressRolesInterface.sol";
 contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
     DeviceFactoryInterface factory;
-    AddressRolesInterface roles;
+    AccessListInterface roles;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
     struct DevData {
@@ -46,14 +46,14 @@ contract DepositDevice is Ownable {
         uint blockNumber;
     }
 
-    // struct TransferProofData {
-    //     address from;
-    //     address to;
-    //     string from_registrant;
-    //     string to_registrant;
-    //     uint timestamp;
-    //     uint blockNumber;
-    // }
+    struct TransferProofData {
+        address from;
+        address to;
+        // string from_registrant;
+        // string to_registrant;
+        uint timestamp;
+        uint blockNumber;
+    }
 
     // struct RecycleProofData {
     //     uint timestamp;
@@ -75,7 +75,7 @@ contract DepositDevice is Ownable {
     RegisterProofData[] registerProofs;
     DeRegisterProofData[] deRegisterProofs; //shouldnt be a vector? it is for simplicity?
     IssueProofData[] issueProofs;
-    //TransferProofData[] transferProofs;
+    TransferProofData[] transferProofs;
     //RecycleProofData[] recycleProofs;
     GenericProofData[] genericProofs;
 
@@ -84,7 +84,7 @@ contract DepositDevice is Ownable {
     event registerProof(address deviceAddress, string chid, uint timestamp);
     event deRegisterProof(address deviceAddress, string chid, uint timestamp);
     event issueProof(address deviceAddress, string chid, string phid, string documentID, string documentSignature, string issuerID, uint timestamp);
-    //event transferProof(address supplierAddress, address receiverAddress, address deviceAddress, uint timestamp);
+    event transferProof(address supplierAddress, address receiverAddress, address deviceAddress, uint timestamp);
     //event recycleProof(address userAddress, address deviceAddress, uint timestamp); 
     event genericProof(address deviceAddress, string chid, string issuerID, string documentID, string documentSignature, string documentType, uint timestamp);  
     //event DeviceTransferred(address deviceAddress, address new_owner, string new_registrant);
@@ -97,7 +97,7 @@ contract DepositDevice is Ownable {
         address _roles
     ) public {
         factory = DeviceFactoryInterface(_factory);
-        roles = AddressRolesInterface(_roles);
+        roles = AccessListInterface(_roles);
         data.deregistered = false;
         data.owner = _sender;
         data.chid = _chid;
@@ -234,41 +234,42 @@ contract DepositDevice is Ownable {
     }
 
 
-    //  function getTrasferProofs() public view returns (TransferProofData[] _data){
-    //      return transferProofs;
-    //  }
+     function getTrasferProofs() public view returns (TransferProofData[] _data){
+         return transferProofs;
+     }
 
     //  function getRecycleProofs() public view returns (RecycleProofData[] _data){
     //      return recycleProofs;
     //  }
 
-    // function generateTransferProof(TransferProofData memory proof_data) internal {
-    //     transferProofs.push(proof_data);
-    //     emit transferProof(proof_data.from, proof_data.to, address(this), proof_data.timestamp);
-    // }
+    function generateTransferProof(TransferProofData memory proof_data) internal {
+        transferProofs.push(proof_data);
+        emit transferProof(proof_data.from, proof_data.to, address(this), proof_data.timestamp);
+    }
 
     //API DONE
-    // function transferDevice(address _to, string _new_registrant)
-    //     public
-    //     onlyOwner
-    // {
-    //     TransferProofData memory proof_data;
-    //     proof_data.from = data.owner;
-    //     proof_data.to = _to;
-    //     proof_data.from_registrant = data.registrantData;
-    //     proof_data.to_registrant = _new_registrant;
-    //     proof_data.timestamp = block.timestamp;
-    //     proof_data.blockNumber = block.number;
+    function transferDevice(address _to, string _new_registrant)
+        public
+        onlyOwner
+    {
+        TransferProofData memory proof_data;
+        proof_data.from = data.owner;
+        proof_data.to = _to;
+        //proof_data.from_registrant = data.registrantData;
+        //proof_data.to_registrant = _new_registrant;
+        proof_data.timestamp = block.timestamp;
+        proof_data.blockNumber = block.number;
 
-    //     factory.transfer(data.owner, _to);
-    //     data.owner = _to;
-    //     data.registrantData = _new_registrant;
-    //     if (owner != _to) transferOwnership(_to);
+        factory.transferDevice(data.owner, _to);
+        data.owner = _to;
+        //data.registrantData = _new_registrant;
+        if (owner != _to) transferOwnership(_to);
 
-    //     generateTransferProof(proof_data);
+        generateTransferProof(proof_data);
 
-    //     emit DeviceTransferred(address(this), data.owner, data.registrantData);
-    // }
+        //3rd parameter is a placeholder, emiting two transfers?
+       // emit DeviceTransferred(address(this), data.owner, "registrant??");
+    }
 
     // function generateRecycleProof(RecycleProofData memory proof_data) internal{
     //     recycleProofs.push(proof_data);

@@ -1,15 +1,16 @@
 pragma solidity ^0.4.25;
 
-contract AddressRoles {
+contract AccessList {
+    mapping(address => bool) issuers;
     mapping(address => bool) operators;
     mapping(address => bool) witnesses;
     mapping(address => bool) verifiers;
 
     address trustAnchor;
 
-    modifier TAnotSetted() {
+    modifier TAnotSet() {
         require(
-            trustAnchor == 0x0000000000000000000000000000000000000000,
+            trustAnchor == address(0),
             "A Trust Anchor account is already in use."
         );
         _;
@@ -23,19 +24,17 @@ contract AddressRoles {
         _;
     }
 
-    // modifier onlyOp() {
-    //     require(checkIfOperator(msg.sender) == true, "The message sender is not an operator");
-    //     _;
-    // }
-
-    // modifier onlyOpWit() {
-    //     require((checkIfOperator(msg.sender) == true || checkIfWitness(msg.sender) == true), "The message sender is not an operator or witness");
-    //     _;
-    // }
-
+    modifier TAIssuerOnly() {
+        require(
+            (trustAnchor == msg.sender ||
+            issuers[msg.sender]),
+            "Only usable by current Trust Anchor account"
+        );
+        _;
+    }
 
     //Trust Anchor management
-    function setTA(address _address) public TAnotSetted {
+    function setTA(address _address) public TAnotSet {
         trustAnchor = _address;
     }
 
@@ -44,28 +43,28 @@ contract AddressRoles {
     }
 
     //registers
-    function registerOperator(address _address) public TAonly {
+    function registerOperator(address _address) public TAIssuerOnly {
         operators[_address] = true;
     }
 
-    function registerWitness(address _address) public TAonly {
+    function registerWitness(address _address) public TAIssuerOnly {
         witnesses[_address] = true;
     }
 
-    function registerVerifier(address _address) public TAonly {
+    function registerVerifier(address _address) public TAIssuerOnly {
         verifiers[_address] = true;
     }
 
     //invalidates
-    function invalidateOperator(address _address) public TAonly {
+    function invalidateOperator(address _address) public TAIssuerOnly {
         operators[_address] = false;
     }
 
-    function invalidateWitness(address _address) public TAonly {
+    function invalidateWitness(address _address) public TAIssuerOnly {
         witnesses[_address] = false;
     }
 
-    function invalidateVerifier(address _address) public TAonly {
+    function invalidateVerifier(address _address) public TAIssuerOnly {
         verifiers[_address] = false;
     }
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.25;
 
-contract AddressRolesInterface {
+contract AccessListInterface {
     mapping(address => bool) operators;
     mapping(address => bool) witnesses;
     mapping(address => bool) verifiers;

@@ -4,10 +4,10 @@ pragma solidity ^0.4.25;
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
-import "./AddressRolesInterface.sol";
+import "./AccessListInterface.sol";
 
 contract DeviceFactory {
-    AddressRolesInterface public roles;
+    AccessListInterface public roles;
 
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
@@ -18,7 +18,7 @@ contract DeviceFactory {
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
     constructor(address rolesAddress) public {
-        roles = AddressRolesInterface(rolesAddress);
+        roles = AccessListInterface(rolesAddress);
     }
 
     modifier onlyOp() {
@@ -58,12 +58,13 @@ contract DeviceFactory {
         if(!owner_exists) owners.push(owner);
     }
 
-    // function transfer(address current_owner, address new_owner) public {
-    //     if(current_owner != new_owner){
-    //         deleteOwnership(current_owner);
-    //         deployed_devices[new_owner].push(msg.sender);
-    //     }
-    // }
+    //
+    function transferDevice(address current_owner, address new_owner) public {
+        if(current_owner != new_owner){
+            deleteOwnership(current_owner);
+            deployed_devices[new_owner].push(msg.sender);
+        }
+    }
 
     function deleteOwnership(address owner) internal {
         uint256 length = deployed_devices[owner].length;
@@ -93,9 +94,5 @@ contract DeviceFactory {
 
     function getAddressFromChid(string _chid) public view returns (address _address){
         return translation[_chid];
-    }
-
-    function getRolesAddress() public view returns (address _address){
-        return roles;
     }
 }
