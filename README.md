@@ -1,13 +1,19 @@
-# Trublo contracts and API
+# Trublo multi DLT API and solidity contracts
+
+
+# About The Project
+
+This repository contains a set of solidity smart contracts developed to manage electronic devices and its Product Passport and an API that can call three different DLTs: IOTA, OBADA and a standard private ethereum blockchain.
 
 ### [Contracts](contracts)
 Main contracts:
+- [AccessList](contracts/AccessList.sol): Manages user roles.
 - [DeviceFactory](contracts/DeviceFactory.sol): creates devices (contract instances) and keeps track of their location.
 - [DepositDevice](contracts/DepositDevice.sol): device instance contract. Keeps track of the actions performed on a single device.
 
 ### [API](src)
 API that acts as an interface to interact with the smart contracts.
-Calls defined inside [this file](src/routes/devices.js).
+Calls defined inside three different files, [devices](src/routes/devices.js), [credentials](src/routes/credentials.js) and [api_management](src/routes/api_management.js).
 
 ## Usage
 

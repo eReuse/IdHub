@@ -237,6 +237,16 @@ async function requestCredential(){
     print_post_result(res,false)
 }
 
+async function transferDevice(){
+    params = {
+        DeviceCHID: rl.question("Device to transfer: "),
+        newOwner: rl.question("Address of the new owner: "),
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("requestCredential",params)
+    print_post_result(res,false)
+}
+
 function menu(){
     return "[1] Register device.\n"+
     "[2] Issue a new passport.\n"+
@@ -249,6 +259,7 @@ function menu(){
     "[9] Register new user.\n"+
     "[a] Invalidate user.\n" +
     "[b] Request credential.\n" +
+    "[c] Transfer device.\n" +
     "\nChoose an option:" 
     
 }
@@ -311,6 +322,9 @@ async function main(){
                 break;
             case 'b':
                 await requestCredential()
+                break;
+            case 'c':
+                await transferDevice()
                 break;
         }
     }  

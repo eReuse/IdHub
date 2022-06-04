@@ -14,6 +14,7 @@ const cosmos_name = "cosmos"
 
 
 iota.check_iota_index()
+//multiacc.startSetup()
 
 function get_error_object(error) {
   switch (error) {
@@ -44,6 +45,7 @@ class Parameters {
     this.type = req.body.Type ?? "";
     this.dlt = req.headers.dlt ?? "";
     this.credentialType = req.body.CredentialType ?? "";
+    this.newOwner = req.body.NewOwner ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
   }
 }
@@ -359,6 +361,61 @@ router
   }
 })
 
+.post("/transferOwnership", async (req, res, next) => {
+  const parameters = new Parameters(req)
+  var response_data;
+  try {
+    console.log(`Called /transferOwnership with chid: ${parameters.deviceCHID} and newOwner ${parameters.newOwner}`)
+
+    check_dlt(parameters.dlt)
+    check_undefined_params([parameters.deviceCHID, parameters.newOwner])
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) throw new BadRequest("Invalid API token.")
+
+    if (parameters.dlt == iota_name) {
+     //TODO 
+    }
+
+    else if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      const txResponse = await depositDeviceContract.transferDevice(parameters.newOwner, "new_registrant", { gasLimit: 6721975 })
+      const txReceipt = await txResponse.wait()
+      var args = ethHelper.getEvents
+      (txReceipt, 'transferProof', ethereum.depositDeviceIface)
+
+      response_data = {
+        oldOwner: args.supplierAddress,
+        newOwner: args.receiverAddress,
+        timestamp: parseInt(Number(args.timestamp), 10)
+      }
+    }
+
+    res.status(200);
+    res.json({
+      data: response_data
+    })
+  }
+
+  catch (e) {
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      error: error_object.message,
+    })
+    next(e)
+  }
+})
+
 .post("/getProofs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
@@ -633,12 +690,5 @@ router
     next(e)
   }
 })
-
-// const port = 3010
-// const host = "0.0.0.0"
-
-// app.listen(port, host, () => {
-//   console.log(`Example app listening at http://${host}:${port}`)
-// })
 
 module.exports = router

@@ -8,6 +8,10 @@ contract AccessList {
 
     address trustAnchor;
 
+    constructor(address _trustAnchor) public {
+        trustAnchor = _trustAnchor;
+    }
+
     modifier TAnotSet() {
         require(
             trustAnchor == address(0),
@@ -43,6 +47,10 @@ contract AccessList {
     }
 
     //registers
+    function registerIssuer(address _address) public TAOnly {
+        issuers[_address] = true;
+    }
+
     function registerOperator(address _address) public TAIssuerOnly {
         operators[_address] = true;
     }
@@ -56,6 +64,10 @@ contract AccessList {
     }
 
     //invalidates
+    function invalidateIssuer(address _address) public TAOnly {
+        issuers[_address] = false;
+    }
+
     function invalidateOperator(address _address) public TAIssuerOnly {
         operators[_address] = false;
     }

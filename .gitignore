@@ -1,5 +1,5 @@
 .node-persist
-
+build/contracts
 # Logs
 logs
 *.log

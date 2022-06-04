@@ -4,11 +4,18 @@ const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['5777'].address;
 
+const AccessList = require('../../../build/contracts/AccessList.json');
+const ACCESSLIST_ADDRESS = AccessList.networks['5777'].address;
+
+
 //const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
 const privateKey = "765159de24c5bd2abfbd8c95aba6ee84e35b62a22e39338f3b1a71e0145fab09"
 
 const deviceFactoryIface = new ethers.utils.Interface(
   require('../../../build/contracts/DeviceFactory.json').abi
+)
+const accessListIface = new ethers.utils.Interface(
+  require('../../../build/contracts/AccessList.json').abi
 )
 const depositDeviceIface = new ethers.utils.Interface(
   require('../../../build/contracts/DepositDevice.json').abi
@@ -25,11 +32,21 @@ const defaultDeviceFactoryContract = new ethers.Contract(
   require('../../../build/contracts/DeviceFactory.json').abi,
   signer
 )
+
+const defaultAccessListContract = new ethers.Contract(
+  ACCESSLIST_ADDRESS,
+  require('../../../build/contracts/AccessList.json').abi,
+  signer
+)
+
 module.exports = {
   DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
+  ACCESSLIST_ADDRESS: ACCESSLIST_ADDRESS,
   deviceFactoryIface: deviceFactoryIface,
+  accessListIface: accessListIface,
   depositDeviceIface: depositDeviceIface,
   provider: provider,
   signer: signer,
-  defaultDeviceFactoryContract: defaultDeviceFactoryContract
+  defaultDeviceFactoryContract: defaultDeviceFactoryContract,
+  defaultAccessListContract: defaultAccessListContract
 }
