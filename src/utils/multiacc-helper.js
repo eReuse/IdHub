@@ -5,7 +5,6 @@ const adminIdentity = require('./iota/adminIdentity.json')
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const ethers = require("ethers")
 const ethereum = require("../utils/ethereum/ethereum-config.js")
-const iota = require("../utils/iota/iota-helper.js")
 var fs = require('fs');
 
 
@@ -56,39 +55,39 @@ async function set_acc_data(token, data) {
 }
 
 
-// async function startSetup() {
-//   fs.readdir("../routes/.node-persist/storage", function (err, files) {
-//     if (err) {
-//       // throw error?
-//     } else {
-//       if (!files.length) {
-//         //dir empty
-//       }
-//       else {
-//         //dir not empty
-//       }
-//     }
-//   });
+async function startSetup() {
+  fs.readdir("../routes/.node-persist/storage", async function (err, files) {
+    if (err) {
+      // throw error?
+    } else {
+      if (!files.length) {
+        //dir empty
+        //ask for ETH privatekey on startup?
+        const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
+        const token_object = generate_token()
+        wallet = new ethers.Wallet(privateKey, ethereum.provider)
 
-//   // directory appears to be empty
-//         // enter ethPrivateKey when starting API?
-//         // const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
-//         // const token_object = generate_token()
-//         // wallet = new ethers.Wallet(privateKey, ethereum.provider)
-//         // cant create identiy with custom iota id?
-//         // var iota_id = iota.create_identity()
-//         // adminIdentity.doc.id
-//         // await storage.init()
-//         // await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: { credentials: {} } })
-//         // token_object.token
-//         // guardar api_token com a especial?
-// }
+        const iota_id = adminIdentity.doc.id
+        const iota_key = adminIdentity.key.secret
+
+        await storage.init()
+        await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota_key: iota_key, iota: { credentials: {} } })
+        console.log("Admin token " + token_object.token)
+      }
+      else {
+        //dir not empty
+        console.log("Admin user already set")
+      }
+    }
+  });
+
+}
 
 module.exports = {
   generate_token,
   check_token,
   delete_token,
   get_acc_data,
-  set_acc_data
-  //startSetup
+  set_acc_data,
+  startSetup
 }

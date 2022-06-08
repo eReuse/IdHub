@@ -14,7 +14,7 @@ const cosmos_name = "cosmos"
 
 
 iota.check_iota_index()
-//multiacc.startSetup()
+multiacc.startSetup()
 
 function get_error_object(error) {
   switch (error) {
