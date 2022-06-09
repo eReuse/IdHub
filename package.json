@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@iota/is-client": "^0.1.2",
-    "@iota/is-ict-dpp": "0.0.7",
+    "@iota/is-ict-dpp": "0.0.8",
     "@truffle/hdwallet-provider": "^1.5.1",
     "axios": "^0.24.0",
     "crypto-js": "^4.1.1",

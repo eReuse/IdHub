@@ -13,8 +13,11 @@ const iota_name = "iota"
 const cosmos_name = "cosmos"
 
 
-iota.check_iota_index()
-multiacc.startSetup()
+async function initial_steps(){
+  await iota.check_iota_index()
+  await multiacc.set_admin()
+}
+initial_steps()
 
 function get_error_object(error) {
   switch (error) {
@@ -88,15 +91,17 @@ router
       if ((await iota.lookup_device_channel(parameters.deviceCHID) != false)) {
         throw new BadRequest("Device already exists.")
       }
+      const credential = await iota.get_credential(parameters.api_token, "Operator")
+      if(credential == undefined) throw new BadRequest("Operator credential lacking.")
       var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
       
       var userData = await multiacc.get_acc_data(parameters.api_token)
       //it must be possible to do this better (maybe)
-      if (userData.iota.credentials?.ownership == undefined){
-        userData.iota.credentials.ownership = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
+      if (userData.iota.credentials?.Ownership == undefined){
+        userData.iota.credentials.Ownership = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
       }
       else {
-        userData.iota.credentials.ownership[parameters.deviceCHID] = iota_creation_response.verifiableCredential
+        userData.iota.credentials.Ownership[parameters.deviceCHID] = iota_creation_response.verifiableCredential
       }
       await multiacc.set_acc_data(parameters.api_token, userData)
 
@@ -371,13 +376,42 @@ router
     check_undefined_params([parameters.deviceCHID, parameters.newOwner])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
+    const target_valid = await multiacc.check_exists(parameters.newOwner)
+    if(!target_valid) throw new BadRequest("New owner doesn't exist.")
 
     if (parameters.dlt == iota_name) {
-     //TODO 
+      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
+        throw new BadRequest("CHID not registered.")
+      }
+      const iota_id = await iota.get_iota_id(parameters.api_token)
+      const target_id = await iota.get_iota_id(parameters.newOwner)
+      const credential = await iota.get_credential(parameters.api_token, "Ownership", parameters.deviceCHID)
+      const new_owner_credential = await iota.transfer_ownership(iota_id,credential,target_id,parameters.deviceCHID)
+
+      //current owner
+      var currentOwnerData = await multiacc.get_acc_data(parameters.api_token)
+      delete currentOwnerData.iota.credentials.Ownership[parameters.deviceCHID]
+      await multiacc.set_acc_data(parameters.api_token, currentOwnerData)
+
+      var targetUserData = await multiacc.get_acc_data(parameters.newOwner)
+      //it must be possible to do this better (maybe)
+      if (targetUserData.iota.credentials?.Ownership == undefined){
+        targetUserData.iota.credentials.Ownership = {[parameters.deviceCHID]: new_owner_credential}
+      }
+      else {
+        targetUserData.iota.credentials.Ownership[parameters.deviceCHID] = new_owner_credential
+      }
+      await multiacc.set_acc_data(parameters.newOwner, targetUserData)
+
+      response_data = {
+        credential: new_owner_credential
+      }
+
     }
 
     else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
+      const new_owner_wallet = await ethHelper.get_wallet(parameters.newOwner)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
 
@@ -388,7 +422,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.transferDevice(parameters.newOwner, "new_registrant", { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.transferDevice(new_owner_wallet.address, { gasLimit: 6721975 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'transferProof', ethereum.depositDeviceIface)

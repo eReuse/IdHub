@@ -47,7 +47,7 @@ contract AccessList {
     }
 
     //registers
-    function registerIssuer(address _address) public TAOnly {
+    function registerIssuer(address _address) public TAonly {
         issuers[_address] = true;
     }
 
@@ -64,7 +64,7 @@ contract AccessList {
     }
 
     //invalidates
-    function invalidateIssuer(address _address) public TAOnly {
+    function invalidateIssuer(address _address) public TAonly {
         issuers[_address] = false;
     }
 

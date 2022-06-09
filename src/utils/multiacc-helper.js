@@ -55,32 +55,62 @@ async function set_acc_data(token, data) {
 }
 
 
-async function startSetup() {
-  fs.readdir("../routes/.node-persist/storage", async function (err, files) {
-    if (err) {
-      // throw error?
-    } else {
-      if (!files.length) {
-        //dir empty
-        //ask for ETH privatekey on startup?
-        const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
-        const token_object = generate_token()
-        wallet = new ethers.Wallet(privateKey, ethereum.provider)
+async function set_admin() {
+  // fs.readdir("../routes/.node-persist/storage", async function (err, files) {
+  //   if (err) {
+  //     // throw error?
+  //   } else {
+  //     if (!files.length) {
+  //       //dir empty
+  //       //ask for ETH privatekey on startup?
+  //       const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
+  //       const token_object = generate_token()
+  //       wallet = new ethers.Wallet(privateKey, ethereum.provider)
 
-        const iota_id = adminIdentity.doc.id
-        const iota_key = adminIdentity.key.secret
+  //       const iota_id = adminIdentity.doc.id
+  //       const iota_key = adminIdentity.key.secret
 
-        await storage.init()
-        await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota_key: iota_key, iota: { credentials: {} } })
-        console.log("Admin token " + token_object.token)
-      }
-      else {
-        //dir not empty
-        console.log("Admin user already set")
-      }
-    }
-  });
+  //       await storage.init()
+  //       await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota_key: iota_key, iota: { credentials: {} } })
+  //       console.log("Admin token " + token_object.token)
+  //     }
+  //     else {
+  //       //dir not empty
+  //       console.log("Admin user already set")
+  //     }
+  //   }
+  // });
 
+  const admin_object = await storage.getItem("admin")
+  if (admin_object == undefined) {
+    console.log("Setting admin user...")
+    const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
+    const token_object = generate_token()
+    const wallet = new ethers.Wallet(privateKey, ethereum.provider)
+
+    // const iota_id = adminIdentity.doc.id
+    // const iota_key = adminIdentity.key.secret
+
+    await storage.init()
+    await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: adminIdentity, iota: { credentials: {} } })
+    console.log("Admin token " + token_object.token)
+    await storage.setItem("admin", token_object.prefix)
+  }
+  else{
+    console.log("Admin user already set.")
+  }
+
+}
+
+async function check_admin(token){
+  var split_token = token.split(".");
+  const admin_prefix = await storage.getItem("admin")
+  return admin_prefix == split_token[0]
+}
+
+async function check_exists(prefix){
+  const user_object = await storage.getItem(prefix)
+  return !(user_object == undefined)
 }
 
 module.exports = {
@@ -89,5 +119,7 @@ module.exports = {
   delete_token,
   get_acc_data,
   set_acc_data,
-  startSetup
+  set_admin,
+  check_admin,
+  check_exists
 }

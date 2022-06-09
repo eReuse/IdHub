@@ -2,10 +2,10 @@ const ethers = require("ethers")
 
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['5777'].address;
+const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['456'].address;
 
 const AccessList = require('../../../build/contracts/AccessList.json');
-const ACCESSLIST_ADDRESS = AccessList.networks['5777'].address;
+const ACCESSLIST_ADDRESS = AccessList.networks['456'].address;
 
 
 //const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
@@ -22,8 +22,8 @@ const depositDeviceIface = new ethers.utils.Interface(
 )
 
 const provider = new ethers.providers.JsonRpcProvider(
-  //"HTTP://10.1.3.30:8545"
-  "HTTP://127.0.0.1:7545"
+  "HTTP://10.1.3.30:8545"
+  //"HTTP://127.0.0.1:7545"
 )
 
 const signer = new ethers.Wallet(privateKey, provider)

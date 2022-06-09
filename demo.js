@@ -228,22 +228,32 @@ async function invalidateUser(){
     print_post_result(res,false)
 }
 
-async function requestCredential(){
+async function setIssuer(){
     params = {
-        CredentialType: rl.question("Credential type: "),
+        target_user: rl.question("Target user: "),
         api_token: rl.question("api_token: "),
     }
-    const res = await make_post("requestCredential",params)
+    const res = await make_post("setIssuer",params)
+    print_post_result(res,false)
+}
+
+async function issueCredential(){
+    params = {
+        CredentialType: rl.question("Credential type: "),
+        target_user: rl.question("Target user: "),
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("issueCredential",params)
     print_post_result(res,false)
 }
 
 async function transferDevice(){
     params = {
         DeviceCHID: rl.question("Device to transfer: "),
-        newOwner: rl.question("Address of the new owner: "),
+        NewOwner: rl.question("New owner: "),
         api_token: rl.question("api_token: "),
     }
-    const res = await make_post("requestCredential",params)
+    const res = await make_post("transferOwnership",params)
     print_post_result(res,false)
 }
 
@@ -258,8 +268,9 @@ function menu(){
     "[8] Get deRegister proof.\n"+
     "[9] Register new user.\n"+
     "[a] Invalidate user.\n" +
-    "[b] Request credential.\n" +
-    "[c] Transfer device.\n" +
+    "[b] Set issuer credential.\n" +
+    "[c] Issue credential.\n" +
+    "[d] Transfer device.\n" +
     "\nChoose an option:" 
     
 }
@@ -321,9 +332,12 @@ async function main(){
                 await invalidateUser()
                 break;
             case 'b':
-                await requestCredential()
+                await setIssuer()
                 break;
             case 'c':
+                await issueCredential()
+                break;
+            case 'd':
                 await transferDevice()
                 break;
         }

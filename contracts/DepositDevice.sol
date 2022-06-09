@@ -248,7 +248,7 @@ contract DepositDevice is Ownable {
     }
 
     //API DONE
-    function transferDevice(address _to, string _new_registrant)
+    function transferDevice(address _to)
         public
         onlyOwner
     {

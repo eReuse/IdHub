@@ -230,7 +230,7 @@ async function get_credential(token, type, chid=undefined) {
     var split_token = token.split(".");
     const item = await storage.getItem(split_token[0]);
 
-    if(type != "ownership") return item.iota.credentials[type]
+    if(type != "Ownership") return item.iota.credentials[type]
     else return item.iota.credentials[type][chid]
     
 }
@@ -248,6 +248,20 @@ async function check_iota_index() {
     }
 }
 
+async function transfer_ownership(userIdentity, credential, newOwnerIdentity, chid){
+    const deviceChannelAddress = await lookup_device_channel(chid)
+    const newCredential = await identityService.changeOwnership({
+        credential: credential,
+        managerIdentity: managerIdentity,
+        ownerIdentity: toDppIdentity(userIdentity),
+        newOwnerIdentity: toDppIdentity(newOwnerIdentity),
+        chId: chid,
+        channelAddress: deviceChannelAddress
+    })
+    return newCredential
+
+}
+
 module.exports = {
     create_identity,
     create_index_channel,
@@ -262,5 +276,6 @@ module.exports = {
     check_iota_index,
     get_iota_id,
     get_credential,
-    issue_credential
+    issue_credential,
+    transfer_ownership
 }
