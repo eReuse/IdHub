@@ -233,8 +233,7 @@ contract DepositDevice is Ownable {
         return deRegisterProofs;
     }
 
-
-     function getTrasferProofs() public view returns (TransferProofData[] _data){
+     function getTrasferProofs() public view onlyOpWitVer returns (TransferProofData[] _data){
          return transferProofs;
      }
 
