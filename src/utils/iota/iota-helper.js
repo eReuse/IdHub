@@ -3,6 +3,7 @@ const { DppClient, toDppIdentity } = require('@iota/is-ict-dpp');
 const { defaultConfig } = require('./iota-config');
 const storage = require('node-persist');
 const {readFileSync} = require('fs');
+const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../constants')
 
 const relPath = process.cwd() + "/../utils/iota/";
 const identity_file = "./adminIdentity.json"
@@ -226,12 +227,23 @@ async function get_iota_id(token) {
     return item.iota_id
 }
 
-async function get_credential(token, type, chid=undefined) {
+async function get_credential(token, allowed_credentials, chid=undefined) {
     var split_token = token.split(".");
     const item = await storage.getItem(split_token[0]);
 
-    if(type != "Ownership") return item.iota.credentials[type]
-    else return item.iota.credentials[type][chid]
+    if(chid != undefined && item.iota.credentials[OWNERSHIP]?.[chid] != undefined)
+        return item.iota.credentials[OWNERSHIP][chid]
+    
+    for(const credential_type of allowed_credentials) {
+        if(item.iota.credentials[credential_type] != undefined)
+            return item.iota.credentials[credential_type]
+    }
+
+    return undefined
+
+
+    // if(type != "Ownership") return item.iota.credentials[type]
+    // else return item.iota.credentials[type][chid]
     
 }
 

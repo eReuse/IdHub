@@ -7,6 +7,8 @@ const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 
+const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../utils/constants')
+
 
 const ethereum_name = "ethereum"
 const iota_name = "iota"
@@ -47,7 +49,6 @@ class Parameters {
     this.issuerID = req.body.IssuerID ?? "";
     this.type = req.body.Type ?? "";
     this.dlt = req.headers.dlt ?? "";
-    this.credentialType = req.body.CredentialType ?? "";
     this.newOwner = req.body.NewOwner ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
   }
@@ -91,8 +92,8 @@ router
       if ((await iota.lookup_device_channel(parameters.deviceCHID) != false)) {
         throw new BadRequest("Device already exists.")
       }
-      const credential = await iota.get_credential(parameters.api_token, "Operator")
-      if(credential == undefined) throw new BadRequest("Operator credential lacking.")
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR, WITNESS])
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
       var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
       
       var userData = await multiacc.get_acc_data(parameters.api_token)
@@ -167,7 +168,8 @@ router
       }
 
       //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
       var userData = await multiacc.get_acc_data(parameters.api_token)
       console.log("USER DATA " + userData)
 
@@ -243,8 +245,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_timestamp = await iota.write_device_channel(iota_id, credential, deviceCHID, "proof_of_issue", {
         DeviceDPP: `${deviceCHID}:${devicePHID}`,
@@ -314,8 +316,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_timestamp = await iota.write_device_channel(iota_id, credential, parameters.deviceCHID, "generic_proof", {
         IssuerID: parameters.issuerID,
@@ -385,7 +387,8 @@ router
       }
       const iota_id = await iota.get_iota_id(parameters.api_token)
       const target_id = await iota.get_iota_id(parameters.newOwner)
-      const credential = await iota.get_credential(parameters.api_token, "Ownership", parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
       const new_owner_credential = await iota.transfer_ownership(iota_id,credential,target_id,parameters.deviceCHID)
 
       //current owner
@@ -468,8 +471,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "generic_proof")
 
@@ -538,8 +541,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_issue")
       response_data = iota_proofs
@@ -608,8 +611,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_register")
 
@@ -676,8 +679,8 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, parameters.credentialType, parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_deregister")
 
