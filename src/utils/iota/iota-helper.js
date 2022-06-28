@@ -113,6 +113,8 @@ async function read_device_channel(userIdentity, credential, chid) {
         })
     }
     console.log("Data read.")
+    // console.log(channelData)
+    // console.log(channelData[0].toString('hex'))
     return channelData
 }
 
@@ -135,14 +137,20 @@ async function read_specific_device_proofs(userIdentity, credential, chid, proof
     
     if (oldest_deregister != undefined) {
         channelData.forEach((data) => {
-            if (data.log.type == proof && data.log.payload.timestamp < oldest_deregister)
-                response.push(data.log.payload)
+            if (data.log.type == proof && data.log.payload.timestamp < oldest_deregister){
+                let data_to_push = data.log.payload
+                data_to_push.messageId = data.messageId
+                response.push(data_to_push)
+            }
         })
     }
     else {
         channelData.forEach((data) => {
-            if (data.log.type == proof)
-                response.push(data.log.payload)
+            if (data.log.type == proof){
+                let data_to_push = data.log.payload
+                data_to_push.messageId = data.messageId
+                response.push(data_to_push)
+            }
         })
     }
 

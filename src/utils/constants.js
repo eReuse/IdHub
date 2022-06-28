@@ -11,7 +11,7 @@ const OWNERSHIP = "Ownership"
 
 const CREDENTIAL_TYPES = [OPERATOR, WITNESS, VERIFIER]
 
-export default {
+module.exports = {
     ETHEREUM_NAME,
     IOTA_NAME,
     OBADA_NAME,

@@ -8,6 +8,7 @@ const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
+const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP, ISSUER} = require('../utils/constants')
 
 const app = express()
 
@@ -64,10 +65,10 @@ router
 
             if (dlt == iota_name){
                 const target_iota_id = await iota.get_iota_id(target_user)
-                var credential = await iota.issue_credential(target_iota_id, "Issuer")
+                var credential = await iota.issue_credential(target_iota_id, ISSUER)
                 var target_data = await multiacc.get_acc_data(target_user)
                 //it must be possible to do this better (maybe)
-                target_data.iota.credentials["Issuer"] = credential
+                target_data.iota.credentials[ISSUER] = credential
                 await multiacc.set_acc_data(target_user, target_data)
                 response_data = {
                     credential: credential,
@@ -116,7 +117,7 @@ router
             if(!target_valid) throw new BadRequest("Target user doesn't exist.")
 
             if (dlt == iota_name) {
-                const issuer_credential = await iota.get_credential(api_token, "Issuer")
+                const issuer_credential = await iota.get_credential(api_token, [ISSUER])
                 if (issuer_credential == undefined) throw new BadRequest("User is not issuer.")
                 const target_iota_id = await iota.get_iota_id(target_user)
                 var credential = await iota.issue_credential(target_iota_id, credentialType)

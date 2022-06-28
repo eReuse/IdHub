@@ -245,7 +245,7 @@ router
         throw new BadRequest("CHID not registered.")
       }
 
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], parameters.deviceCHID)
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], deviceCHID)
       if(credential == undefined) throw new BadRequest("No valid credential found.")
 
       var iota_timestamp = await iota.write_device_channel(iota_id, credential, deviceCHID, "proof_of_issue", {
