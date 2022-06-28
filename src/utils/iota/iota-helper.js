@@ -262,13 +262,16 @@ async function check_iota_index() {
 
 async function transfer_ownership(userIdentity, credential, newOwnerIdentity, chid){
     const deviceChannelAddress = await lookup_device_channel(chid)
+    var timestamp = get_timestamp()
     const newCredential = await identityService.changeOwnership({
         credential: credential,
         managerIdentity: managerIdentity,
         ownerIdentity: toDppIdentity(userIdentity),
         newOwnerIdentity: toDppIdentity(newOwnerIdentity),
         chId: chid,
-        channelAddress: deviceChannelAddress
+        channelAddress: deviceChannelAddress,
+        type: "proof_of_transfer",
+        payload: {from: toDppIdentity(userIdentity).did, to: toDppIdentity(newOwnerIdentity).did, timestamp: timestamp}
     })
     return newCredential
 

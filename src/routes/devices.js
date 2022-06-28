@@ -98,11 +98,11 @@ router
       
       var userData = await multiacc.get_acc_data(parameters.api_token)
       //it must be possible to do this better (maybe)
-      if (userData.iota.credentials?.Ownership == undefined){
-        userData.iota.credentials.Ownership = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
+      if (userData.iota.credentials?.[OWNERSHIP] == undefined){
+        userData.iota.credentials[OWNERSHIP] = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
       }
       else {
-        userData.iota.credentials.Ownership[parameters.deviceCHID] = iota_creation_response.verifiableCredential
+        userData.iota.credentials[OWNERSHIP][parameters.deviceCHID] = iota_creation_response.verifiableCredential
       }
       await multiacc.set_acc_data(parameters.api_token, userData)
 
@@ -393,16 +393,16 @@ router
 
       //current owner
       var currentOwnerData = await multiacc.get_acc_data(parameters.api_token)
-      delete currentOwnerData.iota.credentials.Ownership[parameters.deviceCHID]
+      delete currentOwnerData.iota.credentials[OWNERSHIP][parameters.deviceCHID]
       await multiacc.set_acc_data(parameters.api_token, currentOwnerData)
 
       var targetUserData = await multiacc.get_acc_data(parameters.newOwner)
       //it must be possible to do this better (maybe)
-      if (targetUserData.iota.credentials?.Ownership == undefined){
-        targetUserData.iota.credentials.Ownership = {[parameters.deviceCHID]: new_owner_credential}
+      if (targetUserData.iota.credentials?.[OWNERSHIP] == undefined){
+        targetUserData.iota.credentials[OWNERSHIP] = {[parameters.deviceCHID]: new_owner_credential}
       }
       else {
-        targetUserData.iota.credentials.Ownership[parameters.deviceCHID] = new_owner_credential
+        targetUserData.iota.credentials[OWNERSHIP][parameters.deviceCHID] = new_owner_credential
       }
       await multiacc.set_acc_data(parameters.newOwner, targetUserData)
 
