@@ -66,7 +66,6 @@ async function register_device(){
 async function deRegisterDevice(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("deRegisterDevice",params)
@@ -80,7 +79,6 @@ async function generateProof(){
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
         Type: rl.question("Document type: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("generateProof",params)
@@ -133,7 +131,6 @@ async function getRecycleProofs(){
 async function getProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getProofs",params)
@@ -143,7 +140,6 @@ async function getProofs(){
 async function getIssueProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getIssueProofs",params)
@@ -153,7 +149,6 @@ async function getIssueProofs(){
 async function getRegisterProofsByCHID(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getRegisterProofsByCHID",params)
@@ -163,7 +158,6 @@ async function getRegisterProofsByCHID(){
 async function getDeRegisterProofs(){
     params = {
         DeviceCHID: rl.question("Device CHID: "),
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("getDeRegisterProofs",params)
@@ -205,7 +199,6 @@ async function issuePassport(){
         DocumentID: rl.question("Document ID: "),
         DocumentSignature: rl.question("Document signature: "),
         IssuerID: rl.question("IssuerID: "), 
-        CredentialType: rl.question("Credential type: "),
         api_token: rl.question("api_token: "),
     }
     const res = await make_post("issuePassport",params)
