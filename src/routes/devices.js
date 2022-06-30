@@ -593,6 +593,75 @@ router
   }
 })
 
+.post("/getTransferProofs", async (req, res, next) => {
+  const parameters = new Parameters(req)
+  var response_data;
+
+  try {
+    console.log(`Called /getTransferProofs with chid: ${parameters.deviceCHID}`)
+    check_dlt(parameters.dlt)
+    check_undefined_params([parameters.deviceCHID])
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) throw new BadRequest("Invalid API token.")
+
+    if (parameters.dlt == iota_name) {
+      const iota_id = await iota.get_iota_id(parameters.api_token)
+
+      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
+      if(credential == undefined) throw new BadRequest("No valid credential found.")
+
+      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_transfer")
+      response_data = iota_proofs
+    }
+
+
+    else if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      const value = await depositDeviceContract.getTrasferProofs();
+      var data = []
+      if (value.length != 0) {
+        value.forEach(elem => {
+          let proof_data = {
+            OldOwner: elem[0],
+            NewOwner: elem[1],
+            timestamp: parseInt(Number(elem[2]), 10),
+            blockNumber: parseInt(Number(elem[3]), 10),
+          }
+          data.push(proof_data)
+        })
+      }
+      response_data = data
+    }
+
+    res.status(200);
+    res.json({
+      data: response_data,
+    })
+  }
+  catch (e) {
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
+  }
+})
+
+
 .post("/getRegisterProofsByCHID", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
