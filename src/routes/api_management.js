@@ -7,6 +7,7 @@ const ethers = require("ethers")
 const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
+const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 
 
 
@@ -33,6 +34,7 @@ function get_error_object(error) {
 router
 
 .post("/registerUser", async (req, res, next) => {
+  console.log("im here")
     const privateKey = req.body.privateKey ?? ""
     var wallet
     try {
@@ -44,11 +46,12 @@ router
       else {
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
+
   
       //Creation of IOTA identity.
       //TODO: check if it's provided in request.
-      var iota_id = await iota.create_identity()
-  
+      //var iota_id = await iota.create_identity()
+      var iota_id= "";      
       await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: {credentials:{}}})
       res.json({
         status: "Success.",
@@ -94,5 +97,47 @@ router
     }
   
 })
+
+.post("/checkUserRoles", async (req, res, next) => {
+    const api_token = req.body.api_token;
+    console.log(`Called /checkUserRoles`)
+    try {
+      //TODO: check IOTA roles. store output into iota_response_data
+
+      const valid_token = await multiacc.check_token(api_token)
+      if (!valid_token) throw new BadRequest("Invalid API token.")
+
+      const wallet = await ethHelper.get_wallet(api_token)
+      
+      const accessListContract = ethHelper.createContract
+      (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", wallet)
+
+      const isIssuer = await accessListContract.checkIfIssuer(wallet.address);
+      const isOperator = await accessListContract.checkIfOperator(wallet.address);
+      const isWitness = await accessListContract.checkIfWitness(wallet.address);
+      const isVerifier = await accessListContract.checkIfVerifier(wallet.address);
+
+      var response_data_eth = {
+        isIssuer: isIssuer,
+        isOperator: isOperator,
+        isWitness: isWitness,
+        isVerifier: isVerifier,
+      }
+      
+      res.status(200);
+      res.json({
+        data: response_data_eth
+      })
+    }
+
+    catch (e) {
+      const error_object = get_error_object(e.message)
+      res.status(error_object.code);
+      res.json({
+        error: error_object.message,
+      })
+      next(e)
+    }
+  })
 
 module.exports = router

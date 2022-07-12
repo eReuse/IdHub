@@ -81,6 +81,10 @@ contract AccessList {
     }
 
     //getters. Could be internal since they are used by modifiers
+    function checkIfIssuer(address _address) public view returns (bool result) {
+        result = issuers[_address];
+    }
+
     function checkIfOperator(address _address) public view returns (bool result) {
         result = operators[_address];
     }
