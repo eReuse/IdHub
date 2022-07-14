@@ -34,7 +34,6 @@ function get_error_object(error) {
 router
 
 .post("/registerUser", async (req, res, next) => {
-  console.log("im here")
     const privateKey = req.body.privateKey ?? ""
     var wallet
     try {
@@ -47,11 +46,10 @@ router
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
 
-  
       //Creation of IOTA identity.
       //TODO: check if it's provided in request.
-      //var iota_id = await iota.create_identity()
-      var iota_id= "";      
+      var iota_id = await iota.create_identity()
+
       await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: {credentials:{}}})
       res.json({
         status: "Success.",
