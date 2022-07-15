@@ -43,6 +43,11 @@ router
         wallet = ethers.Wallet.createRandom()
       }
       else {
+        //checks if privateKey is a hexadecimal 64 character string
+        //https://www.sitepoint.com/community/t/how-to-check-if-string-is-hexadecimal/162739/5
+        if (a.toString(16) !== privateKey.toLowerCase() || (privateKey.length != 64)) {
+          throw new BadRequest("Invalid PrivateKey format")
+        }
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
 

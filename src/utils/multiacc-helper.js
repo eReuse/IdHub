@@ -5,8 +5,6 @@ const adminIdentity = require('./iota/adminIdentity.json')
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const ethers = require("ethers")
 const ethereum = require("../utils/ethereum/ethereum-config.js")
-var fs = require('fs');
-
 
 
 function generate_token() {
