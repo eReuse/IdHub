@@ -43,9 +43,8 @@ router
         wallet = ethers.Wallet.createRandom()
       }
       else {
-        //checks if privateKey is a hexadecimal 64 character string
-        //https://www.sitepoint.com/community/t/how-to-check-if-string-is-hexadecimal/162739/5
-        if (a.toString(16) !== privateKey.toLowerCase() || (privateKey.length != 64)) {
+        var re = /[0-9A-Fa-f]{6}/g;
+        if((!re.test(privateKey)) || (privateKey.length != 64)) {
           throw new BadRequest("Invalid PrivateKey format")
         }
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
@@ -53,9 +52,13 @@ router
 
       //Creation of IOTA identity.
       //TODO: check if it's provided in request.
-      var iota_id = await iota.create_identity()
+      
+      //IOTA DOWN atm, placeholder
+      var iota_id = "iota_placeholder"
+      //var iota_id = await iota.create_identity()
 
       await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: {credentials:{}}})
+      res.status(201);
       res.json({
         status: "Success.",
         data: {
