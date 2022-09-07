@@ -87,6 +87,7 @@ router
 
             res.status(201);
             res.json({
+                status: "Success.",
                 data: response_data
             })
         }
@@ -148,6 +149,7 @@ router
 
             res.status(201);
             res.json({
+                status: "Success.",
                 data: response_data
             })
         }

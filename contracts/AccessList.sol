@@ -32,7 +32,7 @@ contract AccessList {
         require(
             (trustAnchor == msg.sender ||
             issuers[msg.sender]),
-            "Only usable by current Trust Anchor account"
+            "Only usable by current Trust Anchor or an Issuer account"
         );
         _;
     }

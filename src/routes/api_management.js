@@ -86,6 +86,7 @@ router
       console.log(`Called /invalidateUser`)
       const deleted = await multiacc.delete_token(api_token)
       if (!deleted) throw new BadRequest("Invalid API token.")
+      res.status(200)
       res.json({
         status: "Success.",
         data: {
