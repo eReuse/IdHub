@@ -5,7 +5,7 @@ const storage = require('node-persist');
 const {readFileSync} = require('fs');
 const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../constants')
 
-const relPath = process.cwd() + "/../utils/iota/";
+const relPath = process.cwd() + "/utils/iota/";
 const identity_file = "./adminIdentity.json"
 const identity_path = relPath + identity_file;
 const managerIdentityJSON= JSON.parse(readFileSync(identity_path).toString());

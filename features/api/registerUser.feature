@@ -23,6 +23,5 @@ Feature: Register User to the API
     Scenario: RegisterUser with an invalid ethereum privkey
         Given a user with an invalid ethereum privkey
         When sends a Post request to the path "registerUser" with an ethereum privkey
-        Then gets a response with code 400
-        #And status "Success."
-        #And a valid api_token, the given ethereum_keypar and iota_id
+        Then gets an error response with code 400
+        And response error message "Invalid PrivateKey format"

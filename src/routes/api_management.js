@@ -2,6 +2,7 @@ const express = require('express'),
 router = express.Router();
 
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
+const ApiError = require('../utils/apiError')
 const storage = require('node-persist');
 const ethers = require("ethers")
 const iota = require("../utils/iota/iota-helper.js")
@@ -45,7 +46,8 @@ router
       else {
         var re = /[0-9A-Fa-f]{6}/g;
         if((!re.test(privateKey)) || (privateKey.length != 64)) {
-          throw new BadRequest("Invalid PrivateKey format")
+          next(ApiError.badRequest('Invalid PrivateKey format'));
+          return
         }
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
@@ -70,12 +72,11 @@ router
       })
     }
     catch (e) {
-      const error_object = get_error_object("Couldn't register the user.")
-      res.status(error_object.code);
+      // res.status(e.getCode());
       res.json({
-        status: error_object.message,
+        status: e.message,
       })
-      next(e)
+      next()
     }
   
   })
@@ -85,7 +86,10 @@ router
     try {
       console.log(`Called /invalidateUser`)
       const deleted = await multiacc.delete_token(api_token)
-      if (!deleted) throw new BadRequest("Invalid API token.")
+      if (!deleted) {
+        next(ApiError.badRequest('Invalid API token'));
+        return
+      }
       res.status(200)
       res.json({
         status: "Success.",
@@ -95,12 +99,11 @@ router
       })
     }
     catch (e) {
-      const error_object = get_error_object("Couldn't invalidate the user.")
-      res.status(error_object.code);
+      // res.status(e.getCode());
       res.json({
-        status: error_object.message,
+        status: e.message,
       })
-      next(e)
+      next()
     }
   
 })

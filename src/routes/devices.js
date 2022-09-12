@@ -15,11 +15,11 @@ const iota_name = "iota"
 const cosmos_name = "cosmos"
 
 
-async function initial_steps(){
-  await iota.check_iota_index()
-  await multiacc.set_admin()
-}
-initial_steps()
+// async function initial_steps(){
+//   await iota.check_iota_index()
+//   await multiacc.set_admin()
+// }
+//initial_steps()
 
 function get_error_object(error) {
   switch (error) {
