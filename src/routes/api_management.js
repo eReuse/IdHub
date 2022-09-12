@@ -72,11 +72,8 @@ router
       })
     }
     catch (e) {
-      // res.status(e.getCode());
-      res.json({
-        status: e.message,
-      })
-      next()
+      console.log(e)
+      next(e);
     }
   
   })
@@ -99,11 +96,8 @@ router
       })
     }
     catch (e) {
-      // res.status(e.getCode());
-      res.json({
-        status: e.message,
-      })
-      next()
+      console.log(e)
+      next(e);
     }
   
 })
@@ -141,12 +135,8 @@ router
     }
 
     catch (e) {
-      const error_object = get_error_object(e.message)
-      res.status(error_object.code);
-      res.json({
-        error: error_object.message,
-      })
-      next(e)
+      console.log(e)
+      next(e);
     }
   })
 
