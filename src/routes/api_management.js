@@ -14,24 +14,6 @@ const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 
 const app = express()
 
-function get_error_object(error) {
-    switch (error) {
-      case "Device already exists.":
-        return { code: 406, message: error }
-      case "CHID not registered.":
-        return { code: 406, message: error }
-      case "Incorrect DPP format.":
-        return { code: 406, message: error }
-      case "Couldn't register the user.":
-        return { code: 500, message: error }
-      case "Invalid API token.":
-        return { code: 500, message: error }
-      case "Couldn't invalidate the user.":
-        return { code: 500, message: error }
-    }
-    return { code: 500, message: "Blockchain service error." }
-  }
-
 router
 
 .post("/registerUser", async (req, res, next) => {
@@ -109,7 +91,10 @@ router
       //TODO: check IOTA roles. store output into iota_response_data
 
       const valid_token = await multiacc.check_token(api_token)
-      if (!valid_token) throw new BadRequest("Invalid API token.")
+      if (!valid_token) {
+          next(ApiError.badRequest('Invalid API token'));
+          return
+      } 
 
       const wallet = await ethHelper.get_wallet(api_token)
       
