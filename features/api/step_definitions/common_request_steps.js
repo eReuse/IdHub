@@ -19,6 +19,7 @@ Given('a valid API user', async function (){
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
         this.api_token = this.response.data.data.api_token
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
     this.params["api_token"] = this.api_token
@@ -29,6 +30,7 @@ Given ('an invalid API user', async function (){
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
         this.api_token = testhelper.invalidate_string(this.response.data.data.api_token)
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
     this.params["api_token"] = this.api_token
@@ -38,7 +40,9 @@ Given ('a valid target user', async function (){
     try {
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
         this.target_user = this.response.data.data.api_token.substring(0,15)
+        this.target_user_full = this.response.data.data.api_token
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
     this.params["target_user"] = this.target_user
@@ -49,6 +53,7 @@ Given ('an invalid target user', async function (){
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
         this.target_user = testhelper.invalidate_string(this.response.data.data.api_token.substring(0,15))
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
     this.params["target_user"] = this.target_user
@@ -58,6 +63,7 @@ When('sends a Post request to the path {string} with the given parameters', asyn
     try {
         this.response = await testhelper.make_post(string, this.params, "ethereum")
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
 });
@@ -66,6 +72,7 @@ When('sends a Post request to the path {string} without parameters', async funct
     try {
         this.response = await testhelper.make_post(string, this.params, "ethereum")
     } catch (err) {
+        console.log(err)
         this.response = err.response
     }
 });
