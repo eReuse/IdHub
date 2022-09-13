@@ -1,7 +1,6 @@
 const express = require('express'),
 router = express.Router();
 
-const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
 const ApiError = require('../utils/apiError')
 const storage = require('node-persist');
 const ethers = require("ethers")

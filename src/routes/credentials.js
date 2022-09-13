@@ -2,7 +2,7 @@ const express = require('express'),
 router = express.Router();
 
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
-const storage = require('node-persist');
+const ApiError = require('../utils/apiError')
 const ethers = require("ethers")
 const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
@@ -48,8 +48,8 @@ function check_dlt(dlt) {
 router
 
     .post("/setIssuer", async (req, res, next) => {
-        const api_token = req.body.api_token;
-        const target_user = req.body.target_user;
+        const api_token = req.body.api_token ?? "";
+        const target_user = req.body.target_user ?? "";
         const dlt = req.headers.dlt ?? "";
         var response_data
         try{
@@ -57,11 +57,20 @@ router
 
             check_dlt(dlt)
             const admin_token = await multiacc.check_admin(api_token)
-            if(!admin_token) throw new BadRequest("Need admin token.")
+            if(!admin_token) {
+                next(ApiError.badRequest('Need admin token.'));
+                return
+            }
             const valid_token = await multiacc.check_token(api_token)
-            if (!valid_token) throw new BadRequest("Invalid API token.")
+            if (!valid_token) {
+                next(ApiError.badRequest('Invalid API token.'));
+                return
+            }
             const target_valid = await multiacc.check_exists(target_user)
-            if(!target_valid) throw new BadRequest("Target user doesn't exist.")
+            if(!target_valid) {
+                next(ApiError.badRequest('Target user doesnt exist.'));
+                return
+            }
 
             if (dlt == iota_name){
                 const target_iota_id = await iota.get_iota_id(target_user)
@@ -92,13 +101,9 @@ router
             })
         }
         catch (e) {
-            const error_object = get_error_object(e.message)
-            res.status(error_object.code);
-            res.json({
-                error: error_object.message,
-            })
-            next(e)
-        }
+            console.log(e)
+            next(e);
+          }
     })
 
     .post("/issueCredential", async (req, res, next) => {
