@@ -149,9 +149,11 @@ router
   }
 
   catch (e) {
-    if (e.error.data.stack.includes("The message sender is not an operator")) {
+    if (Object.values(e.error.data)[0].reason == "The message sender is not an operator") {
+    //if (e.error.data.stack.includes("The message sender is not an operatsor")) {
       next(ApiError.badRequest('The user is not an operator'));
     }
+    else next(e)
     return
   }
 })
