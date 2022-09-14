@@ -1,7 +1,9 @@
 const express = require('express'),
 router = express.Router();
 
-const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
+//const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
+const ApiError = require('../utils/apiError')
+
 const iota = require("../utils/iota/iota-helper.js")
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
@@ -84,16 +86,23 @@ router
     check_dlt(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
 
     if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
       if ((await iota.lookup_device_channel(parameters.deviceCHID) != false)) {
-        throw new BadRequest("Device already exists.")
+        next(ApiError.badRequest('Device already exists'));
+        return
       }
       const credential = await iota.get_credential(parameters.api_token, [OPERATOR, WITNESS])
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
+      if(credential == undefined) {
+        next(ApiError.badRequest('No valid credential found'));
+        return
+      }
       var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
       
       var userData = await multiacc.get_acc_data(parameters.api_token)
@@ -140,12 +149,10 @@ router
   }
 
   catch (e) {
-    const error_object = get_error_object(e.message)
-    res.status(error_object.code);
-    res.json({
-      error: error_object.message,
-    })
-    next(e)
+    if (e.error.data.stack.includes("The message sender is not an operator")) {
+      next(ApiError.badRequest('The user is not an operator'));
+    }
+    return
   }
 })
 

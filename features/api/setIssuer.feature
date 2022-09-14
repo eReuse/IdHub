@@ -9,6 +9,7 @@ Feature: Set issuer credential to a User
         When sends a Post request to the path "setIssuer" with the given parameters
         Then gets a response with code 201
         And status "Success."
+        And a get request to "checkUserRoles" of the target user returns true in the "isIssuer" camp
 
     Scenario: As admin, set issuer credential to a user not registered
         Given an API admin user 

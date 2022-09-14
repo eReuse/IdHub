@@ -15,3 +15,4 @@ Feature: Invalidate User to the API
         When sends a Post request to the path "invalidateUser" with the given parameters
         Then gets an error response with code 400
         And response error message "Invalid API token"
+        

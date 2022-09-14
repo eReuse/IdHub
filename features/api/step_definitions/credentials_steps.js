@@ -33,7 +33,7 @@ When('issuer user sends a Post request to the path {string} with {string} creden
     }
 });
 
-Then('a get resquest to {string} of the target user returns true in the {string} camp', async function (string, string2) {
+Then('a get request to {string} of the target user returns true in the {string} camp', async function (string, string2) {
     try {
         this.params["api_token"] = this.target_user_full
         this.response = await testhelper.make_post(string, this.params, "ethereum")
@@ -46,6 +46,7 @@ Then('a get resquest to {string} of the target user returns true in the {string}
     if (string2 == "isOperator") assert.equal(this.response.data.data.isOperator, true)
     else if (string2 == "isWitness") assert.equal(this.response.data.data.isWitness, true)
     else if (string2 == "isVerifier") assert.equal(this.response.data.data.isVerifier, true) 
+    else if (string2 == "isIssuer") assert.equal(this.response.data.data.isIssuer, true) 
         
 });
 
