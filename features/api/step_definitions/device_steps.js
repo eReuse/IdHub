@@ -22,9 +22,9 @@ Given('The Operator registers a device with a new unique CHID', async function (
     //this.params["DeviceCHID"] = Math.floor(Math.random() * 9999).toString()
 })
 
-When('sends a Post request to the path {string} with the same CHID', async function (string) {
+When('{string} sends a Post request to the path {string} with the same CHID', async function (string, string2) {
     try {
-        this.response = await testhelper.make_post(string, this.params, "ethereum")
+        this.response = await testhelper.make_post(string2, this.params, "ethereum")
     } catch (err) {
         console.log(err)
         this.response = err.response
