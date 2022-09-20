@@ -8,20 +8,20 @@ Feature: Register User to the API
 
 
     Scenario: RegisterUser without ethereum privkey
-        When sends a Post request to the path "registerUser" without parameters
+        When "Someone" sends a Post request to the path "registerUser" without parameters
         Then gets a response with code 201
         And status "Success."
         And a valid api_token, ethereum_keypar and iota_id
 
     Scenario: RegisterUser with a valid ethereum privkey
         Given a user with a randomly generated ethereum privkey
-        When sends a Post request to the path "registerUser" with the given parameters
+        When "The user" sends a Post request to the path "registerUser" with the given parameters
         Then gets a response with code 201
         And status "Success."
         And a valid api_token, the given ethereum_keypar and iota_id
 
     Scenario: RegisterUser with an invalid ethereum privkey
         Given a user with an invalid ethereum privkey
-        When sends a Post request to the path "registerUser" with the given parameters
+        When "The user" sends a Post request to the path "registerUser" with the given parameters
         Then gets an error response with code 400
         And response error message "Invalid PrivateKey format"

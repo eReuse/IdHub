@@ -9,14 +9,14 @@ Rule: Even if you are a valid API user, it is not possible to register a new dev
 Scenario: A valid API user without the Operator credential registers a new device with a new unique DeviceCHID
         Given a valid API user
         And a new unique CHID
-        When sends a Post request to the path "registerDevice" with the given parameters
+        When "The valid API user without the Operator credential" sends a Post request to the path "registerDevice" with the given parameters
         Then gets an error response with code 400
         And response error message "The user is not an operator"
 
 Scenario: An invalid API user registers a new device with a new unique device CHID
         Given an invalid API user
         And a new unique CHID
-        When sends a Post request to the path "registerDevice" with the given parameters
+        When "The invalid API user" sends a Post request to the path "registerDevice" with the given parameters
         Then gets an error response with code 400
         And response error message "Invalid API token"
 
@@ -28,21 +28,21 @@ Rule: Users can only register a new device if they have an Operator credential a
 Scenario: A valid API user with the Operator credential registers a new device with a new unique DeviceCHID
         #Given An issuer gives Operator credential to a valid API user
         And a new unique CHID
-        When sends a Post request to the path "registerDevice" with the given parameters
+        When "The Operator" sends a Post request to the path "registerDevice" with the given parameters
         Then gets a response with code 201
         And the registered device address on ethereum
 
 Scenario: A valid API user with the Operator credential registers a new device with a duplicated DeviceCHID
         #Given An issuer gives Operator credential to a valid API user
         And The Operator registers a device with a new unique CHID
-        When sends a Post request to the path "registerDevice" with the same CHID
+        When "The Operator" sends a Post request to the path "registerDevice" with the same CHID
         Then gets an error response with code 400
         And response error message "Device already exists"
 
 Scenario: A valid API user with the Operator credential registers a new device without a DeviceCHID
         #Given An issuer gives Operator credential to a valid API user
         And an empty CHID
-        When sends a Post request to the path "registerDevice" with the given parameters
+        When "The Operator" sends a Post request to the path "registerDevice" with the given parameters
         Then gets an error response with code 400
         And response error message "Invalid Syntax."
 
@@ -50,6 +50,6 @@ Scenario: A valid API user without the Operator credential registers a new devic
         #Given An issuer gives Operator credential to a valid API user
         And The Operator registers a device with a new unique CHID
         And a valid API user
-        When sends a Post request to the path "registerDevice" with the same CHID
+        When "The valid API user" sends a Post request to the path "registerDevice" with the same CHID
         Then gets an error response with code 400
         And response error message "Device already exists"
