@@ -1,5 +1,5 @@
 @API_management
-Feature: Set Operator, witness and verifier to users
+Feature: Set Operator, Witness and Verifier credentials to users
 
     Scenario: Give Operator credential to an API user as an Issuer
         Given a valid API user with an issuer credential

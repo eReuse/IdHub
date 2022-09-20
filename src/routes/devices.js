@@ -64,7 +64,7 @@ function is_dlt_valid(dlt) {
 }
 
 function check_undefined_params(params) {
-  if (params == undefined || params.includes("")) {
+  if (params.includes(undefined) || params.includes("")) {
     return true;
   }
   return false;
@@ -252,17 +252,28 @@ router
 
   try {
     console.log(`Called /issuePassport with DPP: ${parameters.deviceDPP}`)
-    is_dlt_valid(parameters.dlt)
-    check_undefined_params([parameters.deviceDPP, parameters.issuerID, parameters.documentID, parameters.documentSignature])
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    //why check for issuerid, documentid and documentsignature if they are optional?
+    //if (check_undefined_params([parameters.deviceDPP, parameters.issuerID, parameters.documentID, parameters.documentSignature])) {
+    if (check_undefined_params([parameters.deviceDPP])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
-
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
     var splitDeviceDPP = parameters.deviceDPP.split(":");
     const deviceCHID = splitDeviceDPP[0];
     const devicePHID = splitDeviceDPP[1];
 
     if (devicePHID == "" || splitDeviceDPP.length != 2) {
-      throw new BadRequest("Incorrect DPP format.")
+      next(ApiError.badRequest('Incorrect DPP format'));
+      return
     }
 
     if (parameters.dlt == iota_name) {
@@ -293,7 +304,8 @@ router
       var deviceAddress = await ethHelper.chid_to_deviceAdress(deviceCHID)
 
       if (!ethHelper.is_device_address_valid(deviceAddress)) {
-        throw new BadRequest("CHID not registered.")
+        next(ApiError.badRequest('CHID not registered'));
+        return
       }
 
       const depositDeviceContract = ethHelper.createContract
@@ -316,12 +328,11 @@ router
 
   }
   catch (e) {
-    const error_object = get_error_object(e.message)
-    res.status(error_object.code);
-    res.json({
-      status: error_object.message,
-    })
-    next(e)
+    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner, operator or witness") {
+        next(ApiError.badRequest('The user is not an owner, operator, or witness'));
+      }
+      else next(e)
+      return
   }
 })
 

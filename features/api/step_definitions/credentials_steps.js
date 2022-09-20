@@ -22,7 +22,7 @@ Given('a valid API user with an issuer credential', async function (){
     }
 })
 
-Given('An issuer gives Operator credential to a valid API user', async function (){
+Given('An issuer gives {string} credential to a valid API user', async function (string){
     try {
         var jsonAdmin = fs.readFileSync('./features/api/adminToken.json')
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
@@ -34,10 +34,10 @@ Given('An issuer gives Operator credential to a valid API user', async function 
         this.response = await testhelper.make_post("setIssuer", this.params, "ethereum")
 
         this.response = await testhelper.make_post("registerUser", this.params, "ethereum")
-        this.api_token_operator = this.response.data.data.api_token
+        this.api_token_reciever = this.response.data.data.api_token
 
-        this.params["CredentialType"] = "Operator"
-        this.params["target_user"] = this.api_token_operator.substring(0,15)
+        this.params["CredentialType"] = string
+        this.params["target_user"] = this.api_token_reciever.substring(0,15)
         this.params["api_token"] = this.api_token_issuer
         this.response = await testhelper.make_post("issueCredential", this.params, "ethereum")
     } catch (err) {
@@ -45,7 +45,7 @@ Given('An issuer gives Operator credential to a valid API user', async function 
         this.response = err.response
     }
 
-    this.params["api_token"] = this.api_token_operator
+    this.params["api_token"] = this.api_token_reciever
     //this.params["target_user"] = undefined
 })
 

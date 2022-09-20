@@ -7,7 +7,7 @@ Feature: deRegister Device of a DLT through the API
 Rule: Users can only deregister a device if they have an Operator credential and the device exists on the DLT
 
     Background: 
-        Given An issuer gives Operator credential to a valid API user
+        Given An issuer gives "Operator" credential to a valid API user
         And a new unique CHID
         And "The Operator" sends a Post request to the path "registerDevice" with the given parameters
 
