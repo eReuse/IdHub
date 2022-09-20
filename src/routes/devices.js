@@ -56,14 +56,11 @@ class Parameters {
   }
 }
 
-function check_dlt(dlt) {
-  // if (dlt.length != 1) {
-  //   throw new BadRequest("Can only call one DLT at a time.")
-  // }
-  if (!dlt == iota_name && !dlt == ethereum_name) {
-    next(ApiError.badRequest('Invalid DLT identifier'));
-    return
+function is_dlt_valid(dlt) {
+  if (dlt == iota_name || dlt == ethereum_name) {
+    return true
   }
+  return false
 }
 
 function check_undefined_params(params) {
@@ -85,7 +82,10 @@ router
   try {
     console.log(`Called /registerDevice with chid: ${parameters.deviceCHID}`)
 
-    check_dlt(parameters.dlt)
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
     if (check_undefined_params([parameters.deviceCHID])) {
       next(ApiError.badRequest('Invalid Syntax.'));
       return
@@ -170,10 +170,20 @@ router
 
   try {
     console.log(`Called /deRegisterDevice with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
-    check_undefined_params([parameters.deviceCHID])
+
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    if (check_undefined_params([parameters.deviceCHID])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
 
     if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
@@ -199,14 +209,15 @@ router
     else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
-      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
 
-      if (!ethHelper.is_device_address_valid(deviceAddress)) {
-        throw new BadRequest("CHID not registered.")
+      if (!ethHelper.is_device_address_valid(existingDeviceAddress)) {
+        next(ApiError.badRequest('CHID not registered'));
+        return
       }
 
       const depositDeviceContract = ethHelper.createContract
-        (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+        (existingDeviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
       var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975 })
       var txReceipt = await txResponse.wait()
@@ -225,12 +236,13 @@ router
   }
 
   catch (e) {
-    const error_object = get_error_object(e.message)
-    res.status(error_object.code);
-    res.json({
-      status: error_object.message,
-    })
-    next(e)
+    //console.log(e)
+    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner or operator") {
+    //if (e.error.data.stack.includes("The message sender is not an operatsor")) {
+      next(ApiError.badRequest('The user is not an operator'));
+    }
+    else next(e)
+    return
   }
 })
 
@@ -240,7 +252,7 @@ router
 
   try {
     console.log(`Called /issuePassport with DPP: ${parameters.deviceDPP}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceDPP, parameters.issuerID, parameters.documentID, parameters.documentSignature])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -319,7 +331,7 @@ router
 
   try {
     console.log(`Called /generateProof with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -389,7 +401,7 @@ router
   try {
     console.log(`Called /transferOwnership with chid: ${parameters.deviceCHID} and newOwner ${parameters.newOwner}`)
 
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID, parameters.newOwner])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -474,7 +486,7 @@ router
 
   try {
     console.log(`Called /getProofs with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -544,7 +556,7 @@ router
 
   try {
     console.log(`Called /getIssueProofs with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -614,7 +626,7 @@ router
 
   try {
     console.log(`Called /getTransferProofs with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -683,7 +695,7 @@ router
 
   try {
     console.log(`Called /getRegisterProofsByCHID with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
@@ -751,7 +763,7 @@ router
 
   try {
     console.log(`Called /getDeRegisterProofs with chid: ${parameters.deviceCHID}`)
-    check_dlt(parameters.dlt)
+    is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")

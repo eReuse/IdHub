@@ -4,7 +4,7 @@ Feature: Register Device to a DLT through the API
     Only an API user with the "Operator" credential can register a new Device
     to a DLT. Once a device is registered, a proof of it is created onto the target DLT.
 
-Rule: Either if you are a valid or an invalid API user, it is not possible to register a new device without an Operator Credential
+Rule: Even if you are a valid API user, it is not possible to register a new device without an Operator Credential
 
 Scenario: A valid API user without the Operator credential registers a new device with a new unique DeviceCHID
         Given a valid API user

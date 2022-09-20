@@ -17,3 +17,8 @@ Then ('response error message {string}', function(string) {
 Then('status {string}', function (string) {
     assert.equal(this.response.data.status, string)
 });
+
+Then('the timestamp of the DLT when the operation was done', function () {
+    assert(this.response.data.data.timestamp!=undefined)
+});
+
