@@ -59,18 +59,18 @@ Given ('an invalid target user', async function (){
     this.params["target_user"] = this.target_user
 })
 
-When('sends a Post request to the path {string} with the given parameters', async function (string) {
+When('{string} sends a Post request to the path {string} with the given parameters', async function (string, string2) {
     try {
-        this.response = await testhelper.make_post(string, this.params, "ethereum")
+        this.response = await testhelper.make_post(string2, this.params, "ethereum")
     } catch (err) {
         console.log(err)
         this.response = err.response
     }
 });
 
-When('sends a Post request to the path {string} without parameters', async function (string) {
+When('{string} sends a Post request to the path {string} without parameters', async function (string, string2) {
     try {
-        this.response = await testhelper.make_post(string, this.params, "ethereum")
+        this.response = await testhelper.make_post(string2, this.params, "ethereum")
     } catch (err) {
         console.log(err)
         this.response = err.response
