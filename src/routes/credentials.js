@@ -1,5 +1,5 @@
 const express = require('express'),
-router = express.Router();
+    router = express.Router();
 
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
 const ApiError = require('../utils/apiError')
@@ -8,7 +8,7 @@ const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
-const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP, ISSUER} = require('../utils/constants')
+const { OPERATOR, WITNESS, VERIFIER, OWNERSHIP, ISSUER } = require('../utils/constants')
 
 const app = express()
 
@@ -52,12 +52,12 @@ router
         const target_user = req.body.target_user ?? "";
         const dlt = req.headers.dlt ?? "";
         var response_data
-        try{
+        try {
             console.log(`Called /setIssuer`)
 
             check_dlt(dlt)
             const admin_token = await multiacc.check_admin(api_token)
-            if(!admin_token) {
+            if (!admin_token) {
                 next(ApiError.badRequest('Need admin token.'));
                 return
             }
@@ -67,12 +67,12 @@ router
                 return
             }
             const target_valid = await multiacc.check_exists(target_user)
-            if(!target_valid) {
+            if (!target_valid) {
                 next(ApiError.badRequest('Target user doesnt exist.'));
                 return
             }
 
-            if (dlt == iota_name){
+            if (dlt == iota_name) {
                 const target_iota_id = await iota.get_iota_id(target_user)
                 var credential = await iota.issue_credential(target_iota_id, ISSUER)
                 var target_data = await multiacc.get_acc_data(target_user)
@@ -84,14 +84,14 @@ router
                 }
             }
 
-            else if (dlt == ethereum_name){
+            else if (dlt == ethereum_name) {
                 const admin_wallet = await ethHelper.get_wallet(api_token)
                 const accessListConstract = ethHelper.createContract
                     (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
-                const target_eth_wallet= await ethHelper.get_wallet(target_user)
+                const target_eth_wallet = await ethHelper.get_wallet(target_user)
                 var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975 })
                 var txReceipt = await txResponse.wait()
-                response_data={}
+                response_data = {}
             }
 
             res.status(201);
@@ -103,7 +103,7 @@ router
         catch (e) {
             console.log(e)
             next(e);
-          }
+        }
     })
 
     .post("/issueCredential", async (req, res, next) => {
@@ -117,10 +117,19 @@ router
 
             check_dlt(dlt)
             const valid_token = await multiacc.check_token(api_token)
-            if (!valid_token) throw new BadRequest("Invalid API token.")
-            if (!credential_types.includes(credentialType)) throw new BadRequest("Invalid credential type.")
+            if (!valid_token) {
+                next(ApiError.badRequest("Invalid API token."));
+                return
+            }
+            if (!credential_types.includes(credentialType)) {
+                next(ApiError.badRequest("Invalid credential type."));
+                return
+            }
             const target_valid = await multiacc.check_exists(target_user)
-            if(!target_valid) throw new BadRequest("Target user doesn't exist.")
+            if (!target_valid) {
+                next(ApiError.badRequest("Target user doesn't exist."));
+                return
+            }
 
             if (dlt == iota_name) {
                 const issuer_credential = await iota.get_credential(api_token, [ISSUER])
@@ -138,7 +147,7 @@ router
 
             else if (dlt == ethereum_name) {
                 const issuer_eth_wallet = await ethHelper.get_wallet(api_token)
-                const target_eth_wallet= await ethHelper.get_wallet(target_user)
+                const target_eth_wallet = await ethHelper.get_wallet(target_user)
                 const accessListConstract = ethHelper.createContract
                     (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", issuer_eth_wallet)
                 var txResponse
@@ -149,7 +158,7 @@ router
                 if (credentialType == "Verifier")
                     txResponse = await accessListConstract.registerVerifier(target_eth_wallet.address, { gasLimit: 6721975 })
                 var txReceipt = await txResponse.wait()
-                response_data={}
+                response_data = {}
             }
 
             res.status(201);
@@ -160,12 +169,11 @@ router
         }
 
         catch (e) {
-            const error_object = get_error_object(e.message)
-            res.status(error_object.code);
-            res.json({
-                error: error_object.message,
-            })
-            next(e)
+            if (Object.values(e.error.data)[0].reason == "Only usable by current Trust Anchor or an Issuer account") {
+                next(ApiError.badRequest('The user is not an issuer.'));
+            }
+            else next(e)
+            return
         }
     })
 

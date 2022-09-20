@@ -61,14 +61,16 @@ function check_dlt(dlt) {
   //   throw new BadRequest("Can only call one DLT at a time.")
   // }
   if (!dlt == iota_name && !dlt == ethereum_name) {
-    throw new BadRequest("Invalid DLT identifier")
+    next(ApiError.badRequest('Invalid DLT identifier'));
+    return
   }
 }
 
 function check_undefined_params(params) {
-  if (params.includes(undefined) || params.includes("")) {
-    throw new BadRequest("Invalid syntax.")
+  if (params == undefined || params.includes("")) {
+    return true;
   }
+  return false;
 }
 
 router
@@ -84,7 +86,10 @@ router
     console.log(`Called /registerDevice with chid: ${parameters.deviceCHID}`)
 
     check_dlt(parameters.dlt)
-    check_undefined_params([parameters.deviceCHID])
+    if (check_undefined_params([parameters.deviceCHID])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) {
       next(ApiError.badRequest('Invalid API token'));
@@ -126,7 +131,8 @@ router
       const wallet = await ethHelper.get_wallet(parameters.api_token)
       var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
       if (ethHelper.is_device_address_valid(existingDeviceAddress)) {
-        throw new BadRequest("Device already exists.")
+        next(ApiError.badRequest('Device already exists'));
+        return
       }
 
       const deviceFactoryContract = ethHelper.createContract

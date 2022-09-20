@@ -23,4 +23,5 @@ Feature: Set issuer credential to a User
         And a valid target user
         When sends a Post request to the path "setIssuer" with the given parameters
         Then gets an error response with code 400
+        And response error message "Need admin token."
 

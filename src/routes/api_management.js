@@ -114,6 +114,7 @@ router
       
       res.status(200);
       res.json({
+        status: "Success.",
         data: response_data_eth
       })
     }
