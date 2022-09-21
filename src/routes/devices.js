@@ -342,11 +342,19 @@ router
 
   try {
     console.log(`Called /generateProof with chid: ${parameters.deviceCHID}`)
-    is_dlt_valid(parameters.dlt)
-    check_undefined_params([parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type])
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    if (check_undefined_params([parameters.deviceCHID])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }    
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
-
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
     if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
 
@@ -374,7 +382,8 @@ router
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
       if (!ethHelper.is_device_address_valid(deviceAddress)) {
-        throw new BadRequest("CHID not registered.")
+        next(ApiError.badRequest('CHID not registered'));
+        return
       }
 
       const depositDeviceContract = ethHelper.createContract
@@ -397,12 +406,11 @@ router
 
   }
   catch (e) {
-    const error_object = get_error_object(e.message)
-    res.status(error_object.code);
-    res.json({
-      status: error_object.message,
-    })
-    next(e)
+    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner, operator or witness") {
+        next(ApiError.badRequest('The user is not an owner, operator, or witness'));
+      }
+      else next(e)
+      return
   }
 })
 

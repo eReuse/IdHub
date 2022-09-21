@@ -4,6 +4,8 @@ const assert = require('assert').strict
 
 var usedCHIDs = []
 
+//controls that two duplicate CHIDs are not created in a single test execution
+//doesnt control CHIDs already registered on the DLT before the test execution.
 function generateUniqueCHID() {
     var found = false;
     var newCHID;
@@ -55,6 +57,15 @@ Given('a DocumentID, DocumentSignature, IssuerID', function (){
     this.params["IssuerID"] = "Test IssuerID " + Math.floor(Math.random() * 9999).toString()
 
 })
+
+Given('a DocumentID, DocumentSignature, IssuerID and a Type', function (){
+    this.params["DocumentID"] = "Test Document " + Math.floor(Math.random() * 9999).toString()
+    this.params["DocumentSignature"] = "Test Document signature " + Math.floor(Math.random() * 9999).toString()
+    this.params["IssuerID"] = "Test IssuerID " + Math.floor(Math.random() * 9999).toString()
+    this.params["Type"] = "Test IssuerID " + Math.floor(Math.random() * 9999).toString()
+})
+
+
 
 Given('The Operator registers a device with a new unique CHID', async function (){
     try {
