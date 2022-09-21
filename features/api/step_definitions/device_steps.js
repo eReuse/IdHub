@@ -2,9 +2,31 @@ const { Given, When, Then, Before, BeforeAll } = require('@cucumber/cucumber');
 const testhelper = require('../testing_helper')
 const assert = require('assert').strict
 
+var usedCHIDs = []
+
+function generateUniqueCHID() {
+    var found = false;
+    var newCHID;
+    while (found == false) {
+        newCHID = Math.floor(Math.random() * 9999999).toString()
+        if (!usedCHIDs.includes(newCHID)) {
+            usedCHIDs.push(newCHID)
+            found = true;
+            //console.log(newCHID)
+        }
+        // else {
+        //     console.log("retry random CHID" + " was " + newCHID)
+        // }
+    }
+    return newCHID
+}
+
 
 Given('a new unique CHID', function (){
-    this.params["DeviceCHID"] = Math.floor(Math.random() * 9999).toString()
+    this.params["DeviceCHID"] = generateUniqueCHID()
+    // this.params["DeviceCHID"] = Math.floor(Math.random() * 9999).toString()
+    // usedCHIDs.push(this.params["DeviceCHID"])
+    // console.log(usedCHIDs)
 })
 
 Given('an empty CHID', function (){
@@ -36,7 +58,7 @@ Given('a DocumentID, DocumentSignature, IssuerID', function (){
 
 Given('The Operator registers a device with a new unique CHID', async function (){
     try {
-        this.params["DeviceCHID"] = Math.floor(Math.random() * 9999).toString()
+        this.params["DeviceCHID"] = generateUniqueCHID()
         this.response = await testhelper.make_post("registerDevice", this.params, "ethereum")
     } catch (err) {
         console.log(err)

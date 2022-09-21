@@ -24,7 +24,7 @@ Scenario: A valid API user with the Operator credential deregisters a non-existe
 
 Scenario: A valid API user without the Operator credential deregisters an existing device
         Given a valid API user
-        Given a new unique CHID
+        And a new unique CHID
         When "The valid API user" sends a Post request to the path "deRegisterDevice" with the given parameters
         Then gets an error response with code 400
         And response error message "CHID not registered"
