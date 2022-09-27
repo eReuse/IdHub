@@ -155,12 +155,17 @@ router
   }
 
   catch (e) {
-    if (Object.values(e.error.data)[0].reason == "The message sender is not an operator") {
-    //if (e.error.data.stack.includes("The message sender is not an operatsor")) {
-      next(ApiError.badRequest('The user is not an operator'));
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
     }
-    else next(e)
-    return
   }
 })
 
@@ -236,13 +241,17 @@ router
   }
 
   catch (e) {
-    //console.log(e)
-    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner or operator") {
-    //if (e.error.data.stack.includes("The message sender is not an operatsor")) {
-      next(ApiError.badRequest('The user is not an operator'));
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
     }
-    else next(e)
-    return
   }
 })
 
@@ -328,11 +337,17 @@ router
 
   }
   catch (e) {
-    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner, operator or witness") {
-        next(ApiError.badRequest('The user is not an owner, operator, or witness'));
-      }
-      else next(e)
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
       return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
   }
 })
 
@@ -406,11 +421,17 @@ router
 
   }
   catch (e) {
-    if (Object.values(e.error.data)[0].reason == "The message sender is not an owner, operator or witness") {
-        next(ApiError.badRequest('The user is not an owner, operator, or witness'));
-      }
-      else next(e)
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
       return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
   }
 })
 

@@ -42,7 +42,7 @@ Scenario: A valid API user without an Operator or Witness credential issues a ne
         And a valid API user
         When "The API user" sends a Post request to the path "generateProof" with the given parameters
         Then gets an error response with code 400
-        And response error message "The user is not an owner, operator, or witness"
+        And response error message "The message sender is not an owner, operator or witness"
 
 Scenario: An invalid API user issues a new generic proof of an existing deviceCHID
         Given a DocumentID, DocumentSignature, IssuerID and a Type

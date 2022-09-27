@@ -169,12 +169,18 @@ router
         }
 
         catch (e) {
-            if (Object.values(e.error.data)[0].reason == "Only usable by current Trust Anchor or an Issuer account") {
-                next(ApiError.badRequest('The user is not an issuer.'));
+            let tx = await ethereum.provider.getTransaction(e.transactionHash)
+            if (!tx) {
+              next(ApiError.internal('Unknown blockchain error'));
+              return
+            } else {
+              let code = await ethereum.provider.call(tx, tx.blockNumber)
+              var reason = ethHelper.translateHexToString(138, code)
+              reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+              next(ApiError.badRequest(reason));
+              return
             }
-            else next(e)
-            return
-        }
+          }
     })
 
 module.exports = router

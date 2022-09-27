@@ -40,11 +40,17 @@ function getEvents(txReceipt, event, interface) {
     return args;
 }
 
+function translateHexToString(n, string) {
+    var translation = ethers.utils.toUtf8String('0x' + string.substring(n));
+    return translation
+}
+
 
 module.exports = {
     chid_to_deviceAdress,
     is_device_address_valid,
     get_wallet,
     createContract,
-    getEvents
+    getEvents,
+    translateHexToString
 }

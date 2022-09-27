@@ -30,7 +30,7 @@ Feature: Set Operator, Witness and Verifier credentials to users
         And a valid target user
         When issuer user sends a Post request to the path "issueCredential" with "Operator" credential to the target user
         Then gets an error response with code 400
-        And response error message "The user is not an issuer."
+        And response error message "Only usable by current Trust Anchor or an Issuer account"
 
     Scenario: Give Operator credential to an invalid API user as an Issuer
         Given a valid API user with an issuer credential

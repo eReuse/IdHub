@@ -11,7 +11,7 @@ Scenario: A valid API user without the Operator credential registers a new devic
         And a new unique CHID
         When "The valid API user without the Operator credential" sends a Post request to the path "registerDevice" with the given parameters
         Then gets an error response with code 400
-        And response error message "The user is not an operator"
+        And response error message "The message sender is not an operator"
 
 Scenario: An invalid API user registers a new device with a new unique device CHID
         Given an invalid API user
