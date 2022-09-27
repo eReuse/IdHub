@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.6;
 
 contract AccessList {
     mapping(address => bool) issuers;
@@ -8,7 +8,7 @@ contract AccessList {
 
     address trustAnchor;
 
-    constructor(address _trustAnchor) public {
+    constructor(address _trustAnchor) {
         trustAnchor = _trustAnchor;
     }
 

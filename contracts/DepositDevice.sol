@@ -1,9 +1,10 @@
-pragma solidity ^0.4.25;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.6;
+//pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
-import "./DeviceFactoryInterface.sol";
+import "./DeviceFactory.sol";
 import "./Ownable.sol";
-import "./AccessListInterface.sol";
+import "./AccessList.sol";
 
 /**
  * @title Ereuse Device basic implementation
@@ -11,8 +12,8 @@ import "./AccessListInterface.sol";
 
 contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
-    DeviceFactoryInterface factory;
-    AccessListInterface roles;
+    DeviceFactory factory;
+    AccessList roles;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
     struct DevData {
@@ -91,13 +92,13 @@ contract DepositDevice is Ownable {
     event DeviceRecycled(address deviceAddress);
 
     constructor(
-        string _chid,
+        string memory _chid,
         address _sender,
         address _factory,
         address _roles
-    ) public {
-        factory = DeviceFactoryInterface(_factory);
-        roles = AccessListInterface(_roles);
+    ) {
+        factory = DeviceFactory(_factory);
+        roles = AccessList(_roles);
         data.deregistered = false;
         data.owner = _sender;
         data.chid = _chid;
@@ -157,7 +158,7 @@ contract DepositDevice is Ownable {
     //    emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     //}
 
-    function issuePassport(string _chid, string _phid, string _documentID, string _documentSignature, string _issuerID) public registered onlyOpWit{
+    function issuePassport(string calldata _chid, string calldata _phid, string calldata _documentID, string calldata _documentSignature, string calldata _issuerID) public registered onlyOpWit{
         IssueProofData memory proof_data;
         proof_data.chid = _chid;
         proof_data.phid = _phid;
@@ -174,7 +175,7 @@ contract DepositDevice is Ownable {
         generateIssueProof(proof_data);
     }
     
-    function generateGenericProof(string _deviceCHID, string _issuerID, string _documentID, string _documentSignature, string _documentType) public registered onlyOpWit{
+    function generateGenericProof(string calldata _deviceCHID, string calldata _issuerID, string calldata _documentID, string calldata _documentSignature, string calldata _documentType) public registered onlyOpWit{
         GenericProofData memory proof_data;
         proof_data.chid = _deviceCHID;
         proof_data.issuerID = _issuerID;
@@ -189,7 +190,7 @@ contract DepositDevice is Ownable {
         emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     }
 
-    function deRegisterDevice(string _deviceCHID) public registered onlyOp{
+    function deRegisterDevice(string calldata _deviceCHID) public registered onlyOp{
         data.deregistered = true;
 
         DeRegisterProofData memory proof_data;
@@ -213,27 +214,27 @@ contract DepositDevice is Ownable {
     //     generateIssueProof(proof_data);
     // }
 
-    function getData() public view onlyOpWitVer returns (DevData _data) {
+    function getData() public view onlyOpWitVer returns (DevData memory _data) {
         return data;
     }
 
-    function getRegisterProofs() public view onlyOpWitVer returns (RegisterProofData[] _data) {
+    function getRegisterProofs() public view onlyOpWitVer returns (RegisterProofData[] memory _data) {
         return registerProofs;
     }
 
-    function getIssueProofs() public view onlyOpWitVer returns (IssueProofData[] _data){
+    function getIssueProofs() public view onlyOpWitVer returns (IssueProofData[] memory _data){
         return issueProofs;
     }
 
-    function getGenericProofs() public view onlyOpWitVer returns (GenericProofData[] _data){
+    function getGenericProofs() public view onlyOpWitVer returns (GenericProofData[] memory _data){
         return genericProofs;
     }
 
-    function getDeRegisterProofs() public view onlyOpWitVer returns (DeRegisterProofData[] _data) {
+    function getDeRegisterProofs() public view onlyOpWitVer returns (DeRegisterProofData[] memory _data) {
         return deRegisterProofs;
     }
 
-     function getTrasferProofs() public view onlyOpWitVer returns (TransferProofData[] _data){
+     function getTrasferProofs() public view onlyOpWitVer returns (TransferProofData[] memory _data){
          return transferProofs;
      }
 

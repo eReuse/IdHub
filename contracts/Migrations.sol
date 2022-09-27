@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.6;
 
 contract Migrations {
   address public owner = msg.sender;

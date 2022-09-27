@@ -1,13 +1,13 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.6;
 
 //import "project:/contracts/DepositDevice.sol";
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
-import "./AccessListInterface.sol";
+import "./AccessList.sol";
 
 contract DeviceFactory {
-    AccessListInterface public roles;
+    AccessList public roles;
 
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
@@ -17,8 +17,8 @@ contract DeviceFactory {
     //-------  EVENTS  -------//
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
-    constructor(address rolesAddress) public {
-        roles = AccessListInterface(rolesAddress);
+    constructor(address rolesAddress) {
+        roles = AccessList(rolesAddress);
     }
 
     modifier onlyOp() {
@@ -27,7 +27,7 @@ contract DeviceFactory {
     }
 
     function registerDevice( 
-        string _chid
+        string calldata _chid
     ) public onlyOp returns (address _device) {
         require(translation[_chid] == address(0), "Can't register an already registered device");
         DepositDevice newContract = new DepositDevice(
@@ -36,14 +36,14 @@ contract DeviceFactory {
             address(this),
             address(roles)
         );
-        deployed_devices[msg.sender].push(newContract);
-        translation[_chid] = newContract;
+        deployed_devices[msg.sender].push(address(newContract));
+        translation[_chid] = address(newContract);
         if(deployed_devices[msg.sender].length == 1) {
             registerOwner(msg.sender);
         }
-        devices.push(newContract);
-        emit DeviceRegistered(newContract, block.timestamp);
-        return newContract;
+        devices.push(address(newContract));
+        emit DeviceRegistered(address(newContract), block.timestamp);
+        return address(newContract);
     }
 
     function registerOwner(address owner) internal{
@@ -71,8 +71,9 @@ contract DeviceFactory {
         for (uint256 i = 0; i < length; i++) {
             if (deployed_devices[owner][i] == msg.sender) {
                 deployed_devices[owner][i] = deployed_devices[owner][length - 1];
-                delete deployed_devices[owner][length - 1];
-                deployed_devices[owner].length--;
+                deployed_devices[owner].pop();
+                //delete deployed_devices[owner][length - 1];
+                //deployed_devices[owner].length--;
                 break;
             }
         }
@@ -83,16 +84,16 @@ contract DeviceFactory {
     // }
 
 
-    function getDeployedDevices() public view returns (address[] _deployed_devices){
+    function getDeployedDevices() public view returns (address[] memory _deployed_devices){
         return deployed_devices[msg.sender];
     }
 
 
-    function getAllDeployedDevices() public view returns (address[] _devices){
+    function getAllDeployedDevices() public view returns (address[] memory _devices){
         return devices;
     }
 
-    function getAddressFromChid(string _chid) public view returns (address _address){
+    function getAddressFromChid(string calldata _chid) public view returns (address _address){
         return translation[_chid];
     }
 }

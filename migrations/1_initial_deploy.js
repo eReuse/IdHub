@@ -1,6 +1,7 @@
 const DeviceFactory = artifacts.require("DeviceFactory");
-const DocumentProofs = artifacts.require("DocumentProofs");
+//const DocumentProofs = artifacts.require("DocumentProofs");
 const AccessList = artifacts.require("AccessList");
+const EthereumDIDRegistry = artifacts.require("EthereumDIDRegistry")
 
 
 module.exports = async function (deployer, network, accounts) {
@@ -11,5 +12,6 @@ module.exports = async function (deployer, network, accounts) {
       console.log ("role address: " + roles.address)
       await deployer.deploy(DeviceFactory, roles.address)
   })
-  await deployer.deploy(DocumentProofs);
+  await deployer.deploy(EthereumDIDRegistry)
+  //await deployer.deploy(DocumentProofs);
 };
