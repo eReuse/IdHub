@@ -1,0 +1,19 @@
+{
+  "name": "ereuse-did-resolver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.0.0",
+    "did-resolver": "^4.0.0",
+    "ethers": "^5.7.1",
+    "ethr-did": "^2.3.0",
+    "ethr-did-resolver": "^6.2.2"
+  },
+  "type": "module"
+}
