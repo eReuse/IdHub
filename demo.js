@@ -267,6 +267,38 @@ async function checkRoles() {
     print_post_result(res, true)
 }
 
+async function getDidData() {
+    params = {
+        DeviceCHID: rl.question("Device CHID: "),
+        api_token: rl.question("api_token: ")
+    }
+    const res = await make_post("getDidData", params)
+    print_post_result(res, true)
+}
+
+async function addService() {
+    params = {
+        DeviceCHID: rl.question("Device chid: "),
+        Type: rl.question("Service type: "),
+        endpoint: rl.question("Service endpoint: "),
+        description: rl.question("Service description: "),
+        fragment: rl.question("Service fragment: "),
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("addService", params)
+    print_post_result(res, false)
+}
+
+async function removeService() {
+    params = {
+        DeviceCHID: rl.question("Device chid: "),
+        fragment: rl.question("Service fragment: "),
+        api_token: rl.question("api_token: "),
+    }
+    const res = await make_post("removeService", params)
+    print_post_result(res, false)
+}
+
 function menu() {
     return "[1] Register device.\n" +
         "[2] Issue a new passport.\n" +
@@ -283,6 +315,9 @@ function menu() {
         "[d] Transfer device.\n" +
         "[f] Get Transfer Proofs.\n" +
         "[g] Check user Roles.\n" +
+        "[h] Get DID data.\n" +
+        "[i] Add service.\n" +
+        "[j] Remove service.\n" +
         "\nChoose an option:"
 
 }
@@ -357,6 +392,15 @@ async function main() {
                 break;
             case 'g':
                 await checkRoles()
+                break;
+            case 'h':
+                await getDidData()
+                break;
+            case 'i':
+                await addService()
+                break;
+            case 'j':
+                await removeService()
                 break;
         }
     }

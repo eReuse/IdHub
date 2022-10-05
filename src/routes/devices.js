@@ -52,6 +52,9 @@ class Parameters {
     this.type = req.body.Type ?? "";
     this.dlt = req.headers.dlt ?? "";
     this.newOwner = req.body.NewOwner ?? "";
+    this.endpoint = req.body.endpoint ?? "";
+    this.description = req.body.description ?? "";
+    this.fragment = req.body.fragment ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
   }
 }
@@ -861,6 +864,171 @@ router
       status: error_object.message,
     })
     next(e)
+  }
+})
+
+.post("/getDidData", async (req, res, next) => {
+  const parameters = new Parameters(req)
+  var response_data;
+
+  try {
+    console.log(`Called /getDidData with chid: ${parameters.deviceCHID}`)
+    is_dlt_valid(parameters.dlt)
+    check_undefined_params([parameters.deviceCHID])
+    // const valid_token = await multiacc.check_token(parameters.api_token)
+    // if (!valid_token) throw new BadRequest("Invalid API token.")
+
+    if (parameters.dlt == ethereum_name) {
+      // const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        throw new BadRequest("CHID not registered.")
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", ethHelper.randomWallet())
+
+      const value = await depositDeviceContract.getDidData();
+      // var data = Object.assign({}, value)
+      var data = {}
+      data.contractAddress = value.contractAddress
+      data.controller = value.controller
+      data.chid = value.chid
+      data.chainid = parseInt(Number(value.chainid), 10)
+      data.services = []
+      value.services.forEach(elem => {
+        let tmp = {}
+        tmp.endpoint = elem.endpoint
+        tmp.description = elem.description
+        tmp.type = elem.type_
+        tmp.fragment = elem.fragment
+        data.services.push(tmp)
+      })
+
+      response_data = data
+    }
+
+    res.status(200);
+    res.json({
+      data: response_data,
+    })
+  }
+  catch (e) {
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
+  }
+})
+
+.post("/addService", async (req, res, next) => {
+  const parameters = new Parameters(req)
+
+  try {
+    console.log(`Called /addService with chid: ${parameters.deviceCHID}`)
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    if (check_undefined_params([parameters.deviceCHID, parameters.fragment, parameters.endpoint])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }    
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+    if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        next(ApiError.badRequest('CHID not registered'));
+        return
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      const txResponse = await depositDeviceContract.addService(parameters.endpoint, parameters.type, parameters.description, parameters.fragment, { gasLimit: 6721975 })
+      const txReceipt = await txResponse.wait()
+    }
+
+    res.status(201);
+    res.json({
+    })
+
+  }
+  catch (e) {
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
+  }
+})
+
+.post("/removeService", async (req, res, next) => {
+  const parameters = new Parameters(req)
+
+  try {
+    console.log(`Called /removeService with chid: ${parameters.deviceCHID}`)
+    if (!is_dlt_valid(parameters.dlt, parameters.deviceCHID)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    if (check_undefined_params([parameters.deviceCHID, parameters.fragment])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }    
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+    if (parameters.dlt == ethereum_name) {
+      const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+      var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        next(ApiError.badRequest('CHID not registered'));
+        return
+      }
+
+      const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+      const txResponse = await depositDeviceContract.removeService(parameters.fragment, { gasLimit: 6721975 })
+      const txReceipt = await txResponse.wait()
+    }
+
+    res.status(201);
+    res.json({
+    })
+
+  }
+  catch (e) {
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      let code = await ethereum.provider.call(tx, tx.blockNumber)
+      var reason = ethHelper.translateHexToString(138, code)
+      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
   }
 })
 

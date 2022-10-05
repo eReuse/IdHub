@@ -71,6 +71,21 @@ contract DepositDevice is Ownable {
         uint blockNumber;
     }
 
+    struct Service {
+        string endpoint;
+        string type_;
+        string description;
+        string fragment;
+    }
+
+    struct DidData {
+        address contractAddress;
+        address controller;
+        string chid;
+        Service[] services;
+        uint chainid;
+    }
+
     // variables -------------------------------------------------------------
     DevData data;
     RegisterProofData[] registerProofs;
@@ -79,6 +94,7 @@ contract DepositDevice is Ownable {
     TransferProofData[] transferProofs;
     //RecycleProofData[] recycleProofs;
     GenericProofData[] genericProofs;
+    Service[] services;
 
     // events ----------------------------------------------------------------
     event proofGenerated(bytes32 indexed proofHash);
@@ -269,6 +285,39 @@ contract DepositDevice is Ownable {
 
         //3rd parameter is a placeholder, emiting two transfers?
        // emit DeviceTransferred(address(this), data.owner, "registrant??");
+    }
+
+    function addService(string calldata endpoint, string calldata type_, string calldata description, string calldata fragment) 
+    public onlyOp{
+        Service memory newService;
+        newService.endpoint = endpoint;
+        newService.type_ = type_;
+        newService.description = description;
+        newService.fragment = fragment;
+        services.push(newService);
+    }
+    
+    function removeService(string calldata fragment) public onlyOp{
+        uint256 length = services.length;
+        bytes32 fragmentHash = keccak256(abi.encodePacked(fragment));
+        for (uint256 i = 0; i < length; i++) {
+            bytes32 currentFragmentHash = keccak256(abi.encodePacked(services[i].fragment));
+            if (currentFragmentHash == fragmentHash) {
+                services[i] = services[length - 1];
+                services.pop();
+                break;
+            }
+        }
+    }
+
+    function getDidData() public view returns (DidData memory _didData){
+        DidData memory retData;
+        retData.contractAddress = address(this);
+        retData.controller = data.owner;
+        retData.services = services;
+        retData.chid = data.chid;
+        retData.chainid = block.chainid;
+        return retData;
     }
 
     // function generateRecycleProof(RecycleProofData memory proof_data) internal{

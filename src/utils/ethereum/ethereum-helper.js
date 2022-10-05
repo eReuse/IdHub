@@ -21,6 +21,12 @@ async function get_wallet(token) {
     return wallet
 }
 
+function randomWallet(){
+    var wallet = ethers.Wallet.createRandom()
+    wallet = wallet.connect(ethereum.provider)
+    return wallet
+}
+
 function createContract(address, contractPath, wallet) {
     const contract = new ethers.Contract(
         address,
@@ -52,5 +58,6 @@ module.exports = {
     get_wallet,
     createContract,
     getEvents,
-    translateHexToString
+    translateHexToString,
+    randomWallet
 }
