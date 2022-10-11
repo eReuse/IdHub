@@ -25,7 +25,8 @@ class API:
             'api_token' : self.api_key
         }
         res = self.make_post("/invalidateUser", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def set_issuer(self, target):
         params = {
@@ -33,7 +34,8 @@ class API:
             'target_user' : target
         }
         res = self.make_post("/setIssuer", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def issue_credential(self, credential, target):
         params = {
@@ -42,7 +44,8 @@ class API:
             'target_user' : target
         }
         res = self.make_post("/issueCredential", params, self.dlt)
-        return res.content
+        return res.json()
+
     
     def register_device(self, deviceCHID):
         params = {
@@ -50,7 +53,8 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/registerDevice", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def deRegister_device(self, deviceCHID):
         params = {
@@ -58,7 +62,8 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/deRegisterDevice", params, self.dlt)
-        return res.content
+        return res.json()
+
    
 
     def issue_passport(self, deviceDPP, docID, docSig, issuerID):
@@ -70,7 +75,8 @@ class API:
             'IssuerID' : issuerID
         }
         res = self.make_post("/issuePassport", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def generate_proof(self, deviceCHID, docID, docSig, issuerID, type):
         params = {
@@ -82,7 +88,8 @@ class API:
             'Type' : type
         }
         res = self.make_post("/generateProof", params, self.dlt)
-        return res.content
+        return res.json()
+
     
     def get_register_proof(self, deviceCHID):
         params = {
@@ -90,7 +97,8 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getRegisterProofsByCHID", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def get_issue_proofs(self, deviceCHID):
         params = {
@@ -98,7 +106,8 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getIssueProofs", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def get_generic_proofs(self, deviceCHID):
         params = {
@@ -106,14 +115,24 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getProofs", params, self.dlt)
-        return res.content
+        return res.json()
+
+    def get_deregister_proofs(self, deviceCHID):
+        params = {
+            'api_token' : self.api_key,
+            'DeviceCHID' : deviceCHID
+        }
+        res = self.make_post("/getDeRegisterProofs", params, self.dlt)
+        return res.json()
+
 
     def check_user_roles(self):
         params = {
             'api_token' : self.api_key,
         }
         res = self.make_post("/checkUserRoles", params, self.dlt)
-        return res.content
+        return res.json()
+
 
     def get_did_data(self, deviceCHID):
         params = {
@@ -121,7 +140,7 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getDidData", params, self.dlt)
-        return res.content
+        return res.json()
 
     def add_service(self, deviceCHID, type, endpoint, desc, frag):
         params = {
@@ -133,7 +152,7 @@ class API:
             'fragment' : frag
         }
         res = self.make_post("/getDidData", params, self.dlt)
-        return res.content
+        return res.json()
 
     def remove_service(self, deviceCHID, frag):
         params = {
@@ -142,8 +161,7 @@ class API:
             'fragment' : frag
         }
         res = self.make_post("/removeService", params, self.dlt)
-        return res.content
-
+        return res.json()
 
 # if (len(sys.argv) <= 1):
 #     raise Exception("Please specify api_key")
@@ -154,7 +172,7 @@ def register_user(endpoint, privateKey = ""):
         'privateKey' : privateKey
     }
     res = requests.post(endpoint + "/registerUser", data=payload)
-    return res
+    return res.json()
 
 # def invalidate_user(api_token, dlt):
 #     headers = {'dlt' : dlt}
