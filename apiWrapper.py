@@ -25,7 +25,11 @@ class API:
             'api_token' : self.api_key
         }
         res = self.make_post("/invalidateUser", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def set_issuer(self, target):
@@ -34,7 +38,11 @@ class API:
             'target_user' : target
         }
         res = self.make_post("/setIssuer", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def issue_credential(self, credential, target):
@@ -44,7 +52,11 @@ class API:
             'target_user' : target
         }
         res = self.make_post("/issueCredential", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
     
     def register_device(self, deviceCHID):
@@ -53,7 +65,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/registerDevice", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def deRegister_device(self, deviceCHID):
@@ -62,7 +78,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/deRegisterDevice", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
    
 
@@ -75,7 +95,11 @@ class API:
             'IssuerID' : issuerID
         }
         res = self.make_post("/issuePassport", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def generate_proof(self, deviceCHID, docID, docSig, issuerID, type):
@@ -88,7 +112,11 @@ class API:
             'Type' : type
         }
         res = self.make_post("/generateProof", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
     
     def get_register_proof(self, deviceCHID):
@@ -97,7 +125,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getRegisterProofsByCHID", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def get_issue_proofs(self, deviceCHID):
@@ -106,7 +138,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getIssueProofs", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def get_generic_proofs(self, deviceCHID):
@@ -115,7 +151,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getProofs", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
     def get_deregister_proofs(self, deviceCHID):
         params = {
@@ -123,7 +163,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getDeRegisterProofs", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def check_user_roles(self):
@@ -131,7 +175,11 @@ class API:
             'api_token' : self.api_key,
         }
         res = self.make_post("/checkUserRoles", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 
     def get_did_data(self, deviceCHID):
@@ -140,7 +188,11 @@ class API:
             'DeviceCHID' : deviceCHID
         }
         res = self.make_post("/getDidData", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
     def add_service(self, deviceCHID, type, endpoint, desc, frag):
         params = {
@@ -152,7 +204,11 @@ class API:
             'fragment' : frag
         }
         res = self.make_post("/getDidData", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
     def remove_service(self, deviceCHID, frag):
         params = {
@@ -161,7 +217,11 @@ class API:
             'fragment' : frag
         }
         res = self.make_post("/removeService", params, self.dlt)
-        return res.json()
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
 
 # if (len(sys.argv) <= 1):
 #     raise Exception("Please specify api_key")

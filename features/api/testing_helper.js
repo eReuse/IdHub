@@ -3,7 +3,7 @@ const axios = require('axios')
 const api_url = 'http://localhost:3010';
 
 var {setDefaultTimeout} = require('@cucumber/cucumber');
-setDefaultTimeout(10 * 1000);
+setDefaultTimeout(30 * 1000);
 
 function invalidate_string(string) {
     return string.substring(1)
