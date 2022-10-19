@@ -67,7 +67,6 @@ print(apiUser2.generate_proof(chid, "docid", "docsig", "issuerid", "type1"))
 #user2 queries generic proofs
 print("user2 queries generic proofs")
 print(apiUser2.get_generic_proofs(chid))
-
 #user2 deregisters device
 print("user2 deregisters device")
 print(apiUser2.deRegister_device(chid))

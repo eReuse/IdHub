@@ -21,6 +21,9 @@ class API:
         return res
 
     def invalidate_user(self):
+        """
+        Invalidates the user from the API. The user is no longer capable of doing any operation.
+        """
         params = {
             'api_token' : self.api_key
         }
@@ -33,6 +36,10 @@ class API:
 
 
     def set_issuer(self, target):
+        """
+        Gives "Issuer" credential to the target user. A user with an "Issuer" credential can issue new credentials to other users.
+        Only the API Admin can give this credenital.
+        """
         params = {
             'api_token' : self.api_key,
             'target_user' : target
@@ -46,6 +53,9 @@ class API:
 
 
     def issue_credential(self, credential, target):
+        """
+        Gives an "Operator", "Verifier" or "Witness" credential to the target user. Only an issuer can issue these credentials.
+        """
         params = {
             'api_token' : self.api_key,
             'CredentialType' : credential,
@@ -60,6 +70,9 @@ class API:
 
     
     def register_device(self, deviceCHID):
+        """
+        Registers a new device into the DLT. The device CHID must be unique in each DLT.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -73,6 +86,9 @@ class API:
 
 
     def deRegister_device(self, deviceCHID):
+        """
+        Deregister a device from the DLT. New passports or proofs can not be generated in a deregistered device.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -87,6 +103,11 @@ class API:
    
 
     def issue_passport(self, deviceDPP, docID, docSig, issuerID):
+        """
+        Issues a new passport to a device. The device is defined through the mandatory "deviceDPP" argument, which contains the deviceCHID. 
+        DeviceDPP format: deviceCHID:xxxx
+        Document ID, Document Signature, and Issuer ID are optional.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceDPP' : deviceDPP,
@@ -103,6 +124,10 @@ class API:
 
 
     def generate_proof(self, deviceCHID, docID, docSig, issuerID, type):
+        """
+        Issues a new proof into a device. DeviceCHID is mandatory.
+        Document ID, Document Signature, Issuer ID and type are optional.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID,
@@ -120,6 +145,9 @@ class API:
 
     
     def get_register_proof(self, deviceCHID):
+        """
+        Gets all the registered proofs of a device, ordered by timestamp.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -133,6 +161,9 @@ class API:
 
 
     def get_issue_proofs(self, deviceCHID):
+        """
+        Gets all the passport proofs of a device, ordered by timestamp.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -146,6 +177,9 @@ class API:
 
 
     def get_generic_proofs(self, deviceCHID):
+        """
+        Gets all the generic proofs of a device, ordered by timestamp.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -158,6 +192,9 @@ class API:
         return r
 
     def get_deregister_proofs(self, deviceCHID):
+        """
+        Gets all the deregister proofs of a device, ordered by timestamp.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -171,6 +208,9 @@ class API:
 
 
     def check_user_roles(self):
+        """
+        Gets the current roles of the user.
+        """
         params = {
             'api_token' : self.api_key,
         }
@@ -228,6 +268,10 @@ class API:
 
 
 def register_user(endpoint, privateKey = ""):
+    """
+    Registers a new user to an API. The API base endpoint must be specified. A user ethereum private key can be provided.
+    If no privatekey is provided, a new privateKey generated and given to the user.
+    """
     payload = {
         'privateKey' : privateKey
     }
