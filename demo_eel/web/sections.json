@@ -1,0 +1,123 @@
+{
+    "Register user": {
+        "description": "Registers a new user to an API. The API base endpoint must be specified. A user ethereum private key can be provided.\nIf no privatekey is provided, a new privateKey generated and given to the user.",
+        "command": "register_user",
+        "args": [
+            "Private key"
+        ]
+    },
+    "Invalidate user": {
+        "description": "Invalidates the user from the API. The user is no longer capable of doing any operation.        ",
+        "command": "invalidate_user",
+        "args": []
+    },
+    "Set issuer role (only admin)": {
+        "description": "Gives \"Issuer\" credential to the target user. A user with an \"Issuer\" credential can issue new credentials to other users.\n Only the API Admin can give this credenital.",
+        "command": "set_issuer",
+        "args": [
+            "Target user"
+        ]
+    },
+    "Issue credential": {
+        "description": "Gives an \"Operator\", \"Verifier\" or \"Witness\" credential to the target user. Only an issuer can issue these credentials.",
+        "command": "issue_credential",
+        "args": [
+            "Credential type",
+            "Target user"
+        ]
+    },
+    "Register device": {
+        "description": "Registers a new device into the DLT. The device CHID must be unique in each DLT.        ",
+        "command": "register_device",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Deregister device": {
+        "description": "Deregister a device from the DLT. New passports or proofs can not be generated in a deregistered device.        ",
+        "command": "deRegister_device",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Issue passport": {
+        "description": "Issues a new passport to a device. The device is defined through the mandatory \"deviceDPP\" argument, which contains the deviceCHID. \nDeviceDPP format: deviceCHID:xxxx\nDocument ID, Document Signature, and Issuer ID are optional.",
+        "command": "issue_passport",
+        "args": [
+            "DPP (chid:phid)",
+            "Document ID",
+            "Document Signature",
+            "Issuer ID"
+        ]
+    },
+    "Generate proof": {
+        "description": "Issues a new proof into a device. DeviceCHID is mandatory.\nDocument ID, Document Signature, Issuer ID and type are optional.",
+        "command": "generate_proof",
+        "args": [
+            "CHID",
+            "Document ID",
+            "Document signature",
+            "Issuer ID",
+            "Type"
+        ]
+    },
+    "Read register proof": {
+        "description": "Gets all the registered proofs of a device, ordered by timestamp.        ",
+        "command": "get_register_proof",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Read passport issue proofs": {
+        "description": "Gets all the passport proofs of a device, ordered by timestamp.        ",
+        "command": "get_issue_proofs",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Read generic proofs": {
+        "description": "Gets all the generic proofs of a device, ordered by timestamp.        ",
+        "command": "get_generic_proofs",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Read deregister proof": {
+        "description": "Gets all the deregister proofs of a device, ordered by timestamp.        ",
+        "command": "get_deregister_proofs",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Check user roles": {
+        "description": "Gets the current roles of the user.        ",
+        "command": "check_user_roles",
+        "args": []
+    },
+    "Get DID data": {
+        "description": "Gets the necessary data to construct the DID document.",
+        "command": "get_did_data",
+        "args": [
+            "CHID"
+        ]
+    },
+    "Add service to DID document": {
+        "description": "Adds a new service to the DID document. Services require an endpoint, a type and a fragment. Description is optional.",
+        "command": "add_service",
+        "args": [
+            "CHID",
+            "Type",
+            "Endpoint",
+            "Description",
+            "Fragment"
+        ]
+    },
+    "Remove service from DID document": {
+        "description": "Removes a service from the DID document. The default service can't be removed.",
+        "command": "remove_service",
+        "args": [
+            "CHID",
+            "Fragment"
+        ]
+    }
+}
