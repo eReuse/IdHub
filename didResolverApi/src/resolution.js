@@ -1,4 +1,4 @@
-import {getResolver} from '../../didResolverModule/ereuseResolver.js'
+import {getResolver} from '../../didResolverModule/src/ereuseResolver.js'
 import  {Resolver} from 'did-resolver'
 
 import express from 'express'

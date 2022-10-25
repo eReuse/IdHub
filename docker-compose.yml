@@ -14,14 +14,16 @@ services:
         - ereuse
 
   resolver: 
-      build: ./didResolverApi
+      build: 
+        context: ./
+        dockerfile: ./didResolverApi/Dockerfile
       container_name: didResolver # name of the built image
       ports:
         - "3011:3011"
       restart: always
       volumes:
         - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
-        - ./didResolverModule:/home/node/didResolverModule:rw
+        - ./didResolverModule/src:/home/node/didResolverModule/src:rw
       networks:
         - ereuse
 
