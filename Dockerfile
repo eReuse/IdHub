@@ -12,6 +12,7 @@ RUN npm install truffle @truffle/hdwallet-provider@1.5.1 express ethers crypto-j
 RUN ./node_modules/.bin/truffle migrate --network abc2_besu --reset
 COPY --chown=node:node src ./src
 
+USER root
 EXPOSE 3010
 WORKDIR /home/node/app/src/
 CMD ["node", "./index.js"]
