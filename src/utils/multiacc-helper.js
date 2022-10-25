@@ -1,22 +1,35 @@
 const CryptoJS = require('crypto-js');
 const storage = require('node-persist');
-const generate = require('generate-api-key');
+// const generate = require('generate-api-key');
 const adminIdentity = require('./iota/adminIdentity.json')
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const ethers = require("ethers")
-const ethereum = require("../utils/ethereum/ethereum-config.js")
+const ethereum = require("../utils/ethereum/ethereum-config.js");
+const { setMask } = require('readline-sync');
 
+function generate(length) {
+  let res = ""
+  let char_length = characters.length
+  for(var i = 0; i<length; i++) {
+    res+=characters.charAt(Math.floor(Math.random()*char_length))
+  }
+  return res
+}
 
 function generate_token() {
-  const prefix = generate({ length: 15, pool: characters })
-  const token = generate({ length: 64, pool: characters, prefix: prefix })
-  const salt = generate({ length: 64, pool: characters })
+  // const prefix = generate({ length: 15, pool: characters })
+  // const token = generate({ length: 64, pool: characters, prefix: prefix })
+  // const salt = generate({ length: 64, pool: characters })
 
-  var split_token = token.split(".");
+  // var split_token = token.split(".");
+  const prefix = generate(15)
+  const token = generate(64)
+  const salt = generate(64)
 
-  const hash = CryptoJS.SHA3(split_token[1] + salt, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
+  const hash = CryptoJS.SHA3(token + salt, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
+  // const hash = CryptoJS.SHA3(split_token[1] + salt, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
 
-  return { prefix: prefix, token: token, salt: salt, hash: hash }
+  return { prefix: prefix, token: prefix + "." + token, salt: salt, hash: hash }
 }
 
 async function check_token(token) {

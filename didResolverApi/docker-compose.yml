@@ -1,0 +1,9 @@
+api: 
+    build: ./
+    container_name: didResolver # name of the built image
+    ports:
+      - "3011:3011"
+    restart: always
+    volumes:
+      # - ./:/home/node/didResolverAPI/:rw
+      - ../didResolverModule:/home/node/didResolverModule:rw

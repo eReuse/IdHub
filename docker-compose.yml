@@ -1,9 +1,30 @@
-api: 
-    build: ./
-    container_name: trubloDemo_api_multiacc # name of the built image
-    ports:
-      - "3010:3010"
-    restart: always
-    volumes:
-      - ./src:/home/node/app/src:rw
-      - ./build/contracts:/home/node/app/build/contracts:rw
+version: '3.9'
+
+services:
+
+  api: 
+      build: ./
+      container_name: trubloDemo_api_multiacc # name of the built image
+      ports:
+        - "3010:3010"
+      restart: always
+      volumes:
+        - ./src:/home/node/app/src:rw
+      networks:
+        - ereuse
+
+  resolver: 
+      build: ./didResolverApi
+      container_name: didResolver # name of the built image
+      ports:
+        - "3011:3011"
+      restart: always
+      volumes:
+        - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
+        - ./didResolverModule:/home/node/didResolverModule:rw
+      networks:
+        - ereuse
+
+networks:
+    ereuse:
+      driver: bridge

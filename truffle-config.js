@@ -18,7 +18,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider({
           mnemonic: {
-            phrase: "plastic pilot subject deliver mechanic deliver fetch lend recall faith problem harbor"
+            phrase: "discover angle erosion trap barrel wage chest drop one raven tray degree"
           },
           providerOrUrl: "http://10.1.3.30:8545",
         }),
