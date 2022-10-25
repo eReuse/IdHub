@@ -22,7 +22,7 @@
         "description": "Gives an \"Operator\", \"Verifier\" or \"Witness\" credential to the target user. Only an issuer can issue these credentials.",
         "command": "issue_credential",
         "args": [
-            "Credential type",
+            "Credential type (Operator, Verifier, Witness)",
             "Target user"
         ]
     },

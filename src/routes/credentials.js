@@ -89,7 +89,7 @@ router
                 const accessListConstract = ethHelper.createContract
                     (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
                 const target_eth_wallet = await ethHelper.get_wallet(target_user)
-                var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975 })
+                var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
                 var txReceipt = await txResponse.wait()
                 response_data = {}
             }
@@ -152,11 +152,11 @@ router
                     (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", issuer_eth_wallet)
                 var txResponse
                 if (credentialType == "Operator")
-                    txResponse = await accessListConstract.registerOperator(target_eth_wallet.address, { gasLimit: 6721975 })
+                    txResponse = await accessListConstract.registerOperator(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
                 if (credentialType == "Witness")
-                    txResponse = await accessListConstract.registerWitness(target_eth_wallet.address, { gasLimit: 6721975 })
+                    txResponse = await accessListConstract.registerWitness(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
                 if (credentialType == "Verifier")
-                    txResponse = await accessListConstract.registerVerifier(target_eth_wallet.address, { gasLimit: 6721975 })
+                    txResponse = await accessListConstract.registerVerifier(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
                 var txReceipt = await txResponse.wait()
                 response_data = {}
             }

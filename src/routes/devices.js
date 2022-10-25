@@ -140,7 +140,7 @@ router
 
       const deviceFactoryContract = ethHelper.createContract
       (ethereum.DEVICEFACTORY_ADDRESS, "../../../build/contracts/DeviceFactory.json", wallet)
-      var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, { gasLimit: 6721975 })
+      var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, { gasLimit: 6721975, gasPrice:0 })
       var txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'DeviceRegistered', ethereum.deviceFactoryIface)
@@ -227,7 +227,7 @@ router
       const depositDeviceContract = ethHelper.createContract
         (existingDeviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975 })
+      var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975, gasPrice:0 })
       var txReceipt = await txResponse.wait()
 
       var args = ethHelper.getEvents
@@ -323,7 +323,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, parameters.documentID, parameters.documentSignature, parameters.issuerID, { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, parameters.documentID, parameters.documentSignature, parameters.issuerID, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'issueProof', ethereum.depositDeviceIface)
@@ -407,7 +407,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.generateGenericProof(parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type, { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.generateGenericProof(parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'genericProof', ethereum.depositDeviceIface)
@@ -495,7 +495,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.transferDevice(new_owner_wallet.address, { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.transferDevice(new_owner_wallet.address, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'transferProof', ethereum.depositDeviceIface)
@@ -954,7 +954,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.addService(parameters.endpoint, parameters.type, parameters.description, parameters.fragment, { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.addService(parameters.endpoint, parameters.type, parameters.description, parameters.fragment, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
     }
 
@@ -1008,7 +1008,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.removeService(parameters.fragment, { gasLimit: 6721975 })
+      const txResponse = await depositDeviceContract.removeService(parameters.fragment, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
     }
 

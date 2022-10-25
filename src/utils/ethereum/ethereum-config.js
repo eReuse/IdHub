@@ -2,10 +2,10 @@ const ethers = require("ethers")
 
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['456'].address;
+const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['457'].address;
 
 const AccessList = require('../../../build/contracts/AccessList.json');
-const ACCESSLIST_ADDRESS = AccessList.networks['456'].address;
+const ACCESSLIST_ADDRESS = AccessList.networks['457'].address;
 
 
 //const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
