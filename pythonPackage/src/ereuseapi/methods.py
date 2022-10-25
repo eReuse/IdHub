@@ -222,6 +222,9 @@ class API:
 
 
     def get_did_data(self, deviceCHID):
+        """
+        Gets the necessary data to construct the DID document.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID
@@ -234,6 +237,9 @@ class API:
         return r
 
     def add_service(self, deviceCHID, type, endpoint, desc, frag):
+        """
+        Adds a new service to the DID document. Services require an endpoint, a type and a fragment. Description is optional.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID,
@@ -250,6 +256,9 @@ class API:
         return r
 
     def remove_service(self, deviceCHID, frag):
+        """
+        Removes a service from the DID document. The default service can't be removed.
+        """
         params = {
             'api_token' : self.api_key,
             'DeviceCHID' : deviceCHID,
