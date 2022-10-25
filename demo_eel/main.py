@@ -7,7 +7,7 @@ path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
 print(sys.path)
 print(path_root)
-from apiWrapper import API, register_user
+from ereuseapi.methods import API, register_user
 
 print(f"Name: {__name__}")
 print(f"Package: {__package__}")

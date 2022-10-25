@@ -1,4 +1,4 @@
-import apiWrapper
+import ereuseapi.methods as methods
 import json
 from random import randint
 
@@ -15,12 +15,12 @@ from random import randint
 f = open("./features/api/adminToken.json")
 adminJson = json.load(f)
 
-keyUser1 = apiWrapper.register_user("http://localhost:3010", "")['data']['api_token']
-keyUser2 = apiWrapper.register_user("http://localhost:3010", "")['data']['api_token']
+keyUser1 = methods.register_user("http://localhost:3010", "")['data']['api_token']
+keyUser2 = methods.register_user("http://localhost:3010", "")['data']['api_token']
 
-apiUser1 = apiWrapper.API("http://localhost:3010",keyUser1,"ethereum")
-apiUser2 = apiWrapper.API("http://localhost:3010",keyUser2,"ethereum")
-apiadmin = apiWrapper.API("http://localhost:3010",adminJson['admin_token'],"ethereum")
+apiUser1 = methods.API("http://localhost:3010",keyUser1,"ethereum")
+apiUser2 = methods.API("http://localhost:3010",keyUser2,"ethereum")
+apiadmin = methods.API("http://localhost:3010",adminJson['admin_token'],"ethereum")
 
 targetUser1 = keyUser1[ 0 : 15 ]
 targetUser2 = keyUser2[ 0 : 15 ]

@@ -1,5 +1,4 @@
 import requests
-import sys
 
 class API:
     def __init__(self, endpoint, key, dlt):

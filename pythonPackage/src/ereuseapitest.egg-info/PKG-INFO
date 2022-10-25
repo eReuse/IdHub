@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: ereuseapitest
+Version: 0.0.1
+Summary: eReuse API method invocation with python
+Keywords: ereuse
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# eReuse API 
+
+This package contains various methods to communicate with the ereuse multi-DLT API.
+
+### Installaton
+
+You can install the eReuse API package from PyPI:
+
+```sh
+pip install ereuseapi
+```
+
+### How to use
+
+Simply import the eReuseAPI as a module in your code:
+
+```sh
+import ereuseapi
+```
+
