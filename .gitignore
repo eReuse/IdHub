@@ -1,5 +1,6 @@
 .node-persist
 build/contracts
+pythonPackage/dist
 # Logs
 logs
 *.log
