@@ -5,12 +5,37 @@ import eel
 from pathlib import Path
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
-print(sys.path)
-print(path_root)
+# print(sys.path)
+# print(path_root)
 from ereuseapi.methods import API, register_user
 
-print(f"Name: {__name__}")
-print(f"Package: {__package__}")
+port = 8000
+mode = 'chrome'
+
+# print(sys.argv)
+
+def check_arg(index):
+    global mode
+    global port
+    if sys.argv[index]=="-m":
+        if sys.argv[index+1] == "None": mode = None
+        else: mode = sys.argv[index+1]
+    elif sys.argv[index]=="-p":
+        port = int(sys.argv[index+1])
+    else: raise
+
+try:    
+    if len(sys.argv)> 1:
+        check_arg(1)
+    if len(sys.argv)> 3:
+        check_arg(3)
+except:
+    print("Flags:\n -p <port>\n -m <browser> (browser options: chrome, electron, edge, None) (Any other string will open the default system browser.)")
+    exit()
+
+
+# print(f"Name: {__name__}")
+# print(f"Package: {__package__}")
 
 eel.init('web')
 
@@ -18,10 +43,6 @@ api_object = None
 # api_object = API("http://localhost:3010", "Q91PbwYAwjIF1vB.38CjhblT7NnwMFuNOEpWNdZonB0yWMkrRhGglVr7qMD6Iqbzep0hJYIz7IRprNku", "ethereum")
 # func = getattr(api_object, "issue_credential")
 # print(func)
-
-@eel.expose
-def test():
-    print("REE")
 
 @eel.expose
 def read_endpoints():
@@ -51,8 +72,8 @@ def read_dlts():
 def init_api_object(endpoint, key, dlt):
     global api_object 
     api_object = API(endpoint,key,dlt)
-    print(dlt)
-    print(api_object.dlt)
+    # print(dlt)
+    # print(api_object.dlt)
 
 @eel.expose
 def register_new_user(endpoint):
@@ -72,4 +93,4 @@ def call_api(method, args):
         result = func(*args)
     return result
 
-eel.start('main.html', size=(1000, 800))
+eel.start('main.html', size=(1000, 800), mode=mode, port=port)

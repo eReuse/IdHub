@@ -50,6 +50,8 @@ function print_main_page() {
         <div style="width:100%;height:50px;text-align: center;line-height: 50px">DEMO CLIENT</div>
         <div class="separator"></div>
         ${html_content}
+        <button class="bar_button" onclick="location.reload()">Restart client</button>
+        <div class="separator"></div>
     </div>
     <div id="content_div" class="right-content">
     </div>
