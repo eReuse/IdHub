@@ -2,7 +2,7 @@
 
 This package contains various methods to communicate with any ereuse multi-DLT API.
 
-### Installaton
+## Installation
 
 You can install the eReuse API package from PyPI. The "requests" library is also necessary.
 
@@ -11,7 +11,7 @@ pip install --index-url https://test.pypi.org/simple/ ereuseapitest
 pip install requests
 ```
 
-### Usage
+## Usage
 
 Simply import the eReuseAPI as a module in your code. We encourage importing the API class
 and the "register_user" method directly.
@@ -43,7 +43,7 @@ An example of a json return object for "register_user" method would be:
 }
 ```
 
-Once the user is registered, he is now able to initialize an API object with his token. 
+Once the user is registered, he is now able to initialize an API object with his token.
 
 ```sh
 apiUser1 = methods.API("http://endpoint_ip:endpoint_port",keyUser1,"ethereum")
@@ -57,10 +57,15 @@ apiUser1.get_register_proof("chid")
 apiUser1.issue_passport("chiddpp" + ":dpp", "docid", "docsig", "issuerid")
 ```
 
-# API Methods
+## API Methods and the API token
+
+Each time a user executes an API call, his complete API token is needed for validation and identification purposes. This is why an "API_token" is needed to initialize an API object.
+
+Each API token has two parts. The "prefix", composed of the first 15 characters, is the public “key” of the API token. The following 64 characters are private and should be known only by its owner.
+
+When user X wants to interact with user Y (target user) through the API, X uses the "prefix" part of the API token of the target user Y.
 
 The following is a list of all the API methods available in the package.
-
 
 ### invalidate_user
 Invalidates the user from the API. The user is no longer capable of doing any operation.
