@@ -36,7 +36,7 @@ An example of a json return object for "register_user" method would be:
 "data":
     {
     "api_token": "G1tG8mBzmgftK5P.gScPwsXlSoQ94PKkcsHvp6Kiqcq0UguvHus5pytfe5qb9HGANhbWUyvIEZS7ro9y", 
-    "eth_pub_key": "0x84fc774998Ee14AeE099856AcFA51302F165F11a",
+    "eth_pub_key": "0x84fc77d998Ee14AeE099856AcFA51302F165F11a",
     "eth_priv_key": "0xc2d600f7e1bd498fd34a073365c39954bde17c47f936d376c190ff8ff4094030",
     "iota_id": "iota_placeholder"
     }
