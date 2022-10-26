@@ -15,7 +15,7 @@
         "description": "Gives \"Issuer\" credential to the target user. A user with an \"Issuer\" credential can issue new credentials to other users.\n Only the API Admin can give this credenital.",
         "command": "set_issuer",
         "args": [
-            "Target user"
+            "Target user (only api key prefix)"
         ]
     },
     "Issue credential": {
@@ -23,7 +23,7 @@
         "command": "issue_credential",
         "args": [
             "Credential type (Operator, Verifier, Witness)",
-            "Target user"
+            "Target user (only api key prefix)"
         ]
     },
     "Register device": {
