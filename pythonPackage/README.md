@@ -1,20 +1,58 @@
 # eReuse API 
 
-This package contains various methods to communicate with the ereuse multi-DLT API.
+This package contains various methods to communicate with any ereuse multi-DLT API.
 
 ### Installaton
 
-You can install the eReuse API package from PyPI:
+You can install the eReuse API package from PyPI. The "requests" library is also necessary.
 
 ```sh
-pip install ereuseapi
+pip install --index-url https://test.pypi.org/simple/ ereuseapitest
+pip install requests
 ```
 
-### How to use
+### Usage
 
-Simply import the eReuseAPI as a module in your code:
+Simply import the eReuseAPI as a module in your code. We encourage importing the API class
+and the "register_user" method directly.
 
 ```sh
-import ereuseapi
+from ereuseapi.methods import API, register_user
 ```
 
+First, register a new user into the desired API. In this example, an empty ethereum  privateKey is given, so the API will automatically
+generate one and return it. "register_user" and all the other API methods always return a json object. In this example, we will save the "[data].[api_token]"
+value of the returned json, that contains the api_token of the registered user, which will be necessary later.
+
+```sh
+keyUser1 = methods.register_user("http://endpoint_ip:endpoint_port" , "")['data']['api_token']
+```
+
+An example of a json return object for "register_user" method would be:
+
+```json
+{
+"status": "Success.", 
+"data":
+    {
+    "api_token": "G1tG8mBzmgftK5P.gScPwsXlSoQ94PKkcsHvp6Kiqcq0UguvHus5pytfe5qb9HGANhbWUyvIEZS7ro9y", 
+    "eth_pub_key": "0x84fc774998Ee14AeE099856AcFA51302F165F11a",
+    "eth_priv_key": "0xc2d600f7e1bd498fd34a073365c39954bde17c47f936d376c190ff8ff4094030",
+    "iota_id": "iota_placeholder"
+    }
+}
+```
+
+Once the user is registered, he is now able to initialize an API object with his token. 
+
+```sh
+apiUser1 = methods.API("http://endpoint_ip:endpoint_port",keyUser1,"ethereum")
+```
+
+From now on, this API object "apiUser1" will be enough to call all the other API methods that require an already registered user.
+
+```sh
+apiUser1.register_device("chid")
+apiUser1.get_register_proof("chid")
+apiUser1.issue_passport("chiddpp" + ":dpp", "docid", "docsig", "issuerid")
+```
