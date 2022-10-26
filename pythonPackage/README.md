@@ -22,7 +22,7 @@ from ereuseapi.methods import API, register_user
 
 First, register a new user into the desired API. In this example, an empty ethereum  privateKey is given, so the API will automatically
 generate one and return it. "register_user" and all the other API methods always return a json object. In this example, we will save the "[data].[api_token]"
-value of the returned json, that contains the api_token of the registered user, which will be necessary later.
+value of the returned json. It contains the api_token of the registered user, which will be necessary later.
 
 ```sh
 keyUser1 = methods.register_user("http://endpoint_ip:endpoint_port" , "")['data']['api_token']
