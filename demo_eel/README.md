@@ -10,7 +10,11 @@ pip install eel
 ```
 
 ## Usage
-Options:
+Launch with:
+```
+python main.py <args>
+```
+Arguments:
 ```
  -m browser (browser options: chrome, electron, edge, None) (Any other string will open the default system browser.)
  -p port
