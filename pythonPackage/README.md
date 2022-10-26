@@ -56,3 +56,108 @@ apiUser1.register_device("chid")
 apiUser1.get_register_proof("chid")
 apiUser1.issue_passport("chiddpp" + ":dpp", "docid", "docsig", "issuerid")
 ```
+
+# API Methods
+
+The following is a list of all the API methods available in the package.
+
+
+### invalidate_user
+Invalidates the user from the API. The user is no longer capable of doing any operation.
+
+```python
+invalidate_user()
+```
+### set_issuer
+Gives "Issuer" credential to the target user. A user with an "Issuer" credential can issue new credentials to other users. Only the API Admin can give this credenital.
+```python
+set_issuer(target_user)
+```
+
+### issue_credential
+Gives an "Operator", "Verifier" or "Witness" credential to the target user. Only an issuer can issue these credentials.
+```python
+issue_credential(credential_type, target_user)
+```
+
+### register_device
+Registers a new device into the DLT. The device CHID must be unique in each DLT.
+```python
+register_device(deviceCHID)
+```
+
+
+### deRegister_device
+Deregister a device from the DLT. New passports or proofs can not be generated in a deregistered device.
+
+```python
+deRegister_device(deviceCHID)
+```
+
+### issue_passport
+Issues a new passport to a device. The device is defined through the mandatory "deviceDPP" argument, which contains the deviceCHID. 
+        DeviceDPP format: deviceCHID:xxxx
+        Document ID, Document Signature, and Issuer ID are optional.
+
+```python
+issue_passport(deviceDPP, docID, docDig, issuerID)
+```
+
+### generate_proof
+Issues a new proof into a device. DeviceCHID is mandatory.
+Document ID, Document Signature, Issuer ID and type are optional.
+
+```python
+generate_proof(deviceCHID, docID, docDig, issuerID, proof_type)
+```
+
+### get_register_proof
+Gets all the registered proofs of a device, ordered by timestamp.
+```python
+get_register_proof(deviceCHID)
+```
+
+### get_issue_proofs
+Gets all the passport proofs of a device, ordered by timestamp.
+```python
+get_issue_proofs(deviceCHID)
+```
+
+### get_generic_proofs
+Gets all the generic proofs of a device, ordered by timestamp.
+```python
+get_generic_proofs(deviceCHID)
+```
+
+
+### get_deregister_proofs
+Gets all the deregister proofs of a device, ordered by timestamp.
+```python
+get_deregister_proofs(deviceCHID)
+```
+
+### check_user_roles
+Gets the current roles of the user.
+```python
+check_user_roles()
+```
+
+### get_did_data
+Gets the necessary data to construct the DID document.
+```python
+get_did_data(deviceCHID)
+```
+
+### add_service
+Adds a new service to the DID document. Services require an endpoint, a type and a fragment. Description is optional.
+```python
+add_service(deviceCHID, s_type, endpoint, desc, frag)
+```
+
+
+### remove_service
+Removes a service from the DID document. The default service can't be removed.
+```python
+remove_service(deviceCHID, frag)
+```
+
