@@ -116,6 +116,13 @@ Document ID, Document Signature, Issuer ID and type are optional.
 generate_proof(deviceCHID, docID, docDig, issuerID, proof_type)
 ```
 
+### transfer_device
+ Transfers the ownership of a device to another account.
+
+```python
+transfer_device(deviceCHID, newOwner)
+```
+
 ### get_register_proof
 Gets all the registered proofs of a device, ordered by timestamp.
 ```python

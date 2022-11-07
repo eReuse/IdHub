@@ -171,16 +171,24 @@ router
         catch (e) {
             let tx = await ethereum.provider.getTransaction(e.transactionHash)
             if (!tx) {
-              next(ApiError.internal('Unknown blockchain error'));
-              return
+                next(ApiError.internal('Unknown blockchain error'));
+                return
             } else {
-              let code = await ethereum.provider.call(tx, tx.blockNumber)
-              var reason = ethHelper.translateHexToString(138, code)
-              reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
-              next(ApiError.badRequest(reason));
-              return
+                var reason = ""
+                if (ethereum.ethClient == "besu") {
+                    var result = await ethHelper.makeReceiptCall(e.transactionHash)
+                    var revert = result.data.result.revertReason
+                    reason = ethHelper.translateHexToString(138, revert)
+                }
+                else {
+                    let code = await ethereum.provider.call(tx, tx.blockNumber)
+                    reason = ethHelper.translateHexToString(138, code)
+                }
+                reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+                next(ApiError.badRequest(reason));
+                return
             }
-          }
+        }
     })
 
 module.exports = router

@@ -142,6 +142,21 @@ class API:
         }
         return r
 
+    def transfer_device(self, deviceCHID, newOwner):
+        """
+        Transfers the ownership of a device to another account.
+        """
+        params = {
+            'api_token' : self.api_key,
+            'DeviceCHID' : deviceCHID,
+            'NewOwner' : newOwner
+        }
+        res = self.make_post("/transferOwnership", params, self.dlt)
+        r = {
+            'Status' : res.status_code,
+            'Data' : res.json(),
+        }
+        return r
     
     def get_register_proof(self, deviceCHID):
         """

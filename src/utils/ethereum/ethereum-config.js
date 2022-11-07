@@ -39,6 +39,8 @@ const defaultAccessListContract = new ethers.Contract(
   signer
 )
 
+const ethClient = "besu"
+
 module.exports = {
   DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
   ACCESSLIST_ADDRESS: ACCESSLIST_ADDRESS,
@@ -48,5 +50,6 @@ module.exports = {
   provider: provider,
   signer: signer,
   defaultDeviceFactoryContract: defaultDeviceFactoryContract,
-  defaultAccessListContract: defaultAccessListContract
+  defaultAccessListContract: defaultAccessListContract,
+  ethClient: ethClient
 }

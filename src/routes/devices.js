@@ -163,9 +163,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }
@@ -249,9 +257,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }
@@ -345,9 +361,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }
@@ -429,9 +453,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }
@@ -444,12 +476,25 @@ router
   try {
     console.log(`Called /transferOwnership with chid: ${parameters.deviceCHID} and newOwner ${parameters.newOwner}`)
 
-    is_dlt_valid(parameters.dlt)
-    check_undefined_params([parameters.deviceCHID, parameters.newOwner])
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    if (check_undefined_params([parameters.deviceCHID, parameters.newOwner])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+
     const target_valid = await multiacc.check_exists(parameters.newOwner)
-    if(!target_valid) throw new BadRequest("New owner doesn't exist.")
+    if(!target_valid) {
+      next(ApiError.badRequest("New owner doesn't exist."));
+      return
+    }
 
     if (parameters.dlt == iota_name) {
       if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
@@ -489,7 +534,8 @@ router
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
 
       if (!ethHelper.is_device_address_valid(deviceAddress)) {
-        throw new BadRequest("CHID not registered.")
+        next(ApiError.badRequest('CHID not registered'));
+        return
       }
 
       const depositDeviceContract = ethHelper.createContract
@@ -514,12 +560,25 @@ router
   }
 
   catch (e) {
-    const error_object = get_error_object(e.message)
-    res.status(error_object.code);
-    res.json({
-      error: error_object.message,
-    })
-    next(e)
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
   }
 })
 
@@ -969,9 +1028,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }
@@ -1023,9 +1090,17 @@ router
       next(ApiError.internal('Unknown blockchain error'));
       return
     } else {
-      let code = await ethereum.provider.call(tx, tx.blockNumber)
-      var reason = ethHelper.translateHexToString(138, code)
-      reason = reason.replace(/\0.*$/g,''); //delete null characters of a string
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
       return
     }

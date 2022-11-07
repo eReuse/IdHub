@@ -1,6 +1,7 @@
 const ethers = require("ethers")
 const storage = require('node-persist');
 const ethereum = require("./ethereum-config.js")
+const axios = require('axios')
 
 
 async function chid_to_deviceAdress(chid) {
@@ -51,6 +52,27 @@ function translateHexToString(n, string) {
     return translation
 }
 
+async function makeReceiptCall(hash) {
+    var data = JSON.stringify({
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionReceipt",
+        "params": [
+            hash
+        ],
+        "id": "457"
+    });
+    var config = {
+        method: 'POST',
+        url: 'http://10.1.3.30:8545',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+    return result = await axios(config)
+}
+
+
 
 module.exports = {
     chid_to_deviceAdress,
@@ -59,5 +81,6 @@ module.exports = {
     createContract,
     getEvents,
     translateHexToString,
-    randomWallet
+    randomWallet,
+    makeReceiptCall
 }

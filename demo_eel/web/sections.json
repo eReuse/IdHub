@@ -61,6 +61,14 @@
             "Type"
         ]
     },
+    "Transfer Device": {
+        "description": "Transfers the ownership of a device to another account.        ",
+        "command": "transfer_device",
+        "args": [
+            "CHID",
+            "New Owner"
+        ]
+    },
     "Read register proof": {
         "description": "Gets all the registered proofs of a device, ordered by timestamp.        ",
         "command": "get_register_proof",
