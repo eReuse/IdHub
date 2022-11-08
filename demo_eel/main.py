@@ -93,4 +93,4 @@ def call_api(method, args):
         result = func(*args)
     return result
 
-eel.start('main.html', size=(1000, 800), mode=mode, port=port)
+eel.start('main.html', size=(1000, 850), mode=mode, port=port)

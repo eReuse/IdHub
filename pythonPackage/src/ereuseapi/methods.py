@@ -157,10 +157,25 @@ class API:
             'Data' : res.json(),
         }
         return r
-    
+
+    def get_transfer_proofs(self, deviceCHID):
+        """
+        Gets all the transfer proofs of a device, ordered by timestamp.
+        """
+        params = {
+            'api_token': self.api_key,
+            'DeviceCHID': deviceCHID,
+        }
+        res = self.make_post("/getTransferProofs", params, self.dlt)
+        r = {
+            'Status': res.status_code,
+            'Data': res.json(),
+        }
+        return r
+
     def get_register_proof(self, deviceCHID):
         """
-        Gets all the registered proofs of a device, ordered by timestamp.
+        Get the register proof of a device.
         """
         params = {
             'api_token' : self.api_key,

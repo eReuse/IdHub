@@ -123,8 +123,13 @@ generate_proof(deviceCHID, docID, docDig, issuerID, proof_type)
 transfer_device(deviceCHID, newOwner)
 ```
 
+### get_transfer_proofs
+Gets all the transfer proofs of a device, ordered by timestamp.
+```python
+get_transfer_proofs(deviceCHID)
+```
 ### get_register_proof
-Gets all the registered proofs of a device, ordered by timestamp.
+Get the register proof of a device.
 ```python
 get_register_proof(deviceCHID)
 ```

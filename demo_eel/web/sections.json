@@ -69,8 +69,16 @@
             "New Owner"
         ]
     },
+    "Read transfer proofs": {
+        "description": "Gets all the transfer proofs of a device, ordered by timestamp.        ",
+        "command": "get_transfer_proofs",
+        "args": [
+            "CHID"
+        ]
+    },
+
     "Read register proof": {
-        "description": "Gets all the registered proofs of a device, ordered by timestamp.        ",
+        "description": "Get the register proof of a device.        ",
         "command": "get_register_proof",
         "args": [
             "CHID"
