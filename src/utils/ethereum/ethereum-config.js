@@ -1,15 +1,23 @@
 const ethers = require("ethers")
-
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['457'].address;
 
 const AccessList = require('../../../build/contracts/AccessList.json');
 const ACCESSLIST_ADDRESS = AccessList.networks['457'].address;
+const process = require("process")
+
+const dotenv = require('dotenv');
+dotenv.config();
+
+// const privateKey = "765159de24c5bd2abfbd8c95aba6ee84e35b62a22e39338f3b1a71e0145fab09"
+const privateKey = process.env.ETH_PRIV_KEY
+
+//TODO: cambiar a environment (besu client variable, nodeIP y privKey)
+const nodeIP = process.env.NODE_IP
+const ethClient = process.env.ETH_CLIENT
 
 
-//const privateKey = "0c59d9a51420d950c5bf1ee3e52114f2be893680e432a95038b179e3b6e9d0e6"
-const privateKey = "765159de24c5bd2abfbd8c95aba6ee84e35b62a22e39338f3b1a71e0145fab09"
 
 const deviceFactoryIface = new ethers.utils.Interface(
   require('../../../build/contracts/DeviceFactory.json').abi
@@ -22,7 +30,7 @@ const depositDeviceIface = new ethers.utils.Interface(
 )
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "HTTP://10.1.3.30:8545"
+  nodeIP
   //"HTTP://127.0.0.1:7545"
 )
 
@@ -39,7 +47,6 @@ const defaultAccessListContract = new ethers.Contract(
   signer
 )
 
-const ethClient = "besu"
 
 module.exports = {
   DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
@@ -51,5 +58,6 @@ module.exports = {
   signer: signer,
   defaultDeviceFactoryContract: defaultDeviceFactoryContract,
   defaultAccessListContract: defaultAccessListContract,
-  ethClient: ethClient
+  ethClient: ethClient,
+  nodeIP: nodeIP
 }

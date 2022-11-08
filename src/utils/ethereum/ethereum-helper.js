@@ -63,7 +63,7 @@ async function makeReceiptCall(hash) {
     });
     var config = {
         method: 'POST',
-        url: 'http://10.1.3.30:8545',
+        url: ethereum.nodeIP,
         headers: {
             'Content-Type': 'application/json'
         },
