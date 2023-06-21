@@ -32,6 +32,18 @@ router
         }
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
+      
+      const send_eth_tx={
+      	from: ethereum.signer.address,
+      	to: wallet.address,
+      	value: ethers.utils.parseEther("0.1"),
+      	nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
+      	gasLimit: ethers.utils.hexlify(50000),
+      	gasPrice: 0
+      }
+      
+      let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
+      var txReceipt = await res_eth.wait()
 
       //Creation of IOTA identity.
       //TODO: check if it's provided in request.

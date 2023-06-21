@@ -14,6 +14,34 @@ module.exports = {
       gasPrice: 0,
       gas: 8000000,
     },
+    iota_test: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: "discover angle erosion trap barrel wage chest drop one raven tray degree"
+          },
+          providerOrUrl: "ws://localhost/wasp/api/chains/tst1pr7a8hlfpemfgjc2utsh3v0ag5lw9h6nxax0k9atj0hq6spyn0gaucxep5w/evm/ws",
+        }),
+      network_id: 1074,
+      gas:50000000
+      // gasPrice: 0,
+      // maxFeePerGas: 0,
+      // maxPriorityFeePerGas: 0
+    },
+    iota_stable: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: "discover angle erosion trap barrel wage chest drop one raven tray degree"
+          },
+          providerOrUrl: "https://json-rpc.evm.stable.iota-ec.net",
+        }),
+      network_id: 1074,
+      gas:50000000
+      // gasPrice: 0,
+      // maxFeePerGas: 0,
+      // maxPriorityFeePerGas: 0
+    },
     abc2_besu: {
       provider: () =>
         new HDWalletProvider({

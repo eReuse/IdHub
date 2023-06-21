@@ -18,6 +18,16 @@ const cosmos_name = "cosmos"
 
 const credential_types = ["Operator", "Witness", "Verifier"]
 
+
+async function temp_error(tx){
+try {
+          let code = await ethereum.provider.call(tx, tx.blockNumber)
+        } catch (er){
+          reason = er.error.error.message
+          return reason.slice(20)
+        }
+}
+
 function get_error_object(error) {
     switch (error) {
         case "Device already exists.":
@@ -180,6 +190,9 @@ router
                     var revert = result.data.result.revertReason
                     reason = ethHelper.translateHexToString(138, revert)
                 }
+                else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
+      }
                 else {
                     let code = await ethereum.provider.call(tx, tx.blockNumber)
                     reason = ethHelper.translateHexToString(138, code)

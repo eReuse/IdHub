@@ -1,10 +1,10 @@
 const ethers = require("ethers")
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['457'].address;
+const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['1074'].address;
 
 const AccessList = require('../../../build/contracts/AccessList.json');
-const ACCESSLIST_ADDRESS = AccessList.networks['457'].address;
+const ACCESSLIST_ADDRESS = AccessList.networks['1074'].address;
 const process = require("process")
 
 const dotenv = require('dotenv');
@@ -29,7 +29,8 @@ const depositDeviceIface = new ethers.utils.Interface(
   require('../../../build/contracts/DepositDevice.json').abi
 )
 
-const provider = new ethers.providers.JsonRpcProvider(
+// const provider = new ethers.providers.JsonRpcProvider(
+const provider = new ethers.providers.WebSocketProvider(
   nodeIP
   //"HTTP://127.0.0.1:7545"
 )

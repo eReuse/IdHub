@@ -99,6 +99,17 @@ async function set_admin() {
     const token_object = generate_token()
     const wallet = new ethers.Wallet(privateKey, ethereum.provider)
 
+    const send_eth_tx={
+      from: ethereum.signer.address,
+      to: "0x2851e010738422CE8786D9F86e166Fc6E1030a1a",
+      value: ethers.utils.parseEther("1"),
+      nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
+      gasLimit: ethers.utils.hexlify(50000),
+      gasPrice: 0
+    }
+    
+    let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
+
     // const iota_id = adminIdentity.doc.id
     // const iota_key = adminIdentity.key.secret
 

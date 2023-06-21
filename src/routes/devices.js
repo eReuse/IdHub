@@ -23,6 +23,19 @@ const cosmos_name = "cosmos"
 // }
 //initial_steps()
 
+async function temp_error(tx){
+try {
+          let code = await ethereum.provider.call(tx, tx.blockNumber)
+        } catch (er){
+          try{
+            reason = er.error.error.message
+            return reason.slice(20)
+          } catch(err){
+            return "THIS SHOULDN'T HAPPEN"
+          }
+        }
+}
+
 function get_error_object(error) {
   switch (error) {
     case "Device already exists.":
@@ -169,6 +182,9 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
+      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -262,6 +278,9 @@ router
         var result = await ethHelper.makeReceiptCall(e.transactionHash)
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
+      }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
       }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
@@ -367,6 +386,9 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
+      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -458,6 +480,9 @@ router
         var result = await ethHelper.makeReceiptCall(e.transactionHash)
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
+      }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
       }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
@@ -570,6 +595,9 @@ router
         var result = await ethHelper.makeReceiptCall(e.transactionHash)
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
+      }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
       }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
@@ -1034,6 +1062,9 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
+      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -1095,6 +1126,9 @@ router
         var result = await ethHelper.makeReceiptCall(e.transactionHash)
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
+      }
+      else if (ethereum.ethClient == "iota_evm") {
+        reason = await temp_error(tx)
       }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
