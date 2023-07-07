@@ -41,4 +41,5 @@ $docker-compose up
 - [migrations](migrations): scripts that define how contracts will be migrated to a network.
 - [uml](uml): uml class diagram generated with the "sol2uml" tool.
 - [tests](features/api): set of cucumber functionality tests for the API.
+- [Python lib](pythonPackage): Python library to interact with the API.
 - [DID resolver](didResolverApi): API to resolve ereuse DIDs.
