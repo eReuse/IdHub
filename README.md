@@ -30,13 +30,13 @@ $node_modules/.bin/truffle migrate --network <network_name> --reset
 ```
 
 ### API deployment
-Build and run the docker image:
+Build and run the docker image (it will deploy the smart contracts by default to the iota-ebsi stable network):
 ```javascript
 $docker-compose up
 ```
 
 ## Other notable files
 - [truffle-config.js](truffle-config.js): can define several truffle settings. Mainly used to define blockchain nodes to where contracts will be deployed.
-- [demo.js](demo.js): demo console client to test API calls.
+- [demo](demo_eel): demo client to test API calls.
 - [migrations](migrations): scripts that define how contracts will be migrated to a network.
 - [uml](uml): uml class diagram generated with the "sol2uml" tool.
