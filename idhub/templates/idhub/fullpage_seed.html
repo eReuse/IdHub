@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content=""/>
+		<meta name="keywords" content=""/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title></title>
+		<link rel="icon" href="http://yourdomain/favicon.ico" type="image/x-icon" />
+		<style type="text/css">
+body {
+	 margin: 0px;
+}
+ .da-step-wrapper {
+	 margin-left: 250px;
+}
+ .da-step-wrapper section {
+	 text-align: center;
+	 padding-top: 220px;
+	 font-family: "Open Sans";
+	 margin: 0px auto;
+	 max-width: 700px;
+}
+ .da-step-wrapper section h2, .da-step-wrapper section p {
+	 font-family: "Open Sans";
+}
+ .da-step-wrapper .da-page-title {
+	 color: #5e44fe;
+	 font-size: 18px;
+	 font-weight: 600;
+	 line-height: 36px;
+	 letter-spacing: 1px;
+	 margin-bottom: 30px;
+	 text-transform: uppercase;
+	 font-family: "Open Sans";
+}
+
+.da-header {
+    border-bottom: 1px solid rgba(217, 217, 217, 0.5)
+}
+
+.da-header .inici {
+    width: 250px
+}
+
+.da-sidebar {
+	 width: 250px;
+	 box-sizing: border-box;
+	 height: 100vh;
+	 float: left;
+	 font-family: "Open Sans";
+}
+ .da-sidebar p {
+	 font-weight: 700;
+	 padding-left: 16px;
+}
+ .da-sidebar ul {
+	 padding: 0px;
+}
+ .da-sidebar li {
+	 list-style: none;
+}
+ .da-sidebar li a {
+	 display: block;
+	 padding-left: 32px;
+	 line-height: 40px;
+}
+ .da-sidebar li a:hover, .da-sidebar li a:active {
+	 background-color: #f4f6f7;
+	 cursor: pointer;
+}
+
+.color-green-1 {
+    background-color: rgb(156, 198, 102);
+}
+
+.color-grey-1 {
+    background-color: rgb(242, 242, 242)
+}
+
+.color-grey-2 {
+    background-color: rgb(217, 217, 217);
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-space-between {
+    justify-content: space-between;
+}
+
+.justify-content-start {
+    justify-content: flex-start;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+
+
+/**
+SPACERS (1rem = 16px default)
+*/
+
+.mb-0-25r {
+    margin-bottom: 0.25rem;
+}
+
+.mb-0-5r {
+    margin-bottom: 0.5rem;
+}
+
+.mb-0-75r {
+    margin-bottom: 0.75rem;
+}
+
+.mb-1r {
+    margin-bottom: 1rem;
+}
+
+.mb-1-25r {
+    margin-bottom: 1.25rem;
+}
+
+.mb-1-5r {
+    margin-bottom: 1.5rem;
+}
+
+.mb-2r {
+    margin-bottom: 2rem;
+}
+
+.mb-2-5r {
+    margin-bottom: 2.5rem;
+}
+
+.mb-3r {
+    margin-bottom: 3rem;
+}
+
+.mb-3-5r {
+    margin-bottom: 3.5rem;
+}
+
+.mb-4r {
+    margin-bottom: 4rem;
+}
+
+.mb-4-5r {
+    margin-bottom: 4.5rem;
+}
+
+.mb-5r {
+    margin-bottom: 5rem;
+}
+
+.mb-6r {
+    margin-bottom: 6rem;
+}
+
+.mb-6-25r {
+    margin-bottom: 6.25rem;
+}
+
+.mb-7-5r {
+    margin-bottom: 7.5rem;
+}
+
+.mb-8r {
+    margin-bottom: 8rem;
+}
+
+.mb-3-625r {
+    margin-bottom: 3.625rem;
+}
+.mb-10r {
+    margin-bottom: 10rem;
+}
+
+.mt-0 {
+    margin-top: 0;
+}
+
+.mt-0-125r {
+    margin-top: 0.125rem;
+}
+
+.mt-0-25r {
+    margin-top: 0.25rem;
+}
+
+.mt-0-5r {
+    margin-top: 0.5rem;
+}
+
+.mt-0-75r {
+    margin-top: 0.75rem;
+}
+
+.mt-1r {
+    margin-top: 1rem;
+}
+
+.mt-1-25r {
+    margin-top: 1.25rem;
+}
+
+.mt-1-5r {
+    margin-top: 1.5rem;
+}
+
+.mt-2r {
+    margin-top: 2rem;
+}
+
+.mt-2-5r {
+    margin-top: 2.5rem;
+}
+
+.mt-3r {
+    margin-top: 3rem;
+}
+
+.mt-3-5r {
+    margin-top: 3.5rem;
+}
+
+.mt-3-75r {
+    margin-top: 3.75rem;
+}
+
+.mt-4r {
+    margin-top: 4rem;
+}
+
+.mt-4-5r {
+    margin-top: 4.5rem;
+}
+
+.mt-5r {
+    margin-top: 5rem;
+}
+
+.mt-6r {
+    margin-top: 6rem;
+}
+
+.mr-0r {
+    margin-right: 0rem;
+}
+
+.mt-7-5r {
+    margin-top: 7.5rem;
+}
+
+.mr-0-25r {
+    margin-right: 0.25rem;
+}
+
+.mr-0-5r {
+    margin-right: 0.5rem;
+}
+
+.mr-0-75r {
+    margin-right: 0.75rem;
+}
+
+.mr-1r {
+    margin-right: 1rem;
+}
+
+.mr-1-5r {
+    margin-right: 1.5rem;
+}
+
+.mr-1-75r {
+    margin-right: 1.75rem;
+}
+
+.mr-2r {
+    margin-right: 2rem;
+}
+
+.mr-2-5r {
+    margin-right: 2.5rem;
+}
+
+.mr-3-5r {
+    margin-right: 3.5rem;
+}
+
+.mr-4r {
+    margin-right: 4rem;
+}
+
+.mr-5-25r {
+    margin-right: 5.25rem;
+}
+
+.mr-6r {
+    margin-right: 6rem;
+}
+
+.ml-0-25r {
+    margin-left: 0.25rem;
+}
+
+.ml-0r {
+    margin-left: 0rem;
+}
+
+.ml-0-5r {
+    margin-left: 0.5rem;
+}
+
+.ml-0-75r {
+    margin-left: 0.75rem;
+}
+
+.ml-1r {
+    margin-left: 1rem;
+}
+
+.ml-1-5r {
+    margin-left: 1.5rem;
+}
+
+.ml-2r {
+    margin-left: 2rem;
+}
+
+.ml-2-5r {
+    margin-left: 2.5rem;
+}
+
+.ml-3r {
+    margin-left: 3rem;
+}
+
+.ml-3-5r {
+    margin-left: 3.5rem;
+}
+
+.ml-4r {
+    margin-left: 4rem;
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+
+.mx-0r {
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
+
+.my-0r {
+    margin-top: 0rem;
+    margin-right: 0rem;
+}
+
+.m-0-auto {
+    margin: 0px auto;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+
+.mr-auto {
+    margin-right: auto;
+}
+
+.p-0 {
+    padding: 0;
+}
+
+.p-0-125r {
+    padding: 0.125rem;
+}
+
+.p-0-25r {
+    padding: 0.25rem;
+}
+
+.p-0-5r {
+    padding: 0.5rem;
+}
+
+.p-0-75r {
+    padding: 0.75rem;
+}
+
+.p-1r {
+    padding: 1rem;
+}
+
+.p-1-25r {
+    padding: 1.25rem;
+}
+
+.p-1-5r {
+    padding: 1.5rem;
+}
+
+.p-2r {
+    padding: 2rem;
+}
+
+.p-2-5r {
+    padding: 2.5rem;
+}
+
+.p-4r {
+    padding: 4rem;
+}
+
+.pr-0-25r {
+    padding-right: 0.25rem;
+}
+
+.pr-0-75r {
+    padding-right: 0.75rem;
+}
+
+.pr-1r {
+    padding-right: 1rem;
+}
+
+.pr-1-5r {
+    padding-right: 1.5rem;
+}
+
+.pr-2r {
+    padding-right: 2rem;
+}
+
+.pr-3r {
+    padding-right: 3rem;
+}
+
+.pl-0r {
+    padding-left: 0rem;
+}
+
+.pl-0-25r {
+    padding-left: 0.25rem;
+}
+
+.pl-0-5r {
+    padding-left: 0.5rem;
+}
+
+.pl-0-75r {
+    padding-left: 0.75rem;
+}
+
+.pl-1r {
+    padding-left: 1rem;
+}
+
+.pl-1-5r {
+    padding-left: 1.5rem;
+}
+
+.pl-2r {
+    padding-left: 2rem;
+}
+
+.pl-2-5r {
+    padding-left: 2rem;
+}
+
+.pl-3r {
+    padding-left: 3rem;
+}
+
+.pt-3r {
+    padding-top: 3rem;
+}
+
+.pt-5r {
+    padding-top: 5rem;
+}
+
+.pt-5-5r {
+    padding-top: 5.5rem;
+}
+
+.pb-0-5r {
+    padding-bottom: 0.5rem;
+}
+
+.pb-1r {
+    padding-bottom: 1rem;
+}
+
+.pb-1-5r {
+    padding-bottom: 1.5rem;
+}
+.pb-2r {
+    padding-bottom: 2rem;
+}
+
+.pb-4-5r {
+    padding-bottom: 4.5rem;
+}
+
+.pb-5r {
+    padding-bottom: 5rem;
+}
+
+.pl-2-5r {
+    padding-left: 2.5rem;
+}
+
+.pl-3r {
+    padding-left: 3rem;
+}
+
+.pt-0-5r {
+    padding-top: 0.5rem;
+}
+
+.pt-0-75r {
+    padding-top: 0.75rem;
+}
+
+.pt-1r {
+    padding-top: 1rem;
+}
+
+.pt-2r {
+    padding-top: 2rem;
+}
+
+.pt-4r {
+    padding-top: 4rem;
+}
+
+.pt-5r {
+    padding-top: 5rem;
+}
+
+.py-0-25r {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+
+.py-0-5r {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.py-0-75r {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.py-1r {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.py-1-5r {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.py-2r {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.py-2-5r {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.py-3r {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.py-3-5r {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+}
+
+.py-4r {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.pb-0-5r {
+    padding-bottom: 0.5rem;
+}
+
+.pb-3r {
+    padding-bottom: 3rem;
+}
+
+.pb-8r {
+    padding-bottom: 8rem;
+}
+
+.pb-10r {
+    padding-bottom: 10rem;
+}
+
+.px-0 {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.px-0-25r {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+.px-0-5r {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.px-0-75r {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.px-1r {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.px-1-25r {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.px-1-5r {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.px-2r {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.px-2-5r {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.px-3r {
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.px-4r {
+    padding-left: 4rem;
+    padding-right: 4rem;
+}
+
+.w-100p {
+    width: 100%;
+}
+
+.w-75p {
+    width: 75%;
+}
+
+.w-50p {
+    width: 50%;
+}
+
+.w-25p {
+    width: 25%;
+}
+
+.icon-margin-left {
+    margin-left: 0.5rem;
+}
+
+.submit-form-spacer {
+    margin-top: 3rem;
+    padding-bottom: 8rem;
+}
+
+.max-w-none {
+    max-width: none;
+}
+
+.s-float-right {
+    float: right;
+}
+.s-float-left {
+    float: left;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.flex-row-reverse {
+    flex-direction: row-reverse;
+}
+
+.flex-direction-column {
+    flex-direction: column;
+}
+
+.flex-column-reverse {
+    flex-direction: column-reverse;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+.d-none {
+    display: none;
+}
+
+.d-block {
+    display: block;
+}
+
+.justify-content-start {
+    justify-content: flex-start;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.justify-space-between {
+    justify-content: space-between;
+}
+
+.border-dashed {
+    border: 1px dashed gray;
+}
+
+.label {
+    padding: 4px 8px;
+    border-radius: 24px;
+}
+
+.pre-wrap {
+    white-space: pre-wrap;
+}
+
+.pre-line {
+    white-space: pre-line;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.rotate-180 {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.rotate-90 {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.rotate-270 {
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.justify-content-start {
+    justify-content: flex-start;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-start {
+    align-items: start;
+}
+
+.align-items-base {
+    align-items: baseline;
+}
+
+.align-items-end {
+    align-items: flex-end;
+}
+
+.justifiy-content-end {
+    justify-content: end;
+}
+
+.d-inline-block {
+    display: inline-block;
+}
+
+.h-min-content {
+    height: min-content;
+}
+
+.gap-1-5r {
+    gap: 1.5rem;
+}
+
+.gap-2r {
+    gap: 2rem;
+}
+
+.white-space-pre-line {
+    white-space: pre-line;
+}
+
+.cols-70-30 {
+    grid-template-columns: 70% 30%;
+}
+
+.cols-30-70 {
+    grid-template-columns: 30% 70%;
+}
+
+.wrap-anywhere {
+    overflow-wrap: anywhere;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.pos-relative {
+    position: relative;
+}
+
+.pos-absolute {
+    position: absolute;
+}
+
+		</style>
+	</head>
+	<body>
+		<!--# Site Header: Start -->
+        <header class="da-header">
+            <div class="d-flex justify-space-between color-green-1">
+                <a class="da-logo" routerLink="/start">
+                <h1>ID HUB</h1>
+                </a>
+                <nav class="da-header__navigation">
+                    <a href="./to-profile">
+                        <img src="../shared/images/profile-picture.png" alt="avatar" />
+                        <div> Lorena </div>
+                    </a>
+                </nav>
+                <div class="da-header__profile">
+                    <a href="./to-profile">
+                        <img src="../shared/images/profile-picture.png" alt="avatar" />
+                        <div> Lorena </div>
+                    </a>
+                    <a href="/"><img src="../shared/images/avatar.png" alt="exit" /></a>
+                </div>
+            </div>
+            <div class="d-flex justify-space-between">
+                <a href="./to-profile" class="inici color-grey-1">
+                    <img src="../shared/images/profile-picture.png" alt="avatar" />
+                    <div> Inici </div>
+                </a>
+                <div>Panell de l'usuario/ária</div>
+                <div>
+                    <img src="../shared/images/profile-picture.png" alt="avatar" />
+                    <input type="text">
+                </div>
+            </div>
+        </header>
+		<!--# Site Header: End -->
+
+        <!--# Sidebar: Start -->
+        <div class="da-sidebar color-grey-1">
+            <div class="sidebar-section">
+                <div class="sidebar-section header">
+                    <img>
+                    <p>Les meves dades</p>
+                </div>
+                <ul>
+                    <li><a href="">La meva fitxa personal</a></li>
+                    <li><a href="">Els meus rols</a></li>
+                    <li><a href="">GDPR info</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section header">
+                    <img>
+                    <p>Les meves dades</p>
+                </div>
+                <ul>
+                    <li><a href="">La meva fitxa personal</a></li>
+                    <li><a href="">Els meus rols</a></li>
+                    <li><a href="">GDPR info</a></li>
+                </ul>
+            </div>
+        </div>
+		<!--# Sidebar: End -->
+
+		<!--# Main: Start -->
+		<div class="da-step-wrapper">
+			<!--# Article #1: Start -->
+			<section>
+				<header>
+					<h2>Article #1 title</h2>
+					<p>Posted on <time datetime="2010-01-01T10:10:10+02:00">January 1st 2023</time></p>
+				</header>
+				<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam in, mollitia velit ipsam ut nam. Nostrum perspiciatis laborum hic inventore natus dolorum quidem autem dolores distinctio optio, eius maxime maiores!</p>
+			</section>
+			<!--# Article #1: End -->
+
+			<!--# Article #2: Start -->
+			<section>
+				<header>
+					<h2>Article #2 title</h2>
+					<p>Posted on <time datetime="2010-01-01T10:10:10+02:00">January 1st 2010</time></p>
+				</header>
+				<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam in, mollitia velit ipsam ut nam. Nostrum perspiciatis laborum hic inventore natus dolorum quidem autem dolores distinctio optio, eius maxime maiores!</p>
+			</section>
+			<!--# Article #2: End -->
+
+		</div>
+		<!--# Main: End -->
+
+
+
+		<!--# Footer: Start -->
+		<footer>
+			<p>Copyright 2023</p>
+		</footer>
+		<!--# Footer: End -->
+
+		<script src="{SCRIPT}"></script>
+	</body>
+</html>
