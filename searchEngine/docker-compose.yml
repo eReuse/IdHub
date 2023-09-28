@@ -1,0 +1,14 @@
+version: '3'
+services:
+  web:
+    image: searxng/searxng:latest
+    container_name: searxng_container
+    restart: always
+    ports:
+      - "80:8080"
+    volumes:
+      - ./settings:/etc/searxng:rw
+      - ./dpp.py:/usr/local/searxng/searx/engines/dpp.py:rw
+    environment:
+      - BASE_URL=http://localhost
+      - INSTANCE_NAME=my-instance

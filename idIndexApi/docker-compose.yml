@@ -1,0 +1,9 @@
+api: 
+    build: ./
+    container_name: idIndexAPI # name of the built image
+    ports:
+      - "3012:3012"
+    restart: always
+    volumes:
+      - ./data:/home/node/idIndexApi/data:rw
+      - ./src:/home/node/idIndexApi/src:ro

@@ -35,6 +35,12 @@ Build and run the docker image (it will deploy the smart contracts by default to
 $docker-compose up
 ```
 
+The API will run on port 3010 and the DID resolver on port 3011.
+
+## Optional components
+- [ID Index API](idIndexApi)
+- [Search Engine](searchEngine)
+
 ## Other notable files
 - [truffle-config.js](truffle-config.js): can define several truffle settings. Mainly used to define blockchain nodes to where contracts will be deployed.
 - [demo](demo_eel): demo client to test API calls.
