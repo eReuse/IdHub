@@ -1,0 +1,95 @@
+{% extends "idhub/base.html" %}
+{% load i18n static %}
+
+{% block body %}
+
+<body id="body-login">
+    <div class="jumbotron vertical-center">
+        <div id="login-wrapper" class="container" style="width: 430px;">
+            <div id="login-content" class="rounded">
+                <div id="login-branding">
+                    {% block branding %}
+                    <h1>
+                        <img class="img-fluid" src="{% static '/images/logo-pangea-monocrome-h.png' %}"
+                            alt="Pangea.org - Internet etic i solidari" />
+                    </h1>
+                    {% endblock %}
+                </div><!-- /login-branding -->
+                <div class="mt-5">
+                    <form action="{% url 'idhub:login' %}" role="form" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}" />
+
+                        <div id="div_id_username"
+                            class="clearfix control-group {% if form.username.errors %}error{% endif %}">
+                            <div class="form-group">
+                                <input type="text" name="username" maxlength="100" autocapitalize="off"
+                                    autocorrect="off" class="form-control textinput textInput" id="id_username" required
+                                    autofocus placeholder="{{ form.username.label }}"
+                                    {% if form.username.value %}value="{{ form.username.value }}" {% endif %}>
+                                {% if form.username.errors %}
+                                <p class="text-error">
+                                    {{ form.username.errors|striptags }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div id="div_id_password"
+                            class="clearfix control-group {% if form.password.errors %}error{% endif %}">
+                            <div class="form-group">
+                                <input type="password" name="password" maxlength="100" autocapitalize="off"
+                                    autocorrect="off" class="form-control textinput textInput" id="id_password"
+                                    placeholder="{{ form.password.label }}" required>
+                                {% if form.password.errors %}
+                                <p class="text-error">
+                                    {{ form.password.errors|striptags }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                        <div class="well well-small text-error" style="border: none">{{ error }}</div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <div class="form-actions-no-box">
+                            <input type="submit" name="submit" value="{% trans 'Log in' %}"
+                                class="btn btn-primary form-control" id="submit-id-submit">
+                        </div>
+                    </form>
+                </div><!-- /.row-fluid -->
+            </div>
+            <!--/#login-content-->
+            <div id="login-footer">
+                <a href="#password_reset" data-toggle="modal" data-target="#forgotPasswordModal">{% trans "Forgot your password? Click here to recover" %}</a>
+            </div>
+        </div><!-- /#login-wrapper -->
+    </div><!-- /.jumbotron -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="forgotPasswordModalLabel">{% trans "Forgot your password?" %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            {% blocktrans trimmed with support_email="suport@pangea.org" %}
+            Send an email to <a href="mailto:{{ support_email }}">{{ support_email }}</a> including your username and we will provide instructions.
+            {% endblocktrans %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% block script %}
+  {{ block.super }}
+  {% endblock %}
+</body>
+{% endblock %}
