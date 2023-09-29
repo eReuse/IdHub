@@ -1,0 +1,65 @@
+{% extends "musician/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<h1 class="service-name">{% trans "Profile" %}</h1>
+<p class="service-description">{% trans "Little description on profile page." %}</p>
+
+<div class="card-deck">
+  <div class="card card-profile">
+    <h5 class="card-header">{% trans "User information" %}</h5>
+    <div class="card-body row">
+      <div class="col-md">
+        <div class="border-primary rounded-circle d-inline-block p-1" style="background-color: white; border: 5px solid grey">
+          <img id="user-avatar" width="160" height="160" src="/static/musician/images/default-profile-picture-primary-color.png" alt="user-profile-picture">
+        </div>
+      </div>
+      <div class="col-md-9">
+        <p class="card-text">{{ profile.username }}</p>
+        <p class="card-text">{{ profile.type }}</p>
+        <p class="card-text">{% trans "Preferred language:" %} {{ profile.language|language_name_local }}</p>
+      </div>
+      {% comment %}
+      <!-- disabled until set_password is implemented -->
+      <div class="col-md-12 text-right">
+        <a class="btn btn-primary pl-5 pr-5" href="#">{% trans "Set new password" %}</a>
+      </div>
+      {% endcomment %}
+    </div>
+  </div>
+
+  {% with profile.billing as contact %}
+  <div class="card card-profile">
+      <h5 class="card-header">{% trans "Billing information" %}</h5>
+    <div class="card-body">
+      <div class="form-group">{{ contact.name }}</div>
+      <div class="form-group">{{ contact.address }}</div>
+      <div class="form-group">
+        {{ contact.zipcode }}
+        {{ contact.city }}
+        {{ contact.country }}
+      </div>
+      <div class="form-group">
+        {{ contact.vat }}
+      </div>
+      <!-- payment method -->
+      <div class="form-group">
+        {% trans "payment method:" %} {{ payment.method }}
+      </div>
+      <div class="form-group">
+        {% if payment.method == 'SEPADirectDebit' %}
+        IBAN {{ payment.data.iban }}
+        {% else %}
+        {# <!-- "TODO handle Credit Card" --> #}
+        Details: {{ payment.data }}
+        {% endif %}
+      </div>
+      <div class="text-right">
+        <a href="{% url 'musician:billing' %}">{% trans "Check your last bills" %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endwith %}
+{% endblock %}

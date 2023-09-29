@@ -1,0 +1,68 @@
+{% extends "musician/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<h1 class="service-name">{{ service.verbose_name }}</h1>
+<p class="service-description">{{ service.description }}</p>
+
+{% for database in object_list %}
+  <div class="card service-card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-md-8">
+          <strong>{{ database.name }}</strong>
+        </div>
+        <div class="col-md">
+          {% trans "Type" %}: <strong>{{ database.type }}</strong>
+        </div>
+        <div class="col-md text-right">
+          {% comment "@slamora: orchestra doesn't provide this information [won't fix] See issue #3" %}
+            {% trans "associated to" %}: <strong>{{ database.domain|default:"-" }}</strong>
+          {% endcomment %}
+        </div>
+      </div>
+    </div><!-- /card-header-->
+    <div class="card-body row">
+      <div class="col-md-4">
+        <h4>Database users</h4>
+        <ul class="list-unstyled pl-2">
+        {% for user in database.users %}
+          {# TODO(@slamora) render in two columns #}
+          <li><span class="d-inline-block w-25">{{ user.username }}</span> <i class="fas fa-user-edit"></i></li>
+        {% empty %}
+          <li>{% trans "No users for this database." %}</li>
+        {% endfor %}
+        </ul>
+      </div>
+      <div class="col-md-3 border-left border-right">
+          <h4>Database usage</h4>
+          <p class="text-center"><i class="fas fa-database fa-3x"></i></p>
+          {% include "musician/components/usage_progress_bar.html" with detail=database.usage %}
+      </div>
+      <div class="col-md-5 text-right">
+        <div class="service-manager-link">
+          <a class="btn btn-primary" href="{{ database.manager_url }}" target="_blank" rel="noopener noreferrer">{% trans "Open database manager" %} <i class="fas fa-external-link-alt"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% empty %}
+<div class="row">
+  <div class="col-md-4">
+    <div class="card service-card shadow p-3 mb-5 bg-white rounded">
+      <div class="card-body text-center">
+        <p class="mb-4"><i class="fas fa-database fa-5x"></i></p>
+        {# Translators: database page when there isn't any database. #}
+        <h5 class="card-title text-dark">{% trans "Ooops! Looks like there is nothing here!" %}</h5>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+  {% if object_list|length > 0 %}
+  {% include "musician/components/paginator.html" %}
+  {% endif %}
+{% endblock %}
