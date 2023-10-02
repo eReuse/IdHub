@@ -4,6 +4,7 @@ import json
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -23,23 +24,31 @@ logger = logging.getLogger(__name__)
 
 
 
+# class UserDashboardView(LoginRequiredMixin, TemplateView):
 class UserDashboardView(TemplateView):
     template_name = "idhub/user_dashboard.html"
-    extra_context = {
-        'title': _('Dashboard'),
-    }
+    title = _('Dashboard')
+    #login_url = "/login/"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'title': self.title,
+        })
+        return context
+
 
 
 class LoginView(FormView):
     template_name = 'auth/login.html'
     form_class = LoginForm
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('idhub:user_dashboard')
     extra_context = {
         'title': _('Login'),
     }
 
     def form_valid(self, form):
-        return self.success_url
+        return super().form_valid(form)
 
 
 class LogoutView(RedirectView):
