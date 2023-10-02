@@ -13,7 +13,7 @@ class LoginForm(AuthenticationForm):
 
         user = authenticate(username=username, password=password)
 
-        if user is not None:
+        if user is None:
             raise self.get_invalid_login_error()
 
         return self.cleaned_data
