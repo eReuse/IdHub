@@ -1,6 +1,6 @@
 /user/event-log [GET] -> vista d'esdeveniments
 	sense enllaços rapids a les accions
-/user [GET, POST] -> vista de dades personals
+/user/dashboard [GET, POST] -> vista de dades personals
 /user/roles [GET] -> vista de rols (????)
 /user/gdpr [GET] -> info de la gdpr
 

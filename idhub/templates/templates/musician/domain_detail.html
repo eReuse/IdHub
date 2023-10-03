@@ -1,0 +1,30 @@
+{% extends "musician/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<a class="btn-arrow-left" href="{% url 'musician:dashboard' %}">{% trans "Go back" %}</a>
+
+<h1 class="service-name">{% trans "DNS settings for" %} <span class="font-weight-light">{{ object.name }}</span></h1>
+<p class="service-description">{% trans "DNS settings page description." %}</p>
+
+<table class="table service-list">
+    <colgroup>
+      <col span="1" style="width: 12%;">
+      <col span="1" style="width: 88%;">
+  </colgroup>
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">{% trans "Type" %}</th>
+      <th scope="col">{% trans "Value" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in object.records %}
+    <tr>
+      <td>{{ record.type }}</td>
+      <td>{{ record.value }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
