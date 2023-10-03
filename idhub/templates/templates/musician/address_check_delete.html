@@ -1,0 +1,12 @@
+{% extends "musician/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <p>{% blocktrans with address_name=object.full_address_name %}Are you sure that you want remove the address: "{{ address_name }}"?{% endblocktrans %}</p>
+  <p class="alert alert-warning"><strong>{% trans 'WARNING: This action cannot be undone.' %}</strong></p>
+  <input class="btn btn-danger" type="submit" value="{% trans 'Delete' %}">
+  <a class="btn btn-secondary" href="{% url 'musician:address-update' view.kwargs.pk %}">{% trans 'Cancel' %}</a>
+</form>
+{% endblock %}

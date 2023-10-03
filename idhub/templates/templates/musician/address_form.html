@@ -1,0 +1,20 @@
+{% extends "musician/base.html" %}
+{% load bootstrap4 i18n %}
+
+{% block content %}
+<h1 class="service-name">{{ service.verbose_name }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% buttons %}
+  <a class="btn btn-light mr-2" href="{% url 'musician:address-list' %}">{% trans "Cancel" %}</a>
+  <button type="submit" class="btn btn-secondary">{% trans "Save" %}</button>
+  {% if form.instance %}
+  <div class="float-right">
+    <a class="btn btn-danger" href="{% url 'musician:address-delete' view.kwargs.pk %}">{% trans "Delete" %}</a>
+  </div>
+  {% endif %}
+  {% endbuttons %}
+</form>
+{% endblock %}
