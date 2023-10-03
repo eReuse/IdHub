@@ -4,8 +4,8 @@
 /user/roles [GET] -> vista de rols (????)
 /user/gdpr [GET] -> info de la gdpr
 
-/user/wallet/dids [GET, PUT]
-/user/wallet/dids/<id:integer> [DELETE]
+/user/wallet/dids [GET, POST]
+/user/wallet/dids/<id:integer> [GET, DELETE]
 /user/credentials [GET]
 /user/credentials/<id:integer> [GET, DELETE]
 /user/credentials/request [GET, POST]
