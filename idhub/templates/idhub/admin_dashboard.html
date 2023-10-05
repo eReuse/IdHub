@@ -1,4 +1,4 @@
-{% extends "idhub/base.html" %}
+{% extends "idhub/base_admin.html" %}
 {% load i18n %}
 
 {% block content %}
@@ -11,10 +11,10 @@
     <thead>
       <tr>
         <th scope="col">#</th>
-        <th scope="col"><button type="button" class="btn btn-green-user border border-dark">Header</button></th>
+        <th scope="col"><button type="button" class="btn btn-green-admin border border-dark">Header</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">Header</button></th>
-        <th scope="col"><button type="button" class="btn btn-green-user">Header</button></th>
-        <th scope="col"><button type="button" class="btn btn-grey">Header</button></th>
+        <th scope="col"><button type="button" class="btn btn-green-admin">Header</button></th>
+        <th scope="col"><button type="button" class="btn btn-grey ">Header</button></th>
       </tr>
     </thead>
     <tbody>
@@ -134,7 +134,7 @@
   </table>
 </div>
 <div class="row">
-  <div class="col-6"><button type="button" class="btn btn-yellow rounded-pill">Cancel</button></div>
-  <div class="col-6"><button type="button" class="btn btn-green-user rounded-pill">Revoke</button></div>
+  <div class="col-6"><button type="button" class="btn btn-grey rounded-pill">Cancel</button></div>
+  <div class="col-6"><button type="button" class="btn btn-green-admin rounded-pill">Revoke</button></div>
 <div>
 {% endblock %}

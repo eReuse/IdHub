@@ -38,6 +38,9 @@ class UserDashboardView(TemplateView):
         return context
 
 
+class AdminDashboardView(UserDashboardView):
+    template_name = "idhub/admin_dashboard.html"
+
 
 class LoginView(FormView):
     template_name = 'auth/login.html'

@@ -25,4 +25,5 @@ urlpatterns = [
     # path("", views.index, name="index"),
     path('login/', views.LoginView.as_view(), name='login'),
     path('user/dashboard/', views.UserDashboardView.as_view(), name='user_dashboard'),
+    path('admin/dashboard/', views.AdminDashboardView.as_view(), name='user_dashboard'),
 ]
