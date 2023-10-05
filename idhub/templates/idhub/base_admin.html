@@ -42,7 +42,7 @@
   {% endblock %}
   </head>
   <body>
-    <header class="navbar navbar-dark sticky-top bg-green flex-md-nowrap p-0 shadow">
+    <header class="navbar navbar-dark sticky-top admin bg-green flex-md-nowrap p-0 shadow">
       <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">ID HUB</a>
       <div class="navbar-nav navbar-sub-brand">
          PANGEA
@@ -64,59 +64,130 @@
           <div class="position-sticky pt-5">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link fw-bold" aria-current="page" href="#">
+                  <a class="admin nav-link fw-bold" href="javascript:void()">
                   <i class="bi bi-house-door icon_sidebar"></i>
                   Home
                 </a>
                 <hr />
               </li>
               <li class="nav-item">
-                <span class="nav-link fw-bold" href="#">
-                  <i class="fa-regular fa-user icon_sidebar"></i>
-                  My datas
-                </span>
-                <ul class="flex-column mb-2 ul_sidebar">
+                <a class="admin active nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#people" aria-expanded="false" aria-controls="people" href="javascript:void()">
+                  <i class="bi bi-people icon_sidebar"></i>
+                  People
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="people" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link" href="#">
-                      My personal data
+                      People list
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
-                      My roles
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">
-                      GDPR info
+                      Register a new user
                     </a>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
-                <span class="nav-link active fw-bold" href="#">
-                  <i class="bi bi-patch-check icon_sidebar"></i>
-                  My Wallet
-                </span>
-                <ul class="flex-column mb-2 ul_sidebar">
+                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#control-access" aria-expanded="false" aria-controls="control-access" href="javascript:void()">
+                  <i class="fa-solid fa-arrow-right-from-bracket icon_sidebar"></i>
+                  Control access
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="control-access" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link active2" href="#">
-                      Identities (DID)
+                      roles
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
-                      Credentials
+                      Services
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#credentials" aria-expanded="false" aria-controls="credentials" href="javascript:void()">
+                  <i class="bi bi-patch-check icon_sidebar"></i>
+                  Credentials
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="credentials" data-bs-parent="#sidebarMenu">
+                  <li class="nav-item">
+                    <a class="nav-link active2" href="#">
+                      Credentials list
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
-                      Credentials required
+                      Issue credentials
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
-                      Present Credentials
+                      Revoke Credentials
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a id="wallet" class="nav-link" data-bs-toggle="collapse" data-bs-target="#lwallet" aria-expanded="false" aria-controls="lwallet" href="javascript:void()">
+                      Wallet
+                    </a>
+                    <ul class="flex-column mb-2 accordion-collapse collapse" id="lwallet" data-bs-parent="#wallet">
+                      <li class="nav-item">
+                        <a class="nav-link active2" href="#">
+                          Identities (DID)
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#">
+                          Credentials
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#">
+                          Configure Issue
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#schemas" aria-expanded="false" aria-controls="schemas" href="javascript:void()">
+                  <i class="bi bi-file-earmark-text icon_sidebar"></i>
+                  Schemas
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="schemas" data-bs-parent="#sidebarMenu">
+                  <li class="nav-item">
+                    <a class="nav-link active2" href="#">
+                      List of schemas
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      Import schema
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      Export schema
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#import-export" aria-expanded="false" aria-controls="import-export" href="javascript:void()">
+                  <i class="bi bi-arrow-down-square icon_sidebar"></i>
+                  Imports/Exports
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="import-export" data-bs-parent="#sidebarMenu">
+                  <li class="nav-item">
+                    <a class="nav-link active2" href="#">
+                      Import
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      Export
                     </a>
                   </li>
                 </ul>
