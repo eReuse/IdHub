@@ -50,7 +50,7 @@
       <div class="navbar-nav">
         <div class="nav-item text-nowrap">
             <i id="user-avatar" class="bi bi-person-circle"></i>
-            <a class="navbar-sub-brand px-3" href="#">Lorena</a>
+            <a class="navbar-sub-brand px-3" href="#">{{ user.username }}</a>
             <a class="logout" href="{% url 'idhub:logout' %}">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
@@ -64,66 +64,66 @@
           <div class="position-sticky pt-5">
             <ul class="nav flex-column">
               <li class="nav-item">
-                  <a class="admin nav-link fw-bold" href="javascript:void()">
+                  <a class="admin nav-link {% if section == 'Home' %}active {% endif %}fw-bold" href="{% url 'idhub:admin_dashboard' %}">
                   <i class="bi bi-house-door icon_sidebar"></i>
                   Home
                 </a>
                 <hr />
               </li>
               <li class="nav-item">
-                <a class="admin active nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#people" aria-expanded="false" aria-controls="people" href="javascript:void()">
+                <a class="admin {% if section == 'People' %}active {% endif %}nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#people" aria-expanded="false" aria-controls="people" href="javascript:void()">
                   <i class="bi bi-people icon_sidebar"></i>
                   People
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="people" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_people' %}">
                       People list
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_people_new' %}">
                       Register a new user
                     </a>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#control-access" aria-expanded="false" aria-controls="control-access" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'AccessControl' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#control-access" aria-expanded="false" aria-controls="control-access" href="javascript:void()">
                   <i class="fa-solid fa-arrow-right-from-bracket icon_sidebar"></i>
-                  Control access
+                  Access Control
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="control-access" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="#">
+                    <a class="nav-link active2" href="{% url 'idhub:admin_roles' %}">
                       roles
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_services' %}">
                       Services
                     </a>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#credentials" aria-expanded="false" aria-controls="credentials" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'Credentials' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#credentials" aria-expanded="false" aria-controls="credentials" href="javascript:void()">
                   <i class="bi bi-patch-check icon_sidebar"></i>
                   Credentials
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="credentials" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="#">
+                    <a class="nav-link active2" href="{% url 'idhub:admin_credentials' %}">
                       Credentials list
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_credentials_new' %}">
                       Issue credentials
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_credentials_revoke' %}">
                       Revoke Credentials
                     </a>
                   </li>
@@ -133,17 +133,17 @@
                     </a>
                     <ul class="flex-column mb-2 accordion-collapse collapse" id="lwallet" data-bs-parent="#wallet">
                       <li class="nav-item">
-                        <a class="nav-link active2" href="#">
+                        <a class="nav-link active2" href="{% url 'idhub:admin_wallet_identities' %}">
                           Identities (DID)
                         </a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'idhub:admin_wallet_credentials' %}">
                           Credentials
                         </a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'idhub:admin_wallet_config_issue' %}">
                           Configure Issue
                         </a>
                       </li>
@@ -152,41 +152,41 @@
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#schemas" aria-expanded="false" aria-controls="schemas" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'Schemes' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#schemes" aria-expanded="false" aria-controls="schemes" href="javascript:void()">
                   <i class="bi bi-file-earmark-text icon_sidebar"></i>
-                  Schemas
+                  Schemes
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="schemas" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="schemes" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="#">
-                      List of schemas
+                    <a class="nav-link active2" href="{% url 'idhub:admin_schemes' %}">
+                      List of schemes
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
-                      Import schema
+                    <a class="nav-link" href="{% url 'idhub:admin_schemes_import' %}">
+                      Import scheme
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
-                      Export schema
+                    <a class="nav-link" href="{% url 'idhub:admin_schemes_export' %}">
+                      Export scheme
                     </a>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#import-export" aria-expanded="false" aria-controls="import-export" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'ImportExport' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#import-export" aria-expanded="false" aria-controls="import-export" href="javascript:void()">
                   <i class="bi bi-arrow-down-square icon_sidebar"></i>
                   Imports/Exports
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="import-export" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="#">
+                    <a class="nav-link active2" href="{% url 'idhub:admin_import' %}">
                       Import
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'idhub:admin_export' %}">
                       Export
                     </a>
                   </li>
@@ -216,6 +216,10 @@
             </div>
           </div>
 
+          <h3>
+            <i class="{{ icon }}"></i>
+            {{ subtitle }}
+          </h3>
           {% block content %}
           {% endblock content %}
 
