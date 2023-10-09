@@ -84,18 +84,21 @@ class AdminWalletIdentitiesView(Credentials):
     template_name = "idhub/admin_wallet_identities.html"
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
+    wallet = True
 
 
 class AdminWalletCredentialsView(Credentials):
     template_name = "idhub/admin_wallet_credentials.html"
     subtitle = _('Credentials')
     icon = 'bi bi-patch-check-fill'
+    wallet = True
 
 
 class AdminWalletConfigIssuesView(Credentials):
     template_name = "idhub/admin_wallet_issues.html"
     subtitle = _('Configure Issues')
     icon = 'bi bi-patch-check-fill'
+    wallet = True
 
 
 class AdminSchemesView(Schemes):

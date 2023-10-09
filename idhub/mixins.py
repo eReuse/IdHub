@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 
 class UserView(LoginRequiredMixin, TemplateView):
     login_url = "/login/"
+    wallet = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -17,7 +18,8 @@ class UserView(LoginRequiredMixin, TemplateView):
             'icon': self.icon,
             'section': self.section,
             'path': resolve(self.request.path).url_name,
-            'user': self.request.user
+            'user': self.request.user,
+            'wallet': self.wallet,
         })
         return context
 
