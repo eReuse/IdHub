@@ -77,12 +77,12 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'People' %}expanded{% else %}collapse{% endif %}" id="people" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_people' %}">
+                    <a class="nav-link{% if path == 'admin_people' %} active2{% endif %}" href="{% url 'idhub:admin_people' %}">
                       People list
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_people_new' %}">
+                    <a class="nav-link{% if path == 'admin_people_new' %} active2{% endif %}" href="{% url 'idhub:admin_people_new' %}">
                       Register a new user
                     </a>
                   </li>
@@ -95,12 +95,12 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'AccessControl' %}expanded{% else %}collapse{% endif %}" id="control-access" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="{% url 'idhub:admin_roles' %}">
+                    <a class="nav-link{% if path == 'admin_roles' %} active2{% endif %}" href="{% url 'idhub:admin_roles' %}">
                       roles
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_services' %}">
+                    <a class="nav-link{% if path == 'admin_services' %} active2{% endif %}" href="{% url 'idhub:admin_services' %}">
                       Services
                     </a>
                   </li>
@@ -113,17 +113,17 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Credentials' %}expanded{% else %}collapse{% endif %}" id="credentials" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="{% url 'idhub:admin_credentials' %}">
+                    <a class="nav-link{% if path == 'admin_credentials' %} active2{% endif %}" href="{% url 'idhub:admin_credentials' %}">
                       Credentials list
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_credentials_new' %}">
+                    <a class="nav-link{% if path == 'admin_credentials_new' %} active2{% endif %}" href="{% url 'idhub:admin_credentials_new' %}">
                       Issue credentials
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_credentials_revoke' %}">
+                    <a class="nav-link{% if path == 'admin_credentials_revoke' %} active2{% endif %}" href="{% url 'idhub:admin_credentials_revoke' %}">
                       Revoke Credentials
                     </a>
                   </li>
@@ -131,19 +131,19 @@
                     <a id="wallet" class="nav-link" data-bs-toggle="collapse" data-bs-target="#lwallet" aria-expanded="false" aria-controls="lwallet" href="javascript:void()">
                       Wallet
                     </a>
-                    <ul class="flex-column mb-2 accordion-collapse collapse" id="lwallet" data-bs-parent="#wallet">
+                    <ul class="flex-column mb-2 accordion-collapse {% if wallet %}expanded{% else %}collapse{% endif %}" id="lwallet" data-bs-parent="#wallet">
                       <li class="nav-item">
-                        <a class="nav-link active2" href="{% url 'idhub:admin_wallet_identities' %}">
+                        <a class="nav-link{% if path == 'admin_wallet_identities' %} active2{% endif %}" href="{% url 'idhub:admin_wallet_identities' %}">
                           Identities (DID)
                         </a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="{% url 'idhub:admin_wallet_credentials' %}">
+                        <a class="nav-link{% if path == 'admin_wallet_credentials' %} active2{% endif %}" href="{% url 'idhub:admin_wallet_credentials' %}">
                           Credentials
                         </a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="{% url 'idhub:admin_wallet_config_issue' %}">
+                        <a class="nav-link{% if path == 'admin_wallet_config_issue' %} active2{% endif %}" href="{% url 'idhub:admin_wallet_config_issue' %}">
                           Configure Issue
                         </a>
                       </li>
@@ -158,17 +158,17 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Schemes' %}expanded{% else %}collapse{% endif %}" id="schemes" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="{% url 'idhub:admin_schemes' %}">
+                    <a class="nav-link{% if path == 'admin_schemes' %} active2{% endif %}" href="{% url 'idhub:admin_schemes' %}">
                       List of schemes
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_schemes_import' %}">
+                    <a class="nav-link{% if path == 'admin_schemes_import' %} active2{% endif %}" href="{% url 'idhub:admin_schemes_import' %}">
                       Import scheme
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_schemes_export' %}">
+                    <a class="nav-link{% if path == 'admin_schemes_export' %} active2{% endif %}" href="{% url 'idhub:admin_schemes_export' %}">
                       Export scheme
                     </a>
                   </li>
@@ -181,12 +181,12 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'ImportExport' %}expanded{% else %}collapse{% endif %}" id="import-export" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="{% url 'idhub:admin_import' %}">
+                    <a class="nav-link{% if path == 'admin_import' %} active2{% endif %}" href="{% url 'idhub:admin_import' %}">
                       Import
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'idhub:admin_export' %}">
+                    <a class="nav-link{% if path == 'admin_export' %} active2{% endif %}" href="{% url 'idhub:admin_export' %}">
                       Export
                     </a>
                   </li>
