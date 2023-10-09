@@ -17,15 +17,17 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
-from . import views
+from .views import LoginView
+from .views_admin import AdminDashboardView
+from .views_user import UserDashboardView
 
 
 app_name = 'idhub'
 
 urlpatterns = [
     path("", RedirectView.as_view(url=reverse_lazy('idhub:login'), permanent=False)),
-    path('login/', views.LoginView.as_view(), name='login'),
+    path('login/', LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('user/dashboard/', views.UserDashboardView.as_view(), name='user_dashboard'),
-    path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('user/dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
+    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
 ]
