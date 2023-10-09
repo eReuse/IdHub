@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import views as auth_views
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, resolve
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
@@ -13,6 +13,11 @@ class UserView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
+            'subtitle': self.subtitle,
+            'icon': self.icon,
+            'section': self.section,
+            'path': resolve(self.request.path).url_name,
+            'user': self.request.user
         })
         return context
 

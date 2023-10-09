@@ -50,7 +50,7 @@
       <div class="navbar-nav">
         <div class="nav-item text-nowrap">
             <i id="user-avatar" class="bi bi-person-circle"></i>
-            <a class="navbar-sub-brand px-3" href="#">Lorena</a>
+            <a class="navbar-sub-brand px-3" href="#">{{ user.username }}</a>
             <a class="logout" href="{% url 'idhub:logout' %}">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
@@ -64,59 +64,59 @@
           <div class="position-sticky pt-5">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link fw-bold" aria-current="page" href="#">
+                <a class="nav-link {% if section == 'Home' %}active {% endif %}fw-bold" aria-current="page" href="{% url 'idhub:user_dashboard' %}">
                   <i class="bi bi-house-door icon_sidebar"></i>
                   Home
                 </a>
                 <hr />
               </li>
               <li class="nav-item">
-                <span class="nav-link fw-bold" href="#">
+                <span class="nav-link {% if section == 'MyProfile' %}active {% endif %}fw-bold">
                   <i class="fa-regular fa-user icon_sidebar"></i>
                   My datas
                 </span>
                 <ul class="flex-column mb-2 ul_sidebar">
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if path == 'user_profile' %}active2{% endif %}" href="{% url 'idhub:user_profile' %}">
                       My personal data
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if path == 'user_roles' %}active2{% endif %}" href="{% url 'idhub:user_roles' %}">
                       My roles
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if path == 'user_gdpr' %}active2{% endif %}" href="{% url 'idhub:user_gdpr' %}">
                       GDPR info
                     </a>
                   </li>
                 </ul>
               </li>
               <li class="nav-item">
-                <span class="nav-link active fw-bold" href="#">
+                <span class="nav-link {% if section == 'MyWallet' %}active {% endif %}fw-bold" href="#">
                   <i class="bi bi-patch-check icon_sidebar"></i>
                   My Wallet
                 </span>
                 <ul class="flex-column mb-2 ul_sidebar">
                   <li class="nav-item">
-                    <a class="nav-link active2" href="#">
+                    <a class="nav-link {% if path == 'user_identities' %}active2{% endif %}" href="{% url 'idhub:user_identities' %}">
                       Identities (DID)
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if path == 'user_credentials' %}active2{% endif %}" href="{% url 'idhub:user_credentials' %}">
                       Credentials
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if path == 'user_credentials_required' %}active2{% endif %}" href="{% url 'idhub:user_credentials_required' %}">
                       Credentials required
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">
-                      Present Credentials
+                    <a class="nav-link {% if path == 'user_credentials_presentation' %}active2{% endif %}" href="{% url 'idhub:user_credentials_presentation' %}">
+                      Credentials Presentation
                     </a>
                   </li>
                 </ul>
@@ -145,6 +145,10 @@
             </div>
           </div>
 
+          <h3>
+            <i class="{{ icon }}"></i>
+            {{ subtitle }}
+          </h3>
           {% block content %}
           {% endblock content %}
 

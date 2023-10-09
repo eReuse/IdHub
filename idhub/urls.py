@@ -18,16 +18,37 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
 from .views import LoginView
-from .views_admin import AdminDashboardView
-from .views_user import UserDashboardView
+from .admin.views import AdminDashboardView
+from .user import views as views_user
 
 
 app_name = 'idhub'
 
 urlpatterns = [
-    path("", RedirectView.as_view(url=reverse_lazy('idhub:login'), permanent=False)),
+    path("", RedirectView.as_view(url=reverse_lazy('idhub:login'),
+        permanent=False)),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('user/dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
-    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('admin/dashboard/', AdminDashboardView.as_view(),
+        name='admin_dashboard'),
+
+    # User
+    path('user/dashboard/', views_user.UserDashboardView.as_view(),
+        name='user_dashboard'),
+    path('user/profile/', views_user.UserProfileView.as_view(),
+        name='user_profile'),
+    path('user/roles/', views_user.UserRolesView.as_view(),
+        name='user_roles'),
+    path('user/gdpr/', views_user.UserGDPRView.as_view(),
+        name='user_gdpr'),
+    path('user/identities/', views_user.UserIdentitiesView.as_view(),
+        name='user_identities'),
+    path('user/credentials/', views_user.UserCredentialsView.as_view(),
+        name='user_credentials'),
+    path('user/credentials_required/',
+        views_user.UserCredentialsRequiredView.as_view(),
+        name='user_credentials_required'),
+    path('user/credentials_presentation/',
+        views_user.UserCredentialsPresentationView.as_view(),
+        name='user_credentials_presentation'),
 ]
