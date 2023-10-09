@@ -18,7 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
 from .views import LoginView
-from .admin.views import AdminDashboardView
+from .admin import views as views_admin
 from .user import views as views_user
 
 
@@ -29,8 +29,6 @@ urlpatterns = [
         permanent=False)),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('admin/dashboard/', AdminDashboardView.as_view(),
-        name='admin_dashboard'),
 
     # User
     path('user/dashboard/', views_user.UserDashboardView.as_view(),
@@ -51,4 +49,40 @@ urlpatterns = [
     path('user/credentials_presentation/',
         views_user.UserCredentialsPresentationView.as_view(),
         name='user_credentials_presentation'),
+
+    # Admin
+    path('admin/dashboard/', views_admin.AdminDashboardView.as_view(),
+        name='admin_dashboard'),
+    path('admin/people/', views_admin.AdminPeopleView.as_view(),
+        name='admin_people'),
+    path('admin/people/new/', views_admin.AdminPeopleRegisterView.as_view(),
+        name='admin_people_new'),
+    path('admin/roles/', views_admin.AdminRolesView.as_view(),
+        name='admin_roles'),
+    path('admin/services/', views_admin.AdminServicesView.as_view(),
+        name='admin_services'),
+    path('admin/credentials/', views_admin.AdminCredentialsView.as_view(),
+        name='admin_credentials'),
+    path('admin/credentials/new/', views_admin.AdminIssueCredentialsView.as_view(),
+        name='admin_credentials_new'),
+    path('admin/credentials/revoke/', views_admin.AdminRevokeCredentialsView.as_view(),
+        name='admin_credentials_revoke'),
+    path('admin/wallet/identities/', views_admin.AdminWalletIdentitiesView.as_view(),
+        name='admin_wallet_identities'),
+    path('admin/wallet/credentials/', views_admin.AdminWalletCredentialsView.as_view(),
+        name='admin_wallet_credentials'),
+    path('admin/wallet/config/issue/', views_admin.AdminWalletConfigIssuesView.as_view(),
+        name='admin_wallet_config_issue'),
+    path('admin/wallet/config/issue/', views_admin.AdminWalletConfigIssuesView.as_view(),
+        name='admin_wallet_config_issue'),
+    path('admin/schemes/', views_admin.AdminSchemesView.as_view(),
+        name='admin_schemes'),
+    path('admin/schemes/import', views_admin.AdminSchemesImportView.as_view(),
+        name='admin_schemes_import'),
+    path('admin/schemes/export/', views_admin.AdminSchemesExportView.as_view(),
+        name='admin_schemes_export'),
+    path('admin/import', views_admin.AdminImportView.as_view(),
+        name='admin_import'),
+    path('admin/export/', views_admin.AdminExportView.as_view(),
+        name='admin_export'),
 ]
