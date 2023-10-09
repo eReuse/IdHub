@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from . import views
 
@@ -24,6 +24,7 @@ app_name = 'idhub'
 urlpatterns = [
     # path("", views.index, name="index"),
     path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('user/dashboard/', views.UserDashboardView.as_view(), name='user_dashboard'),
-    path('admin/dashboard/', views.AdminDashboardView.as_view(), name='user_dashboard'),
+    path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin_dashboard'),
 ]
