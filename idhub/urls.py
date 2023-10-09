@@ -15,14 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib.auth import views as auth_views
-from django.urls import path
+from django.views.generic import RedirectView
+from django.urls import path, reverse_lazy
 from . import views
 
 
 app_name = 'idhub'
 
 urlpatterns = [
-    # path("", views.index, name="index"),
+    path("", RedirectView.as_view(url=reverse_lazy('idhub:login'), permanent=False)),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('user/dashboard/', views.UserDashboardView.as_view(), name='user_dashboard'),
