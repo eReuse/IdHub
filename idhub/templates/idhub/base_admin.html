@@ -75,7 +75,7 @@
                   <i class="bi bi-people icon_sidebar"></i>
                   People
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="people" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'People' %}expanded{% else %}collapse{% endif %}" id="people" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'idhub:admin_people' %}">
                       People list
@@ -93,7 +93,7 @@
                   <i class="fa-solid fa-arrow-right-from-bracket icon_sidebar"></i>
                   Access Control
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="control-access" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'AccessControl' %}expanded{% else %}collapse{% endif %}" id="control-access" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link active2" href="{% url 'idhub:admin_roles' %}">
                       roles
@@ -111,7 +111,7 @@
                   <i class="bi bi-patch-check icon_sidebar"></i>
                   Credentials
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="credentials" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Credentials' %}expanded{% else %}collapse{% endif %}" id="credentials" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link active2" href="{% url 'idhub:admin_credentials' %}">
                       Credentials list
@@ -156,7 +156,7 @@
                   <i class="bi bi-file-earmark-text icon_sidebar"></i>
                   Schemes
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="schemes" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Schemes' %}expanded{% else %}collapse{% endif %}" id="schemes" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link active2" href="{% url 'idhub:admin_schemes' %}">
                       List of schemes
@@ -179,7 +179,7 @@
                   <i class="bi bi-arrow-down-square icon_sidebar"></i>
                   Imports/Exports
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse collapse" id="import-export" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'ImportExport' %}expanded{% else %}collapse{% endif %}" id="import-export" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
                     <a class="nav-link active2" href="{% url 'idhub:admin_import' %}">
                       Import
