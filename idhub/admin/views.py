@@ -53,76 +53,76 @@ class AdminPeopleRegisterView(People):
 class AdminRolesView(AccessControl):
     template_name = "idhub/admin_roles.html"
     subtitle = _('Roles Management')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminServicesView(AccessControl):
     template_name = "idhub/admin_services.html"
     subtitle = _('Service Management')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminCredentialsView(Credentials):
     template_name = "idhub/admin_credentials.html"
     subtitle = _('Credentials list')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminIssueCredentialsView(Credentials):
     template_name = "idhub/admin_issue_credentials.html"
     subtitle = _('Issuance of Credentials')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminRevokeCredentialsView(Credentials):
     template_name = "idhub/admin_revoke_credentials.html"
     subtitle = _('Revoke Credentials')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminWalletIdentitiesView(Credentials):
     template_name = "idhub/admin_wallet_identities.html"
-    subtitle = _('Identities (DID)')
-    icon = 'bi bi-person'
+    subtitle = _('Organization Identities (DID)')
+    icon = 'bi bi-patch-check-fill'
 
 
 class AdminWalletCredentialsView(Credentials):
     template_name = "idhub/admin_wallet_credentials.html"
     subtitle = _('Credentials')
-    icon = 'bi bi-person'
+    icon = 'bi bi-patch-check-fill'
 
 
 class AdminWalletConfigIssuesView(Credentials):
     template_name = "idhub/admin_wallet_issues.html"
     subtitle = _('Configure Issues')
-    icon = 'bi bi-person'
+    icon = 'bi bi-patch-check-fill'
 
 
 class AdminSchemesView(Schemes):
     template_name = "idhub/admin_schemes.html"
     subtitle = _('Schemes List')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminSchemesImportView(Schemes):
     template_name = "idhub/admin_schemes_import.html"
     subtitle = _('Import Schemes')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminSchemesExportView(Schemes):
     template_name = "idhub/admin_schemes_export.html"
     subtitle = _('Export Schemes')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminImportView(ImportExport):
     template_name = "idhub/admin_import.html"
     subtitle = _('Import')
-    icon = 'bi bi-person'
+    icon = ''
 
 
 class AdminExportView(ImportExport):
     template_name = "idhub/admin_export.html"
     subtitle = _('Export')
-    icon = 'bi bi-person'
+    icon = ''
