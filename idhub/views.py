@@ -17,8 +17,8 @@ from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.list import ListView
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
 
-from .forms import LoginForm
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +40,13 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
 
 class AdminDashboardView(UserDashboardView):
     template_name = "idhub/admin_dashboard.html"
+
+    def get(self, request):
+        if not request.user.is_superuser:
+            url = reverse_lazy('idhub:user_dashboard')
+            return redirect(url)
+
+        return super().get(request)
 
 
 class LoginView(auth_views.LoginView):
