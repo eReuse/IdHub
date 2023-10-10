@@ -1,0 +1,46 @@
+{% extends "musician/base.html" %}
+{% load i18n %}
+
+{% block content %}
+{% if active_domain %}
+<a class="btn-arrow-left" href="{% url 'musician:mailing-lists' %}">{% trans "Go to global" %}</a>
+{% endif %}
+
+<h1 class="service-name">{{ service.verbose_name }}{% if active_domain %} <span class="font-weight-light">{% trans "for" %} {{ active_domain.name }}</span>{% endif %}</h1>
+<p class="service-description">{{ service.description }}</p>
+
+<table class="table service-list">
+    <colgroup>
+      <col span="1" style="width: 13%;">
+      <col span="1" style="width: 12%;">
+      <col span="1" style="width: 50%;">
+      <col span="1" style="width: 15%;">
+      <col span="1" style="width: 10%;">
+  </colgroup>
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Address</th>
+      <th scope="col">Admin email</th>
+      <th scope="col">Configure</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for resource in object_list %}
+    <tr>
+      <th scope="row">{{ resource.name }}</th>
+      {% if resource.is_active %}
+      <td class="text-primary font-weight-bold">{% trans "Active" %}</td>
+      {% else %}
+      <td class="text-danger font-weight-bold">{% trans "Inactive" %}</td>
+      {% endif %}
+      <td>{{ resource.address_name}}</td>
+      <td>{{ resource.admin_email }}</td>
+      <td><a href="{{ resource.manager_url }}" target="_blank" rel="noopener noreferrer">Mailtrain <i class="fas fa-external-link-alt"></i></a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% include "musician/components/table_paginator.html" %}
+</table>
+{% endblock %}

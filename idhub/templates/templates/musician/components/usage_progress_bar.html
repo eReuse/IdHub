@@ -1,0 +1,22 @@
+{% comment %}
+Resource usage rendered as bootstrap progress bar
+
+Expected parameter: detail
+Expected structure: dictionary or object with attributes:
+    - usage (int): 125
+    - total (int): 200
+    - unit (string): 'MB'
+    - percent (int: [0, 25, 50, 75, 100]: 75
+{% endcomment %}
+
+<div class="text-center">
+  {% if detail %}
+    {{ detail.usage }} {{ detail.unit }}
+  {% else %}
+    N/A
+  {% endif %}
+</div>
+<div class="progress">
+    <div class="progress-bar bg-secondary w-{{ detail.percent }}" role="progressbar" aria-valuenow="{{ detail.usage }}"
+        aria-valuemin="0" aria-valuemax="{{ detail.total }}"></div>
+</div>

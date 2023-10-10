@@ -1,0 +1,164 @@
+{% load i18n static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+  {% block head %}
+    {% block meta %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Pangea">
+    {% endblock %}
+    <title>{% block title %}{% if title %}{{ title }} – {% endif %}IdHub{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    {% block style %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="{% static "/css/bootstrap.min.css" %}" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+  
+    <!-- Custom styles for this template -->
+    <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
+    {% endblock %}
+  {% endblock %}
+  </head>
+  <body>
+    <header class="navbar navbar-dark sticky-top bg-green flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">ID HUB</a>
+      <div class="navbar-nav navbar-sub-brand">
+         PANGEA
+      </div>
+      <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
+            <i id="user-avatar" class="bi bi-person-circle"></i>
+            <a class="navbar-sub-brand px-3" href="#">{{ user.username }}</a>
+            <a class="logout" href="{% url 'idhub:logout' %}">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+          <div class="position-sticky pt-5">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link {% if section == 'Home' %}active {% endif %}fw-bold" aria-current="page" href="{% url 'idhub:user_dashboard' %}">
+                  <i class="bi bi-house-door icon_sidebar"></i>
+                  Home
+                </a>
+                <hr />
+              </li>
+              <li class="nav-item">
+                <span class="nav-link {% if section == 'MyProfile' %}active {% endif %}fw-bold">
+                  <i class="fa-regular fa-user icon_sidebar"></i>
+                  My datas
+                </span>
+                <ul class="flex-column mb-2 ul_sidebar">
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_profile' %}active2{% endif %}" href="{% url 'idhub:user_profile' %}">
+                      My personal data
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_roles' %}active2{% endif %}" href="{% url 'idhub:user_roles' %}">
+                      My roles
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_gdpr' %}active2{% endif %}" href="{% url 'idhub:user_gdpr' %}">
+                      GDPR info
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <span class="nav-link {% if section == 'MyWallet' %}active {% endif %}fw-bold" href="#">
+                  <i class="bi bi-patch-check icon_sidebar"></i>
+                  My Wallet
+                </span>
+                <ul class="flex-column mb-2 ul_sidebar">
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_identities' %}active2{% endif %}" href="{% url 'idhub:user_identities' %}">
+                      Identities (DID)
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_credentials' %}active2{% endif %}" href="{% url 'idhub:user_credentials' %}">
+                      Credentials
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_credentials_required' %}active2{% endif %}" href="{% url 'idhub:user_credentials_required' %}">
+                      Credentials required
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if path == 'user_credentials_presentation' %}active2{% endif %}" href="{% url 'idhub:user_credentials_presentation' %}">
+                      Credentials Presentation
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          {% block messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          {% endblock messages %}
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h1">{{ title }}</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group me-2">
+                <input class="form-control form-control-grey " type="text" placeholder="Search" aria-label="Search">
+              </div>
+            </div>
+          </div>
+
+          <h3>
+            <i class="{{ icon }}"></i>
+            {{ subtitle }}
+          </h3>
+          {% block content %}
+          {% endblock content %}
+
+        </main>
+      </div>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
+    <script src="/static/js/dashboard.js"></script>
+  </body>
+</html>
