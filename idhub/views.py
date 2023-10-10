@@ -1,15 +1,17 @@
-from django.shortcuts import render
-from .models import User
+
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import views as auth_views
 
 
-from django.shortcuts import redirect, render
+class LoginView(auth_views.LoginView):
+    template_name = 'auth/login.html'
+    extra_context = {
+        'title': _('Login'),
+        'success_url': reverse_lazy('idhub:user_dashboard'),
+    }
 
-def index(request):
-    return redirect("/user")
-
-
-def user(request):
-    uid = request.user
-    user = User.get(uid)
-    context = { userdata: user }
-    return render(request, "polls/user.html", context)
+    def get(self, request):
+        if request.GET.get('next'):
+            self.extra_context['success_url'] = request.GET.get('next')
+        return super().get(request)

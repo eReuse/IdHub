@@ -1,0 +1,41 @@
+{% extends "musician/mail_base.html" %}
+{% load i18n %}
+
+{% block tabcontent %}
+<div class="tab-pane fade show active" id="addresses" role="tabpanel" aria-labelledby="addresses-tab">
+  <table class="table service-list">
+    <colgroup>
+      <col span="1" style="width: 25%;">
+      <col span="1" style="width: 25%;">
+      <col span="1" style="width: 25%;">
+      <col span="1" style="width: 25%;">
+    </colgroup>
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">{% trans "Email" %}</th>
+        <th scope="col">{% trans "Domain" %}</th>
+        <th scope="col">{% trans "Mailboxes" %}</th>
+        <th scope="col">{% trans "Forward" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in object_list %}
+      <tr>
+        <td><a href="{% url 'musician:address-update' obj.id %}">{{ obj.full_address_name }}</a></td>
+        <td>{{ obj.domain.name }}</td>
+        <td>
+          {% for mailbox in obj.mailboxes %}
+            <a href="{% url 'musician:mailbox-update' mailbox.id %}">{{ mailbox.name }}</a>
+            {% if not forloop.last %}<br/> {% endif %}
+          {% endfor %}
+        </td>
+        <td>{{ obj.forward }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    {% include "musician/components/table_paginator.html" %}
+  </table>
+  <a class="btn btn-primary mt-4 mb-4" href="{% url 'musician:address-create' %}">{% trans "New mail address" %}</a>
+
+</div>
+{% endblock %}
