@@ -21,7 +21,6 @@ from .views import LoginView
 from .admin import views as views_admin
 from .user import views as views_user
 
-
 app_name = 'idhub'
 
 urlpatterns = [
