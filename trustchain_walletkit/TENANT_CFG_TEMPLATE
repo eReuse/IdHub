@@ -1,0 +1,15 @@
+{
+  "issuerApiUrl": "http://localhost:8080/issuer-api/default",
+  "issuerClientName": "PANGEA Issuer Portal",
+  "issuerDid": null,
+  "issuerUiUrl": "http://localhost:5000",
+  "wallets": {
+    "walt.id": {
+      "description": "walt.id web wallet",
+      "id": "walt.id",
+      "presentPath": "api/siop/initiatePresentation",
+      "receivePath": "api/siop/initiateIssuance",
+      "url": "http://localhost:3000"
+    }
+  }
+}
