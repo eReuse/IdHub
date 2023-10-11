@@ -2,6 +2,7 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
+from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.mixins import AdminView
@@ -44,6 +45,12 @@ class AdminPeopleView(People):
     subtitle = _('People list')
     icon = 'bi bi-person'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'users': User.objects.filter(),
+        })
+        return context
 
 class AdminPeopleRegisterView(People):
     template_name = "idhub/admin_people_register.html"
