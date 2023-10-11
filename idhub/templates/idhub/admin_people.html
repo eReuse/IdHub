@@ -22,7 +22,7 @@
         <td>{{ user.username }}</td>
         <td>{{ user.get_membership }}</td>
         <td>{{ user.get_role }}</td>
-        <td><a type="button" class="btn btn-green-admin rounded-pill" href="{# url 'admin.profile.edit', user.id #}">{% trans 'View' %}</td>
+        <td><a type="button" class="btn btn-green-admin rounded-pill" href="{% url 'idhub:admin_people' user.id %}">{% trans 'View' %}</td>
       </tr>
     {% endfor %}
     </tbody>
