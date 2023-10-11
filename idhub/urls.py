@@ -52,7 +52,9 @@ urlpatterns = [
     # Admin
     path('admin/dashboard/', views_admin.AdminDashboardView.as_view(),
         name='admin_dashboard'),
-    path('admin/people/', views_admin.AdminPeopleView.as_view(),
+    path('admin/people/', views_admin.AdminPeopleListView.as_view(),
+        name='admin_people_list'),
+    path('admin/people/<int:pk>', views_admin.AdminPeopleView.as_view(),
         name='admin_people'),
     path('admin/people/new/', views_admin.AdminPeopleRegisterView.as_view(),
         name='admin_people_new'),

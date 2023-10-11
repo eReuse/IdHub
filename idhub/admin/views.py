@@ -3,6 +3,7 @@ import logging
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.mixins import AdminView
@@ -40,7 +41,7 @@ class ImportExport(AdminView, TemplateView):
     section = "ImportExport"
 
 
-class AdminPeopleView(People):
+class AdminPeopleListView(People):
     template_name = "idhub/admin_people.html"
     subtitle = _('People list')
     icon = 'bi bi-person'
@@ -51,6 +52,26 @@ class AdminPeopleView(People):
             'users': User.objects.filter(),
         })
         return context
+
+
+class AdminPeopleView(People):
+    template_name = "idhub/admin_user.html"
+    subtitle = _('User Profile')
+    icon = 'bi bi-person'
+    model = User
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'object': self.object,
+        })
+        return context
+
 
 class AdminPeopleRegisterView(People):
     template_name = "idhub/admin_people_register.html"
