@@ -1,39 +1,40 @@
 import logging
 
 from django.utils.translation import gettext_lazy as _
+from django.views.generic.base import TemplateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.mixins import AdminView
 
 
-class AdminDashboardView(AdminView):
+class AdminDashboardView(AdminView, TemplateView):
     template_name = "idhub/admin_dashboard.html"
     title = _('Dashboard')
     subtitle = _('Success')
     icon = 'bi bi-bell'
     section = "Home"
 
-class People(AdminView):
+class People(AdminView, TemplateView):
     title = _("People Management")
     section = "People"
 
 
-class AccessControl(AdminView):
+class AccessControl(AdminView, TemplateView):
     title = _("Access Control Management")
     section = "AccessControl"
 
 
-class Credentials(AdminView):
+class Credentials(AdminView, TemplateView):
     title = _("Credentials Management")
     section = "Credentials"
 
 
-class Schemes(AdminView):
+class Schemes(AdminView, TemplateView):
     title = _("Schemes Management")
     section = "Schemes"
 
 
-class ImportExport(AdminView):
+class ImportExport(AdminView, TemplateView):
     title = _("Massive Data Management")
     section = "ImportExport"
 

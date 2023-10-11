@@ -1,8 +1,11 @@
 import logging
 
 from django.utils.translation import gettext_lazy as _
+from django.views.generic.edit import UpdateView
+from django.views.generic.base import TemplateView
 from django.urls import reverse_lazy
 from django.contrib import messages
+from idhub.user.forms import ProfileForm
 from idhub.mixins import UserView
 
 
@@ -11,12 +14,12 @@ class MyProfile(UserView):
     section = "MyProfile"
 
 
-class MyWallet(UserView):
+class MyWallet(UserView, TemplateView):
     title = _("My Wallet")
     section = "MyWallet"
 
 
-class UserDashboardView(UserView):
+class UserDashboardView(UserView, TemplateView):
     template_name = "idhub/user_dashboard.html"
     title = _('Dashboard')
     subtitle = _('Success')
@@ -24,19 +27,25 @@ class UserDashboardView(UserView):
     section = "Home"
 
 
-class UserProfileView(MyProfile):
+class UserProfileView(MyProfile, UpdateView):
     template_name = "idhub/user_profile.html"
     subtitle = _('My personal Data')
     icon = 'bi bi-person'
+    from_class = ProfileForm
+    fields = ('first_name', 'last_name', 'email')
+    success_url = reverse_lazy('idhub:user_profile')
+
+    def get_object(self):
+        return self.request.user
 
 
-class UserRolesView(MyProfile):
+class UserRolesView(MyProfile, TemplateView):
     template_name = "idhub/user_roles.html"
     subtitle = _('My roles')
     icon = 'fa-brands fa-critical-role'
 
 
-class UserGDPRView(MyProfile):
+class UserGDPRView(MyProfile, TemplateView):
     template_name = "idhub/user_gdpr.html"
     subtitle = _('GDPR info')
     icon = 'bi bi-file-earmark-medical'
