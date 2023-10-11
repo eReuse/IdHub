@@ -2,4 +2,27 @@
 {% load i18n %}
 
 {% block content %}
+{% load django_bootstrap5 %}
+<form role="form" method="post">
+{% csrf_token %}
+{% if form.errors %}
+<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+  <div class="message">
+    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+    <span class="mdi mdi-close" aria-hidden="true"></span>
+    </button>
+    {% for field, error in form.errors.items %}
+      {{ error }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% bootstrap_form form %}
+<div class="form-actions-no-box">
+  <a class="btn btn-secondary" href="{% url 'idhub:user_profile' %}">{% translate "Cancel" %}</a>
+  <input class="btn btn-success" type="submit" name="submit" value="{% translate 'Save' %}" />
+</div>
+
+</form>
 {% endblock %}
