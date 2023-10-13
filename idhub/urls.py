@@ -56,7 +56,7 @@ urlpatterns = [
         name='admin_people_list'),
     path('admin/people/<int:pk>', views_admin.AdminPeopleView.as_view(),
         name='admin_people'),
-    path('admin/people/<int:pk>/edit', views_admin.AdminPeopleView.as_view(),
+    path('admin/people/<int:pk>/edit', views_admin.AdminPeopleEditView.as_view(),
         name='admin_people_edit'),
     path('admin/people/<int:pk>/del', views_admin.AdminPeopleDeleteView.as_view(),
         name='admin_people_delete'),
