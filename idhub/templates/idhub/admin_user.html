@@ -4,7 +4,7 @@
 {% block content %}
 <div class="row">
   <div class="col">
-    <h3 class="{% if not object.is_active %}bg-danger text-white{% endif %}">
+    <h3 class="{% if not object.is_active %}alert alert-danger{% endif %}">
       <i class="{{ icon }}"></i>
       {{ subtitle }}
     </h3>

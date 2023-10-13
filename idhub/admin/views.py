@@ -81,6 +81,10 @@ class AdminPeopleActivateView(AdminPeopleView):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
+        if self.object == self.request.user:
+            messages.error(self.request, _('Is not possible deactivate your account!'))
+            return redirect('idhub:admin_people', self.object.id)
+
         if self.object.is_active:
             self.object.is_active = False
         else:
@@ -96,14 +100,17 @@ class AdminPeopleDeleteView(AdminPeopleView):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
-        self.object.delete()
+        if self.object != self.request.user:
+            self.object.delete()
+        else:
+            messages.error(self.request, _('Is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
             
 class AdminPeopleEditView(AdminPeopleView, UpdateView):
     template_name = "idhub/admin_user_edit.html"
     from_class = ProfileForm
-    fields = ('first_name', 'last_name', 'email')
+    fields = ('first_name', 'last_name', 'email', 'username')
     success_url = reverse_lazy('idhub:admin_people_list')
 
 
@@ -113,7 +120,7 @@ class AdminPeopleRegisterView(People, CreateView):
     icon = 'bi bi-person'
     model = User
     from_class = ProfileForm
-    fields = ('first_name', 'last_name', 'email')
+    fields = ('first_name', 'last_name', 'email', 'username')
     success_url = reverse_lazy('idhub:admin_people_list')
 
 

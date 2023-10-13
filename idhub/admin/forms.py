@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 class ProfileForm(forms.ModelForm):
-    MANDATORY_FIELDS = ['first_name', 'last_name', 'email']
+    MANDATORY_FIELDS = ['first_name', 'last_name', 'email', 'username']
 
     class Meta:
         model = User

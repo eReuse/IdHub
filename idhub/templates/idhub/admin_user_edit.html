@@ -24,8 +24,8 @@
 {% endif %}
 {% bootstrap_form form %}
 <div class="form-actions-no-box">
-  <a class="btn btn-secondary" href="{% url 'idhub:user_profile' %}">{% translate "Cancel" %}</a>
-  <input class="btn btn-success" type="submit" name="submit" value="{% translate 'Save' %}" />
+  <a class="btn btn-grey" href="{% url 'idhub:admin_people' object.id %}">{% translate "Cancel" %}</a>
+  <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
 </div>
 
 </form>
