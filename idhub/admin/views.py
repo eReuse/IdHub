@@ -3,7 +3,7 @@ import logging
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.mixins import AdminView
@@ -72,6 +72,32 @@ class AdminPeopleView(People):
         })
         return context
 
+
+class AdminPeopleActivateView(AdminPeopleView):
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+
+        if self.object.is_active:
+            self.object.is_active = False
+        else:
+            self.object.is_active = True
+        self.object.save()
+
+        return redirect('idhub:admin_people', self.object.id)
+            
+
+class AdminPeopleDeleteView(AdminPeopleView):
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+
+        self.object.delete()
+
+        return redirect('idhub:admin_people_list')
+            
 
 class AdminPeopleRegisterView(People):
     template_name = "idhub/admin_people_register.html"
