@@ -2,11 +2,13 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView, CreateView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.mixins import AdminView
+from idhub.admin.forms import ProfileForm
 
 
 class AdminDashboardView(AdminView, TemplateView):
@@ -16,7 +18,7 @@ class AdminDashboardView(AdminView, TemplateView):
     icon = 'bi bi-bell'
     section = "Home"
 
-class People(AdminView, TemplateView):
+class People(AdminView):
     title = _("People Management")
     section = "People"
 
@@ -41,7 +43,7 @@ class ImportExport(AdminView, TemplateView):
     section = "ImportExport"
 
 
-class AdminPeopleListView(People):
+class AdminPeopleListView(People, TemplateView):
     template_name = "idhub/admin_people.html"
     subtitle = _('People list')
     icon = 'bi bi-person'
@@ -54,7 +56,7 @@ class AdminPeopleListView(People):
         return context
 
 
-class AdminPeopleView(People):
+class AdminPeopleView(People, TemplateView):
     template_name = "idhub/admin_user.html"
     subtitle = _('User Profile')
     icon = 'bi bi-person'
@@ -98,11 +100,21 @@ class AdminPeopleDeleteView(AdminPeopleView):
 
         return redirect('idhub:admin_people_list')
             
+class AdminPeopleEditView(AdminPeopleView, UpdateView):
+    template_name = "idhub/admin_user_edit.html"
+    from_class = ProfileForm
+    fields = ('first_name', 'last_name', 'email')
+    success_url = reverse_lazy('idhub:admin_people_list')
 
-class AdminPeopleRegisterView(People):
+
+class AdminPeopleRegisterView(People, CreateView):
     template_name = "idhub/admin_people_register.html"
     subtitle = _('People Register')
     icon = 'bi bi-person'
+    model = User
+    from_class = ProfileForm
+    fields = ('first_name', 'last_name', 'email')
+    success_url = reverse_lazy('idhub:admin_people_list')
 
 
 class AdminRolesView(AccessControl):
