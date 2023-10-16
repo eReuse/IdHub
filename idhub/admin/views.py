@@ -7,8 +7,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
+from idhub.models import Membership
 from idhub.mixins import AdminView
-from idhub.admin.forms import ProfileForm
+from idhub.admin.forms import ProfileForm, MembershipForm
 
 
 class AdminDashboardView(AdminView, TemplateView):
@@ -123,6 +124,45 @@ class AdminPeopleRegisterView(People, CreateView):
     fields = ('first_name', 'last_name', 'email', 'username')
     success_url = reverse_lazy('idhub:admin_people_list')
 
+    def get_success_url(self):
+        # import pdb; pdb.set_trace()
+        self.success_url = reverse_lazy(
+            'idhub:admin_people_membership_new',
+            kwargs={"pk": self.object.id}
+        )
+        return self.success_url
+
+
+class AdminPeopleMembershipRegisterView(People, CreateView):
+    template_name = "idhub/admin_people_membership_register.html"
+    subtitle = _('People add membership')
+    icon = 'bi bi-person'
+    model = Membership
+    from_class = MembershipForm
+    fields = ('type', 'start_date', 'end_date')
+    success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['start_date'].widget.input_type = 'date'
+        form.fields['end_date'].widget.input_type = 'date'
+        return form
+
+    def get_form_kwargs(self):
+        self.object = self.model(user=self.user)
+        kwargs = super().get_form_kwargs()
+        return kwargs
+        
 
 class AdminRolesView(AccessControl):
     template_name = "idhub/admin_roles.html"
