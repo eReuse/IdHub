@@ -64,6 +64,8 @@ urlpatterns = [
         name='admin_people_activate'),
     path('admin/people/new/', views_admin.AdminPeopleRegisterView.as_view(),
         name='admin_people_new'),
+    path('admin/people/<int:pk>/membership/new/', views_admin.AdminPeopleMembershipRegisterView.as_view(),
+        name='admin_people_membership_new'),
     path('admin/roles/', views_admin.AdminRolesView.as_view(),
         name='admin_roles'),
     path('admin/services/', views_admin.AdminServicesView.as_view(),
