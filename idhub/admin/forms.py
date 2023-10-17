@@ -21,3 +21,5 @@ class RolForm(forms.ModelForm):
 class ServiceForm(forms.ModelForm):
     MANDATORY_FIELDS = ['domain', 'rol']
 
+class UserRolForm(forms.ModelForm):
+    MANDATORY_FIELDS = ['service']

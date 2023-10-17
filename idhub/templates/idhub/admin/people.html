@@ -13,8 +13,8 @@
         <th scope="col"><button type="button" class="btn btn-green-admin border border-dark">{% trans 'Last name' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'First name' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">Username</button></th>
-        <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Membership' %}</button></th>
+        <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
         <th scope="col"></th>
       </tr>
     </thead>
@@ -24,8 +24,16 @@
         <td>{{ user.last_name }}</td>
         <td>{{ user.first_name }}</td>
         <td>{{ user.username }}</td>
-        <td>{{ user.get_membership }}</td>
-        <td>{{ user.get_role }}</td>
+        <td>
+          {% for m in user.memberships.all %}
+            {{ m.get_type }} 
+          {% endfor %}
+        </td>
+        <td>
+          {% for r in user.roles.all %}
+            {{ r.service.rol.name }} 
+          {% endfor %}
+        </td>
         <td><a type="button" class="btn btn-green-admin rounded-pill" href="{% url 'idhub:admin_people' user.id %}">{% trans 'View' %}</td>
       </tr>
     {% endfor %}

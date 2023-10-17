@@ -26,7 +26,7 @@
   </div>
 </div>
 <div class="form-actions-no-box">
-  <a class="btn btn-grey" href="{% url 'idhub:admin_people_list' %}">{% translate "Cancel" %}</a>
+  <a class="btn btn-grey" href="{% url 'idhub:admin_people_edit' form.instance.user.id %}">{% translate "Cancel" %}</a>
   <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
 </div>
 

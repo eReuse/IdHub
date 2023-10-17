@@ -20,7 +20,7 @@ class MyWallet(UserView, TemplateView):
 
 
 class UserDashboardView(UserView, TemplateView):
-    template_name = "idhub/user_dashboard.html"
+    template_name = "idhub/user/dashboard.html"
     title = _('Dashboard')
     subtitle = _('Success')
     icon = 'bi bi-bell'
@@ -28,7 +28,7 @@ class UserDashboardView(UserView, TemplateView):
 
 
 class UserProfileView(MyProfile, UpdateView):
-    template_name = "idhub/user_profile.html"
+    template_name = "idhub/user/profile.html"
     subtitle = _('My personal Data')
     icon = 'bi bi-person'
     from_class = ProfileForm
@@ -40,36 +40,36 @@ class UserProfileView(MyProfile, UpdateView):
 
 
 class UserRolesView(MyProfile, TemplateView):
-    template_name = "idhub/user_roles.html"
+    template_name = "idhub/user/roles.html"
     subtitle = _('My roles')
     icon = 'fa-brands fa-critical-role'
 
 
 class UserGDPRView(MyProfile, TemplateView):
-    template_name = "idhub/user_gdpr.html"
+    template_name = "idhub/user/gdpr.html"
     subtitle = _('GDPR info')
     icon = 'bi bi-file-earmark-medical'
 
 
 class UserIdentitiesView(MyWallet):
-    template_name = "idhub/user_identities.html"
+    template_name = "idhub/user/identities.html"
     subtitle = _('Identities (DID)')
     icon = 'bi bi-patch-check-fill'
 
 
 class UserCredentialsView(MyWallet):
-    template_name = "idhub/user_credentials.html"
+    template_name = "idhub/user/credentials.html"
     subtitle = _('Credentials')
     icon = 'bi bi-patch-check-fill'
 
 
 class UserCredentialsRequiredView(MyWallet):
-    template_name = "idhub/user_credentials_required.html"
+    template_name = "idhub/user/credentials_required.html"
     subtitle = _('Credentials required')
     icon = 'bi bi-patch-check-fill'
 
 
 class UserCredentialsPresentationView(MyWallet):
-    template_name = "idhub/user_credentials_presentation.html"
+    template_name = "idhub/user/credentials_presentation.html"
     subtitle = _('Credentials Presentation')
     icon = 'bi bi-patch-check-fill'
