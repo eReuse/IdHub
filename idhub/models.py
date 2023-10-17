@@ -77,3 +77,6 @@ class Membership(models.Model):
         on_delete=models.CASCADE,
         related_name='memberships',
     )
+
+    def get_type(self):
+        return dict(self.Types.choices).get(self.type)

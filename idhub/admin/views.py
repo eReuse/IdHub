@@ -125,7 +125,6 @@ class AdminPeopleRegisterView(People, CreateView):
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get_success_url(self):
-        # import pdb; pdb.set_trace()
         self.success_url = reverse_lazy(
             'idhub:admin_people_membership_new',
             kwargs={"pk": self.object.id}
@@ -162,7 +161,53 @@ class AdminPeopleMembershipRegisterView(People, CreateView):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
         return kwargs
-        
+
+    def get_success_url(self):
+        self.success_url = reverse_lazy(
+            'idhub:admin_people_edit',
+            kwargs={"pk": self.user.id}
+        )
+        return self.success_url
+
+
+class AdminPeopleMembershipEditView(People, CreateView):
+    template_name = "idhub/admin_people_membership_register.html"
+    subtitle = _('People add membership')
+    icon = 'bi bi-person'
+    model = Membership
+    from_class = MembershipForm
+    fields = ('type', 'start_date', 'end_date')
+    success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['start_date'].widget.input_type = 'date'
+        form.fields['end_date'].widget.input_type = 'date'
+        return form
+
+    def get_form_kwargs(self):
+        pk = self.kwargs.get('pk')
+        if pk:
+            self.object = get_object_or_404(self.model, pk=pk)
+        kwargs = super().get_form_kwargs()
+        return kwargs
+
+
+class AdminPeopleMembershipDeleteView(AdminPeopleView):
+    model = Membership
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+
+        if self.object != self.request.user:
+            user = self.object.user
+            self.object.delete()
+        else:
+            messages.error(self.request, _('Is not possible delete your account!'))
+
+        return redirect('idhub:admin_people_edit', user.id)
+
 
 class AdminRolesView(AccessControl):
     template_name = "idhub/admin_roles.html"
