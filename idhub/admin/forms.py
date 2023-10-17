@@ -14,3 +14,7 @@ class ProfileForm(forms.ModelForm):
 class MembershipForm(forms.ModelForm):
     MANDATORY_FIELDS = ['type']
 
+
+class RolForm(forms.ModelForm):
+    MANDATORY_FIELDS = ['name']
+

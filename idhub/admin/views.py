@@ -7,9 +7,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-from idhub.models import Membership
+from idhub.models import Membership, Rol
 from idhub.mixins import AdminView
-from idhub.admin.forms import ProfileForm, MembershipForm
+from idhub.admin.forms import ProfileForm, MembershipForm, RolForm
 
 
 class AdminDashboardView(AdminView, TemplateView):
@@ -213,6 +213,76 @@ class AdminRolesView(AccessControl):
     template_name = "idhub/admin_roles.html"
     subtitle = _('Roles Management')
     icon = ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'roles': Rol.objects,
+        })
+        return context
+
+class AdminRolRegisterView(AccessControl, CreateView):
+    template_name = "idhub/admin_rol_register.html"
+    subtitle = _('Add Rol')
+    icon = 'bi bi-person'
+    model = Rol
+    from_class = RolForm
+    fields = ('name',)
+    success_url = reverse_lazy('idhub:admin_roles')
+    object = None
+
+# class AdminPeopleMembershipRegisterView(People, CreateView):
+    # template_name = "idhub/admin_people_membership_register.html"
+
+    # def get(self, request, *args, **kwargs):
+    #     self.pk = kwargs['pk']
+    #     self.user = get_object_or_404(User, pk=self.pk)
+    #     return super().get(request, *args, **kwargs)
+
+    # def post(self, request, *args, **kwargs):
+    #     self.pk = kwargs['pk']
+    #     self.user = get_object_or_404(User, pk=self.pk)
+    #     return super().post(request, *args, **kwargs)
+
+    # def get_form(self):
+    #     form = super().get_form()
+    #     form.fields['start_date'].widget.input_type = 'date'
+    #     form.fields['end_date'].widget.input_type = 'date'
+    #     return form
+
+    # def get_form_kwargs(self):
+    #     self.object = self.model(user=self.user)
+    #     kwargs = super().get_form_kwargs()
+    #     return kwargs
+
+        
+class AdminRolEditView(AccessControl, CreateView):
+    template_name = "idhub/admin_rol_register.html"
+    subtitle = _('Add Rol')
+    icon = 'bi bi-person'
+    model = Rol
+    from_class = RolForm
+    fields = ('name',)
+    success_url = reverse_lazy('idhub:admin_roles')
+
+    def get_form_kwargs(self):
+        pk = self.kwargs.get('pk')
+        if pk:
+            self.object = get_object_or_404(self.model, pk=pk)
+        kwargs = super().get_form_kwargs()
+        return kwargs
+
+
+class AdminRolDeleteView(AccessControl):
+    model = Rol
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+
+        self.object.delete()
+        return redirect('idhub:admin_roles')
+
 
 
 class AdminServicesView(AccessControl):
