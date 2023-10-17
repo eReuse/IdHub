@@ -80,3 +80,7 @@ class Membership(models.Model):
 
     def get_type(self):
         return dict(self.Types.choices).get(self.type)
+
+
+class Rol(models.Model):
+    name = models.CharField(max_length=250)
