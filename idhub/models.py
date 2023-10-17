@@ -97,3 +97,19 @@ class Service(models.Model):
         on_delete=models.CASCADE,
         related_name='services',
     )
+
+    def __str__(self):
+        return "{} -> {}".format(self.domain, self.rol.name)
+
+
+class UserRol(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='roles',
+    )
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name='users',
+    )
