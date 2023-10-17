@@ -84,3 +84,16 @@ class Membership(models.Model):
 
 class Rol(models.Model):
     name = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.name
+
+
+class Service(models.Model):
+    domain = models.CharField(max_length=250)
+    description = models.CharField(max_length=250)
+    rol = models.ForeignKey(
+        Rol,
+        on_delete=models.CASCADE,
+        related_name='services',
+    )
