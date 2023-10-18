@@ -9,7 +9,7 @@
       {{ subtitle }}
     </h3>
   </div>
-  <div class="col">
+  <div class="col text-center">
     <a href="{% url 'idhub:admin_people_edit' object.id %}" type="button" class="btn btn-green-admin">{% trans 'Modify' %}</a>
     <a href="{% url 'idhub:admin_people_activate' object.id %}" type="button" class="btn btn-yellow ms-3 me-3">{% if object.is_active %}{% trans 'Deactivate' %}{% else %}{% trans 'Activate' %}{% endif %}</a>
     <a href="#" type="button" class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#confirm-delete">{% trans 'Delete' %}</a>
@@ -45,6 +45,9 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="col text-center">
+    <i class="bi bi-person-circle" style="font-size: 100px;"></i>
   </div>
 </div>
 
