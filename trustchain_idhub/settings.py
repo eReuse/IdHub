@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
+from decouple import config, Csv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,12 +23,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-os^a#c(i*z8*=o4#b%xsno97_!pqsv*or_5&lcga7&+u53(p92'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv())
+
+DOMAIN = config("DOMAIN", "http://localhost")
+
+DEFAULT_FROM_EMAIL = config(
+    'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+
+EMAIL_FILE_PATH = config('EMAIL_FILE_PATH', default='/tmp/app-messages')
+
+ADMINS = config('ADMINS', default='[]', cast=literal_eval)
+
+MANAGERS = config('MANAGERS', default='[]', cast=literal_eval)
 
 
 # Application definition
@@ -42,6 +66,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_bootstrap5',
     'idhub'
+    'emails'
 ]
 
 MIDDLEWARE = [
@@ -83,6 +108,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': config(
+    #     'DATABASE_URL',
+    #     default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     cast=db_url
+    # )
 }
 
 
@@ -110,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = config('TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
@@ -120,12 +150,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = config('STATIC_ROOT')
+MEDIA_ROOT = config('MEDIA_ROOT', default="idhub/upload")
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = 'idhub:user_dashboard'
 LOGOUT_REDIRECT_URL = 'idhub:login'
 
 MESSAGE_TAGS = {
