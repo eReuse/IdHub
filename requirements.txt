@@ -1,3 +1,5 @@
 django==4.2.5
-django-bootstrap4==23.2
+django-bootstrap5==23.3
 django-extensions==3.2.3
+black==23.9.1
+python-decouple==3.8
