@@ -80,7 +80,7 @@
         <tbody>
           {% for rol in object.roles.all %}
           <tr>
-            <td>{{ rol.service.rol.name }}</td>
+            <td>{{ rol.service.get_roles }}</td>
             <td>{{ rol.service.description }}</td>
             <td>{{ rol.service.domain }}</td>
             <td><a href="{% url 'idhub:admin_people_rol_edit' rol.id %}" title="{% trans 'Edit' %}"><i class="bi bi-pencil-square"></i></a></td>

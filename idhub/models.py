@@ -92,12 +92,13 @@ class Rol(models.Model):
 class Service(models.Model):
     domain = models.CharField(max_length=250)
     description = models.CharField(max_length=250)
-    rol = models.ForeignKey(
+    rol = models.ManyToManyField(
         Rol,
-        on_delete=models.CASCADE,
-        related_name='services',
     )
 
+    def get_roles(self):
+        return ", ".join([x.name for x in self.rol.all()])
+    
     def __str__(self):
         return "{} -> {}".format(self.domain, self.rol.name)
 
