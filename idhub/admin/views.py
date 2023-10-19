@@ -1,4 +1,5 @@
 import logging
+from smtplib import SMTPException
 
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
@@ -9,6 +10,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from idhub.models import Membership, Rol, Service, UserRol
 from idhub.mixins import AdminView
+from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
     ProfileForm,
     MembershipForm,
@@ -121,7 +123,7 @@ class AdminPeopleEditView(AdminPeopleView, UpdateView):
     success_url = reverse_lazy('idhub:admin_people_list')
 
 
-class AdminPeopleRegisterView(People, CreateView):
+class AdminPeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     template_name = "idhub/admin/people_register.html"
     subtitle = _('People Register')
     icon = 'bi bi-person'
@@ -136,6 +138,16 @@ class AdminPeopleRegisterView(People, CreateView):
             kwargs={"pk": self.object.id}
         )
         return self.success_url
+
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, _('The account is created successfully'))
+        if user.is_active:
+            try:
+                self.send_email(user)
+            except SMTPException as e:
+                messages.error(self.request, e)
+        return super().form_valid(form)
 
 
 class AdminPeopleMembershipRegisterView(People, CreateView):

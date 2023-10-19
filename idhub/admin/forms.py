@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from idhub.models import Rol
 
 
 class ProfileForm(forms.ModelForm):
@@ -20,6 +21,7 @@ class RolForm(forms.ModelForm):
 
 class ServiceForm(forms.ModelForm):
     MANDATORY_FIELDS = ['domain', 'rol']
+
 
 class UserRolForm(forms.ModelForm):
     MANDATORY_FIELDS = ['service']

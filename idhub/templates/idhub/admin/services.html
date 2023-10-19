@@ -24,7 +24,7 @@
           <tr>
             <td>{{ service.domain }}</td>
             <td>{{ service.description }}</td>
-            <td>{{ service.rol.name }}</td>
+            <td>{{ service.get_roles }}</td>
             <td><a href="{% url 'idhub:admin_service_edit' service.id %}" title="{% trans 'Edit' %}"><i class="bi bi-pencil-square"></i></a></td>
             <td><a href="{% url 'idhub:admin_service_del' service.id %}" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a></td>
           </tr>
