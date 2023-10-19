@@ -31,7 +31,7 @@
         </td>
         <td>
           {% for r in user.roles.all %}
-            {{ r.service.rol.name }} 
+            {{ r.service.get_roles }} 
           {% endfor %}
         </td>
         <td><a type="button" class="btn btn-green-admin rounded-pill" href="{% url 'idhub:admin_people' user.id %}">{% trans 'View' %}</td>
