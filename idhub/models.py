@@ -49,6 +49,12 @@ class VCTemplate(models.Model):
     data = models.TextField()
 
 
+class Schemas(models.Model):
+    file_schema = models.CharField(max_length=250)
+    data = models.TextField()
+    created_at = models.DateTimeField(auto_now=True)
+
+
 class Membership(models.Model):
     """
       This model represent the relation of this user with the ecosystem.  
