@@ -1,6 +1,9 @@
+import os
 import logging
+from pathlib import Path
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
@@ -8,7 +11,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-from idhub.models import Membership, Rol, Service, UserRol
+from idhub.models import Membership, Rol, Service, UserRol, Schemas
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
@@ -42,9 +45,9 @@ class Credentials(AdminView, TemplateView):
     section = "Credentials"
 
 
-class Schemes(AdminView, TemplateView):
-    title = _("Schemes Management")
-    section = "Schemes"
+class SchemasMix(AdminView, TemplateView):
+    title = _("Templates Management")
+    section = "Templates"
 
 
 class ImportExport(AdminView, TemplateView):
@@ -435,21 +438,69 @@ class AdminWalletConfigIssuesView(Credentials):
     wallet = True
 
 
-class AdminSchemesView(Schemes):
-    template_name = "idhub/admin/schemes.html"
-    subtitle = _('Schemes List')
+class AdminSchemasView(SchemasMix):
+    template_name = "idhub/admin/schemas.html"
+    subtitle = _('Template List')
     icon = ''
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'schemas': Schemas.objects,
+        })
+        return context
 
-class AdminSchemesImportView(Schemes):
-    template_name = "idhub/admin/schemes_import.html"
-    subtitle = _('Import Schemes')
+
+class AdminSchemasImportView(SchemasMix):
+    template_name = "idhub/admin/schemas_import.html"
+    subtitle = _('Import Template')
     icon = ''
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'schemas': self.get_schemas(),
+        })
+        return context
 
-class AdminSchemesExportView(Schemes):
-    template_name = "idhub/admin/schemes_export.html"
-    subtitle = _('Export Schemes')
+    def get_schemas(self):
+        schemas_files = os.listdir(settings.SCHEMAS_DIR)
+        schemas = [x for x  in schemas_files 
+            if not Schemas.objects.filter(file_schema=x).exists()]
+        return schemas
+
+        
+class AdminSchemasImportAddView(SchemasMix):
+
+    def get(self, request, *args, **kwargs):
+        file_name = kwargs['file_schema']
+        schemas_files = os.listdir(settings.SCHEMAS_DIR)
+        if not file_name in schemas_files:
+            messages.error(self.request, f"The schema {file_name} not exist!")
+            return redirect('idhub:admin_schemas_import')
+
+        self.create_schema(file_name)
+        messages.success(self.request, _("The schema add successfully!"))
+        return redirect('idhub:admin_schemas_import')
+
+    def create_schema(self, file_name):
+        data = self.open_file(file_name)
+        schema = Schemas.objects.create(file_schema=file_name, data=data)
+        schema.save()
+        return schema
+
+    def open_file(self, file_name):
+        data = ''
+        filename = Path(settings.SCHEMAS_DIR).joinpath(file_name)
+        with filename.open() as schema_file:
+            data = schema_file.read()
+
+        return data
+
+
+class AdminSchemasExportView(SchemasMix):
+    template_name = "idhub/admin/schemas_export.html"
+    subtitle = _('Export Template')
     icon = ''
 
 

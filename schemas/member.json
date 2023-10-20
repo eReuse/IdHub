@@ -1,0 +1,40 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://www.w3.org/ns/credentials/examples/v2"
+  ],
+  "id": "https://example.com/credentials/3734",
+  "type": ["VerifiableCredential", "JsonSchemaCredential"],
+  "issuer": "https://pangea.org/issuers/10",
+  "issuanceDate": "2023-09-01T19:23:24Z",
+  "credentialSchema": {
+    "id": "https://www.w3.org/2022/credentials/v2/json-schema-credential-schema.json",
+    "type": "JsonSchema",
+    "digestSRI": "sha384-S57yQDg1MTzF56Oi9DbSQ14u7jBy0RDdx0YbeV7shwhCS88G8SCXeFq82PafhCrW"
+  },
+  "credentialSubject": {
+    "id": "https://pangea.org/schemas/member-credential-schema.json",
+    "type": "JsonSchema",
+    "jsonSchema": {
+      "$id": "https://pangea.org/schemas/member-credential-schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "name": "MemberCredential",
+      "description": "MemberCredential using JsonSchemaCredential",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "membershipType": {
+          "type": "string",
+          "enum": ["individual", "organization"]
+        }
+      },
+      "required": ["name", "email", "membershipType"]
+    }
+  }
+}

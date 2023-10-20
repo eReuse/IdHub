@@ -152,24 +152,24 @@
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link {% if section == 'Schemes' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#schemes" aria-expanded="false" aria-controls="schemes" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'Schemas' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#schemas" aria-expanded="false" aria-controls="schemas" href="javascript:void()">
                   <i class="bi bi-file-earmark-text icon_sidebar"></i>
-                  Schemes
+                  Templates
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Schemes' %}expanded{% else %}collapse{% endif %}" id="schemes" data-bs-parent="#sidebarMenu">
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Schemas' %}expanded{% else %}collapse{% endif %}" id="schemas" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemes' %} active2{% endif %}" href="{% url 'idhub:admin_schemes' %}">
-                      List of schemes
+                    <a class="nav-link{% if path == 'admin_schemas' %} active2{% endif %}" href="{% url 'idhub:admin_schemas' %}">
+                      List of Templates
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemes_import' %} active2{% endif %}" href="{% url 'idhub:admin_schemes_import' %}">
-                      Import scheme
+                    <a class="nav-link{% if path == 'admin_schemas_import' %} active2{% endif %}" href="{% url 'idhub:admin_schemas_import' %}">
+                      Import Templates
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemes_export' %} active2{% endif %}" href="{% url 'idhub:admin_schemes_export' %}">
-                      Export scheme
+                    <a class="nav-link{% if path == 'admin_schemas_export' %} active2{% endif %}" href="{% url 'idhub:admin_schemas_export' %}">
+                      Export Templates
                     </a>
                   </li>
                 </ul>
