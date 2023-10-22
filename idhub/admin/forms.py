@@ -25,3 +25,7 @@ class ServiceForm(forms.ModelForm):
 
 class UserRolForm(forms.ModelForm):
     MANDATORY_FIELDS = ['service']
+
+
+class SchemaForm(forms.Form):
+    file_template = forms.FileField()

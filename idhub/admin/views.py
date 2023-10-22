@@ -19,7 +19,8 @@ from idhub.admin.forms import (
     MembershipForm,
     RolForm,
     ServiceForm,
-    UserRolForm
+    UserRolForm,
+    SchemaForm,
 )
 
 
@@ -449,6 +450,46 @@ class AdminSchemasView(SchemasMix):
             'schemas': Schemas.objects,
         })
         return context
+
+
+class AdminSchemasNewView(SchemasMix):
+    template_name = "idhub/admin/schemas_new.html"
+    subtitle = _('Upload Template')
+    icon = ''
+    success_url = reverse_lazy('idhub:admin_schemas')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'form': SchemaForm(),
+        })
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = SchemaForm(request.POST, request.FILES)
+        if form.is_valid():
+            schema = self.handle_uploaded_file()
+            if not schema:
+                messages.error(request, _("There are some errors in the file"))
+                return super().get(request, *args, **kwargs)
+            return redirect(self.success_url)
+        else:
+            return super().get(request, *args, **kwargs)
+
+        return super().post(request, *args, **kwargs)
+
+    def handle_uploaded_file(self):
+        f = self.request.FILES.get('file_template')
+        if not f:
+            return
+        file_name = f.name
+        if Schemas.objects.filter(file_schema=file_name).exists():
+            messages.error(self.request, _("This template already exists!"))
+            return
+        data = f.read().decode('utf-8')
+        schema = Schemas.objects.create(file_schema=file_name, data=data)
+        schema.save()
+        return schema
 
 
 class AdminSchemasImportView(SchemasMix):

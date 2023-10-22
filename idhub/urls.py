@@ -137,6 +137,8 @@ urlpatterns = [
         name='admin_wallet_config_issue'),
     path('admin/schemas/', views_admin.AdminSchemasView.as_view(),
         name='admin_schemas'),
+    path('admin/schemas/new', views_admin.AdminSchemasNewView.as_view(),
+        name='admin_schemas_new'),
     path('admin/schemas/import', views_admin.AdminSchemasImportView.as_view(),
         name='admin_schemas_import'),
     path('admin/schemas/import/<str:file_schema>', views_admin.AdminSchemasImportAddView.as_view(),
