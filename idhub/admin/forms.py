@@ -29,3 +29,6 @@ class UserRolForm(forms.ModelForm):
 
 class SchemaForm(forms.Form):
     file_template = forms.FileField()
+
+class ImportForm(forms.Form):
+    file_import = forms.FileField()
