@@ -152,45 +152,16 @@
                 </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link {% if section == 'Templates' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#schemas" aria-expanded="false" aria-controls="schemas" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'Templates' %}active {% endif %}fw-bold" href="{% url 'idhub:admin_schemas' %}">
                   <i class="bi bi-file-earmark-text icon_sidebar"></i>
                   Templates
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Templates' %}expanded{% else %}collapse{% endif %}" id="schemas" data-bs-parent="#sidebarMenu">
-                  <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemas' %} active2{% endif %}" href="{% url 'idhub:admin_schemas' %}">
-                      List of Templates
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemas_import' %} active2{% endif %}" href="{% url 'idhub:admin_schemas_import' %}">
-                      Import Templates
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_schemas_export' %} active2{% endif %}" href="{% url 'idhub:admin_schemas_export' %}">
-                      Export Templates
-                    </a>
-                  </li>
-                </ul>
               </li>
               <li class="nav-item">
-                <a class="admin nav-link {% if section == 'ImportExport' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#import-export" aria-expanded="false" aria-controls="import-export" href="javascript:void()">
+                <a class="admin nav-link {% if section == 'ImportExport' %}active {% endif %}fw-bold" href="{% url 'idhub:admin_import' %}">
                   <i class="bi bi-arrow-down-square icon_sidebar"></i>
-                  Imports/Exports
+                  Import Datas
                 </a>
-                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'ImportExport' %}expanded{% else %}collapse{% endif %}" id="import-export" data-bs-parent="#sidebarMenu">
-                  <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_import' %} active2{% endif %}" href="{% url 'idhub:admin_import' %}">
-                      Import
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link{% if path == 'admin_export' %} active2{% endif %}" href="{% url 'idhub:admin_export' %}">
-                      Export
-                    </a>
-                  </li>
-                </ul>
               </li>
             </ul>
           </div>

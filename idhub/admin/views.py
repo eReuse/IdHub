@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from pathlib import Path
 from smtplib import SMTPException
@@ -509,7 +510,12 @@ class AdminSchemasNewView(SchemasMix):
         if Schemas.objects.filter(file_schema=file_name).exists():
             messages.error(self.request, _("This template already exists!"))
             return
-        data = f.read().decode('utf-8')
+        try:
+            data = f.read().decode('utf-8')
+            json.loads(data)
+        except Exception:
+            messages.error(self.request, _('This is not a schema valid!'))
+            return
         schema = Schemas.objects.create(file_schema=file_name, data=data)
         schema.save()
         return schema
@@ -543,12 +549,18 @@ class AdminSchemasImportAddView(SchemasMix):
             messages.error(self.request, f"The schema {file_name} not exist!")
             return redirect('idhub:admin_schemas_import')
 
-        self.create_schema(file_name)
-        messages.success(self.request, _("The schema add successfully!"))
+        schema = self.create_schema(file_name)
+        if schema:
+            messages.success(self.request, _("The schema add successfully!"))
         return redirect('idhub:admin_schemas_import')
 
     def create_schema(self, file_name):
         data = self.open_file(file_name)
+        try:
+            json.loads(data)
+        except Exception:
+            messages.error(self.request, _('This is not a schema valid!'))
+            return
         schema = Schemas.objects.create(file_schema=file_name, data=data)
         schema.save()
         return schema
@@ -562,14 +574,21 @@ class AdminSchemasImportAddView(SchemasMix):
         return data
 
 
-class AdminSchemasExportView(SchemasMix):
-    template_name = "idhub/admin/schemas_export.html"
-    subtitle = _('Export Template')
-    icon = ''
-
-
 class AdminImportView(ImportExport):
     template_name = "idhub/admin/import.html"
+    subtitle = _('Import')
+    icon = ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'dates': [],
+        })
+        return context
+
+
+class AdminImportStep2View(ImportExport):
+    template_name = "idhub/admin/import_step2.html"
     subtitle = _('Import')
     icon = ''
 
@@ -580,8 +599,9 @@ class AdminImportView(ImportExport):
         })
         return context
 
-class AdminImportStep2View(ImportExport):
-    template_name = "idhub/admin/import_new.html"
+
+class AdminImportStep3View(ImportExport):
+    template_name = "idhub/admin/import_step3.html"
     subtitle = _('Import')
     icon = ''
     success_url = reverse_lazy('idhub:admin_import')
@@ -595,7 +615,7 @@ class AdminImportStep2View(ImportExport):
 
     def post(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.schema = get_object_or_404(Schema, pk=self.pk)
+        self.schema = get_object_or_404(Schemas, pk=self.pk)
         form = ImportForm(request.POST, request.FILES)
         if form.is_valid():
             schema = self.handle_uploaded_file()
@@ -610,12 +630,12 @@ class AdminImportStep2View(ImportExport):
 
     def handle_uploaded_file(self):
         f = self.request.FILES.get('file_import')
-        data = f.read().decode('utf-8')
-        if not f:
-            return
+        # if not f:
+        #     return
+
+        # data = f.read().decode('utf-8')
 
         from jsonschema import validate
-        import json
         import csv
         import pandas as pd
         # import pdb; pdb.set_trace()
@@ -632,11 +652,10 @@ class AdminImportStep2View(ImportExport):
             for k in data_pd.keys():
                 row[k] = data_pd[k][n]
 
-            validate(instance=row, schema=schema)
+            try:
+                validate(instance=row, schema=schema)
+            except Exception as e:
+                messages.error(self.request, e)
+                return
         return 
 
-
-class AdminExportView(ImportExport):
-    template_name = "idhub/admin/export.html"
-    subtitle = _('Export')
-    icon = ''
