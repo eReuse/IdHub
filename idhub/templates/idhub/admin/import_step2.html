@@ -13,23 +13,21 @@
         <thead>
           <tr>
             <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Created at' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'File' %}</button></th>
+            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Template file' %}</button></th>
+            <th scope="col"></th>
             <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
-          {% for f in dates.all %}
+          {% for schema in schemas.all %}
           <tr style="font-size:15px;">
-            <td>{{ f.created_at }}</td>
-            <td>{{ f.file_name }}</td>
-            <td></td>
+            <td>{{ schema.created_at }}</td>
+            <td>{{ schema.file_schema }}</td>
+            <td><a class="btn btn-green-admin" href="{% url 'idhub:admin_import_step3' schema.id %}" title="{% trans 'Import Dates' %}">{% trans 'Import Dates' %}</a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-      <div class="form-actions-no-box">
-        <a class="btn btn-green-admin" href="{% url 'idhub:admin_import_step2' %}">{% translate "Import Datas" %} <i class="bi bi-plus"></i></a>
-      </div>
     </div>
   </div>
 </div>
