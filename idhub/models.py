@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
+from idhub_auth.models import User
 
 
 # class AppUser(models.Model):
@@ -30,6 +30,12 @@ class DID(models.Model):
     # kind = "KEY|WEB"
 
 
+class Schemas(models.Model):
+    file_schema = models.CharField(max_length=250)
+    data = models.TextField()
+    created_at = models.DateTimeField(auto_now=True)
+
+
 class VerifiableCredential(models.Model):
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
@@ -47,12 +53,6 @@ class VerifiableCredential(models.Model):
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
     data = models.TextField()
-
-
-class Schemas(models.Model):
-    file_schema = models.CharField(max_length=250)
-    data = models.TextField()
-    created_at = models.DateTimeField(auto_now=True)
 
 
 class File_datas(models.Model):

@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_bootstrap5',
+    'idhub_auth',
     'idhub'
 ]
 
@@ -176,3 +177,4 @@ MESSAGE_TAGS = {
         messages.ERROR: 'alert-danger',
  }
 
+AUTH_USER_MODEL = 'idhub_auth.User'

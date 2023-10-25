@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from idhub_auth.models import User
 
 
 class ProfileForm(forms.ModelForm):

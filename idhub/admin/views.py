@@ -11,11 +11,11 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.models import (
@@ -137,7 +137,7 @@ class AdminPeopleDeleteView(AdminPeopleView):
 class AdminPeopleEditView(AdminPeopleView, UpdateView):
     template_name = "idhub/admin/user_edit.html"
     from_class = ProfileForm
-    fields = ('first_name', 'last_name', 'email', 'username')
+    fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
 
 
@@ -147,7 +147,7 @@ class AdminPeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     icon = 'bi bi-person'
     model = User
     from_class = ProfileForm
-    fields = ('first_name', 'last_name', 'email', 'username')
+    fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get_success_url(self):
@@ -646,7 +646,7 @@ class AdminImportStep3View(ImportExport):
             return
 
         file_name = f.name
-        if File_datas.objects.filter(file_name=file_name).exists():
+        if File_datas.objects.filter(file_name=file_name, success=True).exists():
             messages.error(self.request, _("This file already exists!"))
             return
 

@@ -26,7 +26,7 @@ class UserView(LoginRequiredMixin):
 class AdminView(UserView):
 
     def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not request.user.is_admin:
             url = reverse_lazy('idhub:user_dashboard')
             return redirect(url)
 
