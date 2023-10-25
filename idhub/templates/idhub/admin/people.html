@@ -12,7 +12,7 @@
       <tr>
         <th scope="col"><button type="button" class="btn btn-green-admin border border-dark">{% trans 'Last name' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'First name' %}</button></th>
-        <th scope="col"><button type="button" class="btn btn-grey border border-dark">Username</button></th>
+        <th scope="col"><button type="button" class="btn btn-grey border border-dark">Email</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Membership' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
         <th scope="col"></th>
@@ -23,7 +23,7 @@
       <tr>
         <td>{{ user.last_name }}</td>
         <td>{{ user.first_name }}</td>
-        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
         <td>
           {% for m in user.memberships.all %}
             {{ m.get_type }} 
