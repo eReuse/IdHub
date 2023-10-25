@@ -14,7 +14,7 @@
           <tr>
             <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Created at' %}</button></th>
             <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'File' %}</button></th>
-            <th scope="col"></th>
+            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'success' %}</button></th>
           </tr>
         </thead>
         <tbody>
@@ -22,7 +22,7 @@
           <tr style="font-size:15px;">
             <td>{{ f.created_at }}</td>
             <td>{{ f.file_name }}</td>
-            <td></td>
+            <td>{% if f.success %}<i class="bi bi-check-circle text-primary"></i>{% else %}<i class="bi bi-x-circle text-danger"></i>{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>

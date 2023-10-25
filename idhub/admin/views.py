@@ -1,7 +1,10 @@
 import os
+import csv
 import json
 import logging
+import pandas as pd
 from pathlib import Path
+from jsonschema import validate
 from smtplib import SMTPException
 
 from django.conf import settings
@@ -13,9 +16,17 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from idhub.models import Membership, Rol, Service, UserRol, Schemas
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
+from idhub.models import (
+    File_datas,
+    Membership,
+    Rol,
+    Service,
+    Schemas,
+    UserRol,
+    VerifiableCredential,
+)
 from idhub.admin.forms import (
     ProfileForm,
     MembershipForm,
@@ -582,7 +593,7 @@ class AdminImportView(ImportExport):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'dates': [],
+            'dates': File_datas.objects,
         })
         return context
 
@@ -618,8 +629,8 @@ class AdminImportStep3View(ImportExport):
         self.schema = get_object_or_404(Schemas, pk=self.pk)
         form = ImportForm(request.POST, request.FILES)
         if form.is_valid():
-            schema = self.handle_uploaded_file()
-            if not schema:
+            result = self.handle_uploaded_file()
+            if not result:
                 messages.error(request, _("There are some errors in the file"))
                 return super().get(request, *args, **kwargs)
             return redirect(self.success_url)
@@ -630,21 +641,22 @@ class AdminImportStep3View(ImportExport):
 
     def handle_uploaded_file(self):
         f = self.request.FILES.get('file_import')
-        # if not f:
-        #     return
+        if not f:
+            messages.error(self.request, _("There aren't file"))
+            return
 
-        # data = f.read().decode('utf-8')
+        file_name = f.name
+        if File_datas.objects.filter(file_name=file_name).exists():
+            messages.error(self.request, _("This file already exists!"))
+            return
 
-        from jsonschema import validate
-        import csv
-        import pandas as pd
-        # import pdb; pdb.set_trace()
-
-        schema = json.loads(self.schema.data)
-        df = pd.read_csv (r'examples/import1.csv', delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
+        self.json_schema = json.loads(self.schema.data)
+        df = pd.read_csv (f, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
         data_pd = df.fillna('').to_dict()
+        rows = {}
 
         if not data_pd:
+            File_datas.objects.create(file_name=file_name, success=False)
             return
 
         for n in range(df.last_valid_index()+1):
@@ -652,10 +664,38 @@ class AdminImportStep3View(ImportExport):
             for k in data_pd.keys():
                 row[k] = data_pd[k][n]
 
-            try:
-                validate(instance=row, schema=schema)
-            except Exception as e:
-                messages.error(self.request, e)
+            user = self.validate(n, row)
+            if not user:
+                File_datas.objects.create(file_name=file_name, success=False)
                 return
-        return 
+
+            rows[user] = row
+
+        File_datas.objects.create(file_name=file_name)
+        for k, v in rows.items():
+            self.create_credential(k, v)
+
+        return True
+
+    def validate(self, line, row):
+        try:
+            validate(instance=row, schema=self.json_schema)
+        except Exception as e:
+            messages.error(self.request, "line {}: {}".format(line+1, e))
+            return
+
+        user = User.objects.filter(email=row.get('email'))
+        if not user:
+            txt = _('The user not exist!')
+            messages.error(self.request, "line {}: {}".format(line+1, txt))
+            return
+
+        return user.first()
+
+    def create_credential(self, user, row):
+        return VerifiableCredential.objects.create(
+            verified=False,
+            user=user,
+            data=json.dumps(row)
+        )
 
