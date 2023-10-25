@@ -33,7 +33,7 @@ class DID(models.Model):
 class VerifiableCredential(models.Model):
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
-    created_on = models.DateTimeField()
+    created_on = models.DateTimeField(auto_now=True)
     did_issuer = models.CharField(max_length=250)
     did_subject = models.CharField(max_length=250)
     user = models.ForeignKey(
@@ -52,6 +52,12 @@ class VCTemplate(models.Model):
 class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
+    created_at = models.DateTimeField(auto_now=True)
+
+
+class File_datas(models.Model):
+    file_name = models.CharField(max_length=250)
+    success = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now=True)
 
 

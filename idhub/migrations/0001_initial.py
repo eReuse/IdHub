@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ),
                 ("id_string", models.CharField(max_length=250)),
                 ("verified", models.BooleanField()),
-                ("created_on", models.DateTimeField()),
+                ("created_on", models.DateTimeField(auto_now=True)),
                 ("did_issuer", models.CharField(max_length=250)),
                 ("did_subject", models.CharField(max_length=250)),
                 ("data", models.TextField()),
