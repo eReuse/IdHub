@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+import copy
 import logging
 import pandas as pd
 from pathlib import Path
@@ -19,6 +20,7 @@ from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.models import (
+    DID,
     File_datas,
     Membership,
     Rol,
@@ -419,6 +421,13 @@ class AdminCredentialsView(Credentials):
     subtitle = _('Credentials list')
     icon = ''
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'credentials': VerifiableCredential.objects,
+        })
+        return context
+
 
 class AdminIssueCredentialsView(Credentials):
     template_name = "idhub/admin/issue_credentials.html"
@@ -437,6 +446,13 @@ class AdminWalletIdentitiesView(Credentials):
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'dids': DID.objects,
+        })
+        return context
 
 
 class AdminWalletCredentialsView(Credentials):
@@ -693,9 +709,11 @@ class AdminImportStep3View(ImportExport):
         return user.first()
 
     def create_credential(self, user, row):
+        d = copy.copy(self.json_schema)
+        d['instance'] = row
         return VerifiableCredential.objects.create(
             verified=False,
             user=user,
-            data=json.dumps(row)
+            data=json.dumps(d)
         )
 
