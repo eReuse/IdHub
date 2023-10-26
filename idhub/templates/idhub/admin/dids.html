@@ -24,15 +24,15 @@
           <tr style="font-size:15px;">
             <td>{{ d.created_at }}</td>
             <td>{{ d.label }}</td>
-            <td>{{ d.id }}</td>
-            <td><button type="button" class="btn btn-green-admin">{% trans 'Modify' %}</button></td>
+            <td>{{ d.did }}</td>
+            <td><a class="text-primary" href="{% url 'idhub:admin_dids_edit' d.id %}" title="{% trans 'Edit' %}"><i class="bi bi-pencil-square"></i></a></td>
             <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ d.id }}" title="{% trans 'Remove' %}"><i class="bi bi-x-circle"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
       <div class="form-actions-no-box">
-        <a class="btn btn-green-admin" href="{# url 'idhub:admin_dids_add' #}">{% translate "Add Identity" %} <i class="bi bi-plus"></i></a>
+        <a class="btn btn-green-admin" href="{% url 'idhub:admin_dids_new' %}">{% translate "Add Identity" %} <i class="bi bi-plus"></i></a>
       </div>
     </div>
   </div>
@@ -51,7 +51,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Clancel</button>
-        <a href="{# url 'idhub:admin_dids_del' d.id #}" type="button" class="btn btn-danger">{% trans 'Delete' %}</a>
+        <a href="{% url 'idhub:admin_dids_del' d.id %}" type="button" class="btn btn-danger">{% trans 'Delete' %}</a>
       </div>
     </div>
   </div>
