@@ -14,6 +14,8 @@
           <tr>
             <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Created at' %}</button></th>
             <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Template file' %}</button></th>
+            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Name' %}</button></th>
+            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Description' %}</button></th>
             <th scope="col"></th>
             <th scope="col"></th>
           </tr>
@@ -23,6 +25,8 @@
           <tr style="font-size:15px;">
             <td>{{ schema.created_at }}</td>
             <td>{{ schema.file_schema }}</td>
+            <td>{{ schema.name }}</td>
+            <td>{{ schema.description }}</td>
             <td><a class="btn btn-green-admin" href="{% url 'idhub:admin_schemas_download' schema.id %}" target="_blank" title="{% trans 'View' %}">{% trans 'View' %}</a></td>
             <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ schema.id }}" title="{% trans 'Remove' %}"><i class="bi bi-x-circle"></i></a></td>
           </tr>

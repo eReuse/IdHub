@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
@@ -26,6 +27,7 @@ class DID(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='dids',
+        null=True,
     )
     # kind = "KEY|WEB"
 
@@ -35,20 +37,60 @@ class Schemas(models.Model):
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def get_schema(self):
+        if not self.data:
+            return {}
+        return json.loads(self.data)
+
+    def name(self):
+        return self.get_schema.get('name', '')
+
+    def description(self):
+        return self.get_schema.get('description', '')
+
 
 class VerifiableCredential(models.Model):
+    """
+        Definition of Verificable Credentials
+    """
+    class Status(models.IntegerChoices):
+        ENABLE = 1, _("Enable")
+        ISSUED = 2, _("Issued")
+        REVOKED = 3, _("Revoked")
+        EXPIRED = 4, _("Expired")
+
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
+    issuer_on = models.DateTimeField(null=True)
     did_issuer = models.CharField(max_length=250)
     did_subject = models.CharField(max_length=250)
+    data = models.TextField()
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices,
+        default=Status.ENABLE
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
-    data = models.TextField()
 
+    @property
+    def get_schema(self):
+        if not self.data:
+            return {}
+        return json.loads(self.data)
+
+    def type(self):
+        return self.get_schema.get('name', '')
+
+    def description(self):
+        return self.get_schema.get('description', '')
+
+    def get_status(self):
+        return self.Status(self.status).label
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
