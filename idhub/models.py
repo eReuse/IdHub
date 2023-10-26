@@ -23,6 +23,12 @@ class DID(models.Model):
     )
     # kind = "KEY|WEB"
 
+    @property
+    def is_organization_did(self):
+        if not self.user:
+            return True
+        return False
+
 
 class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
