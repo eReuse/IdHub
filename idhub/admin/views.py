@@ -11,11 +11,12 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from apiregiter import iota
 from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
@@ -28,15 +29,6 @@ from idhub.models import (
     Schemas,
     UserRol,
     VerifiableCredential,
-)
-from idhub.admin.forms import (
-    ProfileForm,
-    MembershipForm,
-    RolForm,
-    ServiceForm,
-    UserRolForm,
-    SchemaForm,
-    ImportForm,
 )
 
 
@@ -138,7 +130,6 @@ class AdminPeopleDeleteView(AdminPeopleView):
             
 class AdminPeopleEditView(AdminPeopleView, UpdateView):
     template_name = "idhub/admin/user_edit.html"
-    from_class = ProfileForm
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
 
@@ -148,7 +139,6 @@ class AdminPeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     subtitle = _('People Register')
     icon = 'bi bi-person'
     model = User
-    from_class = ProfileForm
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
 
@@ -175,7 +165,6 @@ class AdminPeopleMembershipRegisterView(People, CreateView):
     subtitle = _('People add membership')
     icon = 'bi bi-person'
     model = Membership
-    from_class = MembershipForm
     fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
 
@@ -213,7 +202,6 @@ class AdminPeopleMembershipEditView(People, CreateView):
     subtitle = _('People add membership')
     icon = 'bi bi-person'
     model = Membership
-    from_class = MembershipForm
     fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
 
@@ -252,7 +240,6 @@ class AdminPeopleRolRegisterView(People, CreateView):
     subtitle = _('Add Rol to User')
     icon = 'bi bi-person'
     model = UserRol
-    from_class = UserRolForm
     fields = ('service',)
 
     def get(self, request, *args, **kwargs):
@@ -283,7 +270,6 @@ class AdminPeopleRolEditView(People, CreateView):
     subtitle = _('Edit Rol to User')
     icon = 'bi bi-person'
     model = UserRol
-    from_class = UserRolForm
     fields = ('service',)
 
     def get_form_kwargs(self):
@@ -331,7 +317,6 @@ class AdminRolRegisterView(AccessControl, CreateView):
     subtitle = _('Add Rol')
     icon = ''
     model = Rol
-    from_class = RolForm
     fields = ('name',)
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
@@ -342,7 +327,6 @@ class AdminRolEditView(AccessControl, CreateView):
     subtitle = _('Edit Rol')
     icon = ''
     model = Rol
-    from_class = RolForm
     fields = ('name',)
     success_url = reverse_lazy('idhub:admin_roles')
 
@@ -382,7 +366,6 @@ class AdminServiceRegisterView(AccessControl, CreateView):
     subtitle = _('Add Service')
     icon = ''
     model = Service
-    from_class = ServiceForm
     fields = ('domain', 'description', 'rol')
     success_url = reverse_lazy('idhub:admin_services')
     object = None
@@ -393,7 +376,6 @@ class AdminServiceEditView(AccessControl, CreateView):
     subtitle = _('Edit Service')
     icon = ''
     model = Service
-    from_class = ServiceForm
     fields = ('domain', 'description', 'rol')
     success_url = reverse_lazy('idhub:admin_services')
 
@@ -441,8 +423,8 @@ class AdminRevokeCredentialsView(Credentials):
     icon = ''
 
 
-class AdminWalletIdentitiesView(Credentials):
-    template_name = "idhub/admin/wallet_identities.html"
+class AdminDidsView(Credentials):
+    template_name = "idhub/admin/dids.html"
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
@@ -453,6 +435,76 @@ class AdminWalletIdentitiesView(Credentials):
             'dids': DID.objects,
         })
         return context
+
+class AdminDidRegisterView(Credentials, CreateView):
+    template_name = "idhub/admin/did_register.html"
+    subtitle = _('Add a new Organization Identities (DID)')
+    icon = 'bi bi-patch-check-fill'
+    wallet = True
+    model = DID
+    fields = ('did', 'label')
+    success_url = reverse_lazy('idhub:admin_dids')
+    object = None
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['initial'] = {
+            'did': iota.issue_did()
+        }
+        return kwargs
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['did'].required = False
+        form.fields['did'].disabled = True
+        return form
+
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, _('DID created successfully'))
+        return super().form_valid(form)
+
+
+class AdminDidEditView(Credentials, UpdateView):
+    template_name = "idhub/admin/did_register.html"
+    subtitle = _('Organization Identities (DID)')
+    icon = 'bi bi-patch-check-fill'
+    wallet = True
+    model = DID
+    fields = ('did', 'label')
+    success_url = reverse_lazy('idhub:admin_dids')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['did'].required = False
+        form.fields['did'].disabled = True
+        return form
+
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, _('DID created successfully'))
+        return super().form_valid(form)
+
+
+class AdminDidDeleteView(Credentials, DeleteView):
+    subtitle = _('Organization Identities (DID)')
+    icon = 'bi bi-patch-check-fill'
+    wallet = True
+    model = DID
+    success_url = reverse_lazy('idhub:admin_dids')
+
+    def get(self, request, *args, **kwargs):
+        # import pdb; pdb.set_trace()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object.delete()
+
+        return redirect(self.success_url)
 
 
 class AdminWalletCredentialsView(Credentials):

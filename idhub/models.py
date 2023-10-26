@@ -4,15 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
 
 
-# class AppUser(models.Model):
-    # Ya incluye "first_name", "last_name", "email", y "date_joined" heredando de la clase User de django.
-    # Falta ver que más información hay que añadir a nuestros usuarios, como los roles etc.
-    # django_user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE)
-
-    # Extra data, segun entidad/organizacion
-    # pass
-
-
 # class Event(models.Model):
     # Para los "audit logs" que se requieren en las pantallas.
     # timestamp = models.DateTimeField()
@@ -21,7 +12,8 @@ from idhub_auth.models import User
 
 
 class DID(models.Model):
-    did_string = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now=True)
+    did = models.CharField(max_length=250, unique=True)
     label = models.CharField(max_length=50)
     user = models.ForeignKey(
         User,
