@@ -460,7 +460,7 @@ class AdminDidRegisterView(Credentials, CreateView):
         return form
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
         messages.success(self.request, _('DID created successfully'))
         return super().form_valid(form)
 
@@ -487,7 +487,7 @@ class AdminDidEditView(Credentials, UpdateView):
 
     def form_valid(self, form):
         user = form.save()
-        messages.success(self.request, _('DID created successfully'))
+        messages.success(self.request, _('DID updated successfully'))
         return super().form_valid(form)
 
 
@@ -499,10 +499,10 @@ class AdminDidDeleteView(Credentials, DeleteView):
     success_url = reverse_lazy('idhub:admin_dids')
 
     def get(self, request, *args, **kwargs):
-        # import pdb; pdb.set_trace()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         self.object.delete()
+        messages.success(self.request, _('DID delete successfully'))
 
         return redirect(self.success_url)
 

@@ -16,7 +16,7 @@
         <tbody>
           {% for rol in user.roles.all %}
           <tr>
-            <td>{{ rol.service.rol.name }}</td>
+            <td>{{ rol.service.get_roles }}</td>
             <td>{{ rol.service.description }}</td>
             <td>{{ rol.service.domain }}</td>
           </tr>
