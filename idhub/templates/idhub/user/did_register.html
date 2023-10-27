@@ -1,0 +1,30 @@
+{% extends "idhub/base.html" %}
+{% load i18n %}
+
+{% block content %}
+{% load django_bootstrap5 %}
+<form role="form" method="post">
+{% csrf_token %}
+{% if form.errors %}
+<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+  <div class="message">
+    {% for field, error in form.errors.items %}
+      {{ error }}<br />
+    {% endfor %}
+    <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
+  </div>
+</div>
+{% endif %}
+<div class="row">
+  <div class="col-sm-4">
+    {% bootstrap_form form %}
+  </div>
+</div>
+<div class="form-actions-no-box">
+  <a class="btn btn-grey" href="{% url 'idhub:user_dids' %}">{% translate "Cancel" %}</a>
+  <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+</div>
+
+</form>
+{% endblock %}

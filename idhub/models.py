@@ -152,7 +152,7 @@ class Service(models.Model):
         return ", ".join([x.name for x in self.rol.all()])
     
     def __str__(self):
-        return "{} -> {}".format(self.domain, self.rol.name)
+        return "{} -> {}".format(self.domain, self.get_roles())
 
 
 class UserRol(models.Model):
