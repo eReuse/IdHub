@@ -48,7 +48,7 @@ class Schemas(models.Model):
         return self.get_schema.get('description', '')
 
 
-class VerifiableCredential(models.Model):
+class VerificableCredential(models.Model):
     """
         Definition of Verificable Credentials
     """
@@ -89,6 +89,11 @@ class VerifiableCredential(models.Model):
 
     def get_status(self):
         return self.Status(self.status).label
+
+    def get_datas(self):
+        data = json.loads(self.data).get('instance').items()
+        return data
+        # import pdb; pdb.set_trace()
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
