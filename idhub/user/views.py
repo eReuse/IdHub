@@ -5,11 +5,12 @@ from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.http import HttpResponse
 from django.contrib import messages
 from apiregiter import iota
 from idhub.user.forms import ProfileForm
 from idhub.mixins import UserView
-from idhub.models import DID
+from idhub.models import DID, VerificableCredential
 
 
 class MyProfile(UserView):
@@ -59,11 +60,61 @@ class UserCredentialsView(MyWallet, TemplateView):
     subtitle = _('Credentials')
     icon = 'bi bi-patch-check-fill'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'credentials': VerificableCredential.objects,
+        })
+        return context
+
+
+class UserCredentialView(MyWallet, TemplateView):
+    template_name = "idhub/user/credential.html"
+    subtitle = _('Credential')
+    icon = 'bi bi-patch-check-fill'
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=self.pk,
+            user=self.request.user
+        )
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'object': self.object,
+        })
+        return context
+
+
+class UserCredentialJsonView(MyWallet, TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+            user=self.request.user
+        )
+        response = HttpResponse(self.object.data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+        return response
+
 
 class UserCredentialsRequiredView(MyWallet, TemplateView):
     template_name = "idhub/user/credentials_required.html"
     subtitle = _('Credentials required')
     icon = 'bi bi-patch-check-fill'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'credentials': VerificableCredential.objects,
+        })
+        return context
 
 
 class UserCredentialsPresentationView(MyWallet, TemplateView):

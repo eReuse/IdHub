@@ -14,7 +14,9 @@ def create_admin_users(email, password):
 
 
 def create_users(email, password):
-    User.objects.create(email=email, password=password)
+    u= User.objects.create(email=email, password=password)
+    u.set_password(password)
+    u.save()
 
 
 def main():

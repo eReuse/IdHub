@@ -20,6 +20,7 @@ from apiregiter import iota
 from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
+from idhub.admin.forms import ImportForm
 from idhub.models import (
     DID,
     File_datas,
@@ -28,7 +29,7 @@ from idhub.models import (
     Service,
     Schemas,
     UserRol,
-    VerifiableCredential,
+    VerificableCredential,
 )
 
 
@@ -406,7 +407,7 @@ class AdminCredentialsView(Credentials):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'credentials': VerifiableCredential.objects,
+            'credentials': VerificableCredential.objects,
         })
         return context
 
@@ -763,7 +764,7 @@ class AdminImportStep3View(ImportExport):
     def create_credential(self, user, row):
         d = copy.copy(self.json_schema)
         d['instance'] = row
-        return VerifiableCredential.objects.create(
+        return VerificableCredential.objects.create(
             verified=False,
             user=user,
             data=json.dumps(d)

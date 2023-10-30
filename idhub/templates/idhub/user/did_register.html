@@ -2,6 +2,10 @@
 {% load i18n %}
 
 {% block content %}
+<h3>
+  <i class="{{ icon }}"></i>
+  {{ subtitle }}
+</h3>
 {% load django_bootstrap5 %}
 <form role="form" method="post">
 {% csrf_token %}
