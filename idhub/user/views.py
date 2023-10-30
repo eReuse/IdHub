@@ -104,17 +104,41 @@ class UserCredentialJsonView(MyWallet, TemplateView):
         return response
 
 
-class UserCredentialsRequiredView(MyWallet, TemplateView):
-    template_name = "idhub/user/credentials_required.html"
-    subtitle = _('Credentials required')
+class UserCredentialsRequestView(MyWallet, TemplateView):
+    template_name = "idhub/user/credentials_request.html"
+    subtitle = _('Credentials request')
     icon = 'bi bi-patch-check-fill'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        creds = VerificableCredential.objects.filter(
+            user=self.request.user,
+            status=VerificableCredential.Status.ENABLE
+        )
         context.update({
-            'credentials': VerificableCredential.objects,
+            'credentials': creds,
         })
         return context
+
+
+class UserCredentialRequestView(MyWallet, TemplateView):
+    success_url = reverse_lazy('idhub:user_credentials_request')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        creds = VerificableCredential.objects.filter(
+            pk=pk,
+            user=self.request.user,
+            status=VerificableCredential.Status.ENABLE
+        )
+        if not creds:
+            messages.error(self.request, _("Not exists the credential!"))
+        else:
+            cred = creds[0]
+            cred.status = VerificableCredential.Status.REQUIRED
+            cred.save()
+            messages.success(self.request, _("The credential was required successfully!"))
+        return redirect(self.success_url)
 
 
 class UserCredentialsPresentationView(MyWallet, TemplateView):
