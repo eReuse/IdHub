@@ -412,10 +412,23 @@ class AdminCredentialsView(Credentials):
         return context
 
 
-class AdminIssueCredentialsView(Credentials):
+class AdminCredentialView(Credentials):
     template_name = "idhub/admin/issue_credentials.html"
-    subtitle = _('Issuance of Credentials')
+    subtitle = _('Change status of Credential')
     icon = ''
+    model = VerificableCredential
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'object': self.object,
+        })
+        return context
 
 
 class AdminRevokeCredentialsView(Credentials):
