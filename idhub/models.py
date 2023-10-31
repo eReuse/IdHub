@@ -55,9 +55,10 @@ class VerificableCredential(models.Model):
     class Status(models.IntegerChoices):
         ENABLE = 1, _("Enable")
         REQUIRED = 2, _("Required")
-        ISSUED = 3, _("Issued")
-        REVOKED = 4, _("Revoked")
-        EXPIRED = 5, _("Expired")
+        DENEGATED = 3, _("Denegated")
+        ISSUED = 4, _("Issued")
+        REVOKED = 5, _("Revoked")
+        EXPIRED = 6, _("Expired")
 
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
