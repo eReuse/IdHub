@@ -53,11 +53,10 @@ class VerificableCredential(models.Model):
         Definition of Verificable Credentials
     """
     class Status(models.IntegerChoices):
-        ENABLE = 1, _("Enable")
-        REQUIRED = 2, _("Required")
-        DENEGATED = 3, _("Denegated")
-        ISSUED = 4, _("Issued")
-        REVOKED = 5, _("Revoked")
+        ENABLED = 1, _("Enabled")
+        REQUESTED = 2, _("Requested")
+        ISSUED = 3, _("Issued")
+        REVOKED = 4, _("Revoked")
         EXPIRED = 6, _("Expired")
 
     id_string = models.CharField(max_length=250)
@@ -69,7 +68,7 @@ class VerificableCredential(models.Model):
     data = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
-        default=Status.ENABLE
+        default=Status.ENABLED
     )
     user = models.ForeignKey(
         User,
