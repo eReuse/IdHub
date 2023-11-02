@@ -1,4 +1,5 @@
 import json
+import requests
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
@@ -174,3 +175,18 @@ class UserRol(models.Model):
         on_delete=models.CASCADE,
         related_name='users',
     )
+
+
+class Organization(models.Model):
+    name = models.CharField(max_length=250)
+    url = models.CharField(
+        help_text=_("Url where to send the presentation"),
+        max_length=250
+    )
+
+    def __str__(self):
+        return self.name
+
+    def send(self, cred):
+        return
+        requests.post(self.url, data=cred.data)
