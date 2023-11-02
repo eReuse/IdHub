@@ -54,10 +54,9 @@ class VerificableCredential(models.Model):
     """
     class Status(models.IntegerChoices):
         ENABLED = 1, _("Enabled")
-        REQUESTED = 2, _("Requested")
-        ISSUED = 3, _("Issued")
-        REVOKED = 4, _("Revoked")
-        EXPIRED = 6, _("Expired")
+        ISSUED = 2, _("Issued")
+        REVOKED = 3, _("Revoked")
+        EXPIRED = 4, _("Expired")
 
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
@@ -94,7 +93,10 @@ class VerificableCredential(models.Model):
     def get_datas(self):
         data = json.loads(self.data).get('instance').items()
         return data
-        # import pdb; pdb.set_trace()
+
+    def get_issued(self, did):
+        self.status = self.Status.ISSUED
+        self.did_subject = did
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
