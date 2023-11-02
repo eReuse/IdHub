@@ -13,7 +13,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
 from apiregiter import iota
-from idhub.user.forms import ProfileForm, RequestCredentialForm
+from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential
 
@@ -130,10 +130,25 @@ class UserCredentialsRequestView(MyWallet, FormView):
         return super().form_valid(form)
 
 
-class UserCredentialsPresentationView(MyWallet, TemplateView):
+class UserCredentialsPresentationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
     subtitle = _('Credentials Presentation')
     icon = 'bi bi-patch-check-fill'
+    form_class = CredentialPresentationForm
+    success_url = reverse_lazy('idhub:user_credentials')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        cred = form.save()
+        if cred:
+            messages.success(self.request, _("The credential was presented successfully!"))
+        else:
+            messages.error(self.request, _("Error sending credential!"))
+        return super().form_valid(form)
 
     
 class UserDidsView(MyWallet, TemplateView):
@@ -147,6 +162,7 @@ class UserDidsView(MyWallet, TemplateView):
             'dids': self.request.user.dids,
         })
         return context
+
 
 class UserDidRegisterView(MyWallet, CreateView):
     template_name = "idhub/user/did_register.html"

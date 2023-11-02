@@ -1,6 +1,11 @@
 from django import forms
 from idhub_auth.models import User
-from idhub.models import DID, VerificableCredential
+from idhub.models import DID, VerificableCredential, Organization
+
+
+ORGANIZATION = [
+    (x.id, x.name) for x in Organization.objects.filter()
+]
 
 
 class ProfileForm(forms.ModelForm):
@@ -35,7 +40,8 @@ class RequestCredentialForm(forms.Form):
         )
         cred = VerificableCredential.objects.filter(
             user=self.user,
-            id=self.data['credential']
+            id=self.data['credential'],
+            status=VerificableCredential.Status.ENABLED
         )
         if not all([cred.exists(), did.exists()]):
             return
@@ -46,6 +52,43 @@ class RequestCredentialForm(forms.Form):
 
         if commit:
             cred.save()
+            return cred
+        
+        return 
+
+
+
+class CredentialPresentationForm(forms.Form):
+    organization = forms.ChoiceField(choices=ORGANIZATION)
+    credential = forms.ChoiceField(choices=[])
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        self.fields['credential'].choices = [
+            (x.id, x.type()) for x in VerificableCredential.objects.filter(
+                user=self.user,
+                status=VerificableCredential.Status.ISSUED
+            )
+        ]
+
+    def save(self, commit=True):
+        org = Organization.objects.filter(
+            id=self.data['organization']
+        )
+        cred = VerificableCredential.objects.filter(
+            user=self.user,
+            id=self.data['credential'],
+            status=VerificableCredential.Status.ISSUED
+        )
+        if not all([org.exists(), cred.exists()]):
+            return
+
+        org =org[0]
+        cred = cred[0]
+
+        if commit:
+            org.send(cred)
             return cred
         
         return 
