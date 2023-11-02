@@ -1,14 +1,19 @@
 import logging
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.views.generic.edit import (
+    UpdateView,
+    CreateView,
+    DeleteView,
+    FormView
+)
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
 from apiregiter import iota
-from idhub.user.forms import ProfileForm
+from idhub.user.forms import ProfileForm, RequestCredentialForm
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential
 
@@ -104,41 +109,25 @@ class UserCredentialJsonView(MyWallet, TemplateView):
         return response
 
 
-class UserCredentialsRequestView(MyWallet, TemplateView):
+class UserCredentialsRequestView(MyWallet, FormView):
     template_name = "idhub/user/credentials_request.html"
     subtitle = _('Credentials request')
     icon = 'bi bi-patch-check-fill'
+    form_class = RequestCredentialForm
+    success_url = reverse_lazy('idhub:user_credentials')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        creds = VerificableCredential.objects.filter(
-            user=self.request.user,
-            status=VerificableCredential.Status.ENABLE
-        )
-        context.update({
-            'credentials': creds,
-        })
-        return context
-
-
-class UserCredentialRequestView(MyWallet, TemplateView):
-    success_url = reverse_lazy('idhub:user_credentials_request')
-
-    def get(self, request, *args, **kwargs):
-        pk = kwargs['pk']
-        creds = VerificableCredential.objects.filter(
-            pk=pk,
-            user=self.request.user,
-            status=VerificableCredential.Status.ENABLE
-        )
-        if not creds:
-            messages.error(self.request, _("Not exists the credential!"))
-        else:
-            cred = creds[0]
-            cred.status = VerificableCredential.Status.REQUIRED
-            cred.save()
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        cred = form.save()
+        if cred:
             messages.success(self.request, _("The credential was required successfully!"))
-        return redirect(self.success_url)
+        else:
+            messages.error(self.request, _("Not exists the credential!"))
+        return super().form_valid(form)
 
 
 class UserCredentialsPresentationView(MyWallet, TemplateView):
