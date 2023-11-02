@@ -20,7 +20,7 @@ from apiregiter import iota
 from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
-from idhub.admin.forms import ImportForm
+from idhub.admin.forms import ImportForm, SchemaForm
 from idhub.models import (
     DID,
     File_datas,
