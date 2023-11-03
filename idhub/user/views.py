@@ -28,7 +28,7 @@ class MyWallet(UserView):
     section = "MyWallet"
 
 
-class UserDashboardView(UserView, TemplateView):
+class DashboardView(UserView, TemplateView):
     template_name = "idhub/user/dashboard.html"
     title = _('Dashboard')
     subtitle = _('Success')
@@ -36,7 +36,7 @@ class UserDashboardView(UserView, TemplateView):
     section = "Home"
 
 
-class UserProfileView(MyProfile, UpdateView):
+class ProfileView(MyProfile, UpdateView):
     template_name = "idhub/user/profile.html"
     subtitle = _('My personal Data')
     icon = 'bi bi-person'
@@ -48,19 +48,19 @@ class UserProfileView(MyProfile, UpdateView):
         return self.request.user
 
 
-class UserRolesView(MyProfile, TemplateView):
+class RolesView(MyProfile, TemplateView):
     template_name = "idhub/user/roles.html"
     subtitle = _('My roles')
     icon = 'fa-brands fa-critical-role'
 
 
-class UserGDPRView(MyProfile, TemplateView):
+class GDPRView(MyProfile, TemplateView):
     template_name = "idhub/user/gdpr.html"
     subtitle = _('GDPR info')
     icon = 'bi bi-file-earmark-medical'
 
 
-class UserCredentialsView(MyWallet, TemplateView):
+class CredentialsView(MyWallet, TemplateView):
     template_name = "idhub/user/credentials.html"
     subtitle = _('Credentials')
     icon = 'bi bi-patch-check-fill'
@@ -73,7 +73,7 @@ class UserCredentialsView(MyWallet, TemplateView):
         return context
 
 
-class UserCredentialView(MyWallet, TemplateView):
+class CredentialView(MyWallet, TemplateView):
     template_name = "idhub/user/credential.html"
     subtitle = _('Credential')
     icon = 'bi bi-patch-check-fill'
@@ -95,7 +95,7 @@ class UserCredentialView(MyWallet, TemplateView):
         return context
 
 
-class UserCredentialJsonView(MyWallet, TemplateView):
+class CredentialJsonView(MyWallet, TemplateView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
@@ -109,7 +109,7 @@ class UserCredentialJsonView(MyWallet, TemplateView):
         return response
 
 
-class UserCredentialsRequestView(MyWallet, FormView):
+class CredentialsRequestView(MyWallet, FormView):
     template_name = "idhub/user/credentials_request.html"
     subtitle = _('Credentials request')
     icon = 'bi bi-patch-check-fill'
@@ -130,7 +130,7 @@ class UserCredentialsRequestView(MyWallet, FormView):
         return super().form_valid(form)
 
 
-class UserCredentialsPresentationView(MyWallet, FormView):
+class CredentialsPresentationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
     subtitle = _('Credentials Presentation')
     icon = 'bi bi-patch-check-fill'
@@ -151,7 +151,7 @@ class UserCredentialsPresentationView(MyWallet, FormView):
         return super().form_valid(form)
 
     
-class UserDidsView(MyWallet, TemplateView):
+class DidsView(MyWallet, TemplateView):
     template_name = "idhub/user/dids.html"
     subtitle = _('Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -164,7 +164,7 @@ class UserDidsView(MyWallet, TemplateView):
         return context
 
 
-class UserDidRegisterView(MyWallet, CreateView):
+class DidRegisterView(MyWallet, CreateView):
     template_name = "idhub/user/did_register.html"
     subtitle = _('Add a new Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -189,7 +189,7 @@ class UserDidRegisterView(MyWallet, CreateView):
         return super().form_valid(form)
 
 
-class UserDidEditView(MyWallet, UpdateView):
+class DidEditView(MyWallet, UpdateView):
     template_name = "idhub/user/did_register.html"
     subtitle = _('Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -209,7 +209,7 @@ class UserDidEditView(MyWallet, UpdateView):
         return super().form_valid(form)
 
 
-class UserDidDeleteView(MyWallet, DeleteView):
+class DidDeleteView(MyWallet, DeleteView):
     subtitle = _('Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True

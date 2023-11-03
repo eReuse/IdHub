@@ -33,7 +33,7 @@ from idhub.models import (
 )
 
 
-class AdminDashboardView(AdminView, TemplateView):
+class DashboardView(AdminView, TemplateView):
     template_name = "idhub/admin/dashboard.html"
     title = _('Dashboard')
     subtitle = _('Success')
@@ -65,7 +65,7 @@ class ImportExport(AdminView, TemplateView):
     section = "ImportExport"
 
 
-class AdminPeopleListView(People, TemplateView):
+class PeopleListView(People, TemplateView):
     template_name = "idhub/admin/people.html"
     subtitle = _('People list')
     icon = 'bi bi-person'
@@ -78,7 +78,7 @@ class AdminPeopleListView(People, TemplateView):
         return context
 
 
-class AdminPeopleView(People, TemplateView):
+class PeopleView(People, TemplateView):
     template_name = "idhub/admin/user.html"
     subtitle = _('User Profile')
     icon = 'bi bi-person'
@@ -97,7 +97,7 @@ class AdminPeopleView(People, TemplateView):
         return context
 
 
-class AdminPeopleActivateView(AdminPeopleView):
+class PeopleActivateView(PeopleView):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -116,7 +116,7 @@ class AdminPeopleActivateView(AdminPeopleView):
         return redirect('idhub:admin_people', self.object.id)
             
 
-class AdminPeopleDeleteView(AdminPeopleView):
+class PeopleDeleteView(PeopleView):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -129,13 +129,13 @@ class AdminPeopleDeleteView(AdminPeopleView):
 
         return redirect('idhub:admin_people_list')
             
-class AdminPeopleEditView(AdminPeopleView, UpdateView):
+class PeopleEditView(PeopleView, UpdateView):
     template_name = "idhub/admin/user_edit.html"
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
 
 
-class AdminPeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
+class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     template_name = "idhub/admin/people_register.html"
     subtitle = _('People Register')
     icon = 'bi bi-person'
@@ -161,7 +161,7 @@ class AdminPeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
         return super().form_valid(form)
 
 
-class AdminPeopleMembershipRegisterView(People, CreateView):
+class PeopleMembershipRegisterView(People, CreateView):
     template_name = "idhub/admin/people_membership_register.html"
     subtitle = _('People add membership')
     icon = 'bi bi-person'
@@ -198,7 +198,7 @@ class AdminPeopleMembershipRegisterView(People, CreateView):
         return self.success_url
 
 
-class AdminPeopleMembershipEditView(People, CreateView):
+class PeopleMembershipEditView(People, CreateView):
     template_name = "idhub/admin/people_membership_register.html"
     subtitle = _('People add membership')
     icon = 'bi bi-person'
@@ -220,7 +220,7 @@ class AdminPeopleMembershipEditView(People, CreateView):
         return kwargs
 
 
-class AdminPeopleMembershipDeleteView(AdminPeopleView):
+class PeopleMembershipDeleteView(PeopleView):
     model = Membership
 
     def get(self, request, *args, **kwargs):
@@ -236,7 +236,7 @@ class AdminPeopleMembershipDeleteView(AdminPeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
         
-class AdminPeopleRolRegisterView(People, CreateView):
+class PeopleRolRegisterView(People, CreateView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Add Rol to User')
     icon = 'bi bi-person'
@@ -266,7 +266,7 @@ class AdminPeopleRolRegisterView(People, CreateView):
         return self.success_url
 
 
-class AdminPeopleRolEditView(People, CreateView):
+class PeopleRolEditView(People, CreateView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Edit Rol to User')
     icon = 'bi bi-person'
@@ -288,7 +288,7 @@ class AdminPeopleRolEditView(People, CreateView):
         return self.success_url
 
 
-class AdminPeopleRolDeleteView(AdminPeopleView):
+class PeopleRolDeleteView(PeopleView):
     model = UserRol
 
     def get(self, request, *args, **kwargs):
@@ -301,7 +301,7 @@ class AdminPeopleRolDeleteView(AdminPeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
 
-class AdminRolesView(AccessControl):
+class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Roles Management')
     icon = ''
@@ -313,7 +313,7 @@ class AdminRolesView(AccessControl):
         })
         return context
 
-class AdminRolRegisterView(AccessControl, CreateView):
+class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
     subtitle = _('Add Rol')
     icon = ''
@@ -323,7 +323,7 @@ class AdminRolRegisterView(AccessControl, CreateView):
     object = None
 
         
-class AdminRolEditView(AccessControl, CreateView):
+class RolEditView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
     subtitle = _('Edit Rol')
     icon = ''
@@ -339,7 +339,7 @@ class AdminRolEditView(AccessControl, CreateView):
         return kwargs
 
 
-class AdminRolDeleteView(AccessControl):
+class RolDeleteView(AccessControl):
     model = Rol
 
     def get(self, request, *args, **kwargs):
@@ -350,7 +350,7 @@ class AdminRolDeleteView(AccessControl):
         return redirect('idhub:admin_roles')
 
 
-class AdminServicesView(AccessControl):
+class ServicesView(AccessControl):
     template_name = "idhub/admin/services.html"
     subtitle = _('Service Management')
     icon = ''
@@ -362,7 +362,7 @@ class AdminServicesView(AccessControl):
         })
         return context
 
-class AdminServiceRegisterView(AccessControl, CreateView):
+class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Add Service')
     icon = ''
@@ -372,7 +372,7 @@ class AdminServiceRegisterView(AccessControl, CreateView):
     object = None
 
         
-class AdminServiceEditView(AccessControl, CreateView):
+class ServiceEditView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Edit Service')
     icon = ''
@@ -388,7 +388,7 @@ class AdminServiceEditView(AccessControl, CreateView):
         return kwargs
 
 
-class AdminServiceDeleteView(AccessControl):
+class ServiceDeleteView(AccessControl):
     model = Service
 
     def get(self, request, *args, **kwargs):
@@ -399,7 +399,7 @@ class AdminServiceDeleteView(AccessControl):
         return redirect('idhub:admin_services')
 
 
-class AdminCredentialsView(Credentials):
+class CredentialsView(Credentials):
     template_name = "idhub/admin/credentials.html"
     subtitle = _('Credentials list')
     icon = ''
@@ -412,7 +412,7 @@ class AdminCredentialsView(Credentials):
         return context
 
 
-class AdminCredentialView(Credentials):
+class CredentialView(Credentials):
     template_name = "idhub/admin/issue_credentials.html"
     subtitle = _('Change status of Credential')
     icon = ''
@@ -431,13 +431,26 @@ class AdminCredentialView(Credentials):
         return context
 
 
-class AdminRevokeCredentialsView(Credentials):
+class CredentialJsonView(Credentials):
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+        )
+        response = HttpResponse(self.object.data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+        return response
+
+
+class RevokeCredentialsView(Credentials):
     template_name = "idhub/admin/revoke_credentials.html"
     subtitle = _('Revoke Credentials')
     icon = ''
 
 
-class AdminDidsView(Credentials):
+class DidsView(Credentials):
     template_name = "idhub/admin/dids.html"
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -450,7 +463,7 @@ class AdminDidsView(Credentials):
         })
         return context
 
-class AdminDidRegisterView(Credentials, CreateView):
+class DidRegisterView(Credentials, CreateView):
     template_name = "idhub/admin/did_register.html"
     subtitle = _('Add a new Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -468,7 +481,7 @@ class AdminDidRegisterView(Credentials, CreateView):
         return super().form_valid(form)
 
 
-class AdminDidEditView(Credentials, UpdateView):
+class DidEditView(Credentials, UpdateView):
     template_name = "idhub/admin/did_register.html"
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
@@ -488,7 +501,7 @@ class AdminDidEditView(Credentials, UpdateView):
         return super().form_valid(form)
 
 
-class AdminDidDeleteView(Credentials, DeleteView):
+class DidDeleteView(Credentials, DeleteView):
     subtitle = _('Organization Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
@@ -504,21 +517,21 @@ class AdminDidDeleteView(Credentials, DeleteView):
         return redirect(self.success_url)
 
 
-class AdminWalletCredentialsView(Credentials):
+class WalletCredentialsView(Credentials):
     template_name = "idhub/admin/wallet_credentials.html"
     subtitle = _('Credentials')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
-class AdminWalletConfigIssuesView(Credentials):
+class WalletConfigIssuesView(Credentials):
     template_name = "idhub/admin/wallet_issues.html"
     subtitle = _('Configure Issues')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
-class AdminSchemasView(SchemasMix):
+class SchemasView(SchemasMix):
     template_name = "idhub/admin/schemas.html"
     subtitle = _('Template List')
     icon = ''
@@ -531,7 +544,7 @@ class AdminSchemasView(SchemasMix):
         return context
 
         
-class AdminSchemasDeleteView(SchemasMix):
+class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -541,7 +554,7 @@ class AdminSchemasDeleteView(SchemasMix):
         return redirect('idhub:admin_schemas')
 
 
-class AdminSchemasDownloadView(SchemasMix):
+class SchemasDownloadView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -552,7 +565,7 @@ class AdminSchemasDownloadView(SchemasMix):
         return response
 
 
-class AdminSchemasNewView(SchemasMix):
+class SchemasNewView(SchemasMix):
     template_name = "idhub/admin/schemas_new.html"
     subtitle = _('Upload Template')
     icon = ''
@@ -597,7 +610,7 @@ class AdminSchemasNewView(SchemasMix):
         return schema
 
 
-class AdminSchemasImportView(SchemasMix):
+class SchemasImportView(SchemasMix):
     template_name = "idhub/admin/schemas_import.html"
     subtitle = _('Import Template')
     icon = ''
@@ -616,7 +629,7 @@ class AdminSchemasImportView(SchemasMix):
         return schemas
 
         
-class AdminSchemasImportAddView(SchemasMix):
+class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         file_name = kwargs['file_schema']
@@ -650,7 +663,7 @@ class AdminSchemasImportAddView(SchemasMix):
         return data
 
 
-class AdminImportView(ImportExport):
+class ImportView(ImportExport):
     template_name = "idhub/admin/import.html"
     subtitle = _('Import')
     icon = ''
@@ -663,7 +676,7 @@ class AdminImportView(ImportExport):
         return context
 
 
-class AdminImportStep2View(ImportExport):
+class ImportStep2View(ImportExport):
     template_name = "idhub/admin/import_step2.html"
     subtitle = _('Import')
     icon = ''
@@ -676,7 +689,7 @@ class AdminImportStep2View(ImportExport):
         return context
 
 
-class AdminImportStep3View(ImportExport):
+class ImportStep3View(ImportExport):
     template_name = "idhub/admin/import_step3.html"
     subtitle = _('Import')
     icon = ''
