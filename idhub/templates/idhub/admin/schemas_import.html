@@ -1,0 +1,34 @@
+{% extends "idhub/base_admin.html" %}
+{% load i18n %}
+
+{% block content %}
+<h3>
+  <i class="{{ icon }}"></i>
+  {{ subtitle }}
+</h3>
+<div class="row mt-5">
+  <div class="col">
+    <div class="table-responsive">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Template available' %}</button></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for schema in schemas %}
+          <tr style="font-size:15px;">
+            <td>{{ schema }}</td>
+            <td><a class="text-primary" href="{% url 'idhub:admin_schemas_import_add' schema %}" title="{% trans 'Add' %}"><i class="bi bi-plus-circle"></i></a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="form-actions-no-box">
+        <a class="btn btn-green-admin" href="{% url 'idhub:admin_schemas_new' %}">{% translate "Add template" %} <i class="bi bi-plus"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+    {
+      "$id": "https://pangea.org/schemas/member-credential-schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "name": "MemberCredential",
+      "description": "MemberCredential using JsonSchemaCredential",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "membershipType": {
+          "type": "string",
+          "enum": ["individual", "organization"]
+        }
+      },
+      "required": ["name", "email", "membershipType"]
+    }
