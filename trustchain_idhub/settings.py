@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_bootstrap5',
+    'idhub_auth',
     'idhub'
 ]
 
@@ -160,6 +161,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = config('STATIC_ROOT')
 MEDIA_ROOT = config('MEDIA_ROOT', default="idhub/upload")
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
+SCHEMAS_DIR = os.path.join(BASE_DIR, 'schemas')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -176,3 +178,4 @@ MESSAGE_TAGS = {
         messages.ERROR: 'alert-danger',
  }
 
+AUTH_USER_MODEL = 'idhub_auth.User'

@@ -1,4 +1,4 @@
-{% extends "idhub/base.html" %}
+{% extends "idhub/base_admin.html" %}
 {% load i18n %}
 
 {% block content %}
@@ -7,27 +7,25 @@
   {{ subtitle }}
 </h3>
 {% load django_bootstrap5 %}
-<form role="form" method="post">
+<form role="form" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 {% if form.errors %}
 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
   <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
   <div class="message">
+    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+    <span class="mdi mdi-close" aria-hidden="true"></span>
+    </button>
     {% for field, error in form.errors.items %}
-      {{ error }}<br />
+      {{ error }}
     {% endfor %}
-    <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
   </div>
 </div>
 {% endif %}
-<div class="row">
-  <div class="col-sm-4">
-    {% bootstrap_form form %}
-  </div>
-</div>
+{% bootstrap_form form %}
 <div class="form-actions-no-box">
-  <a class="btn btn-grey" href="{% url 'idhub:user_credentials' %}">{% trans "Cancel" %}</a>
-  <input class="btn btn-green-user" type="submit" name="submit" value="{% trans 'Send' %}" />
+  <a class="btn btn-grey" href="{% url 'idhub:admin_schemas_import' %}">{% translate "Cancel" %}</a>
+  <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
 </div>
 
 </form>
