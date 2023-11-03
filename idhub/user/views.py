@@ -170,26 +170,20 @@ class UserDidRegisterView(MyWallet, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('did', 'label')
+    fields = ('label',)
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['initial'] = {
-            'did': iota.issue_did(),
-            'user': self.request.user
-        }
-        return kwargs
-
-    def get_form(self):
-        form = super().get_form()
-        form.fields['did'].required = False
-        form.fields['did'].disabled = True
-        return form
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     kwargs['initial'] = {
+    #         'user': self.request.user
+    #     }
+    #     return kwargs
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.did = iota.issue_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
         return super().form_valid(form)
@@ -201,19 +195,13 @@ class UserDidEditView(MyWallet, UpdateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('did', 'label')
+    fields = ('label',)
     success_url = reverse_lazy('idhub:user_dids')
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         return super().get(request, *args, **kwargs)
-
-    def get_form(self):
-        form = super().get_form()
-        form.fields['did'].required = False
-        form.fields['did'].disabled = True
-        return form
 
     def form_valid(self, form):
         user = form.save()
