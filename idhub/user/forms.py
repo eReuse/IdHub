@@ -3,10 +3,6 @@ from idhub_auth.models import User
 from idhub.models import DID, VerificableCredential, Organization
 
 
-ORGANIZATION = [
-    (x.id, x.name) for x in Organization.objects.filter()
-]
-
 
 class ProfileForm(forms.ModelForm):
     MANDATORY_FIELDS = ['first_name', 'last_name', 'email']
@@ -59,12 +55,15 @@ class RequestCredentialForm(forms.Form):
 
 
 class CredentialPresentationForm(forms.Form):
-    organization = forms.ChoiceField(choices=ORGANIZATION)
+    organization = forms.ChoiceField(choices=[])
     credential = forms.ChoiceField(choices=[])
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self.fields['organization'].choices = [
+            (x.id, x.name) for x in Organization.objects.filter()
+        ]
         self.fields['credential'].choices = [
             (x.id, x.type()) for x in VerificableCredential.objects.filter(
                 user=self.user,
