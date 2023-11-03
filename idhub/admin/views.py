@@ -445,9 +445,40 @@ class CredentialJsonView(Credentials):
 
 
 class RevokeCredentialsView(Credentials):
-    template_name = "idhub/admin/revoke_credentials.html"
-    subtitle = _('Revoke Credentials')
-    icon = ''
+    success_url = reverse_lazy('idhub:admin_credentials')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+        )
+        if self.object.status == VerificableCredential.Status.ISSUED:
+            self.object.status = VerificableCredential.Status.REVOKED
+            self.object.save()
+            messages.success(self.request, _('Credential revoked successfully'))
+
+        return redirect(self.success_url)
+
+
+class DeleteCredentialsView(Credentials):
+    success_url = reverse_lazy('idhub:admin_credentials')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+        )
+        status = [
+            VerificableCredential.Status.REVOKED,
+            VerificableCredential.Status.ISSUED
+        ]
+        if self.object.status in status:
+            self.object.delete()
+            messages.success(self.request, _('Credential deleted successfully'))
+
+        return redirect(self.success_url)
 
 
 class DidsView(Credentials):
