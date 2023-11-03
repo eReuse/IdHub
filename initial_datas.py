@@ -4,6 +4,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'trustchain_idhub.settings')  # 
 django.setup()  # noqa
 
 from django.contrib.auth import get_user_model
+from idhub.models import Organization
 
 
 User = get_user_model()
@@ -19,6 +20,11 @@ def create_users(email, password):
     u.save()
 
 
+def create_organizations():
+    Organization.objects.create(name="ExO", url="https://verify.exo.cat")
+    Organization.objects.create(name="Somos Connexión", url="https://verify.somosconexion.coop")
+
+
 def main():
     admin = 'admin@example.org'
     pw_admin = '1234'
@@ -26,8 +32,9 @@ def main():
     user = 'user1@example.org'
     pw_user = '1234'
 
-    create_admin_users(admin, pw_admin)
+    # create_admin_users(admin, pw_admin)
     create_users(user, pw_user)
+    create_organizations()
 
 
 if __name__ == '__main__':
