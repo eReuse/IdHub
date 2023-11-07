@@ -1,0 +1,2563 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-11-07 17:54+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: env/lib/python3.11/site-packages/bootstrap4/components.py:17
+#: env/lib/python3.11/site-packages/bootstrap4/templates/bootstrap4/form_errors.html:3
+#: env/lib/python3.11/site-packages/bootstrap4/templates/bootstrap4/messages.html:4
+#: env/lib/python3.11/site-packages/django_bootstrap5/components.py:26
+msgid "close"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/_termui_impl.py:518
+#, python-brace-format
+msgid "{editor}: Editing failed"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/_termui_impl.py:522
+#, python-brace-format
+msgid "{editor}: Editing failed: {e}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1120
+msgid "Aborted!"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1309
+#: env/lib/python3.11/site-packages/click/decorators.py:559
+msgid "Show this message and exit."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1340
+#: env/lib/python3.11/site-packages/click/core.py:1370
+#, python-brace-format
+msgid "(Deprecated) {text}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1387
+msgid "Options"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1413
+#, python-brace-format
+msgid "Got unexpected extra argument ({args})"
+msgid_plural "Got unexpected extra arguments ({args})"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1429
+msgid "DeprecationWarning: The command {name!r} is deprecated."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1636
+msgid "Commands"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1668
+msgid "Missing command."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:1746
+msgid "No such command {name!r}."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2310
+msgid "Value must be an iterable."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2331
+#, python-brace-format
+msgid "Takes {nargs} values but 1 was given."
+msgid_plural "Takes {nargs} values but {len} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2778
+#, python-brace-format
+msgid "env var: {var}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2808
+msgid "(dynamic)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2821
+#, python-brace-format
+msgid "default: {default}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/core.py:2834
+msgid "required"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/decorators.py:465
+#, python-format
+msgid "%(prog)s, version %(version)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/decorators.py:528
+msgid "Show the version and exit."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:44
+#: env/lib/python3.11/site-packages/click/exceptions.py:80
+#, python-brace-format
+msgid "Error: {message}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:72
+#, python-brace-format
+msgid "Try '{command} {option}' for help."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:121
+#, python-brace-format
+msgid "Invalid value: {message}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:123
+#, python-brace-format
+msgid "Invalid value for {param_hint}: {message}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:179
+msgid "Missing argument"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:181
+msgid "Missing option"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:183
+msgid "Missing parameter"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:185
+#, python-brace-format
+msgid "Missing {param_type}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:192
+#, python-brace-format
+msgid "Missing parameter: {param_name}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:212
+#, python-brace-format
+msgid "No such option: {name}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:224
+#, python-brace-format
+msgid "Did you mean {possibility}?"
+msgid_plural "(Possible options: {possibilities})"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:262
+msgid "unknown error"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/exceptions.py:269
+msgid "Could not open file {filename!r}: {message}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/parser.py:231
+msgid "Argument {name!r} takes {nargs} values."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/parser.py:413
+msgid "Option {name!r} does not take a value."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/parser.py:474
+msgid "Option {name!r} requires an argument."
+msgid_plural "Option {name!r} requires {nargs} arguments."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/shell_completion.py:319
+msgid "Shell completion is not supported for Bash versions older than 4.4."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/shell_completion.py:326
+msgid "Couldn't detect Bash version, shell completion is not supported."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:158
+msgid "Repeat for confirmation"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:174
+msgid "Error: The value you entered was invalid."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:176
+#, python-brace-format
+msgid "Error: {e.message}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:187
+msgid "Error: The two entered values do not match."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:243
+msgid "Error: invalid input"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/termui.py:773
+msgid "Press any key to continue..."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:266
+#, python-brace-format
+msgid ""
+"Choose from:\n"
+"\t{choices}"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:298
+msgid "{value!r} is not {choice}."
+msgid_plural "{value!r} is not one of {choices}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/types.py:392
+msgid "{value!r} does not match the format {format}."
+msgid_plural "{value!r} does not match the formats {formats}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/click/types.py:414
+msgid "{value!r} is not a valid {number_type}."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:470
+#, python-brace-format
+msgid "{value} is not in the range {range}."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:611
+msgid "{value!r} is not a valid boolean."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:635
+msgid "{value!r} is not a valid UUID."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:822
+msgid "file"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:824
+msgid "directory"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:826
+msgid "path"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:877
+msgid "{name} {filename!r} does not exist."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:886
+msgid "{name} {filename!r} is a file."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:894
+#, python-brace-format
+msgid "{name} '{filename}' is a directory."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:903
+msgid "{name} {filename!r} is not readable."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:912
+msgid "{name} {filename!r} is not writable."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:921
+msgid "{name} {filename!r} is not executable."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/click/types.py:988
+#, python-brace-format
+msgid "{len_type} values are required, but {len_value} was given."
+msgid_plural "{len_type} values are required, but {len_value} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/contrib/messages/apps.py:15
+msgid "Messages"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/contrib/sitemaps/apps.py:8
+msgid "Site Maps"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/contrib/staticfiles/apps.py:9
+msgid "Static Files"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/contrib/syndication/apps.py:7
+msgid "Syndication"
+msgstr ""
+
+#. Translators: String used to replace omitted page numbers in elided page
+#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
+#: env/lib/python3.11/site-packages/django/core/paginator.py:30
+msgid "…"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/paginator.py:50
+msgid "That page number is not an integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/paginator.py:52
+msgid "That page number is less than 1"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/paginator.py:54
+msgid "That page contains no results"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:22
+msgid "Enter a valid value."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:104
+#: env/lib/python3.11/site-packages/django/forms/fields.py:752
+msgid "Enter a valid URL."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:165
+msgid "Enter a valid integer."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:176
+msgid "Enter a valid email address."
+msgstr ""
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: env/lib/python3.11/site-packages/django/core/validators.py:259
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:267
+msgid ""
+"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
+"hyphens."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:279
+#: env/lib/python3.11/site-packages/django/core/validators.py:287
+#: env/lib/python3.11/site-packages/django/core/validators.py:316
+msgid "Enter a valid IPv4 address."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:296
+#: env/lib/python3.11/site-packages/django/core/validators.py:317
+msgid "Enter a valid IPv6 address."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:308
+#: env/lib/python3.11/site-packages/django/core/validators.py:315
+msgid "Enter a valid IPv4 or IPv6 address."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:351
+msgid "Enter only digits separated by commas."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:357
+#, python-format
+msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:392
+#, python-format
+msgid "Ensure this value is less than or equal to %(limit_value)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:401
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:410
+#, python-format
+msgid "Ensure this value is a multiple of step size %(limit_value)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:420
+#, python-format
+msgid ""
+"Ensure this value has at least %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at least %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:438
+#, python-format
+msgid ""
+"Ensure this value has at most %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at most %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:461
+#: env/lib/python3.11/site-packages/django/forms/fields.py:347
+#: env/lib/python3.11/site-packages/django/forms/fields.py:386
+msgid "Enter a number."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:463
+#, python-format
+msgid "Ensure that there are no more than %(max)s digit in total."
+msgid_plural "Ensure that there are no more than %(max)s digits in total."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:468
+#, python-format
+msgid "Ensure that there are no more than %(max)s decimal place."
+msgid_plural "Ensure that there are no more than %(max)s decimal places."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:473
+#, python-format
+msgid ""
+"Ensure that there are no more than %(max)s digit before the decimal point."
+msgid_plural ""
+"Ensure that there are no more than %(max)s digits before the decimal point."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:544
+#, python-format
+msgid ""
+"File extension “%(extension)s” is not allowed. Allowed extensions are: "
+"%(allowed_extensions)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/core/validators.py:605
+msgid "Null characters are not allowed."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/base.py:1423
+#: env/lib/python3.11/site-packages/django/forms/models.py:893
+msgid "and"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/base.py:1425
+#, python-format
+msgid "%(model_name)s with this %(field_labels)s already exists."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/constraints.py:17
+#, python-format
+msgid "Constraint “%(name)s” is violated."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:128
+#, python-format
+msgid "Value %(value)r is not a valid choice."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:129
+msgid "This field cannot be null."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:130
+msgid "This field cannot be blank."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:131
+#, python-format
+msgid "%(model_name)s with this %(field_label)s already exists."
+msgstr ""
+
+#. Translators: The 'lookup_type' is one of 'date', 'year' or
+#. 'month'. Eg: "Title must be unique for pub_date year"
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:135
+#, python-format
+msgid ""
+"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:173
+#, python-format
+msgid "Field of type: %(field_type)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1094
+#, python-format
+msgid "“%(value)s” value must be either True or False."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1095
+#, python-format
+msgid "“%(value)s” value must be either True, False, or None."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1097
+msgid "Boolean (Either True or False)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1147
+#, python-format
+msgid "String (up to %(max_length)s)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1149
+msgid "String (unlimited)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1253
+msgid "Comma-separated integers"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1354
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+"format."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1358
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1493
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
+"date."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1362
+msgid "Date (without time)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1489
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD HH:MM[:ss[."
+"uuuuuu]][TZ] format."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1497
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+"[TZ]) but it is an invalid date/time."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1502
+msgid "Date (with time)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1626
+#, python-format
+msgid "“%(value)s” value must be a decimal number."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1628
+msgid "Decimal number"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1789
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in [DD] [[HH:]MM:]ss[."
+"uuuuuu] format."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1793
+msgid "Duration"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1845
+msgid "Email address"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1870
+msgid "File path"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1948
+#, python-format
+msgid "“%(value)s” value must be a float."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1950
+msgid "Floating point number"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1990
+#, python-format
+msgid "“%(value)s” value must be an integer."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1992
+msgid "Integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2088
+msgid "Big (8 byte) integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2105
+msgid "Small integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2113
+msgid "IPv4 address"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2144
+msgid "IP address"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2237
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2238
+#, python-format
+msgid "“%(value)s” value must be either None, True or False."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2240
+msgid "Boolean (Either True, False or None)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2291
+msgid "Positive big integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2306
+msgid "Positive integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2321
+msgid "Positive small integer"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2337
+#, python-format
+msgid "Slug (up to %(max_length)s)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2373
+msgid "Text"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2448
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
+"format."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2452
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
+"invalid time."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2456
+msgid "Time"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2564
+msgid "URL"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2588
+msgid "Raw binary data"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2653
+#, python-format
+msgid "“%(value)s” is not a valid UUID."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2655
+msgid "Universally unique identifier"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/files.py:232
+#: idhub/templates/idhub/admin/import.html:16
+msgid "File"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/files.py:393
+msgid "Image"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/json.py:26
+msgid "A JSON object"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/json.py:28
+msgid "Value must be valid JSON."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:919
+#, python-format
+msgid "%(model)s instance with %(field)s %(value)r does not exist."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:921
+msgid "Foreign Key (type determined by related field)"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1212
+msgid "One-to-one relationship"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1269
+#, python-format
+msgid "%(from)s-%(to)s relationship"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1271
+#, python-format
+msgid "%(from)s-%(to)s relationships"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1319
+msgid "Many-to-many relationship"
+msgstr ""
+
+#. Translators: If found as last label character, these punctuation
+#. characters will prevent the default label_suffix to be appended to the label
+#: env/lib/python3.11/site-packages/django/forms/boundfield.py:184
+msgid ":?.!"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:91
+msgid "This field is required."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:298
+msgid "Enter a whole number."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:467
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1241
+msgid "Enter a valid date."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:490
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1242
+msgid "Enter a valid time."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:517
+msgid "Enter a valid date/time."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:551
+msgid "Enter a valid duration."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:552
+#, python-brace-format
+msgid "The number of days must be between {min_days} and {max_days}."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:621
+msgid "No file was submitted. Check the encoding type on the form."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:622
+msgid "No file was submitted."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:623
+msgid "The submitted file is empty."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:625
+#, python-format
+msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
+msgid_plural ""
+"Ensure this filename has at most %(max)d characters (it has %(length)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:630
+msgid "Please either submit a file or check the clear checkbox, not both."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:694
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or a "
+"corrupted image."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:857
+#: env/lib/python3.11/site-packages/django/forms/fields.py:949
+#: env/lib/python3.11/site-packages/django/forms/models.py:1566
+#, python-format
+msgid "Select a valid choice. %(value)s is not one of the available choices."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:951
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1070
+#: env/lib/python3.11/site-packages/django/forms/models.py:1564
+msgid "Enter a list of values."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1071
+msgid "Enter a complete value."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1310
+msgid "Enter a valid UUID."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/fields.py:1340
+msgid "Enter a valid JSON."
+msgstr ""
+
+#. Translators: This is the default suffix added to form field labels
+#: env/lib/python3.11/site-packages/django/forms/forms.py:98
+msgid ":"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/forms.py:244
+#: env/lib/python3.11/site-packages/django/forms/forms.py:328
+#, python-format
+msgid "(Hidden field %(name)s) %(error)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:63
+#, python-format
+msgid ""
+"ManagementForm data is missing or has been tampered with. Missing fields: "
+"%(field_names)s. You may need to file a bug report if the issue persists."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:67
+#, python-format
+msgid "Please submit at most %(num)d form."
+msgid_plural "Please submit at most %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:72
+#, python-format
+msgid "Please submit at least %(num)d form."
+msgid_plural "Please submit at least %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:484
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:491
+msgid "Order"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/formsets.py:499
+#: idhub/templates/idhub/admin/dids.html:54
+#: idhub/templates/idhub/admin/issue_credentials.html:15
+#: idhub/templates/idhub/admin/issue_credentials.html:18
+#: idhub/templates/idhub/admin/issue_credentials.html:90
+#: idhub/templates/idhub/admin/roles.html:25
+#: idhub/templates/idhub/admin/schemas.html:56
+#: idhub/templates/idhub/admin/services.html:29
+#: idhub/templates/idhub/admin/user.html:15
+#: idhub/templates/idhub/admin/user.html:120
+#: idhub/templates/idhub/admin/user_edit.html:55
+#: idhub/templates/idhub/admin/user_edit.html:87
+#: idhub/templates/idhub/user/dids.html:54
+#: idhub/templates/templates/musician/address_check_delete.html:9
+#: idhub/templates/templates/musician/address_form.html:15
+#: idhub/templates/templates/musician/mailbox_check_delete.html:12
+#: idhub/templates/templates/musician/mailbox_form.html:25
+msgid "Delete"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:886
+#, python-format
+msgid "Please correct the duplicate data for %(field)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:891
+#, python-format
+msgid "Please correct the duplicate data for %(field)s, which must be unique."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:898
+#, python-format
+msgid ""
+"Please correct the duplicate data for %(field_name)s which must be unique "
+"for the %(lookup)s in %(date_field)s."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:907
+msgid "Please correct the duplicate values below."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:1338
+msgid "The inline value did not match the parent instance."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:1429
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/models.py:1568
+#, python-format
+msgid "“%(pk)s” is not a valid value."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/utils.py:226
+#, python-format
+msgid ""
+"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
+"may be ambiguous or it may not exist."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:463
+msgid "Clear"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:464
+msgid "Currently"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:465
+msgid "Change"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:794
+msgid "Unknown"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:795
+msgid "Yes"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/forms/widgets.py:796
+msgid "No"
+msgstr ""
+
+#. Translators: Please do not add spaces around commas.
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:861
+msgid "yes,no,maybe"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:891
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:908
+#, python-format
+msgid "%(size)d byte"
+msgid_plural "%(size)d bytes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:910
+#, python-format
+msgid "%s KB"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:912
+#, python-format
+msgid "%s MB"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:914
+#, python-format
+msgid "%s GB"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:916
+#, python-format
+msgid "%s TB"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:918
+#, python-format
+msgid "%s PB"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:73
+msgid "p.m."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:74
+msgid "a.m."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:79
+msgid "PM"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:80
+msgid "AM"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:152
+msgid "midnight"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dateformat.py:154
+msgid "noon"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:7
+msgid "Monday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:8
+msgid "Tuesday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:9
+msgid "Wednesday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:10
+msgid "Thursday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:11
+msgid "Friday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:12
+msgid "Saturday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:13
+msgid "Sunday"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:16
+msgid "Mon"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:17
+msgid "Tue"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:18
+msgid "Wed"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:19
+msgid "Thu"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:20
+msgid "Fri"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:21
+msgid "Sat"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:22
+msgid "Sun"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:25
+msgid "January"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:26
+msgid "February"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:27
+msgid "March"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:28
+msgid "April"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:29
+msgid "May"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:30
+msgid "June"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:31
+msgid "July"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:32
+msgid "August"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:33
+msgid "September"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:34
+msgid "October"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:35
+msgid "November"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:36
+msgid "December"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:39
+msgid "jan"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:40
+msgid "feb"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:41
+msgid "mar"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:42
+msgid "apr"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:43
+msgid "may"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:44
+msgid "jun"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:45
+msgid "jul"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:46
+msgid "aug"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:47
+msgid "sep"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:48
+msgid "oct"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:49
+msgid "nov"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:50
+msgid "dec"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:53
+msgctxt "abbrev. month"
+msgid "Jan."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:54
+msgctxt "abbrev. month"
+msgid "Feb."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:55
+msgctxt "abbrev. month"
+msgid "March"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:56
+msgctxt "abbrev. month"
+msgid "April"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:57
+msgctxt "abbrev. month"
+msgid "May"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:58
+msgctxt "abbrev. month"
+msgid "June"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:59
+msgctxt "abbrev. month"
+msgid "July"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:60
+msgctxt "abbrev. month"
+msgid "Aug."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:61
+msgctxt "abbrev. month"
+msgid "Sept."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:62
+msgctxt "abbrev. month"
+msgid "Oct."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:63
+msgctxt "abbrev. month"
+msgid "Nov."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:64
+msgctxt "abbrev. month"
+msgid "Dec."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:67
+msgctxt "alt. month"
+msgid "January"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:68
+msgctxt "alt. month"
+msgid "February"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:69
+msgctxt "alt. month"
+msgid "March"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:70
+msgctxt "alt. month"
+msgid "April"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:71
+msgctxt "alt. month"
+msgid "May"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:72
+msgctxt "alt. month"
+msgid "June"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:73
+msgctxt "alt. month"
+msgid "July"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:74
+msgctxt "alt. month"
+msgid "August"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:75
+msgctxt "alt. month"
+msgid "September"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:76
+msgctxt "alt. month"
+msgid "October"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:77
+msgctxt "alt. month"
+msgid "November"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/dates.py:78
+msgctxt "alt. month"
+msgid "December"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/ipv6.py:8
+msgid "This is not a valid IPv6 address."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/text.py:78
+#, python-format
+msgctxt "String to return when truncating text"
+msgid "%(truncated_text)s…"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/text.py:254
+msgid "or"
+msgstr ""
+
+#. Translators: This string is used as a separator between list elements
+#: env/lib/python3.11/site-packages/django/utils/text.py:273
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:135
+msgid ", "
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:8
+#, python-format
+msgid "%(num)d year"
+msgid_plural "%(num)d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:9
+#, python-format
+msgid "%(num)d month"
+msgid_plural "%(num)d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:10
+#, python-format
+msgid "%(num)d week"
+msgid_plural "%(num)d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:11
+#, python-format
+msgid "%(num)d day"
+msgid_plural "%(num)d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:12
+#, python-format
+msgid "%(num)d hour"
+msgid_plural "%(num)d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/utils/timesince.py:13
+#, python-format
+msgid "%(num)d minute"
+msgid_plural "%(num)d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:111
+msgid "Forbidden"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:112
+msgid "CSRF verification failed. Request aborted."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:116
+msgid ""
+"You are seeing this message because this HTTPS site requires a “Referer "
+"header” to be sent by your web browser, but none was sent. This header is "
+"required for security reasons, to ensure that your browser is not being "
+"hijacked by third parties."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:122
+msgid ""
+"If you have configured your browser to disable “Referer” headers, please re-"
+"enable them, at least for this site, or for HTTPS connections, or for “same-"
+"origin” requests."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:127
+msgid ""
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
+"including the “Referrer-Policy: no-referrer” header, please remove them. The "
+"CSRF protection requires the “Referer” header to do strict referer checking. "
+"If you’re concerned about privacy, use alternatives like <a "
+"rel=\"noreferrer\" …> for links to third-party sites."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:136
+msgid ""
+"You are seeing this message because this site requires a CSRF cookie when "
+"submitting forms. This cookie is required for security reasons, to ensure "
+"that your browser is not being hijacked by third parties."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:142
+msgid ""
+"If you have configured your browser to disable cookies, please re-enable "
+"them, at least for this site, or for “same-origin” requests."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/csrf.py:148
+msgid "More information is available with DEBUG=True."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:44
+msgid "No year specified"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:64
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:115
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:214
+msgid "Date out of range"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:94
+msgid "No month specified"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:147
+msgid "No day specified"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:194
+msgid "No week specified"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:349
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:380
+#, python-format
+msgid "No %(verbose_name_plural)s available"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:652
+#, python-format
+msgid ""
+"Future %(verbose_name_plural)s not available because %(class_name)s."
+"allow_future is False."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/dates.py:692
+#, python-format
+msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/detail.py:56
+#, python-format
+msgid "No %(verbose_name)s found matching the query"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/list.py:70
+msgid "Page is not “last”, nor can it be converted to an int."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/list.py:77
+#, python-format
+msgid "Invalid page (%(page_number)s): %(message)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/generic/list.py:169
+#, python-format
+msgid "Empty list and “%(class_name)s.allow_empty” is False."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/static.py:38
+msgid "Directory indexes are not allowed here."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/static.py:40
+#, python-format
+msgid "“%(path)s” does not exist"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/static.py:79
+#, python-format
+msgid "Index of %(directory)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:7
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:220
+msgid "The install worked successfully! Congratulations!"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:206
+#, python-format
+msgid ""
+"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:221
+#, python-format
+msgid ""
+"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
+"%(version)s/ref/settings/#debug\" target=\"_blank\" "
+"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+"configured any URLs."
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:229
+msgid "Django Documentation"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:230
+msgid "Topics, references, &amp; how-to’s"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:238
+msgid "Tutorial: A Polling App"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:239
+msgid "Get started with Django"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:247
+msgid "Django Community"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:248
+msgid "Connect, get help, or contribute"
+msgstr ""
+
+#: env/lib/python3.11/site-packages/isort/main.py:158
+msgid "show this help message and exit"
+msgstr ""
+
+#: idhub/admin/views.py:39 idhub/user/views.py:33
+msgid "Dashboard"
+msgstr ""
+
+#: idhub/admin/views.py:40 idhub/user/views.py:34
+msgid "Success"
+msgstr ""
+
+#: idhub/admin/views.py:45
+msgid "People Management"
+msgstr ""
+
+#: idhub/admin/views.py:50
+msgid "Access Control Management"
+msgstr ""
+
+#: idhub/admin/views.py:55
+msgid "Credentials Management"
+msgstr ""
+
+#: idhub/admin/views.py:60
+msgid "Templates Management"
+msgstr ""
+
+#: idhub/admin/views.py:65
+msgid "Massive Data Management"
+msgstr ""
+
+#: idhub/admin/views.py:71
+msgid "People list"
+msgstr ""
+
+#: idhub/admin/views.py:84
+msgid "User Profile"
+msgstr ""
+
+#: idhub/admin/views.py:108
+msgid "Is not possible deactivate your account!"
+msgstr ""
+
+#: idhub/admin/views.py:129 idhub/admin/views.py:235
+msgid "Is not possible delete your account!"
+msgstr ""
+
+#: idhub/admin/views.py:141
+msgid "People Register"
+msgstr ""
+
+#: idhub/admin/views.py:156
+msgid "The account is created successfully"
+msgstr ""
+
+#: idhub/admin/views.py:167 idhub/admin/views.py:204
+msgid "People add membership"
+msgstr ""
+
+#: idhub/admin/views.py:242
+msgid "Add Rol to User"
+msgstr ""
+
+#: idhub/admin/views.py:272
+msgid "Edit Rol to User"
+msgstr ""
+
+#: idhub/admin/views.py:307
+msgid "Roles Management"
+msgstr ""
+
+#: idhub/admin/views.py:319 idhub/templates/idhub/admin/roles.html:31
+#: idhub/templates/idhub/admin/user_edit.html:93
+msgid "Add Rol"
+msgstr ""
+
+#: idhub/admin/views.py:329
+msgid "Edit Rol"
+msgstr ""
+
+#: idhub/admin/views.py:356
+msgid "Service Management"
+msgstr ""
+
+#: idhub/admin/views.py:368 idhub/templates/idhub/admin/services.html:35
+msgid "Add Service"
+msgstr ""
+
+#: idhub/admin/views.py:378
+msgid "Edit Service"
+msgstr ""
+
+#: idhub/admin/views.py:405
+msgid "Credentials list"
+msgstr ""
+
+#: idhub/admin/views.py:418
+msgid "Change status of Credential"
+msgstr ""
+
+#: idhub/admin/views.py:460
+msgid "Credential revoked successfully"
+msgstr ""
+
+#: idhub/admin/views.py:480
+msgid "Credential deleted successfully"
+msgstr ""
+
+#: idhub/admin/views.py:487 idhub/admin/views.py:518 idhub/admin/views.py:537
+msgid "Organization Identities (DID)"
+msgstr ""
+
+#: idhub/admin/views.py:500
+msgid "Add a new Organization Identities (DID)"
+msgstr ""
+
+#: idhub/admin/views.py:512 idhub/user/views.py:188
+msgid "DID created successfully"
+msgstr ""
+
+#: idhub/admin/views.py:532 idhub/user/views.py:208
+msgid "DID updated successfully"
+msgstr ""
+
+#: idhub/admin/views.py:547 idhub/user/views.py:223
+msgid "DID delete successfully"
+msgstr ""
+
+#: idhub/admin/views.py:554 idhub/templates/idhub/user/profile.html:51
+#: idhub/user/views.py:65
+msgid "Credentials"
+msgstr ""
+
+#: idhub/admin/views.py:561
+msgid "Configure Issues"
+msgstr ""
+
+#: idhub/admin/views.py:568
+msgid "Template List"
+msgstr ""
+
+#: idhub/admin/views.py:602
+msgid "Upload Template"
+msgstr ""
+
+#: idhub/admin/views.py:618 idhub/admin/views.py:744
+msgid "There are some errors in the file"
+msgstr ""
+
+#: idhub/admin/views.py:632
+msgid "This template already exists!"
+msgstr ""
+
+#: idhub/admin/views.py:638 idhub/admin/views.py:683
+msgid "This is not a schema valid!"
+msgstr ""
+
+#: idhub/admin/views.py:647
+msgid "Import Template"
+msgstr ""
+
+#: idhub/admin/views.py:675
+msgid "The schema add successfully!"
+msgstr ""
+
+#: idhub/admin/views.py:700 idhub/admin/views.py:713 idhub/admin/views.py:726
+msgid "Import"
+msgstr ""
+
+#: idhub/admin/views.py:755
+msgid "There aren't file"
+msgstr ""
+
+#: idhub/admin/views.py:760
+msgid "This file already exists!"
+msgstr ""
+
+#: idhub/admin/views.py:799
+msgid "The user not exist!"
+msgstr ""
+
+#: idhub/models.py:57
+msgid "Enabled"
+msgstr ""
+
+#: idhub/models.py:58
+msgid "Issued"
+msgstr ""
+
+#: idhub/models.py:59
+msgid "Revoked"
+msgstr ""
+
+#: idhub/models.py:60
+msgid "Expired"
+msgstr ""
+
+#: idhub/models.py:118
+msgid "Beneficiary"
+msgstr ""
+
+#: idhub/models.py:119
+msgid "Employee"
+msgstr ""
+
+#: idhub/models.py:120
+msgid "Partner"
+msgstr ""
+
+#: idhub/models.py:122
+msgid "Type of membership"
+msgstr ""
+
+#: idhub/models.py:124
+msgid "Start date"
+msgstr ""
+
+#: idhub/models.py:125
+msgid "What date did the membership start?"
+msgstr ""
+
+#: idhub/models.py:130
+msgid "End date"
+msgstr ""
+
+#: idhub/models.py:131
+msgid "What date did the membership end?"
+msgstr ""
+
+#: idhub/models.py:183
+msgid "Url where to send the presentation"
+msgstr ""
+
+#: idhub/templates/auth/login.html:47
+msgid "Log in"
+msgstr ""
+
+#: idhub/templates/auth/login.html:52
+msgid "Forgot your password? Click here to recover"
+msgstr ""
+
+#: idhub/templates/auth/login_base.html:91
+msgid "Forgot your password?"
+msgstr ""
+
+#: idhub/templates/auth/login_base.html:97
+#, python-format
+msgid ""
+"Send an email to <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
+"including your username and we will provide instructions."
+msgstr ""
+
+#: idhub/templates/auth/password_reset.html:8
+msgid "Password reset"
+msgstr ""
+
+#: idhub/templates/auth/password_reset.html:9
+msgid ""
+"Forgotten your password? Enter your email address below, and we'll email "
+"instructions for setting a new one."
+msgstr ""
+
+#: idhub/templates/auth/password_reset.html:21
+msgid "Reset my password"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_complete.html:9
+msgid "Password reset complete"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_complete.html:10
+msgid "Your password has been set. You may go ahead and log in now."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_complete.html:11 idhub/views.py:9
+msgid "Login"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:9
+msgid "Enter new password"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:10
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:21
+msgid "Change my password"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:29
+msgid "Password reset unsuccessful"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:30
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_confirm.html:31
+msgid "Please request a new password reset."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_done.html:7
+msgid "Password reset sent"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_done.html:9
+msgid ""
+"We've emailed you instructions for setting your password, if an account "
+"exists with the email you entered. You should receive them shortly."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_done.html:11
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with, and check your spam folder."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_email.html:3
+#: idhub/templates/auth/password_reset_email.txt:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+
+#: idhub/templates/auth/password_reset_email.html:7
+#: idhub/templates/auth/password_reset_email.txt:4
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_email.html:19
+#: idhub/templates/auth/password_reset_email.txt:8
+msgid "Your username, in case you've forgotten:"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_email.html:23
+#: idhub/templates/auth/password_reset_email.txt:10
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:24
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:15
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_email.html:27
+#: idhub/templates/auth/password_reset_email.txt:12
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: idhub/templates/auth/password_reset_subject.txt:2
+#, python-format
+msgid "Password reset on %(site_name)s"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:15
+#: idhub/templates/idhub/user/credentials.html:15
+#: idhub/templates/templates/musician/billing.html:21
+#: idhub/templates/templates/musician/databases.html:17
+#: idhub/templates/templates/musician/domain_detail.html:17
+msgid "Type"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:16
+#: idhub/templates/idhub/user/credentials.html:16
+msgid "Details"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:17
+#: idhub/templates/idhub/user/credentials.html:17
+msgid "Issue"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:18
+#: idhub/templates/idhub/user/credentials.html:18
+msgid "Status"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:19
+msgid "User"
+msgstr ""
+
+#: idhub/templates/idhub/admin/credentials.html:31
+#: idhub/templates/idhub/admin/people.html:37
+#: idhub/templates/idhub/admin/schemas.html:30
+msgid "View"
+msgstr ""
+
+#: idhub/templates/idhub/admin/did_register.html:29
+#: idhub/templates/idhub/admin/import_step3.html:27
+#: idhub/templates/idhub/admin/people_membership_register.html:29
+#: idhub/templates/idhub/admin/people_register.html:25
+#: idhub/templates/idhub/admin/people_rol_register.html:29
+#: idhub/templates/idhub/admin/rol_register.html:29
+#: idhub/templates/idhub/admin/schemas_new.html:27
+#: idhub/templates/idhub/admin/service_register.html:29
+#: idhub/templates/idhub/admin/user_edit.html:27
+#: idhub/templates/idhub/user/credentials_presentation.html:29
+#: idhub/templates/idhub/user/credentials_request.html:29
+#: idhub/templates/idhub/user/did_register.html:29
+#: idhub/templates/idhub/user/profile.html:35
+#: idhub/templates/templates/musician/address_check_delete.html:10
+#: idhub/templates/templates/musician/address_form.html:11
+#: idhub/templates/templates/musician/mailbox_change_password.html:11
+#: idhub/templates/templates/musician/mailbox_check_delete.html:13
+#: idhub/templates/templates/musician/mailbox_form.html:20
+msgid "Cancel"
+msgstr ""
+
+#: idhub/templates/idhub/admin/did_register.html:30
+#: idhub/templates/idhub/admin/import_step3.html:28
+#: idhub/templates/idhub/admin/people_membership_register.html:30
+#: idhub/templates/idhub/admin/people_register.html:26
+#: idhub/templates/idhub/admin/people_rol_register.html:30
+#: idhub/templates/idhub/admin/rol_register.html:30
+#: idhub/templates/idhub/admin/schemas_new.html:28
+#: idhub/templates/idhub/admin/service_register.html:30
+#: idhub/templates/idhub/admin/user_edit.html:28
+#: idhub/templates/idhub/user/did_register.html:30
+#: idhub/templates/idhub/user/profile.html:36
+#: idhub/templates/templates/musician/address_form.html:12
+#: idhub/templates/templates/musician/mailbox_change_password.html:12
+#: idhub/templates/templates/musician/mailbox_form.html:21
+msgid "Save"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:15
+#: idhub/templates/idhub/user/dids.html:15
+msgid "Date"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:16
+#: idhub/templates/idhub/user/dids.html:16
+msgid "Label"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:28
+#: idhub/templates/idhub/admin/roles.html:24
+#: idhub/templates/idhub/admin/services.html:28
+#: idhub/templates/idhub/admin/user_edit.html:54
+#: idhub/templates/idhub/admin/user_edit.html:86
+#: idhub/templates/idhub/user/dids.html:28
+msgid "Edit"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:29
+#: idhub/templates/idhub/admin/schemas.html:31
+#: idhub/templates/idhub/user/dids.html:29
+msgid "Remove"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:35
+#: idhub/templates/idhub/user/dids.html:35
+msgid "Add Identity"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:46
+#: idhub/templates/idhub/user/dids.html:46
+msgid "Delete DID"
+msgstr ""
+
+#: idhub/templates/idhub/admin/dids.html:50
+#: idhub/templates/idhub/user/dids.html:50
+msgid "Are you sure that you want delete this DID?"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import.html:15
+#: idhub/templates/idhub/admin/import_step2.html:15
+#: idhub/templates/idhub/admin/schemas.html:15
+msgid "Created at"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import.html:17
+msgid "success"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import.html:31
+msgid "Import Datas"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import_step2.html:16
+#: idhub/templates/idhub/admin/schemas.html:16
+msgid "Template file"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import_step2.html:26
+msgid "Import Dates"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:14
+#: idhub/templates/idhub/admin/issue_credentials.html:72
+msgid "Revoke"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:54
+#: idhub/templates/idhub/user/credential.html:41
+msgid "View in JSON format"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:64
+msgid "Revoke credential"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:68
+msgid "Are you sure that you want revoke this credential?"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:82
+msgid "Delete credential"
+msgstr ""
+
+#: idhub/templates/idhub/admin/issue_credentials.html:86
+msgid "Are you sure that you want delete this Credential?"
+msgstr ""
+
+#: idhub/templates/idhub/admin/people.html:13
+msgid "Last name"
+msgstr ""
+
+#: idhub/templates/idhub/admin/people.html:14
+msgid "First name"
+msgstr ""
+
+#: idhub/templates/idhub/admin/people.html:16
+#: idhub/templates/idhub/admin/user.html:62
+#: idhub/templates/idhub/admin/user_edit.html:41
+#: idhub/templates/idhub/user/profile.html:48
+msgid "Membership"
+msgstr ""
+
+#: idhub/templates/idhub/admin/people.html:17
+msgid "Role"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:2
+#: idhub/templates/idhub/admin/registration/activate_user_subject.txt:2
+msgid "IdHub"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:4
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:5
+#, python-format
+msgid ""
+"You're receiving this email because your user account at %(site)s has been "
+"activated."
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:8
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:7
+msgid "Your username is:"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:12
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:9
+msgid "Please go to the following page and choose a password:"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:28
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:17
+#, python-format
+msgid "The %(site)s team"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:3
+msgid "Idhub"
+msgstr ""
+
+#: idhub/templates/idhub/admin/registration/activate_user_subject.txt:3
+#, python-format
+msgid "User activation on %(site)s"
+msgstr ""
+
+#: idhub/templates/idhub/admin/roles.html:15
+#: idhub/templates/idhub/admin/services.html:17
+#: idhub/templates/idhub/admin/user.html:87
+#: idhub/templates/idhub/admin/user_edit.html:73
+#: idhub/templates/idhub/user/roles.html:15
+msgid "Rol"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas.html:17
+#: idhub/templates/templates/musician/mailboxes.html:14
+msgid "Name"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas.html:18
+#: idhub/templates/idhub/admin/services.html:16
+#: idhub/templates/idhub/admin/user.html:88
+#: idhub/templates/idhub/admin/user_edit.html:74
+#: idhub/templates/idhub/user/roles.html:16
+msgid "Description"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas.html:37
+msgid "Add Template"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas.html:48
+msgid "Delete Template"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas.html:52
+msgid "Are you sure that you want delete this template?"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas_import.html:15
+msgid "Template available"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas_import.html:23
+msgid "Add"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas_import.html:29
+msgid "Add template"
+msgstr ""
+
+#: idhub/templates/idhub/admin/services.html:15
+#: idhub/templates/idhub/admin/user.html:89
+#: idhub/templates/idhub/admin/user_edit.html:75
+#: idhub/templates/idhub/user/roles.html:17
+msgid "Service"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:13
+msgid "Modify"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:14
+msgid "Deactivate"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:14
+msgid "Activate"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:63
+#: idhub/templates/idhub/admin/user_edit.html:42
+#: idhub/templates/idhub/user/profile.html:49
+msgid "From"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:64
+#: idhub/templates/idhub/admin/user_edit.html:43
+#: idhub/templates/idhub/user/profile.html:50
+msgid "To"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:112
+msgid "Delete user"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user.html:116
+msgid "Are you sure that you want delete this user?"
+msgstr ""
+
+#: idhub/templates/idhub/admin/user_edit.html:61
+msgid "Add membership"
+msgstr ""
+
+#: idhub/templates/idhub/user/credentials_presentation.html:30
+msgid "Send"
+msgstr ""
+
+#: idhub/templates/idhub/user/credentials_request.html:30
+msgid "Request"
+msgstr ""
+
+#: idhub/templates/idhub/user/profile.html:13
+msgid "ARCO Forms"
+msgstr ""
+
+#: idhub/templates/idhub/user/profile.html:14
+msgid "Notice of Privacy"
+msgstr ""
+
+#: idhub/templates/templates/musician/address_check_delete.html:7
+#, python-format
+msgid "Are you sure that you want remove the address: \"%(address_name)s\"?"
+msgstr ""
+
+#: idhub/templates/templates/musician/address_check_delete.html:8
+#: idhub/templates/templates/musician/mailbox_check_delete.html:11
+msgid "WARNING: This action cannot be undone."
+msgstr ""
+
+#: idhub/templates/templates/musician/addresses.html:15
+msgid "Email"
+msgstr ""
+
+#: idhub/templates/templates/musician/addresses.html:16
+msgid "Domain"
+msgstr ""
+
+#: idhub/templates/templates/musician/addresses.html:17
+#: idhub/templates/templates/musician/mail_base.html:22
+msgid "Mailboxes"
+msgstr ""
+
+#: idhub/templates/templates/musician/addresses.html:18
+msgid "Forward"
+msgstr ""
+
+#: idhub/templates/templates/musician/addresses.html:38
+msgid "New mail address"
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:6
+msgid "Billing"
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:7
+msgid "Billing page description."
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:19
+msgid "Number"
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:20
+msgid "Bill date"
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:22
+msgid "Total"
+msgstr ""
+
+#: idhub/templates/templates/musician/billing.html:23
+msgid "Download PDF"
+msgstr ""
+
+#: idhub/templates/templates/musician/components/table_paginator.html:15
+msgid "Previous"
+msgstr ""
+
+#: idhub/templates/templates/musician/components/table_paginator.html:29
+msgid "Next"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:6
+msgid "Welcome back"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:8
+#, python-format
+msgid "Last time you logged in was: %(last_login)s"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:10
+msgid "It's the first time you log into the system, welcome on board!"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:29
+msgid "Notifications"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:33
+msgid "There is no notifications at this time."
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:40
+msgid "Your domains and websites"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:41
+msgid "Dashboard page description."
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:56
+msgid "view configuration"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:63
+msgid "Expiration date"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:70
+msgid "Mail"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:73
+msgid "mail addresses created"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:78
+msgid "Mail list"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:83
+msgid "Software as a Service"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:85
+msgid "Nothing installed"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:90
+msgid "Disk usage"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:107
+msgid "Configuration details"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:114
+msgid "FTP access:"
+msgstr ""
+
+#. Translators: domain configuration detail modal
+#: idhub/templates/templates/musician/dashboard.html:116
+msgid "Contact with the support team to get details concerning FTP access."
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:125
+msgid "No website configured."
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:127
+msgid "Root directory:"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:128
+msgid "Type:"
+msgstr ""
+
+#: idhub/templates/templates/musician/dashboard.html:133
+msgid "View DNS records"
+msgstr ""
+
+#: idhub/templates/templates/musician/databases.html:21
+msgid "associated to"
+msgstr ""
+
+#: idhub/templates/templates/musician/databases.html:34
+msgid "No users for this database."
+msgstr ""
+
+#: idhub/templates/templates/musician/databases.html:45
+msgid "Open database manager"
+msgstr ""
+
+#. Translators: database page when there isn't any database.
+#. Translators: saas page when there isn't any saas.
+#: idhub/templates/templates/musician/databases.html:58
+#: idhub/templates/templates/musician/saas.html:49
+msgid "Ooops! Looks like there is nothing here!"
+msgstr ""
+
+#: idhub/templates/templates/musician/domain_detail.html:5
+msgid "Go back"
+msgstr ""
+
+#: idhub/templates/templates/musician/domain_detail.html:7
+msgid "DNS settings for"
+msgstr ""
+
+#: idhub/templates/templates/musician/domain_detail.html:8
+msgid "DNS settings page description."
+msgstr ""
+
+#: idhub/templates/templates/musician/domain_detail.html:18
+msgid "Value"
+msgstr ""
+
+#: idhub/templates/templates/musician/mail_base.html:6
+#: idhub/templates/templates/musician/mailinglists.html:6
+msgid "Go to global"
+msgstr ""
+
+#: idhub/templates/templates/musician/mail_base.html:10
+#: idhub/templates/templates/musician/mailinglists.html:9
+msgid "for"
+msgstr ""
+
+#: idhub/templates/templates/musician/mail_base.html:18
+#: idhub/templates/templates/musician/mailboxes.html:16
+msgid "Addresses"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_change_password.html:5
+#: idhub/templates/templates/musician/mailbox_form.html:24
+msgid "Change password"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_check_delete.html:7
+#, python-format
+msgid "Are you sure that you want remove the mailbox: \"%(name)s\"?"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_check_delete.html:9
+msgid ""
+"All mailbox's messages will be <strong>deleted and cannot be recovered</"
+"strong>."
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_form.html:9
+msgid "Warning!"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_form.html:9
+msgid ""
+"You have reached the limit of mailboxes of your subscription so "
+"<strong>extra fees</strong> may apply."
+msgstr ""
+
+#: idhub/templates/templates/musician/mailbox_form.html:10
+msgid "Close"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailboxes.html:15
+msgid "Filtering"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailboxes.html:27
+msgid "Update password"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailboxes.html:43
+msgid "New mailbox"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailinglists.html:34
+msgid "Active"
+msgstr ""
+
+#: idhub/templates/templates/musician/mailinglists.html:36
+msgid "Inactive"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:6
+msgid "Profile"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:7
+msgid "Little description on profile page."
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:11
+msgid "User information"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:21
+msgid "Preferred language:"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:35
+msgid "Billing information"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:49
+msgid "payment method:"
+msgstr ""
+
+#: idhub/templates/templates/musician/profile.html:60
+msgid "Check your last bills"
+msgstr ""
+
+#: idhub/templates/templates/musician/saas.html:18
+msgid "Installed on"
+msgstr ""
+
+#: idhub/templates/templates/musician/saas.html:29
+msgid "Service info"
+msgstr ""
+
+#: idhub/templates/templates/musician/saas.html:30
+msgid "active"
+msgstr ""
+
+#: idhub/templates/templates/musician/saas.html:37
+msgid "Open service admin panel"
+msgstr ""
+
+#: idhub/user/views.py:22
+msgid "My profile"
+msgstr ""
+
+#: idhub/user/views.py:27
+msgid "My Wallet"
+msgstr ""
+
+#: idhub/user/views.py:41
+msgid "My personal Data"
+msgstr ""
+
+#: idhub/user/views.py:53
+msgid "My roles"
+msgstr ""
+
+#: idhub/user/views.py:59
+msgid "GDPR info"
+msgstr ""
+
+#: idhub/user/views.py:78
+msgid "Credential"
+msgstr ""
+
+#: idhub/user/views.py:114
+msgid "Credentials request"
+msgstr ""
+
+#: idhub/user/views.py:127
+msgid "The credential was required successfully!"
+msgstr ""
+
+#: idhub/user/views.py:129
+msgid "Not exists the credential!"
+msgstr ""
+
+#: idhub/user/views.py:135
+msgid "Credentials Presentation"
+msgstr ""
+
+#: idhub/user/views.py:148
+msgid "The credential was presented successfully!"
+msgstr ""
+
+#: idhub/user/views.py:150
+msgid "Error sending credential!"
+msgstr ""
+
+#: idhub/user/views.py:156 idhub/user/views.py:194 idhub/user/views.py:213
+msgid "Identities (DID)"
+msgstr ""
+
+#: idhub/user/views.py:169
+msgid "Add a new Identities (DID)"
+msgstr ""
