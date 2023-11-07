@@ -6,4 +6,5 @@ python-decouple==3.8
 jsonschema==4.19.1
 pandas==2.1.1
 requests==2.31.0
-
+jsonref==1.1.0
+pyld==2.0.3
