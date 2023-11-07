@@ -16,7 +16,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from apiregiter import iota
+from utils.apiregiter import iota
+from utils import credtools
 from idhub_auth.models import User
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
