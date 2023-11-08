@@ -1,5 +1,4 @@
 import os
-import csv
 import json
 import copy
 import logging
@@ -11,7 +10,12 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.views.generic.edit import (
+    CreateView,
+    DeleteView,
+    FormView,
+    UpdateView,
+)
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
@@ -61,7 +65,7 @@ class SchemasMix(AdminView, TemplateView):
     section = "Templates"
 
 
-class ImportExport(AdminView, TemplateView):
+class ImportExport(AdminView):
     title = _("Massive Data Management")
     section = "ImportExport"
 
@@ -695,7 +699,7 @@ class SchemasImportAddView(SchemasMix):
         return data
 
 
-class ImportView(ImportExport):
+class ImportView(ImportExport, TemplateView):
     template_name = "idhub/admin/import.html"
     subtitle = _('Import')
     icon = ''
@@ -708,7 +712,7 @@ class ImportView(ImportExport):
         return context
 
 
-class ImportStep2View(ImportExport):
+class ImportStep2View(ImportExport, TemplateView):
     template_name = "idhub/admin/import_step2.html"
     subtitle = _('Import')
     icon = ''
@@ -721,93 +725,23 @@ class ImportStep2View(ImportExport):
         return context
 
 
-class ImportStep3View(ImportExport):
-    template_name = "idhub/admin/import_step3.html"
+class ImportAddView(ImportExport, FormView):
+    template_name = "idhub/admin/import_add.html"
     subtitle = _('Import')
     icon = ''
+    form_class = ImportForm
     success_url = reverse_lazy('idhub:admin_import')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'form': ImportForm(),
-        })
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.schema = get_object_or_404(Schemas, pk=self.pk)
-        form = ImportForm(request.POST, request.FILES)
-        if form.is_valid():
-            result = self.handle_uploaded_file()
-            if not result:
-                messages.error(request, _("There are some errors in the file"))
-                return super().get(request, *args, **kwargs)
-            return redirect(self.success_url)
+    def form_valid(self, form):
+        cred = form.save()
+        if cred:
+            messages.success(self.request, _("The file import was successfully!"))
         else:
-            return super().get(request, *args, **kwargs)
-
-        return super().post(request, *args, **kwargs)
-
-    def handle_uploaded_file(self):
-        f = self.request.FILES.get('file_import')
-        if not f:
-            messages.error(self.request, _("There aren't file"))
-            return
-
-        file_name = f.name
-        if File_datas.objects.filter(file_name=file_name, success=True).exists():
-            messages.error(self.request, _("This file already exists!"))
-            return
-
-        self.json_schema = json.loads(self.schema.data)
-        df = pd.read_csv (f, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
-        data_pd = df.fillna('').to_dict()
-        rows = {}
-
-        if not data_pd:
-            File_datas.objects.create(file_name=file_name, success=False)
-            return
-
-        for n in range(df.last_valid_index()+1):
-            row = {}
-            for k in data_pd.keys():
-                row[k] = data_pd[k][n]
-
-            user = self.validate(n, row)
-            if not user:
-                File_datas.objects.create(file_name=file_name, success=False)
-                return
-
-            rows[user] = row
-
-        File_datas.objects.create(file_name=file_name)
-        for k, v in rows.items():
-            self.create_credential(k, v)
-
-        return True
-
-    def validate(self, line, row):
-        try:
-            validate(instance=row, schema=self.json_schema)
-        except Exception as e:
-            messages.error(self.request, "line {}: {}".format(line+1, e))
-            return
-
-        user = User.objects.filter(email=row.get('email'))
-        if not user:
-            txt = _('The user not exist!')
-            messages.error(self.request, "line {}: {}".format(line+1, txt))
-            return
-
-        return user.first()
-
-    def create_credential(self, user, row):
-        d = copy.copy(self.json_schema)
-        d['instance'] = row
-        return VerificableCredential.objects.create(
-            verified=False,
-            user=user,
-            data=json.dumps(d)
-        )
+            messages.error(self.request, _("Error importing the file!"))
+        return super().form_valid(form)
 
