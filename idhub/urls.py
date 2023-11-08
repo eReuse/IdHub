@@ -169,8 +169,6 @@ urlpatterns = [
         name='admin_schemas_import_add'),
     path('admin/import', views_admin.ImportView.as_view(),
         name='admin_import'),
-    path('admin/import/new', views_admin.ImportStep2View.as_view(),
-        name='admin_import_step2'),
-    path('admin/import/<int:pk>/', views_admin.ImportStep3View.as_view(),
-        name='admin_import_step3'),
+    path('admin/import/new', views_admin.ImportAddView.as_view(),
+        name='admin_import_add'),
 ]
