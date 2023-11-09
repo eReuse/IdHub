@@ -47,6 +47,16 @@ class ProfileView(MyProfile, UpdateView):
     def get_object(self):
         return self.request.user
 
+    def get_form(self):
+        form = super().get_form()
+        form.fields['first_name'].disabled = True
+        form.fields['last_name'].disabled = True
+        form.fields['email'].disabled = True
+        return form
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
 
 class RolesView(MyProfile, TemplateView):
     template_name = "idhub/user/roles.html"
