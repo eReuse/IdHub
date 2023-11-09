@@ -5,12 +5,383 @@ from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
 
 
-# class Event(models.Model):
-    # Para los "audit logs" que se requieren en las pantallas.
-    # timestamp = models.DateTimeField()
-    # Los eventos no tienen relación con otros objetos a nivel de BBDD.
-    # event_data = models.CharField(max_length=250)
+class Event(models.Model):
+    class Types(models.IntegerChoices):
+        EV_USR_REGISTERED = 1, "EV_USR_REGISTERED"
+        EV_USR_WELCOME = 2, "EV_USR_WELCOME"
+        EV_DATA_UPDATE_REQUESTED_BY_USER = 3, "EV_DATA_UPDATE_REQUESTED_BY_USER"
+        EV_DATA_UPDATE_REQUESTED = 4, "EV_DATA_UPDATE_REQUESTED"
+        EV_USR_UPDATED_BY_ADMIN = 5, "EV_USR_UPDATED_BY_ADMIN"
+        EV_USR_UPDATED = 6, "EV_USR_UPDATED"
+        EV_USR_DELETED_BY_ADMIN = 7, "EV_USR_DELETED_BY_ADMIN"
+        EV_DID_CREATED_BY_USER = 8, "EV_DID_CREATED_BY_USER"
+        EV_DID_CREATED = 9, "EV_DID_CREATED"
+        EV_DID_DELETED = 10, "EV_DID_DELETED"
+        EV_CREDENTIAL_DELETED_BY_ADMIN = 11, "EV_CREDENTIAL_DELETED_BY_ADMIN"
+        EV_CREDENTIAL_DELETED = 12, "EV_CREDENTIAL_DELETED"
+        EV_CREDENTIAL_ISSUED_FOR_USER = 13, "EV_CREDENTIAL_ISSUED_FOR_USER"
+        EV_CREDENTIAL_ISSUED = 14, "EV_CREDENTIAL_ISSUED"
+        EV_CREDENTIAL_PRESENTED_BY_USER = 15, "EV_CREDENTIAL_PRESENTED_BY_USER"
+        EV_CREDENTIAL_PRESENTED = 16, "EV_CREDENTIAL_PRESENTED"
+        EV_CREDENTIAL_ENABLED = 17, "EV_CREDENTIAL_ENABLED"
+        EV_CREDENTIAL_CAN_BE_REQUESTED = 18, "EV_CREDENTIAL_CAN_BE_REQUESTED"
+        EV_CREDENTIAL_REVOKED_BY_ADMIN = 19, "EV_CREDENTIAL_REVOKED_BY_ADMIN"
+        EV_CREDENTIAL_REVOKED = 20, "EV_CREDENTIAL_REVOKED"
+        EV_ROLE_CREATED_BY_ADMIN = 21, "EV_ROLE_CREATED_BY_ADMIN"
+        EV_ROLE_MODIFIED_BY_ADMIN = 22, "EV_ROLE_MODIFIED_BY_ADMIN"
+        EV_ROLE_DELETED_BY_ADMIN = 23, "EV_ROLE_DELETED_BY_ADMIN"
+        EV_SERVICE_CREATED_BY_ADMIN = 24, "EV_SERVICE_CREATED_BY_ADMIN"
+        EV_SERVICE_MODIFIED_BY_ADMIN = 25, "EV_SERVICE_MODIFIED_BY_ADMIN"
+        EV_SERVICE_DELETED_BY_ADMIN = 26, "EV_SERVICE_DELETED_BY_ADMIN"
+        EV_ORG_DID_CREATED_BY_ADMIN = 27, "EV_ORG_DID_CREATED_BY_ADMIN"
+        EV_ORG_DID_DELETED_BY_ADMIN = 28, "EV_ORG_DID_DELETED_BY_ADMIN"
+        EV_USR_DEACTIVATED_BY_ADMIN = 29, "EV_USR_DEACTIVATED_BY_ADMIN"
+        EV_USR_ACTIVATED_BY_ADMIN = 30, "EV_USR_ACTIVATED_BY_ADMIN"
 
+    created = models.DateTimeField(auto_now=True)
+    message = models.CharField(max_length=350)
+    type = models.PositiveSmallIntegerField(
+        choices=Types.choices,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='events',
+        null=True,
+    )
+
+    def get_type(self):
+        return self.Types(self.type).label
+
+    @classmethod
+    def set_EV_USR_REGISTERED(cls, user):
+        msg = "The user {} was registered: name: {}, last name: {}".format(
+            user.username,
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_REGISTERED,
+            message=msg
+        )
+
+    @classmethod
+    def set_EV_USR_WELCOME(cls, user):
+        msg = "Welcome. You has been registered: name: {}, last name: {}".format(
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_WELCOME,
+            message=msg,
+            user=user
+        )
+        
+    # Is required?
+    @classmethod
+    def set_EV_DATA_UPDATE_REQUESTED_BY_USER(cls, user):
+        msg = "The user '{}' has request the update of the following information: "
+        msg += "['field1':'value1', 'field2':'value2'>,...]".format(
+            user.username,
+        )
+        cls.objects.create(
+            type=cls.Types.EV_DATA_UPDATE_REQUESTED_BY_USER,
+            message=msg,
+        )
+        
+    # Is required?
+    @classmethod
+    def set_EV_DATA_UPDATE_REQUESTED(cls, user):
+        msg = "You have requested the update of the following information: "
+        msg += "['field1':'value1', 'field2':'value2'>,...]"
+        cls.objects.create(
+            type=cls.Types.EV_DATA_UPDATE_REQUESTED,
+            message=msg,
+            user=user
+        )
+        
+    @classmethod
+    def set_EV_USR_UPDATED_BY_ADMIN(cls, user):
+        msg = "The admin has updated the following user 's information: "
+        msg += "name: {}, last name: {}".format(
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_UPDATED_BY_ADMIN,
+            message=msg
+        )
+
+    @classmethod
+    def set_EV_USR_UPDATED(cls, user):
+        msg = "The admin has updated your personal information: "
+        msg += "name: {}, last name: {}".format(
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_UPDATED,
+            message=msg,
+            user=user
+        )
+        
+    @classmethod
+    def set_EV_USR_DELETED_BY_ADMIN(cls, user):
+        msg = "The admin has deleted the user: username: {}".format(
+            user.username,
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_DELETED_BY_ADMIN,
+            message=msg
+        )
+        
+    @classmethod
+    def set_EV_DID_CREATED_BY_USER(cls, did):
+        msg = "New DID with DID-ID: '{}' created by user '{}'".format(
+            did.did,
+            did.user.username
+        )
+        cls.objects.create(
+            type=cls.Types.EV_DID_CREATED_BY_USER,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_DID_CREATED(cls, did):
+        msg = "New DID with label: '{}' and DID-ID: '{}' was created'".format(
+            did.label,
+            did.did
+        )
+        cls.objects.create(
+            type=cls.Types.EV_DID_CREATED,
+            message=msg,
+            user=did.user
+        )
+        
+    @classmethod
+    def set_EV_DID_DELETED(cls, did):
+        msg = "The DID with label '{}' and DID-ID: '{}' was deleted from your wallet".format( 
+            did.label,
+            did.did
+        )
+        cls.objects.create(
+            type=cls.Types.EV_DID_DELETED,
+            message=msg,
+            user=did.user
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_DELETED_BY_ADMIN(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was deleted".format(
+            cred.type(),
+            cred.id,
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_DELETED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_DELETED(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was deleted from your wallet".format(
+            cred.type(),
+            cred.id
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_DELETED,
+            message=msg,
+            user=cred.user
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_ISSUED_FOR_USER(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was issued for user {}".format(
+            cred.type(),
+            cred.id,
+            cred.user.username
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_ISSUED_FOR_USER,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_ISSUED(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was issued and stored in your wallet".format(
+            cred.type(),
+            cred.id
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_ISSUED,
+            message=msg,
+            user=cred.user
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_PRESENTED_BY_USER(cls, cred, verifier):
+        msg = "The credential of type '{}' and ID: '{}' was presented by user {} to verifier '{}".format(
+            cred.type(),
+            cred.id,
+            cred.user.username,
+            verifier
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_PRESENTED_BY_USER,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_PRESENTED(cls, cred, verifier):
+        msg = "The credential of type '{}' and ID: '{}' was presented to verifier '{}'".format(
+            cred.type(),
+            cred.id,
+            verifier
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_PRESENTED,
+            message=msg,
+            user=cred.user
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_ENABLED(cls, cred):
+        msg = "The credential of type '{}' was enabled for user {}".format(
+            cred.type(),
+            cred.user.username
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_ENABLED,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_CAN_BE_REQUESTED(cls, cred):
+        msg = "You can request the '{}' credential".format(
+            cred.type()
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_CAN_BE_REQUESTED,
+            message=msg,
+            user=cred.user
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_REVOKED_BY_ADMIN(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was revoked for ".format(
+            cred.type(),
+            cred.id
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_REVOKED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_CREDENTIAL_REVOKED(cls, cred):
+        msg = "The credential of type '{}' and ID: '{}' was revoked by admin".format(
+            cred.type(),
+            cred.id
+        )
+        cls.objects.create(
+            type=cls.Types.EV_CREDENTIAL_REVOKED,
+            message=msg,
+            user=cred.user
+        )
+        
+    @classmethod
+    def set_EV_ROLE_CREATED_BY_ADMIN(cls):
+        msg = 'A new role was created by admin'
+        cls.objects.create(
+            type=cls.Types.EV_ROLE_CREATED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_ROLE_MODIFIED_BY_ADMIN(cls):
+        msg = 'The role was modified by admin'
+        cls.objects.create(
+            type=cls.Types.EV_ROLE_MODIFIED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_ROLE_DELETED_BY_ADMIN(cls):
+        msg = 'The role was removed by admin'
+        cls.objects.create(
+            type=cls.Types.EV_ROLE_DELETED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_SERVICE_CREATED_BY_ADMIN(cls):
+        msg = 'A new service was created by admin'
+        cls.objects.create(
+            type=cls.Types.EV_SERVICE_CREATED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_SERVICE_MODIFIED_BY_ADMIN(cls):
+        msg = 'The service was modified by admin'
+        cls.objects.create(
+            type=cls.Types.EV_SERVICE_MODIFIED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_SERVICE_DELETED_BY_ADMIN(cls):
+        msg = 'The service was removed by admin'
+        cls.objects.create(
+            type=cls.Types.EV_SERVICE_DELETED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_ORG_DID_CREATED_BY_ADMIN(cls, did):
+        msg = "New Organisational DID with label: '{}' and DID-ID: '{}' was created".format(
+            did.label,
+            did.did
+        )
+        cls.objects.create(
+            type=cls.Types.EV_ORG_DID_CREATED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_ORG_DID_DELETED_BY_ADMIN(cls, did):
+        msg = "Organisational DID with label: '{}' and DID-ID: '{}' was removed".format(
+            did.label,
+            did.did
+        )
+        cls.objects.create(
+            type=cls.Types.EV_ORG_DID_DELETED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_USR_DEACTIVATED_BY_ADMIN(cls, user):
+        msg = "The user '{}' was temporarily deactivated: [name:'{}', last name:'{}']".format(
+            user.username,
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_DEACTIVATED_BY_ADMIN,
+            message=msg,
+        )
+        
+    @classmethod
+    def set_EV_USR_ACTIVATED_BY_ADMIN(cls, user):
+        msg = "The user '{}' was activated: [name:'{}', last name:'{}']".format(
+            user.username,
+            user.first_name,
+            user.last_name
+        )
+        cls.objects.create(
+            type=cls.Types.EV_USR_ACTIVATED_BY_ADMIN,
+            message=msg,
+        )
+        
 
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)

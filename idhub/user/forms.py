@@ -72,23 +72,23 @@ class CredentialPresentationForm(forms.Form):
         ]
 
     def save(self, commit=True):
-        org = Organization.objects.filter(
+        self.org = Organization.objects.filter(
             id=self.data['organization']
         )
-        cred = VerificableCredential.objects.filter(
+        self.cred = VerificableCredential.objects.filter(
             user=self.user,
             id=self.data['credential'],
             status=VerificableCredential.Status.ISSUED
         )
-        if not all([org.exists(), cred.exists()]):
+        if not all([self.org.exists(), self.cred.exists()]):
             return
 
-        org =org[0]
-        cred = cred[0]
+        self.org = self.org[0]
+        self.cred = self.cred[0]
 
         if commit:
-            org.send(cred)
-            return cred
+            self.org.send(self.cred)
+            return self.cred
         
         return 
 

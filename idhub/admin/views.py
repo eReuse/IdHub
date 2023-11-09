@@ -28,6 +28,7 @@ from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import ImportForm, SchemaForm
 from idhub.models import (
     DID,
+    Event,
     File_datas,
     Membership,
     Rol,
@@ -44,6 +45,13 @@ class DashboardView(AdminView, TemplateView):
     subtitle = _('Success')
     icon = 'bi bi-bell'
     section = "Home"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'events': Event.objects.filter(user=None),
+        })
+        return context
 
 class People(AdminView):
     title = _("People Management")
@@ -114,8 +122,10 @@ class PeopleActivateView(PeopleView):
 
         if self.object.is_active:
             self.object.is_active = False
+            Event.set_EV_USR_DEACTIVATED_BY_ADMIN(self.object)
         else:
             self.object.is_active = True
+            Event.set_EV_USR_ACTIVATED_BY_ADMIN(self.object)
         self.object.save()
 
         return redirect('idhub:admin_people', self.object.id)
@@ -128,16 +138,26 @@ class PeopleDeleteView(PeopleView):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         if self.object != self.request.user:
+            Event.set_EV_USR_DELETED_BY_ADMIN(self.object)
             self.object.delete()
         else:
             messages.error(self.request, _('Is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
             
+
 class PeopleEditView(PeopleView, UpdateView):
     template_name = "idhub/admin/user_edit.html"
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:admin_people_list')
+
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, _('The account is updated successfully'))
+        Event.set_EV_USR_UPDATED_BY_ADMIN(user)
+        Event.set_EV_USR_UPDATED(user)
+
+        return super().form_valid(form)
 
 
 class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
@@ -158,6 +178,9 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     def form_valid(self, form):
         user = form.save()
         messages.success(self.request, _('The account is created successfully'))
+        Event.set_EV_USR_REGISTERED(user)
+        Event.set_EV_USR_WELCOME(user)
+
         if user.is_active:
             try:
                 self.send_email(user)
@@ -326,6 +349,12 @@ class RolRegisterView(AccessControl, CreateView):
     fields = ('name',)
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
+    
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Rol created successfully'))
+        Event.set_EV_ROLE_CREATED_BY_ADMIN()
+        return super().form_valid(form)
 
         
 class RolEditView(AccessControl, CreateView):
@@ -342,6 +371,12 @@ class RolEditView(AccessControl, CreateView):
             self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
         return kwargs
+        
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Rol updated successfully'))
+        Event.set_EV_ROLE_MODIFIED_BY_ADMIN()
+        return super().form_valid(form)
 
 
 class RolDeleteView(AccessControl):
@@ -352,6 +387,8 @@ class RolDeleteView(AccessControl):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         self.object.delete()
+        messages.success(self.request, _('Rol deleted successfully'))
+        Event.set_EV_ROLE_DELETED_BY_ADMIN()
         return redirect('idhub:admin_roles')
 
 
@@ -376,6 +413,12 @@ class ServiceRegisterView(AccessControl, CreateView):
     success_url = reverse_lazy('idhub:admin_services')
     object = None
 
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Service created successfully'))
+        Event.set_EV_SERVICE_CREATED_BY_ADMIN()
+        return super().form_valid(form)
+
         
 class ServiceEditView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
@@ -392,6 +435,12 @@ class ServiceEditView(AccessControl, CreateView):
         kwargs = super().get_form_kwargs()
         return kwargs
 
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Service updated successfully'))
+        Event.set_EV_SERVICE_MODIFIED_BY_ADMIN()
+        return super().form_valid(form)
+
 
 class ServiceDeleteView(AccessControl):
     model = Service
@@ -401,6 +450,8 @@ class ServiceDeleteView(AccessControl):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         self.object.delete()
+        messages.success(self.request, _('Service deleted successfully'))
+        Event.set_EV_SERVICE_DELETED_BY_ADMIN()
         return redirect('idhub:admin_services')
 
 
@@ -462,6 +513,8 @@ class RevokeCredentialsView(Credentials):
             self.object.status = VerificableCredential.Status.REVOKED
             self.object.save()
             messages.success(self.request, _('Credential revoked successfully'))
+            Event.set_EV_CREDENTIAL_REVOKED_BY_ADMIN(self.object)
+            Event.set_EV_CREDENTIAL_REVOKED(self.object)
 
         return redirect(self.success_url)
 
@@ -482,6 +535,8 @@ class DeleteCredentialsView(Credentials):
         if self.object.status in status:
             self.object.delete()
             messages.success(self.request, _('Credential deleted successfully'))
+            Event.set_EV_CREDENTIAL_DELETED(self.object)
+            Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
 
         return redirect(self.success_url)
 
@@ -514,6 +569,7 @@ class DidRegisterView(Credentials, CreateView):
         form.instance.did = iota.issue_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
+        Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
         return super().form_valid(form)
 
 
@@ -547,9 +603,9 @@ class DidDeleteView(Credentials, DeleteView):
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
+        Event.set_EV_ORG_DID_DELETED_BY_ADMIN(self.object)
         self.object.delete()
         messages.success(self.request, _('DID delete successfully'))
-
         return redirect(self.success_url)
 
 
@@ -738,9 +794,12 @@ class ImportAddView(ImportExport, FormView):
         return kwargs
 
     def form_valid(self, form):
-        cred = form.save()
-        if cred:
+        creds = form.save()
+        if creds:
             messages.success(self.request, _("The file import was successfully!"))
+            for cred in creds:
+                Event.set_EV_CREDENTIAL_ENABLED(cred)
+                Event.set_EV_CREDENTIAL_CAN_BE_REQUESTED(cred)
         else:
             messages.error(self.request, _("Error importing the file!"))
         return super().form_valid(form)
