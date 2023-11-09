@@ -15,7 +15,7 @@ from django.contrib import messages
 from utils.apiregiter import iota
 from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
 from idhub.mixins import UserView
-from idhub.models import DID, VerificableCredential
+from idhub.models import DID, VerificableCredential, Event
 
 
 class MyProfile(UserView):
@@ -125,6 +125,8 @@ class CredentialsRequestView(MyWallet, FormView):
         cred = form.save()
         if cred:
             messages.success(self.request, _("The credential was required successfully!"))
+            Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)
+            Event.set_EV_CREDENTIAL_ISSUED(cred)
         else:
             messages.error(self.request, _("Not exists the credential!"))
         return super().form_valid(form)
@@ -145,6 +147,8 @@ class CredentialsPresentationView(MyWallet, FormView):
     def form_valid(self, form):
         cred = form.save()
         if cred:
+            Event.set_EV_CREDENTIAL_PRESENTED_BY_USER(cred, form.org)
+            Event.set_EV_CREDENTIAL_PRESENTED(cred, form.org)
             messages.success(self.request, _("The credential was presented successfully!"))
         else:
             messages.error(self.request, _("Error sending credential!"))
@@ -174,18 +178,14 @@ class DidRegisterView(MyWallet, CreateView):
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['initial'] = {
-    #         'user': self.request.user
-    #     }
-    #     return kwargs
-
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.did = iota.issue_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
+
+        Event.set_EV_DID_CREATED(form.instance)
+        Event.set_EV_DID_CREATED_BY_USER(form.instance)
         return super().form_valid(form)
 
 
@@ -219,7 +219,9 @@ class DidDeleteView(MyWallet, DeleteView):
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
+        Event.set_EV_DID_DELETED(self.object)
         self.object.delete()
         messages.success(self.request, _('DID delete successfully'))
 
         return redirect(self.success_url)
+
