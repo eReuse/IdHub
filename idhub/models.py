@@ -55,10 +55,10 @@ class Event(models.Model):
 
     @classmethod
     def set_EV_USR_REGISTERED(cls, user):
-        msg = "The user {} was registered: name: {}, last name: {}".format(
-            user.username,
-            user.first_name,
-            user.last_name
+        msg = _("The user {username} was registered: name: {first_name}, last name: {last_name}").format(
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_REGISTERED,
@@ -67,9 +67,9 @@ class Event(models.Model):
 
     @classmethod
     def set_EV_USR_WELCOME(cls, user):
-        msg = "Welcome. You has been registered: name: {}, last name: {}".format(
-            user.first_name,
-            user.last_name
+        msg = _("Welcome. You has been registered: name: {first_name}, last name: {last_name}").format(
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_WELCOME,
@@ -80,9 +80,9 @@ class Event(models.Model):
     # Is required?
     @classmethod
     def set_EV_DATA_UPDATE_REQUESTED_BY_USER(cls, user):
-        msg = "The user '{}' has request the update of the following information: "
+        msg = _("The user '{username}' has request the update of the following information: ")
         msg += "['field1':'value1', 'field2':'value2'>,...]".format(
-            user.username,
+            username=user.username,
         )
         cls.objects.create(
             type=cls.Types.EV_DATA_UPDATE_REQUESTED_BY_USER,
@@ -92,7 +92,7 @@ class Event(models.Model):
     # Is required?
     @classmethod
     def set_EV_DATA_UPDATE_REQUESTED(cls, user):
-        msg = "You have requested the update of the following information: "
+        msg = _("You have requested the update of the following information: ")
         msg += "['field1':'value1', 'field2':'value2'>,...]"
         cls.objects.create(
             type=cls.Types.EV_DATA_UPDATE_REQUESTED,
@@ -103,9 +103,10 @@ class Event(models.Model):
     @classmethod
     def set_EV_USR_UPDATED_BY_ADMIN(cls, user):
         msg = "The admin has updated the following user 's information: "
-        msg += "name: {}, last name: {}".format(
-            user.first_name,
-            user.last_name
+        msg += "name: {first_name}, last name: {last_name}"
+        msg = _(msg).format(
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_UPDATED_BY_ADMIN,
@@ -115,9 +116,10 @@ class Event(models.Model):
     @classmethod
     def set_EV_USR_UPDATED(cls, user):
         msg = "The admin has updated your personal information: "
-        msg += "name: {}, last name: {}".format(
-            user.first_name,
-            user.last_name
+        msg += "name: {first_name}, last name: {last_name}"
+        msg = _(msg).format(
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_UPDATED,
@@ -127,8 +129,8 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_USR_DELETED_BY_ADMIN(cls, user):
-        msg = "The admin has deleted the user: username: {}".format(
-            user.username,
+        msg = _("The admin has deleted the user: username: {username}").format(
+            username=user.username,
         )
         cls.objects.create(
             type=cls.Types.EV_USR_DELETED_BY_ADMIN,
@@ -137,9 +139,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_DID_CREATED_BY_USER(cls, did):
-        msg = "New DID with DID-ID: '{}' created by user '{}'".format(
-            did.did,
-            did.user.username
+        msg = _("New DID with DID-ID: '{did}' created by user '{username}'").format(
+            did=did.did,
+            username=did.user.username
         )
         cls.objects.create(
             type=cls.Types.EV_DID_CREATED_BY_USER,
@@ -148,9 +150,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_DID_CREATED(cls, did):
-        msg = "New DID with label: '{}' and DID-ID: '{}' was created'".format(
-            did.label,
-            did.did
+        msg = _("New DID with label: '{label}' and DID-ID: '{did}' was created'").format(
+            label=did.label,
+            did=did.did
         )
         cls.objects.create(
             type=cls.Types.EV_DID_CREATED,
@@ -160,9 +162,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_DID_DELETED(cls, did):
-        msg = "The DID with label '{}' and DID-ID: '{}' was deleted from your wallet".format( 
-            did.label,
-            did.did
+        msg = _("The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet").format( 
+            label=did.label,
+            did=did.did
         )
         cls.objects.create(
             type=cls.Types.EV_DID_DELETED,
@@ -172,9 +174,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_DELETED_BY_ADMIN(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was deleted".format(
-            cred.type(),
-            cred.id,
+        msg = _("The credential of type '{type}' and ID: '{id}' was deleted").format(
+            type=cred.type(),
+            id=cred.id,
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_DELETED_BY_ADMIN,
@@ -183,9 +185,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_DELETED(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was deleted from your wallet".format(
-            cred.type(),
-            cred.id
+        msg = _("The credential of type '{type}' and ID: '{id}' was deleted from your wallet").format(
+            type=cred.type(),
+            id=cred.id
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_DELETED,
@@ -195,10 +197,10 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_ISSUED_FOR_USER(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was issued for user {}".format(
-            cred.type(),
-            cred.id,
-            cred.user.username
+        msg = _("The credential of type '{type}' and ID: '{id}' was issued for user {username}").format(
+            type=cred.type(),
+            id=cred.id,
+            username=cred.user.username
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_ISSUED_FOR_USER,
@@ -207,9 +209,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_ISSUED(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was issued and stored in your wallet".format(
-            cred.type(),
-            cred.id
+        msg = _("The credential of type '{type}' and ID: '{id}' was issued and stored in your wallet").format(
+            type=cred.type(),
+            id=cred.id
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_ISSUED,
@@ -219,11 +221,13 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_PRESENTED_BY_USER(cls, cred, verifier):
-        msg = "The credential of type '{}' and ID: '{}' was presented by user {} to verifier '{}".format(
-            cred.type(),
-            cred.id,
-            cred.user.username,
-            verifier
+        msg = "The credential of type '{type}' and ID: '{id}' "
+        msg += "was presented by user {username} to verifier '{verifier}"
+        msg = _(msg).format(
+            type=cred.type(),
+            id=cred.id,
+            username=cred.user.username,
+            verifier=verifier
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_PRESENTED_BY_USER,
@@ -232,10 +236,12 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_PRESENTED(cls, cred, verifier):
-        msg = "The credential of type '{}' and ID: '{}' was presented to verifier '{}'".format(
-            cred.type(),
-            cred.id,
-            verifier
+        msg = "The credential of type '{type}' and ID: '{id}' "
+        msg += "was presented to verifier '{verifier}'"
+        msg = _(msg).format(
+            type=cred.type(),
+            id=cred.id,
+            verifier=verifier
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_PRESENTED,
@@ -245,9 +251,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_ENABLED(cls, cred):
-        msg = "The credential of type '{}' was enabled for user {}".format(
-            cred.type(),
-            cred.user.username
+        msg = _("The credential of type '{type}' was enabled for user {username}").format(
+            type=cred.type(),
+            username=cred.user.username
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_ENABLED,
@@ -256,8 +262,8 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_CAN_BE_REQUESTED(cls, cred):
-        msg = "You can request the '{}' credential".format(
-            cred.type()
+        msg = _("You can request the '{type}' credential").format(
+            type=cred.type()
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_CAN_BE_REQUESTED,
@@ -267,9 +273,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_REVOKED_BY_ADMIN(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was revoked for ".format(
-            cred.type(),
-            cred.id
+        msg = _("The credential of type '{type}' and ID: '{id}' was revoked for ").format(
+            type=cred.type(),
+            id=cred.id
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_REVOKED_BY_ADMIN,
@@ -278,9 +284,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_CREDENTIAL_REVOKED(cls, cred):
-        msg = "The credential of type '{}' and ID: '{}' was revoked by admin".format(
-            cred.type(),
-            cred.id
+        msg = _("The credential of type '{type}' and ID: '{id}' was revoked by admin").format(
+            type=cred.type(),
+            id=cred.id
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_REVOKED,
@@ -290,7 +296,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_ROLE_CREATED_BY_ADMIN(cls):
-        msg = 'A new role was created by admin'
+        msg = _('A new role was created by admin')
         cls.objects.create(
             type=cls.Types.EV_ROLE_CREATED_BY_ADMIN,
             message=msg,
@@ -298,7 +304,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_ROLE_MODIFIED_BY_ADMIN(cls):
-        msg = 'The role was modified by admin'
+        msg = _('The role was modified by admin')
         cls.objects.create(
             type=cls.Types.EV_ROLE_MODIFIED_BY_ADMIN,
             message=msg,
@@ -306,7 +312,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_ROLE_DELETED_BY_ADMIN(cls):
-        msg = 'The role was removed by admin'
+        msg = _('The role was removed by admin')
         cls.objects.create(
             type=cls.Types.EV_ROLE_DELETED_BY_ADMIN,
             message=msg,
@@ -314,7 +320,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_SERVICE_CREATED_BY_ADMIN(cls):
-        msg = 'A new service was created by admin'
+        msg = _('A new service was created by admin')
         cls.objects.create(
             type=cls.Types.EV_SERVICE_CREATED_BY_ADMIN,
             message=msg,
@@ -322,7 +328,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_SERVICE_MODIFIED_BY_ADMIN(cls):
-        msg = 'The service was modified by admin'
+        msg = _('The service was modified by admin')
         cls.objects.create(
             type=cls.Types.EV_SERVICE_MODIFIED_BY_ADMIN,
             message=msg,
@@ -330,7 +336,7 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_SERVICE_DELETED_BY_ADMIN(cls):
-        msg = 'The service was removed by admin'
+        msg = _('The service was removed by admin')
         cls.objects.create(
             type=cls.Types.EV_SERVICE_DELETED_BY_ADMIN,
             message=msg,
@@ -338,9 +344,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_ORG_DID_CREATED_BY_ADMIN(cls, did):
-        msg = "New Organisational DID with label: '{}' and DID-ID: '{}' was created".format(
-            did.label,
-            did.did
+        msg = _("New Organisational DID with label: '{label}' and DID-ID: '{did}' was created").format(
+            label=did.label,
+            did=did.did
         )
         cls.objects.create(
             type=cls.Types.EV_ORG_DID_CREATED_BY_ADMIN,
@@ -349,9 +355,9 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_ORG_DID_DELETED_BY_ADMIN(cls, did):
-        msg = "Organisational DID with label: '{}' and DID-ID: '{}' was removed".format(
-            did.label,
-            did.did
+        msg = _("Organisational DID with label: '{label}' and DID-ID: '{did}' was removed").format(
+            label=did.label,
+            did=did.did
         )
         cls.objects.create(
             type=cls.Types.EV_ORG_DID_DELETED_BY_ADMIN,
@@ -360,10 +366,12 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_USR_DEACTIVATED_BY_ADMIN(cls, user):
-        msg = "The user '{}' was temporarily deactivated: [name:'{}', last name:'{}']".format(
-            user.username,
-            user.first_name,
-            user.last_name
+        msg = "The user '{username}' was temporarily deactivated: "
+        msg += "[name:'{first_name}', last name:'{last_name}']"
+        msg = _(msg).format(
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_DEACTIVATED_BY_ADMIN,
@@ -372,10 +380,12 @@ class Event(models.Model):
         
     @classmethod
     def set_EV_USR_ACTIVATED_BY_ADMIN(cls, user):
-        msg = "The user '{}' was activated: [name:'{}', last name:'{}']".format(
-            user.username,
-            user.first_name,
-            user.last_name
+        msg = "The user '{username}' was activated: "
+        msg += "name:'{first_name}', last name:'{last_name}']"
+        msg = _(msg).format(
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name
         )
         cls.objects.create(
             type=cls.Types.EV_USR_ACTIVATED_BY_ADMIN,
