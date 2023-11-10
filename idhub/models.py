@@ -31,6 +31,18 @@ class DID(models.Model):
         return False
 
 
+class DIDControllerKey(models.Model):
+    # In JWK format. Must be stored as-is and passed whole to library functions.
+    # Example key material:
+    # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
+    key_material = models.CharField(max_length=250)
+    owner_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        related_name="keys"
+    )
+
+
 class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()

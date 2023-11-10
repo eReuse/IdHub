@@ -6,4 +6,5 @@ python-decouple==3.8
 jsonschema==4.19.1
 pandas==2.1.1
 requests==2.31.0
-
+didkit==0.3.2
+jinja2==3.1.2
