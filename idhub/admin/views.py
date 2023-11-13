@@ -161,7 +161,7 @@ class PeopleEditView(PeopleView, UpdateView):
 
 class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     template_name = "idhub/admin/people_register.html"
-    subtitle = _('People Register')
+    subtitle = _('Add user')
     icon = 'bi bi-person'
     model = User
     fields = ('first_name', 'last_name', 'email')
@@ -330,7 +330,7 @@ class PeopleRolDeleteView(PeopleView):
 
 class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
-    subtitle = _('Role Management')
+    subtitle = _('Manage roles')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -393,7 +393,7 @@ class RolDeleteView(AccessControl):
 
 class ServicesView(AccessControl):
     template_name = "idhub/admin/services.html"
-    subtitle = _('Service management')
+    subtitle = _('Manage services')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -456,7 +456,7 @@ class ServiceDeleteView(AccessControl):
 
 class CredentialsView(Credentials):
     template_name = "idhub/admin/credentials.html"
-    subtitle = _('Credential list')
+    subtitle = _('View credentials')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -542,7 +542,7 @@ class DeleteCredentialsView(Credentials):
 
 class DidsView(Credentials):
     template_name = "idhub/admin/dids.html"
-    subtitle = _('Organization Identities (DID)')
+    subtitle = _('Manage Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
@@ -610,7 +610,7 @@ class DidDeleteView(Credentials, DeleteView):
 
 class WalletCredentialsView(Credentials):
     template_name = "idhub/admin/wallet_credentials.html"
-    subtitle = _('Credential management')
+    subtitle = _('View org. credentials')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
@@ -756,7 +756,7 @@ class SchemasImportAddView(SchemasMix):
 
 class ImportView(ImportExport, TemplateView):
     template_name = "idhub/admin/import.html"
-    subtitle = _('Import')
+    subtitle = _('Import data')
     icon = ''
 
     def get_context_data(self, **kwargs):

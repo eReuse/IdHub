@@ -66,29 +66,29 @@
               <li class="nav-item">
                 <a class="nav-link {% if section == 'Home' %}active {% endif %}fw-bold" aria-current="page" href="{% url 'idhub:user_dashboard' %}">
                   <i class="bi bi-house-door icon_sidebar"></i>
-                  Home
+                  {% trans 'Dashboard' %}
                 </a>
                 <hr />
               </li>
               <li class="nav-item">
                 <span class="nav-link {% if section == 'MyProfile' %}active {% endif %}fw-bold">
                   <i class="fa-regular fa-user icon_sidebar"></i>
-                  My datas
+                  {% trans 'My information' %}
                 </span>
                 <ul class="flex-column mb-2 ul_sidebar">
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_profile' %}active2{% endif %}" href="{% url 'idhub:user_profile' %}">
-                      My personal data
+                      {% trans 'My personal information' %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_roles' %}active2{% endif %}" href="{% url 'idhub:user_roles' %}">
-                      My roles
+                      {% trans 'My roles' %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_gdpr' %}active2{% endif %}" href="{% url 'idhub:user_gdpr' %}">
-                      GDPR info
+                      {% trans 'GDPR info' %}
                     </a>
                   </li>
                 </ul>
@@ -96,27 +96,27 @@
               <li class="nav-item">
                 <span class="nav-link {% if section == 'MyWallet' %}active {% endif %}fw-bold" href="#">
                   <i class="bi bi-patch-check icon_sidebar"></i>
-                  My Wallet
+                  {% trans 'My wallet' %}
                 </span>
                 <ul class="flex-column mb-2 ul_sidebar">
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_dids' %}active2{% endif %}" href="{% url 'idhub:user_dids' %}">
-                      Identities (DID)
+                      {% trans 'Identities (DIDs)' %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_credentials' %}active2{% endif %}" href="{% url 'idhub:user_credentials' %}">
-                      Credentials
+                      {% trans 'My credentials' %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_credentials_request' %}active2{% endif %}" href="{% url 'idhub:user_credentials_request' %}">
-                      Credentials request
+                      {% trans 'Request a credential' %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_credentials_presentation' %}active2{% endif %}" href="{% url 'idhub:user_credentials_presentation' %}">
-                      Credentials Presentation
+                      {% trans 'Present a credential' %}
                     </a>
                   </li>
                 </ul>
