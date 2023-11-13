@@ -24,7 +24,7 @@
             First Name:
           </div>
           <div class="col-9 text-secondary">
-            {{ object.first_name }}
+            {{ object.first_name|default:'' }}
           </div>
         </div>
         <div class="row border-bottom mt-3">
@@ -32,7 +32,7 @@
             Last Name:
           </div>
           <div class="col-9 text-secondary">
-            {{ object.last_name }}
+            {{ object.last_name|default:'' }}
           </div>
         </div>
         <div class="row mt-3">

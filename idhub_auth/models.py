@@ -72,3 +72,16 @@ class User(AbstractBaseUser):
     def username(self):
         "Is the email of the user"
         return self.email
+
+    def get_memberships(self):
+        members = set(
+            str(dict(x.Types.choices)[x.type]) for x in self.memberships.all()
+        )
+        return ", ".join(members)
+
+    def get_roles(self):
+        roles = []
+        for s in self.roles.all():
+            for r in s.service.rol.all():
+                roles.append(r.name)
+        return ", ".join(set(roles))
