@@ -498,7 +498,7 @@ class Membership(models.Model):
     class Types(models.IntegerChoices):
         BENEFICIARY = 1, _('Beneficiary')
         EMPLOYEE = 2, _('Employee')
-        PARTNER = 3, _('Partner')
+        MEMBER = 3, _('Member')
 
     type = models.PositiveSmallIntegerField(_('Type of membership'), choices=Types.choices)
     start_date = models.DateField(
@@ -509,7 +509,7 @@ class Membership(models.Model):
     )
     end_date = models.DateField(
         _('End date'),
-        help_text=_('What date did the membership end?'),
+        help_text=_('What date will the membership end?'),
         blank=True,
         null=True
     )
