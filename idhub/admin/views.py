@@ -22,9 +22,10 @@ from django.contrib import messages
 from utils.apiregiter import iota
 from utils import credtools
 from idhub_auth.models import User
+from idhub_auth.forms import ProfileForm
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
-from idhub.admin.forms import ImportForm, SchemaForm
+from idhub.admin.forms import ImportForm, SchemaForm, MembershipForm
 from idhub.models import (
     DID,
     Event,
@@ -145,10 +146,34 @@ class PeopleDeleteView(PeopleView):
         return redirect('idhub:admin_people_list')
             
 
-class PeopleEditView(PeopleView, UpdateView):
+class PeopleEditView(People, FormView):
     template_name = "idhub/admin/user_edit.html"
-    fields = ('first_name', 'last_name', 'email')
+    subtitle = _('Update user')
+    icon = 'bi bi-person'
+    form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'object': self.user,
+        })
+        return context
 
     def form_valid(self, form):
         user = form.save()
@@ -163,8 +188,7 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     template_name = "idhub/admin/people_register.html"
     subtitle = _('Add user')
     icon = 'bi bi-person'
-    model = User
-    fields = ('first_name', 'last_name', 'email')
+    form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get_success_url(self):
@@ -188,12 +212,12 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
         return super().form_valid(form)
 
 
-class PeopleMembershipRegisterView(People, CreateView):
+class PeopleMembershipRegisterView(People, FormView):
     template_name = "idhub/admin/people_membership_register.html"
     subtitle = _('Associate a membership to the user')
     icon = 'bi bi-person'
+    form_class = MembershipForm
     model = Membership
-    fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get(self, request, *args, **kwargs):
@@ -210,12 +234,19 @@ class PeopleMembershipRegisterView(People, CreateView):
         form = super().get_form()
         form.fields['start_date'].widget.input_type = 'date'
         form.fields['end_date'].widget.input_type = 'date'
+        form.fields['start_date'].required = True
         return form
 
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+    
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership created successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -225,26 +256,43 @@ class PeopleMembershipRegisterView(People, CreateView):
         return self.success_url
 
 
-class PeopleMembershipEditView(People, CreateView):
+class PeopleMembershipEditView(People, FormView):
     template_name = "idhub/admin/people_membership_register.html"
-    subtitle = _('People add membership')
+    subtitle = _('Associate a membership to the user')
     icon = 'bi bi-person'
+    form_class = MembershipForm
     model = Membership
-    fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.user = self.object.user
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.user = self.object.user
+        return super().post(request, *args, **kwargs)
 
     def get_form(self):
         form = super().get_form()
         form.fields['start_date'].widget.input_type = 'date'
         form.fields['end_date'].widget.input_type = 'date'
+        form.fields['start_date'].required = True
         return form
 
     def get_form_kwargs(self):
-        pk = self.kwargs.get('pk')
-        if pk:
-            self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
+        # import pdb; pdb.set_trace()
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership updated successfully'))
+        return super().form_valid(form)
 
 
 class PeopleMembershipDeleteView(PeopleView):
@@ -284,6 +332,13 @@ class PeopleRolRegisterView(People, CreateView):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
         return kwargs
+
+    def get_form(self):
+        form = super().get_form()
+        choices = form.fields['service'].choices
+        choices.queryset = choices.queryset.exclude(users__user=self.user)
+        form.fields['service'].choices = choices
+        return form
 
     def get_success_url(self):
         self.success_url = reverse_lazy(

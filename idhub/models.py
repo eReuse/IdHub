@@ -532,8 +532,8 @@ class Rol(models.Model):
 
 
 class Service(models.Model):
-    domain = models.CharField(max_length=250)
-    description = models.CharField(max_length=250)
+    domain = models.CharField(_("Domain"), max_length=250)
+    description = models.CharField(_("Description"), max_length=250)
     rol = models.ManyToManyField(
         Rol,
     )

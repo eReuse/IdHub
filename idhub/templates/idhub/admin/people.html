@@ -13,26 +13,22 @@
         <th scope="col"><button type="button" class="btn btn-green-admin border border-dark">{% trans 'Last name' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'First name' %}</button></th>
         <th scope="col"><button type="button" class="btn btn-grey border border-dark">Email</button></th>
-        <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Membership' %}</button></th>
-        <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
+        <th scope="col" class="text-center"><button type="button" class="btn btn-grey border border-dark">{% trans 'Membership' %}</button></th>
+        <th scope="col" class="text-center"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
         <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
     {% for user in users %}
       <tr>
-        <td>{{ user.last_name }}</td>
-        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name|default:'' }}</td>
+        <td>{{ user.first_name|default:'' }}</td>
         <td>{{ user.email }}</td>
-        <td>
-          {% for m in user.memberships.all %}
-            {{ m.get_type }} 
-          {% endfor %}
+        <td class="text-center">
+          {{ user.get_memberships }}
         </td>
-        <td>
-          {% for r in user.roles.all %}
-            {{ r.service.get_roles }} 
-          {% endfor %}
+        <td class="text-center">
+          {{ user.get_roles }}
         </td>
         <td><a type="button" class="btn btn-green-admin rounded-pill" href="{% url 'idhub:admin_people' user.id %}">{% trans 'View' %}</td>
       </tr>

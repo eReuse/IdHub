@@ -4,10 +4,12 @@ import pandas as pd
 from jsonschema import validate
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from idhub.models import (
     DID,
-    File_datas, 
+    File_datas,
+    Membership,
     Schemas,
     VerificableCredential,
 )
@@ -125,3 +127,31 @@ class ImportForm(forms.Form):
 
 class SchemaForm(forms.Form):
     file_template = forms.FileField()
+
+    
+class MembershipForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = ['type', 'start_date', 'end_date']
+
+    def clean_end_date(self):
+        data = super().clean()
+        start_date = data['start_date']
+        end_date = data.get('end_date')
+        if (start_date and end_date):
+            if start_date > end_date:
+                msg = _("The end date is less than the start date")
+                raise forms.ValidationError(msg)
+
+            members = Membership.objects.filter(
+                type=data['type'],
+                start_date__lte=end_date,
+                end_date__gte=start_date,
+                user=self.instance.user
+            )
+            if members.exists() and not self.instance.id:
+                msg = _("This membership already exists!")
+                raise forms.ValidationError(msg)
+        
+        return end_date
