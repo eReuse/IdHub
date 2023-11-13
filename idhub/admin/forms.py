@@ -1,6 +1,5 @@
 import csv
 import json
-import copy
 import pandas as pd
 from jsonschema import validate
 
@@ -104,14 +103,14 @@ class ImportForm(forms.Form):
 
         user = User.objects.filter(email=row.get('email'))
         if not user:
-            txt = _('The user not exist!')
+            txt = _('The user does not exist!')
             msg = "line {}: {}".format(line+1, txt)
             self.exception(msg)
 
         return user.first()
 
     def create_credential(self, user, row):
-        d = copy.copy(self.json_schema)
+        d = self.json_schema.copy()
         d['instance'] = row
         return VerificableCredential(
             verified=False,

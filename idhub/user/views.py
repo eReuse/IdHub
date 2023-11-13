@@ -24,7 +24,7 @@ class MyProfile(UserView):
 
 
 class MyWallet(UserView):
-    title = _("My Wallet")
+    title = _("My wallet")
     section = "MyWallet"
 
 
@@ -38,7 +38,7 @@ class DashboardView(UserView, TemplateView):
 
 class ProfileView(MyProfile, UpdateView):
     template_name = "idhub/user/profile.html"
-    subtitle = _('My personal Data')
+    subtitle = _('My personal data')
     icon = 'bi bi-person'
     from_class = ProfileForm
     fields = ('first_name', 'last_name', 'email')
@@ -72,7 +72,7 @@ class GDPRView(MyProfile, TemplateView):
 
 class CredentialsView(MyWallet, TemplateView):
     template_name = "idhub/user/credentials.html"
-    subtitle = _('Credentials')
+    subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
 
     def get_context_data(self, **kwargs):
@@ -121,7 +121,7 @@ class CredentialJsonView(MyWallet, TemplateView):
 
 class CredentialsRequestView(MyWallet, FormView):
     template_name = "idhub/user/credentials_request.html"
-    subtitle = _('Credentials request')
+    subtitle = _('Credential request')
     icon = 'bi bi-patch-check-fill'
     form_class = RequestCredentialForm
     success_url = reverse_lazy('idhub:user_credentials')
@@ -134,17 +134,17 @@ class CredentialsRequestView(MyWallet, FormView):
     def form_valid(self, form):
         cred = form.save()
         if cred:
-            messages.success(self.request, _("The credential was required successfully!"))
+            messages.success(self.request, _("The credential was issued successfully!"))
             Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)
             Event.set_EV_CREDENTIAL_ISSUED(cred)
         else:
-            messages.error(self.request, _("Not exists the credential!"))
+            messages.error(self.request, _("The credential does not exist!"))
         return super().form_valid(form)
 
 
 class CredentialsPresentationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
-    subtitle = _('Credentials Presentation')
+    subtitle = _('Credential presentation')
     icon = 'bi bi-patch-check-fill'
     form_class = CredentialPresentationForm
     success_url = reverse_lazy('idhub:user_credentials')
@@ -167,7 +167,7 @@ class CredentialsPresentationView(MyWallet, FormView):
     
 class DidsView(MyWallet, TemplateView):
     template_name = "idhub/user/dids.html"
-    subtitle = _('Identities (DID)')
+    subtitle = _('Identities (DIDs)')
     icon = 'bi bi-patch-check-fill'
 
     def get_context_data(self, **kwargs):
@@ -180,7 +180,7 @@ class DidsView(MyWallet, TemplateView):
 
 class DidRegisterView(MyWallet, CreateView):
     template_name = "idhub/user/did_register.html"
-    subtitle = _('Add a new Identities (DID)')
+    subtitle = _('Add a new Identity (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
@@ -201,7 +201,7 @@ class DidRegisterView(MyWallet, CreateView):
 
 class DidEditView(MyWallet, UpdateView):
     template_name = "idhub/user/did_register.html"
-    subtitle = _('Identities (DID)')
+    subtitle = _('Identities (DIDs)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
@@ -220,7 +220,7 @@ class DidEditView(MyWallet, UpdateView):
 
 
 class DidDeleteView(MyWallet, DeleteView):
-    subtitle = _('Identities (DID)')
+    subtitle = _('Identities (DIDs)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID

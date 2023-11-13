@@ -1,6 +1,5 @@
 import os
 import json
-import copy
 import logging
 import pandas as pd
 from pathlib import Path
@@ -54,33 +53,33 @@ class DashboardView(AdminView, TemplateView):
         return context
 
 class People(AdminView):
-    title = _("People Management")
+    title = _("User Management")
     section = "People"
 
 
 class AccessControl(AdminView, TemplateView):
-    title = _("Access Control Management")
+    title = _("Access control management")
     section = "AccessControl"
 
 
 class Credentials(AdminView, TemplateView):
-    title = _("Credentials Management")
-    section = "Credentials"
+    title = _("Credential Management")
+    section = "Credential"
 
 
 class SchemasMix(AdminView, TemplateView):
-    title = _("Templates Management")
-    section = "Templates"
+    title = _("Template Management")
+    section = "Template"
 
 
 class ImportExport(AdminView):
-    title = _("Massive Data Management")
+    title = _("Data file management")
     section = "ImportExport"
 
 
 class PeopleListView(People, TemplateView):
     template_name = "idhub/admin/people.html"
-    subtitle = _('People list')
+    subtitle = _('View users')
     icon = 'bi bi-person'
 
     def get_context_data(self, **kwargs):
@@ -93,7 +92,7 @@ class PeopleListView(People, TemplateView):
 
 class PeopleView(People, TemplateView):
     template_name = "idhub/admin/user.html"
-    subtitle = _('User Profile')
+    subtitle = _('User personal information')
     icon = 'bi bi-person'
     model = User
 
@@ -177,7 +176,7 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        messages.success(self.request, _('The account is created successfully'))
+        messages.success(self.request, _('The account was created successfully'))
         Event.set_EV_USR_REGISTERED(user)
         Event.set_EV_USR_WELCOME(user)
 
@@ -191,7 +190,7 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
 
 class PeopleMembershipRegisterView(People, CreateView):
     template_name = "idhub/admin/people_membership_register.html"
-    subtitle = _('People add membership')
+    subtitle = _('Associate a membership to the user')
     icon = 'bi bi-person'
     model = Membership
     fields = ('type', 'start_date', 'end_date')
@@ -266,7 +265,7 @@ class PeopleMembershipDeleteView(PeopleView):
         
 class PeopleRolRegisterView(People, CreateView):
     template_name = "idhub/admin/people_rol_register.html"
-    subtitle = _('Add Rol to User')
+    subtitle = _('Add a user role to access a service')
     icon = 'bi bi-person'
     model = UserRol
     fields = ('service',)
@@ -296,7 +295,7 @@ class PeopleRolRegisterView(People, CreateView):
 
 class PeopleRolEditView(People, CreateView):
     template_name = "idhub/admin/people_rol_register.html"
-    subtitle = _('Edit Rol to User')
+    subtitle = _('Modify a user role to access a service')
     icon = 'bi bi-person'
     model = UserRol
     fields = ('service',)
@@ -331,7 +330,7 @@ class PeopleRolDeleteView(PeopleView):
 
 class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
-    subtitle = _('Roles Management')
+    subtitle = _('Role Management')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -343,7 +342,7 @@ class RolesView(AccessControl):
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Add Rol')
+    subtitle = _('Add Role')
     icon = ''
     model = Rol
     fields = ('name',)
@@ -352,14 +351,14 @@ class RolRegisterView(AccessControl, CreateView):
     
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _('Rol created successfully'))
+        messages.success(self.request, _('Role created successfully'))
         Event.set_EV_ROLE_CREATED_BY_ADMIN()
         return super().form_valid(form)
 
         
 class RolEditView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Edit Rol')
+    subtitle = _('Edit Role')
     icon = ''
     model = Rol
     fields = ('name',)
@@ -374,7 +373,7 @@ class RolEditView(AccessControl, CreateView):
         
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _('Rol updated successfully'))
+        messages.success(self.request, _('Role updated successfully'))
         Event.set_EV_ROLE_MODIFIED_BY_ADMIN()
         return super().form_valid(form)
 
@@ -387,14 +386,14 @@ class RolDeleteView(AccessControl):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         self.object.delete()
-        messages.success(self.request, _('Rol deleted successfully'))
+        messages.success(self.request, _('Role deleted successfully'))
         Event.set_EV_ROLE_DELETED_BY_ADMIN()
         return redirect('idhub:admin_roles')
 
 
 class ServicesView(AccessControl):
     template_name = "idhub/admin/services.html"
-    subtitle = _('Service Management')
+    subtitle = _('Service management')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -406,7 +405,7 @@ class ServicesView(AccessControl):
 
 class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
-    subtitle = _('Add Service')
+    subtitle = _('Add service')
     icon = ''
     model = Service
     fields = ('domain', 'description', 'rol')
@@ -422,7 +421,7 @@ class ServiceRegisterView(AccessControl, CreateView):
         
 class ServiceEditView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
-    subtitle = _('Edit Service')
+    subtitle = _('Modify service')
     icon = ''
     model = Service
     fields = ('domain', 'description', 'rol')
@@ -457,7 +456,7 @@ class ServiceDeleteView(AccessControl):
 
 class CredentialsView(Credentials):
     template_name = "idhub/admin/credentials.html"
-    subtitle = _('Credentials list')
+    subtitle = _('Credential list')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -611,21 +610,21 @@ class DidDeleteView(Credentials, DeleteView):
 
 class WalletCredentialsView(Credentials):
     template_name = "idhub/admin/wallet_credentials.html"
-    subtitle = _('Credentials')
+    subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
 class WalletConfigIssuesView(Credentials):
     template_name = "idhub/admin/wallet_issues.html"
-    subtitle = _('Configure Issues')
+    subtitle = _('Configure credential issuance')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
 class SchemasView(SchemasMix):
     template_name = "idhub/admin/schemas.html"
-    subtitle = _('Template List')
+    subtitle = _('View credential templates')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -659,7 +658,7 @@ class SchemasDownloadView(SchemasMix):
 
 class SchemasNewView(SchemasMix):
     template_name = "idhub/admin/schemas_new.html"
-    subtitle = _('Upload Template')
+    subtitle = _('Upload template')
     icon = ''
     success_url = reverse_lazy('idhub:admin_schemas')
 
@@ -704,7 +703,7 @@ class SchemasNewView(SchemasMix):
 
 class SchemasImportView(SchemasMix):
     template_name = "idhub/admin/schemas_import.html"
-    subtitle = _('Import Template')
+    subtitle = _('Import template')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -732,7 +731,7 @@ class SchemasImportAddView(SchemasMix):
 
         schema = self.create_schema(file_name)
         if schema:
-            messages.success(self.request, _("The schema add successfully!"))
+            messages.success(self.request, _("The schema was added sucessfully"))
         return redirect('idhub:admin_schemas_import')
 
     def create_schema(self, file_name):
