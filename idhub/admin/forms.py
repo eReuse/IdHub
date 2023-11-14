@@ -1,15 +1,18 @@
 import csv
 import json
-import copy
 import pandas as pd
 from jsonschema import validate
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from idhub.models import (
     DID,
-    File_datas, 
+    File_datas,
+    Membership,
     Schemas,
+    Service,
+    UserRol,
     VerificableCredential,
 )
 from idhub_auth.models import User
@@ -104,14 +107,14 @@ class ImportForm(forms.Form):
 
         user = User.objects.filter(email=row.get('email'))
         if not user:
-            txt = _('The user not exist!')
+            txt = _('The user does not exist!')
             msg = "line {}: {}".format(line+1, txt)
             self.exception(msg)
 
         return user.first()
 
     def create_credential(self, user, row):
-        d = copy.copy(self.json_schema)
+        d = self.json_schema.copy()
         d['instance'] = row
         return VerificableCredential(
             verified=False,
@@ -126,3 +129,65 @@ class ImportForm(forms.Form):
 
 class SchemaForm(forms.Form):
     file_template = forms.FileField()
+
+    
+class MembershipForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = ['type', 'start_date', 'end_date']
+
+    def clean_end_date(self):
+        data = super().clean()
+        start_date = data['start_date']
+        end_date = data.get('end_date')
+        members = Membership.objects.filter(
+            type=data['type'],
+            user=self.instance.user
+        )
+        if self.instance.id:
+            members = members.exclude(id=self.instance.id)
+
+        if (start_date and end_date):
+            if start_date > end_date:
+                msg = _("The end date is less than the start date")
+                raise forms.ValidationError(msg)
+
+            members = members.filter(
+                start_date__lte=end_date,
+                end_date__gte=start_date,
+            )
+
+            if members.exists():
+                msg = _("This membership already exists!")
+                raise forms.ValidationError(msg)
+        
+        return end_date
+
+
+class UserRolForm(forms.ModelForm):
+
+    class Meta:
+        model = UserRol
+        fields = ['service']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            user = self.instance.user
+            choices = self.fields['service'].choices
+            choices.queryset = choices.queryset.exclude(users__user=user)
+            self.fields['service'].choices = choices
+    
+    def clean_service(self):
+        data = super().clean()
+        service = UserRol.objects.filter(
+            service=data['service'],
+            user=self.instance.user
+        )
+
+        if service.exists():
+            msg = _("Is not possible to have a duplicate role")
+            raise forms.ValidationError(msg)
+
+        return data['service']
