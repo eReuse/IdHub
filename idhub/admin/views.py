@@ -1,6 +1,5 @@
 import os
 import json
-import copy
 import logging
 import pandas as pd
 from pathlib import Path
@@ -22,11 +21,18 @@ from django.http import HttpResponse
 from django.contrib import messages
 from utils import credtools
 from idhub_auth.models import User
+from idhub_auth.forms import ProfileForm
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
-from idhub.admin.forms import ImportForm, SchemaForm
+from idhub.admin.forms import (
+    ImportForm,
+    MembershipForm,
+    SchemaForm,
+    UserRolForm,
+)
 from idhub.models import (
     DID,
+    Event,
     File_datas,
     Membership,
     Rol,
@@ -44,34 +50,41 @@ class DashboardView(AdminView, TemplateView):
     icon = 'bi bi-bell'
     section = "Home"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'events': Event.objects.filter(user=None),
+        })
+        return context
+
 class People(AdminView):
-    title = _("People Management")
+    title = _("User Management")
     section = "People"
 
 
 class AccessControl(AdminView, TemplateView):
-    title = _("Access Control Management")
+    title = _("Access control management")
     section = "AccessControl"
 
 
 class Credentials(AdminView, TemplateView):
-    title = _("Credentials Management")
-    section = "Credentials"
+    title = _("Credential Management")
+    section = "Credential"
 
 
 class SchemasMix(AdminView, TemplateView):
-    title = _("Templates Management")
-    section = "Templates"
+    title = _("Template Management")
+    section = "Template"
 
 
 class ImportExport(AdminView):
-    title = _("Massive Data Management")
+    title = _("Data file management")
     section = "ImportExport"
 
 
 class PeopleListView(People, TemplateView):
     template_name = "idhub/admin/people.html"
-    subtitle = _('People list')
+    subtitle = _('View users')
     icon = 'bi bi-person'
 
     def get_context_data(self, **kwargs):
@@ -84,7 +97,7 @@ class PeopleListView(People, TemplateView):
 
 class PeopleView(People, TemplateView):
     template_name = "idhub/admin/user.html"
-    subtitle = _('User Profile')
+    subtitle = _('User personal information')
     icon = 'bi bi-person'
     model = User
 
@@ -113,8 +126,10 @@ class PeopleActivateView(PeopleView):
 
         if self.object.is_active:
             self.object.is_active = False
+            Event.set_EV_USR_DEACTIVATED_BY_ADMIN(self.object)
         else:
             self.object.is_active = True
+            Event.set_EV_USR_ACTIVATED_BY_ADMIN(self.object)
         self.object.save()
 
         return redirect('idhub:admin_people', self.object.id)
@@ -127,24 +142,57 @@ class PeopleDeleteView(PeopleView):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         if self.object != self.request.user:
+            Event.set_EV_USR_DELETED_BY_ADMIN(self.object)
             self.object.delete()
         else:
             messages.error(self.request, _('Is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
             
-class PeopleEditView(PeopleView, UpdateView):
+
+class PeopleEditView(People, FormView):
     template_name = "idhub/admin/user_edit.html"
-    fields = ('first_name', 'last_name', 'email')
+    subtitle = _('Update user')
+    icon = 'bi bi-person'
+    form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'object': self.user,
+        })
+        return context
+
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, _('The account is updated successfully'))
+        Event.set_EV_USR_UPDATED_BY_ADMIN(user)
+        Event.set_EV_USR_UPDATED(user)
+
+        return super().form_valid(form)
 
 
 class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
     template_name = "idhub/admin/people_register.html"
-    subtitle = _('People Register')
+    subtitle = _('Add user')
     icon = 'bi bi-person'
-    model = User
-    fields = ('first_name', 'last_name', 'email')
+    form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get_success_url(self):
@@ -156,7 +204,10 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        messages.success(self.request, _('The account is created successfully'))
+        messages.success(self.request, _('The account was created successfully'))
+        Event.set_EV_USR_REGISTERED(user)
+        Event.set_EV_USR_WELCOME(user)
+
         if user.is_active:
             try:
                 self.send_email(user)
@@ -165,12 +216,12 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
         return super().form_valid(form)
 
 
-class PeopleMembershipRegisterView(People, CreateView):
+class PeopleMembershipRegisterView(People, FormView):
     template_name = "idhub/admin/people_membership_register.html"
-    subtitle = _('People add membership')
+    subtitle = _('Associate a membership to the user')
     icon = 'bi bi-person'
+    form_class = MembershipForm
     model = Membership
-    fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
 
     def get(self, request, *args, **kwargs):
@@ -187,12 +238,19 @@ class PeopleMembershipRegisterView(People, CreateView):
         form = super().get_form()
         form.fields['start_date'].widget.input_type = 'date'
         form.fields['end_date'].widget.input_type = 'date'
+        form.fields['start_date'].required = True
         return form
 
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+    
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership created successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -202,26 +260,42 @@ class PeopleMembershipRegisterView(People, CreateView):
         return self.success_url
 
 
-class PeopleMembershipEditView(People, CreateView):
+class PeopleMembershipEditView(People, FormView):
     template_name = "idhub/admin/people_membership_register.html"
-    subtitle = _('People add membership')
+    subtitle = _('Associate a membership to the user')
     icon = 'bi bi-person'
+    form_class = MembershipForm
     model = Membership
-    fields = ('type', 'start_date', 'end_date')
     success_url = reverse_lazy('idhub:admin_people_list')
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.user = self.object.user
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.user = self.object.user
+        return super().post(request, *args, **kwargs)
 
     def get_form(self):
         form = super().get_form()
         form.fields['start_date'].widget.input_type = 'date'
         form.fields['end_date'].widget.input_type = 'date'
+        form.fields['start_date'].required = True
         return form
 
     def get_form_kwargs(self):
-        pk = self.kwargs.get('pk')
-        if pk:
-            self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership updated successfully'))
+        return super().form_valid(form)
 
 
 class PeopleMembershipDeleteView(PeopleView):
@@ -240,12 +314,12 @@ class PeopleMembershipDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
         
-class PeopleRolRegisterView(People, CreateView):
+class PeopleRolRegisterView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
-    subtitle = _('Add Rol to User')
+    subtitle = _('Add a user role to access a service')
     icon = 'bi bi-person'
+    form_class = UserRolForm
     model = UserRol
-    fields = ('service',)
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -260,7 +334,13 @@ class PeopleRolRegisterView(People, CreateView):
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership created successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -270,19 +350,32 @@ class PeopleRolRegisterView(People, CreateView):
         return self.success_url
 
 
-class PeopleRolEditView(People, CreateView):
+class PeopleRolEditView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
-    subtitle = _('Edit Rol to User')
+    subtitle = _('Modify a user role to access a service')
     icon = 'bi bi-person'
+    form_class = UserRolForm
     model = UserRol
-    fields = ('service',)
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        pk = self.kwargs.get('pk')
-        if pk:
-            self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership updated successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -307,7 +400,7 @@ class PeopleRolDeleteView(PeopleView):
 
 class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
-    subtitle = _('Roles Management')
+    subtitle = _('Manage roles')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -319,20 +412,26 @@ class RolesView(AccessControl):
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Add Rol')
+    subtitle = _('Add Role')
     icon = ''
     model = Rol
-    fields = ('name',)
+    fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
+    
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Role created successfully'))
+        Event.set_EV_ROLE_CREATED_BY_ADMIN()
+        return super().form_valid(form)
 
         
-class RolEditView(AccessControl, CreateView):
+class RolEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Edit Rol')
+    subtitle = _('Edit Role')
     icon = ''
     model = Rol
-    fields = ('name',)
+    fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
 
     def get_form_kwargs(self):
@@ -341,6 +440,12 @@ class RolEditView(AccessControl, CreateView):
             self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
         return kwargs
+        
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Role updated successfully'))
+        Event.set_EV_ROLE_MODIFIED_BY_ADMIN()
+        return super().form_valid(form)
 
 
 class RolDeleteView(AccessControl):
@@ -351,12 +456,14 @@ class RolDeleteView(AccessControl):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         self.object.delete()
+        messages.success(self.request, _('Role deleted successfully'))
+        Event.set_EV_ROLE_DELETED_BY_ADMIN()
         return redirect('idhub:admin_roles')
 
 
 class ServicesView(AccessControl):
     template_name = "idhub/admin/services.html"
-    subtitle = _('Service Management')
+    subtitle = _('Manage services')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -368,17 +475,28 @@ class ServicesView(AccessControl):
 
 class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
-    subtitle = _('Add Service')
+    subtitle = _('Add service')
     icon = ''
     model = Service
     fields = ('domain', 'description', 'rol')
     success_url = reverse_lazy('idhub:admin_services')
     object = None
 
+    def get_form(self):
+        form = super().get_form()
+        form.fields['rol'].required = False
+        return form
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Service created successfully'))
+        Event.set_EV_SERVICE_CREATED_BY_ADMIN()
+        return super().form_valid(form)
+
         
-class ServiceEditView(AccessControl, CreateView):
+class ServiceEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/service_register.html"
-    subtitle = _('Edit Service')
+    subtitle = _('Modify service')
     icon = ''
     model = Service
     fields = ('domain', 'description', 'rol')
@@ -391,6 +509,17 @@ class ServiceEditView(AccessControl, CreateView):
         kwargs = super().get_form_kwargs()
         return kwargs
 
+    def get_form(self):
+        form = super().get_form()
+        form.fields['rol'].required = False
+        return form
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Service updated successfully'))
+        Event.set_EV_SERVICE_MODIFIED_BY_ADMIN()
+        return super().form_valid(form)
+
 
 class ServiceDeleteView(AccessControl):
     model = Service
@@ -400,12 +529,14 @@ class ServiceDeleteView(AccessControl):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         self.object.delete()
+        messages.success(self.request, _('Service deleted successfully'))
+        Event.set_EV_SERVICE_DELETED_BY_ADMIN()
         return redirect('idhub:admin_services')
 
 
 class CredentialsView(Credentials):
     template_name = "idhub/admin/credentials.html"
-    subtitle = _('Credentials list')
+    subtitle = _('View credentials')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -461,6 +592,8 @@ class RevokeCredentialsView(Credentials):
             self.object.status = VerificableCredential.Status.REVOKED
             self.object.save()
             messages.success(self.request, _('Credential revoked successfully'))
+            Event.set_EV_CREDENTIAL_REVOKED_BY_ADMIN(self.object)
+            Event.set_EV_CREDENTIAL_REVOKED(self.object)
 
         return redirect(self.success_url)
 
@@ -481,13 +614,15 @@ class DeleteCredentialsView(Credentials):
         if self.object.status in status:
             self.object.delete()
             messages.success(self.request, _('Credential deleted successfully'))
+            Event.set_EV_CREDENTIAL_DELETED(self.object)
+            Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
 
         return redirect(self.success_url)
 
 
 class DidsView(Credentials):
     template_name = "idhub/admin/dids.html"
-    subtitle = _('Organization Identities (DID)')
+    subtitle = _('Manage Identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
@@ -513,6 +648,7 @@ class DidRegisterView(Credentials, CreateView):
         form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
+        Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
         return super().form_valid(form)
 
 
@@ -546,29 +682,29 @@ class DidDeleteView(Credentials, DeleteView):
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
+        Event.set_EV_ORG_DID_DELETED_BY_ADMIN(self.object)
         self.object.delete()
         messages.success(self.request, _('DID delete successfully'))
-
         return redirect(self.success_url)
 
 
 class WalletCredentialsView(Credentials):
     template_name = "idhub/admin/wallet_credentials.html"
-    subtitle = _('Credentials')
+    subtitle = _('View org. credentials')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
 class WalletConfigIssuesView(Credentials):
     template_name = "idhub/admin/wallet_issues.html"
-    subtitle = _('Configure Issues')
+    subtitle = _('Configure credential issuance')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
 
 class SchemasView(SchemasMix):
     template_name = "idhub/admin/schemas.html"
-    subtitle = _('Template List')
+    subtitle = _('View credential templates')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -602,7 +738,7 @@ class SchemasDownloadView(SchemasMix):
 
 class SchemasNewView(SchemasMix):
     template_name = "idhub/admin/schemas_new.html"
-    subtitle = _('Upload Template')
+    subtitle = _('Upload template')
     icon = ''
     success_url = reverse_lazy('idhub:admin_schemas')
 
@@ -647,7 +783,7 @@ class SchemasNewView(SchemasMix):
 
 class SchemasImportView(SchemasMix):
     template_name = "idhub/admin/schemas_import.html"
-    subtitle = _('Import Template')
+    subtitle = _('Import template')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -675,7 +811,7 @@ class SchemasImportAddView(SchemasMix):
 
         schema = self.create_schema(file_name)
         if schema:
-            messages.success(self.request, _("The schema add successfully!"))
+            messages.success(self.request, _("The schema was added sucessfully"))
         return redirect('idhub:admin_schemas_import')
 
     def create_schema(self, file_name):
@@ -700,7 +836,7 @@ class SchemasImportAddView(SchemasMix):
 
 class ImportView(ImportExport, TemplateView):
     template_name = "idhub/admin/import.html"
-    subtitle = _('Import')
+    subtitle = _('Import data')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -737,9 +873,12 @@ class ImportAddView(ImportExport, FormView):
         return kwargs
 
     def form_valid(self, form):
-        cred = form.save()
-        if cred:
+        creds = form.save()
+        if creds:
             messages.success(self.request, _("The file import was successfully!"))
+            for cred in creds:
+                Event.set_EV_CREDENTIAL_ENABLED(cred)
+                Event.set_EV_CREDENTIAL_CAN_BE_REQUESTED(cred)
         else:
             messages.error(self.request, _("Error importing the file!"))
         return super().form_valid(form)
