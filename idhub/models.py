@@ -3,7 +3,10 @@ import requests
 import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from idhub_ssikit import generate_did_controller_key
+from utils.idhub_ssikit import (
+    generate_did_controller_key,
+    keydid_from_controller_key,
+)
 from idhub_auth.models import User
 
 
@@ -398,6 +401,7 @@ class Event(models.Model):
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     label = models.CharField(max_length=50)
+    did = models.CharField(max_length=250)
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
@@ -415,12 +419,9 @@ class DID(models.Model):
             return True
         return False
 
-    @property
-    def did(self):
-        return self.get_key().get("d")
-
     def set_did(self):
-        self.key_material = idhub_ssikit.generate_did_controller_key()
+        self.key_material = generate_did_controller_key()
+        self.did = keydid_from_controller_key(self.key_material)
 
     def get_key(self):
         return json.loads(self.key_material)
