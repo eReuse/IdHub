@@ -462,12 +462,18 @@ class VerificableCredential(models.Model):
     did_issuer = models.CharField(max_length=250)
     did_subject = models.CharField(max_length=250)
     data = models.TextField()
+    csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
         default=Status.ENABLED
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
+        related_name='vcredentials',
+    )
+    schema = models.ForeignKey(
+        Schemas,
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
@@ -488,7 +494,7 @@ class VerificableCredential(models.Model):
         return self.Status(self.status).label
 
     def get_datas(self):
-        data = json.loads(self.data).get('instance').items()
+        data = json.loads(self.csv_data).items()
         return data
 
     def issue(self, did):
@@ -497,7 +503,10 @@ class VerificableCredential(models.Model):
         self.issued_on = datetime.datetime.now()
 
     def get_issued_on(self):
-        return self.issued_on.strftime("%m/%d/%Y")
+        if self.issued_on:
+            return self.issued_on.strftime("%m/%d/%Y")
+
+        return ''
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)

@@ -114,12 +114,12 @@ class ImportForm(forms.Form):
         return user.first()
 
     def create_credential(self, user, row):
-        d = self.json_schema.copy()
-        d['instance'] = row
         return VerificableCredential(
             verified=False,
             user=user,
-            data=json.dumps(d)
+            csv_data=json.dumps(row),
+            did_issuer=self._did.did,
+            schema=self._schema,
         )
 
     def exception(self, msg):
