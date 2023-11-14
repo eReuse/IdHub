@@ -525,7 +525,8 @@ class Membership(models.Model):
 
 
 class Rol(models.Model):
-    name = models.CharField(max_length=250)
+    name = models.CharField(_("name"), max_length=250)
+    description = models.CharField(_("Description"), max_length=250, null=True)
 
     def __str__(self):
         return self.name
@@ -556,6 +557,9 @@ class UserRol(models.Model):
         on_delete=models.CASCADE,
         related_name='users',
     )
+
+    class Meta:
+        unique_together = ('user', 'service',)
 
 
 class Organization(models.Model):
