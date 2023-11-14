@@ -11,6 +11,8 @@ from idhub.models import (
     File_datas,
     Membership,
     Schemas,
+    Service,
+    UserRol,
     VerificableCredential,
 )
 from idhub_auth.models import User
@@ -139,19 +141,53 @@ class MembershipForm(forms.ModelForm):
         data = super().clean()
         start_date = data['start_date']
         end_date = data.get('end_date')
+        members = Membership.objects.filter(
+            type=data['type'],
+            user=self.instance.user
+        )
+        if self.instance.id:
+            members = members.exclude(id=self.instance.id)
+
         if (start_date and end_date):
             if start_date > end_date:
                 msg = _("The end date is less than the start date")
                 raise forms.ValidationError(msg)
 
-            members = Membership.objects.filter(
-                type=data['type'],
+            members = members.filter(
                 start_date__lte=end_date,
                 end_date__gte=start_date,
-                user=self.instance.user
             )
-            if members.exists() and not self.instance.id:
+
+            if members.exists():
                 msg = _("This membership already exists!")
                 raise forms.ValidationError(msg)
         
         return end_date
+
+
+class UserRolForm(forms.ModelForm):
+
+    class Meta:
+        model = UserRol
+        fields = ['service']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            user = self.instance.user
+            choices = self.fields['service'].choices
+            choices.queryset = choices.queryset.exclude(users__user=user)
+            self.fields['service'].choices = choices
+    
+    def clean_service(self):
+        data = super().clean()
+        service = UserRol.objects.filter(
+            service=data['service'],
+            user=self.instance.user
+        )
+
+        if service.exists():
+            msg = _("Is not possible to have a duplicate role")
+            raise forms.ValidationError(msg)
+
+        return data['service']

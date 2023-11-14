@@ -25,7 +25,12 @@ from idhub_auth.models import User
 from idhub_auth.forms import ProfileForm
 from idhub.mixins import AdminView
 from idhub.email.views import NotifyActivateUserByEmail
-from idhub.admin.forms import ImportForm, SchemaForm, MembershipForm
+from idhub.admin.forms import (
+    ImportForm,
+    MembershipForm,
+    SchemaForm,
+    UserRolForm,
+)
 from idhub.models import (
     DID,
     Event,
@@ -311,12 +316,12 @@ class PeopleMembershipDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
         
-class PeopleRolRegisterView(People, CreateView):
+class PeopleRolRegisterView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Add a user role to access a service')
     icon = 'bi bi-person'
+    form_class = UserRolForm
     model = UserRol
-    fields = ('service',)
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
@@ -331,14 +336,13 @@ class PeopleRolRegisterView(People, CreateView):
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
 
-    def get_form(self):
-        form = super().get_form()
-        choices = form.fields['service'].choices
-        choices.queryset = choices.queryset.exclude(users__user=self.user)
-        form.fields['service'].choices = choices
-        return form
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership created successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -348,19 +352,32 @@ class PeopleRolRegisterView(People, CreateView):
         return self.success_url
 
 
-class PeopleRolEditView(People, CreateView):
+class PeopleRolEditView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Modify a user role to access a service')
     icon = 'bi bi-person'
+    form_class = UserRolForm
     model = UserRol
-    fields = ('service',)
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        pk = self.kwargs.get('pk')
-        if pk:
-            self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Membership updated successfully'))
+        return super().form_valid(form)
 
     def get_success_url(self):
         self.success_url = reverse_lazy(
@@ -400,7 +417,7 @@ class RolRegisterView(AccessControl, CreateView):
     subtitle = _('Add Role')
     icon = ''
     model = Rol
-    fields = ('name',)
+    fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
     
@@ -411,12 +428,12 @@ class RolRegisterView(AccessControl, CreateView):
         return super().form_valid(form)
 
         
-class RolEditView(AccessControl, CreateView):
+class RolEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/rol_register.html"
     subtitle = _('Edit Role')
     icon = ''
     model = Rol
-    fields = ('name',)
+    fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
 
     def get_form_kwargs(self):
@@ -458,7 +475,7 @@ class ServicesView(AccessControl):
         })
         return context
 
-class ServiceRegisterView(AccessControl, CreateView):
+class ServiceRegisterView(AccessControl, UpdateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Add service')
     icon = ''
@@ -474,7 +491,7 @@ class ServiceRegisterView(AccessControl, CreateView):
         return super().form_valid(form)
 
         
-class ServiceEditView(AccessControl, CreateView):
+class ServiceEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Modify service')
     icon = ''
