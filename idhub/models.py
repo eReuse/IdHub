@@ -1,5 +1,6 @@
 import json
 import requests
+import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
@@ -443,7 +444,7 @@ class VerificableCredential(models.Model):
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
-    issuer_on = models.DateTimeField(null=True)
+    issued_on = models.DateTimeField(null=True)
     did_issuer = models.CharField(max_length=250)
     did_subject = models.CharField(max_length=250)
     data = models.TextField()
@@ -476,9 +477,13 @@ class VerificableCredential(models.Model):
         data = json.loads(self.data).get('instance').items()
         return data
 
-    def get_issued(self, did):
+    def issue(self, did):
         self.status = self.Status.ISSUED
         self.did_subject = did
+        self.issued_on = datetime.datetime.now()
+
+    def get_issued_on(self):
+        return self.issued_on.strftime("%m/%d/%Y")
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
@@ -540,7 +545,9 @@ class Service(models.Model):
     )
 
     def get_roles(self):
-        return ", ".join([x.name for x in self.rol.all()])
+        if self.rol.exists():
+            return ", ".join([x.name for x in self.rol.all()])
+        return _("None")
     
     def __str__(self):
         return "{} -> {}".format(self.domain, self.get_roles())

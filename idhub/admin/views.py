@@ -291,7 +291,6 @@ class PeopleMembershipEditView(People, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['instance'] = self.object
-        # import pdb; pdb.set_trace()
         return kwargs
 
     def form_valid(self, form):
@@ -475,7 +474,7 @@ class ServicesView(AccessControl):
         })
         return context
 
-class ServiceRegisterView(AccessControl, UpdateView):
+class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Add service')
     icon = ''
@@ -483,6 +482,11 @@ class ServiceRegisterView(AccessControl, UpdateView):
     fields = ('domain', 'description', 'rol')
     success_url = reverse_lazy('idhub:admin_services')
     object = None
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['rol'].required = False
+        return form
 
     def form_valid(self, form):
         form.save()
@@ -505,6 +509,11 @@ class ServiceEditView(AccessControl, UpdateView):
             self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
         return kwargs
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['rol'].required = False
+        return form
 
     def form_valid(self, form):
         form.save()

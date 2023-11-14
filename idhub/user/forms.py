@@ -44,7 +44,7 @@ class RequestCredentialForm(forms.Form):
 
         did = did[0].did
         cred = cred[0]
-        cred.get_issued(did)
+        cred.issue(did)
 
         if commit:
             cred.save()
