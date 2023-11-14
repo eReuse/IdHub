@@ -2,6 +2,7 @@ import json
 import requests
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from idhub_ssikit import generate_did_controller_key
 from idhub_auth.models import User
 
 
@@ -14,7 +15,6 @@ from idhub_auth.models import User
 
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
-    did = models.CharField(max_length=250, unique=True)
     label = models.CharField(max_length=50)
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
@@ -32,6 +32,16 @@ class DID(models.Model):
         if not self.user:
             return True
         return False
+
+    @property
+    def did(self):
+        return self.get_key().get("d")
+
+    def set_did(self):
+        self.key_material = idhub_ssikit.generate_did_controller_key()
+
+    def get_key(self):
+        return json.loads(self.key_material)
 
 
 class Schemas(models.Model):

@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from utils.apiregiter import iota
 from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential
@@ -183,7 +182,7 @@ class DidRegisterView(MyWallet, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.did = iota.issue_did()
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
         return super().form_valid(form)
