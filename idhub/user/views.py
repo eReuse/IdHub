@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from apiregiter import iota
+from utils.apiregiter import iota
 from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential

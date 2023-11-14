@@ -16,31 +16,22 @@ class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     did = models.CharField(max_length=250, unique=True)
     label = models.CharField(max_length=50)
+    # In JWK format. Must be stored as-is and passed whole to library functions.
+    # Example key material:
+    # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
+    key_material = models.CharField(max_length=250)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='dids',
         null=True,
     )
-    # kind = "KEY|WEB"
 
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
-
-
-class DIDControllerKey(models.Model):
-    # In JWK format. Must be stored as-is and passed whole to library functions.
-    # Example key material:
-    # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
-    key_material = models.CharField(max_length=250)
-    owner_did = models.ForeignKey(
-        DID,
-        on_delete=models.CASCADE,
-        related_name="keys"
-    )
 
 
 class Schemas(models.Model):
