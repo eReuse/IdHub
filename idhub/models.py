@@ -2,7 +2,13 @@ import json
 import requests
 import datetime
 from django.db import models
+from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+from utils.idhub_ssikit import (
+    generate_did_controller_key,
+    keydid_from_controller_key,
+    sign_credential,
+)
 from idhub_auth.models import User
 
 
@@ -396,21 +402,31 @@ class Event(models.Model):
 
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
-    did = models.CharField(max_length=250, unique=True)
     label = models.CharField(max_length=50)
+    did = models.CharField(max_length=250)
+    # In JWK format. Must be stored as-is and passed whole to library functions.
+    # Example key material:
+    # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
+    key_material = models.CharField(max_length=250)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='dids',
         null=True,
     )
-    # kind = "KEY|WEB"
 
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
+
+    def set_did(self):
+        self.key_material = generate_did_controller_key()
+        self.did = keydid_from_controller_key(self.key_material)
+
+    def get_key(self):
+        return json.loads(self.key_material)
 
 
 class Schemas(models.Model):
@@ -445,15 +461,25 @@ class VerificableCredential(models.Model):
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
-    did_issuer = models.CharField(max_length=250)
-    did_subject = models.CharField(max_length=250)
+    subject_did = models.CharField(max_length=250)
     data = models.TextField()
+    csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
         default=Status.ENABLED
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
+        related_name='vcredentials',
+    )
+    issuer_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        related_name='vcredentials',
+    )
+    schema = models.ForeignKey(
+        Schemas,
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
@@ -474,16 +500,49 @@ class VerificableCredential(models.Model):
         return self.Status(self.status).label
 
     def get_datas(self):
-        data = json.loads(self.data).get('instance').items()
+        data = json.loads(self.csv_data).items()
         return data
 
     def issue(self, did):
+        if self.status == self.Status.ISSUED:
+            return
+
         self.status = self.Status.ISSUED
-        self.did_subject = did
+        self.subject_did = did
         self.issued_on = datetime.datetime.now()
+        self.data = sign_credential(
+            self.render(),
+            self.issuer_did.key_material
+        )
+
+    def get_context(self):
+        d = json.loads(self.csv_data)
+        format = "%Y-%m-%dT%H:%M:%SZ"
+        issuance_date = self.issued_on.strftime(format)
+
+        context = {
+            'vc_id': self.id,
+            'issuer_did': self.issuer_did.did,
+            'subject_did': self.subject_did,
+            'issuance_date': issuance_date,
+        }
+        context.update(d)
+        return context
+
+    def render(self):
+        context = self.get_context()
+        template_name = 'credentials/{}'.format(
+            self.schema.file_schema
+        )
+        tmpl = get_template(template_name)
+        return tmpl.render(context)
+
 
     def get_issued_on(self):
-        return self.issued_on.strftime("%m/%d/%Y")
+        if self.issued_on:
+            return self.issued_on.strftime("%m/%d/%Y")
+
+        return ''
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
