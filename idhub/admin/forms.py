@@ -118,7 +118,7 @@ class ImportForm(forms.Form):
             verified=False,
             user=user,
             csv_data=json.dumps(row),
-            did_issuer=self._did.did,
+            issuer_did=self._did,
             schema=self._schema,
         )
 
