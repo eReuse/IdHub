@@ -3,6 +3,7 @@ import datetime
 import didkit
 import json
 import jinja2
+from django.template.backends.django import Template
 
 
 def generate_did_controller_key():
@@ -42,6 +43,21 @@ def render_and_sign_credential(vc_template: jinja2.Template, jwk_issuer, vc_data
 
     if vc_data.get("issuance_date") is None:
         vc_data["issuance_date"] = datetime.datetime.now().replace(microsecond=0).isoformat()
+
+    return asyncio.run(inner())
+
+    
+def sign_credential(unsigned_vc: str, jwk_issuer):
+    """
+        Signs the and unsigned credential with the provided key.
+    """
+    async def inner():
+      signed_vc = await didkit.issue_credential(
+          unsigned_vc,
+          '{"proofFormat": "ldp"}',
+          jwk_issuer
+      )
+      return signed_vc
 
     return asyncio.run(inner())
 

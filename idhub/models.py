@@ -2,10 +2,12 @@ import json
 import requests
 import datetime
 from django.db import models
+from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
+    sign_credential,
 )
 from idhub_auth.models import User
 
@@ -459,8 +461,7 @@ class VerificableCredential(models.Model):
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
-    did_issuer = models.CharField(max_length=250)
-    did_subject = models.CharField(max_length=250)
+    subject_did = models.CharField(max_length=250)
     data = models.TextField()
     csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
@@ -469,6 +470,11 @@ class VerificableCredential(models.Model):
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
+        related_name='vcredentials',
+    )
+    issuer_did = models.ForeignKey(
+        DID,
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
@@ -498,9 +504,39 @@ class VerificableCredential(models.Model):
         return data
 
     def issue(self, did):
+        if self.status == self.Status.ISSUED:
+            return
+
         self.status = self.Status.ISSUED
-        self.did_subject = did
+        self.subject_did = did
         self.issued_on = datetime.datetime.now()
+        self.data = sign_credential(
+            self.render(),
+            self.issuer_did.key_material
+        )
+
+    def get_context(self):
+        d = json.loads(self.csv_data)
+        format = "%Y-%m-%dT%H:%M:%SZ"
+        issuance_date = self.issued_on.strftime(format)
+
+        context = {
+            'vc_id': self.id,
+            'issuer_did': self.issuer_did.did,
+            'subject_did': self.subject_did,
+            'issuance_date': issuance_date,
+        }
+        context.update(d)
+        return context
+
+    def render(self):
+        context = self.get_context()
+        template_name = 'credentials/{}'.format(
+            self.schema.file_schema
+        )
+        tmpl = get_template(template_name)
+        return tmpl.render(context)
+
 
     def get_issued_on(self):
         if self.issued_on:
