@@ -1,4 +1,5 @@
 import json
+import pytz
 import requests
 import datetime
 from django.db import models
@@ -509,7 +510,7 @@ class VerificableCredential(models.Model):
 
         self.status = self.Status.ISSUED
         self.subject_did = did
-        self.issued_on = datetime.datetime.now()
+        self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
         self.data = sign_credential(
             self.render(),
             self.issuer_did.key_material
