@@ -148,6 +148,10 @@ class MembershipForm(forms.ModelForm):
         if self.instance.id:
             members = members.exclude(id=self.instance.id)
 
+        if members.filter(start_date__lte=start_date, end_date=None).exists():
+            msg = _("This membership already exists!")
+            raise forms.ValidationError(msg)
+            
         if (start_date and end_date):
             if start_date > end_date:
                 msg = _("The end date is less than the start date")
@@ -161,6 +165,16 @@ class MembershipForm(forms.ModelForm):
             if members.exists():
                 msg = _("This membership already exists!")
                 raise forms.ValidationError(msg)
+
+        if not end_date:
+            members = members.filter(
+                start_date__gte=start_date,
+            )
+
+            if members.exists():
+                msg = _("This membership already exists!")
+                raise forms.ValidationError(msg)
+            
         
         return end_date
 
