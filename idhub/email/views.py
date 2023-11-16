@@ -47,9 +47,12 @@ class NotifyActivateUserByEmail:
             subject, body, from_email, [to_email])
         html_email = loader.render_to_string(html_email_template_name, context)
         email_message.attach_alternative(html_email, 'text/html')
-        if settings.DEVELOPMENT:
-            print(to_email)
-            print(body)
-            return
+        try:
+            if settings.DEVELOPMENT:
+                print(to_email)
+                print(body)
+                return
 
-        email_message.send()
+            email_message.send()
+        except Exception:
+            return
