@@ -15,36 +15,36 @@ from idhub_auth.models import User
 
 class Event(models.Model):
     class Types(models.IntegerChoices):
-        EV_USR_REGISTERED = 1, "EV_USR_REGISTERED"
-        EV_USR_WELCOME = 2, "EV_USR_WELCOME"
-        EV_DATA_UPDATE_REQUESTED_BY_USER = 3, "EV_DATA_UPDATE_REQUESTED_BY_USER"
-        EV_DATA_UPDATE_REQUESTED = 4, "EV_DATA_UPDATE_REQUESTED"
-        EV_USR_UPDATED_BY_ADMIN = 5, "EV_USR_UPDATED_BY_ADMIN"
-        EV_USR_UPDATED = 6, "EV_USR_UPDATED"
-        EV_USR_DELETED_BY_ADMIN = 7, "EV_USR_DELETED_BY_ADMIN"
-        EV_DID_CREATED_BY_USER = 8, "EV_DID_CREATED_BY_USER"
-        EV_DID_CREATED = 9, "EV_DID_CREATED"
-        EV_DID_DELETED = 10, "EV_DID_DELETED"
-        EV_CREDENTIAL_DELETED_BY_ADMIN = 11, "EV_CREDENTIAL_DELETED_BY_ADMIN"
-        EV_CREDENTIAL_DELETED = 12, "EV_CREDENTIAL_DELETED"
-        EV_CREDENTIAL_ISSUED_FOR_USER = 13, "EV_CREDENTIAL_ISSUED_FOR_USER"
-        EV_CREDENTIAL_ISSUED = 14, "EV_CREDENTIAL_ISSUED"
-        EV_CREDENTIAL_PRESENTED_BY_USER = 15, "EV_CREDENTIAL_PRESENTED_BY_USER"
-        EV_CREDENTIAL_PRESENTED = 16, "EV_CREDENTIAL_PRESENTED"
-        EV_CREDENTIAL_ENABLED = 17, "EV_CREDENTIAL_ENABLED"
-        EV_CREDENTIAL_CAN_BE_REQUESTED = 18, "EV_CREDENTIAL_CAN_BE_REQUESTED"
-        EV_CREDENTIAL_REVOKED_BY_ADMIN = 19, "EV_CREDENTIAL_REVOKED_BY_ADMIN"
-        EV_CREDENTIAL_REVOKED = 20, "EV_CREDENTIAL_REVOKED"
-        EV_ROLE_CREATED_BY_ADMIN = 21, "EV_ROLE_CREATED_BY_ADMIN"
-        EV_ROLE_MODIFIED_BY_ADMIN = 22, "EV_ROLE_MODIFIED_BY_ADMIN"
-        EV_ROLE_DELETED_BY_ADMIN = 23, "EV_ROLE_DELETED_BY_ADMIN"
-        EV_SERVICE_CREATED_BY_ADMIN = 24, "EV_SERVICE_CREATED_BY_ADMIN"
-        EV_SERVICE_MODIFIED_BY_ADMIN = 25, "EV_SERVICE_MODIFIED_BY_ADMIN"
-        EV_SERVICE_DELETED_BY_ADMIN = 26, "EV_SERVICE_DELETED_BY_ADMIN"
-        EV_ORG_DID_CREATED_BY_ADMIN = 27, "EV_ORG_DID_CREATED_BY_ADMIN"
-        EV_ORG_DID_DELETED_BY_ADMIN = 28, "EV_ORG_DID_DELETED_BY_ADMIN"
-        EV_USR_DEACTIVATED_BY_ADMIN = 29, "EV_USR_DEACTIVATED_BY_ADMIN"
-        EV_USR_ACTIVATED_BY_ADMIN = 30, "EV_USR_ACTIVATED_BY_ADMIN"
+        EV_USR_REGISTERED = 1, "User registered"
+        EV_USR_WELCOME = 2, "User welcomed"
+        EV_DATA_UPDATE_REQUESTED_BY_USER = 3, "Data update requested by user"
+        EV_DATA_UPDATE_REQUESTED = 4, "Data update requested. Pending approval by administrator"
+        EV_USR_UPDATED_BY_ADMIN = 5, "User's data updated by admin"
+        EV_USR_UPDATED = 6, "Your data updated by admin"
+        EV_USR_DELETED_BY_ADMIN = 7, "User deactivated by admin"
+        EV_DID_CREATED_BY_USER = 8, "DID created by user"
+        EV_DID_CREATED = 9, "DID created"
+        EV_DID_DELETED = 10, "DID deleted"
+        EV_CREDENTIAL_DELETED_BY_USER = 11, "Credential deleted by user"
+        EV_CREDENTIAL_DELETED = 12, "Credential deleted"
+        EV_CREDENTIAL_ISSUED_FOR_USER = 13, "Credential issued for user"
+        EV_CREDENTIAL_ISSUED = 14, "Credential issued"
+        EV_CREDENTIAL_PRESENTED_BY_USER = 15, "Credential presented by user"
+        EV_CREDENTIAL_PRESENTED = 16, "Credential presented"
+        EV_CREDENTIAL_ENABLED = 17, "Credential enabled"
+        EV_CREDENTIAL_CAN_BE_REQUESTED = 18, "Credential available"
+        EV_CREDENTIAL_REVOKED_BY_ADMIN = 19, "Credential revoked by admin"
+        EV_CREDENTIAL_REVOKED = 20, "Credential revoked"
+        EV_ROLE_CREATED_BY_ADMIN = 21, "Role created by admin"
+        EV_ROLE_MODIFIED_BY_ADMIN = 22, "Role modified by admin"
+        EV_ROLE_DELETED_BY_ADMIN = 23, "Role deleted by admin"
+        EV_SERVICE_CREATED_BY_ADMIN = 24, "Service created by admin"
+        EV_SERVICE_MODIFIED_BY_ADMIN = 25, "Service modified by admin"
+        EV_SERVICE_DELETED_BY_ADMIN = 26, "Service deleted by admin"
+        EV_ORG_DID_CREATED_BY_ADMIN = 27, "Organisational DID created by admin"
+        EV_ORG_DID_DELETED_BY_ADMIN = 28, "Organisational DID deleted by admin"
+        EV_USR_DEACTIVATED_BY_ADMIN = 29, "User deactivated"
+        EV_USR_ACTIVATED_BY_ADMIN = 30, "User activated"
 
     created = models.DateTimeField(auto_now=True)
     message = models.CharField(max_length=350)
@@ -58,7 +58,7 @@ class Event(models.Model):
         null=True,
     )
 
-    def get_type(self):
+    def get_type_name(self):
         return self.Types(self.type).label
 
     @classmethod
