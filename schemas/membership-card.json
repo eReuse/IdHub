@@ -1,0 +1,64 @@
+{
+  "$id": "https://gitea.pangea.org/trustchain-oc1-orchestral/schemas/membership-card-schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "MembershipCard",
+  "description": "MembershipCard credential using JsonSchema",
+  "type": "object",
+  "properties": {
+    "credentialSubject": {
+      "type": "object",
+      "properties": {
+        "organisation": {
+          "type": "string"
+        },
+        "membershipType": {
+          "type": "string"
+        },
+        "AffiliatedFrom": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "AffiliatedUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "typeOfPerson": {
+          "type": "string",
+          "enum": [
+            "individual",
+            "org"
+          ]
+        },
+        "identityDocType": {
+          "type": "string",
+          "enum": [
+            "DNI",
+            "NIF",
+            "NIE",
+            "PASSPORT"
+          ]
+        },
+        "identityNumber": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "surnames": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "required": [
+        "organisation",
+        "typeOfPerson",
+        "name",
+        "surnames",
+        "email"
+      ]
+    }
+  }
+}

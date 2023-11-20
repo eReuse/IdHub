@@ -3,6 +3,7 @@ import pytz
 import requests
 import datetime
 from django.db import models
+from django.conf import settings
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from utils.idhub_ssikit import (
@@ -492,10 +493,19 @@ class VerificableCredential(models.Model):
         return json.loads(self.data)
 
     def type(self):
-        return self.get_schema.get('name', '')
+        if self.data:
+            return self.get_schema.get('type')[-1]
+
+        return self.schema.name()
 
     def description(self):
-        return self.get_schema.get('description', '')
+        if not self.data:
+            return self.schema.description()
+
+        for des in self.get_schema.get('description', []):
+            if settings.LANGUAGE_CODE == des.get('lang'):
+                return des.get('value', '')
+        return ''
 
     def get_status(self):
         return self.Status(self.status).label
@@ -526,6 +536,8 @@ class VerificableCredential(models.Model):
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did,
             'issuance_date': issuance_date,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
         }
         context.update(d)
         return context

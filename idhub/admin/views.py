@@ -772,7 +772,7 @@ class SchemasNewView(SchemasMix):
             return
         try:
             data = f.read().decode('utf-8')
-            json.loads(data)
+            assert credtools.validate_schema(json.loads(data))
         except Exception:
             messages.error(self.request, _('This is not a schema valid!'))
             return
