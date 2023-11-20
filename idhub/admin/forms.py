@@ -1,11 +1,11 @@
 import csv
 import json
 import pandas as pd
-from jsonschema import validate
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from utils import credtools
 from idhub.models import (
     DID,
     File_datas,
@@ -78,7 +78,7 @@ class ImportForm(forms.Form):
         for n in range(df.last_valid_index()+1):
             row = {}
             for k in data_pd.keys():
-                row[k] = data_pd[k][n]
+                row[k] = data_pd[k][n] or ''
 
             user = self.validate_jsonld(n, row)
             self.rows[user] = row
@@ -100,7 +100,7 @@ class ImportForm(forms.Form):
 
     def validate_jsonld(self, line, row):
         try:
-            validate(instance=row, schema=self.json_schema)
+            credtools.validate_json(row, self.json_schema)
         except Exception as e:
             msg = "line {}: {}".format(line+1, e)
             self.exception(msg)
