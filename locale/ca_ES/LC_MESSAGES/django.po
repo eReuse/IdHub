@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-21 12:37+0100\n"
+"POT-Creation-Date: 2023-11-21 14:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1758,8 +1758,8 @@ msgstr ""
 msgid "The schema was added sucessfully"
 msgstr ""
 
-#: idhub/admin/views.py:839
-msgid "Data"
+#: idhub/admin/views.py:839 idhub/templates/idhub/admin/import.html:31
+msgid "Import data"
 msgstr ""
 
 #: idhub/admin/views.py:852 idhub/admin/views.py:865
@@ -2219,11 +2219,6 @@ msgstr ""
 msgid "Success"
 msgstr ""
 
-#: idhub/templates/idhub/admin/import.html:31
-#: idhub/templates/idhub/base_admin.html:153
-msgid "Import data"
-msgstr ""
-
 #: idhub/templates/idhub/admin/issue_credentials.html:14
 #: idhub/templates/idhub/admin/issue_credentials.html:72
 msgid "Revoke"
@@ -2449,7 +2444,11 @@ msgid "Manage Identities (DIDs)"
 msgstr ""
 
 #: idhub/templates/idhub/base_admin.html:147
-msgid "Credential template management"
+msgid "Templates"
+msgstr ""
+
+#: idhub/templates/idhub/base_admin.html:153
+msgid "Data"
 msgstr ""
 
 #: idhub/templates/idhub/user/credentials_presentation.html:30
