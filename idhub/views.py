@@ -11,6 +11,10 @@ class LoginView(auth_views.LoginView):
     }
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            self.extra_context['success_url'] = reverse_lazy(
+                'idhub:admin_dashboard'
+            )
         if request.GET.get('next'):
             self.extra_context['success_url'] = request.GET.get('next')
         return super().get(request, *args, **kwargs)
