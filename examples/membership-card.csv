@@ -1,2 +1,2 @@
-name	surnames	email	typeOfPerson	membershipType	organisation	validFrom	validUntil	identityDocType	identityNumber
-Pepe	Gómez	user1@example.org	individual	Member	Pangea	01-01-2023			
+name	surnames	email	typeOfPerson	membershipType	organisation	affiliatedSince
+Pepe	Gómez	user1@example.org	individual	Member	Pangea	01-01-2023

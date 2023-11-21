@@ -14,11 +14,11 @@
         "membershipType": {
           "type": "string"
         },
-        "AffiliatedFrom": {
+        "affiliatedSince": {
           "type": "string",
           "format": "date-time"
         },
-        "AffiliatedUntil": {
+        "affiliatedUntil": {
           "type": "string",
           "format": "date-time"
         },
@@ -54,6 +54,7 @@
       },
       "required": [
         "organisation",
+        "affiliatedSince",
         "typeOfPerson",
         "name",
         "surnames",
