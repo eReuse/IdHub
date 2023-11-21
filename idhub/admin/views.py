@@ -836,7 +836,7 @@ class SchemasImportAddView(SchemasMix):
 
 class ImportView(ImportExport, TemplateView):
     template_name = "idhub/admin/import.html"
-    subtitle = _('Data')
+    subtitle = _('Import data')
     icon = ''
 
     def get_context_data(self, **kwargs):
