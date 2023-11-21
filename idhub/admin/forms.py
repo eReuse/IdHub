@@ -75,8 +75,10 @@ class ImportForm(forms.Form):
         if not data_pd:
             self.exception("This file is empty!")
 
+        properties = self.json_schema['properties']['credentialSubject']['properties']
+        head_row = {x: '' for x in properties.keys()}
         for n in range(df.last_valid_index()+1):
-            row = {}
+            row = head_row.copy()
             for k in data_pd.keys():
                 row[k] = data_pd[k][n] or ''
 
