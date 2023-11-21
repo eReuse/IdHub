@@ -46,7 +46,7 @@ from idhub.models import (
 class DashboardView(AdminView, TemplateView):
     template_name = "idhub/admin/dashboard.html"
     title = _('Dashboard')
-    subtitle = _('Success')
+    subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
 
@@ -58,7 +58,7 @@ class DashboardView(AdminView, TemplateView):
         return context
 
 class People(AdminView):
-    title = _("User Management")
+    title = _("User management")
     section = "People"
 
 
@@ -68,12 +68,12 @@ class AccessControl(AdminView, TemplateView):
 
 
 class Credentials(AdminView, TemplateView):
-    title = _("Credential Management")
+    title = _("Credential management")
     section = "Credential"
 
 
 class SchemasMix(AdminView, TemplateView):
-    title = _("Template Management")
+    title = _("Template management")
     section = "Template"
 
 
@@ -121,7 +121,7 @@ class PeopleActivateView(PeopleView):
         self.object = get_object_or_404(self.model, pk=self.pk)
 
         if self.object == self.request.user:
-            messages.error(self.request, _('Is not possible deactivate your account!'))
+            messages.error(self.request, _('It is not possible deactivate your account!'))
             return redirect('idhub:admin_people', self.object.id)
 
         if self.object.is_active:
@@ -145,7 +145,7 @@ class PeopleDeleteView(PeopleView):
             Event.set_EV_USR_DELETED_BY_ADMIN(self.object)
             self.object.delete()
         else:
-            messages.error(self.request, _('Is not possible delete your account!'))
+            messages.error(self.request, _('It is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
             
@@ -181,7 +181,7 @@ class PeopleEditView(People, FormView):
 
     def form_valid(self, form):
         user = form.save()
-        messages.success(self.request, _('The account is updated successfully'))
+        messages.success(self.request, _('The account was updated successfully'))
         Event.set_EV_USR_UPDATED_BY_ADMIN(user)
         Event.set_EV_USR_UPDATED(user)
 
@@ -412,7 +412,7 @@ class RolesView(AccessControl):
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Add Role')
+    subtitle = _('Add role')
     icon = ''
     model = Rol
     fields = ('name', "description")
@@ -428,7 +428,7 @@ class RolRegisterView(AccessControl, CreateView):
         
 class RolEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/rol_register.html"
-    subtitle = _('Edit Role')
+    subtitle = _('Edit role')
     icon = ''
     model = Rol
     fields = ('name', "description")
@@ -549,7 +549,7 @@ class CredentialsView(Credentials):
 
 class CredentialView(Credentials):
     template_name = "idhub/admin/issue_credentials.html"
-    subtitle = _('Change status of Credential')
+    subtitle = _('Change credential status')
     icon = ''
     model = VerificableCredential
 
@@ -622,7 +622,7 @@ class DeleteCredentialsView(Credentials):
 
 class DidsView(Credentials):
     template_name = "idhub/admin/dids.html"
-    subtitle = _('Manage Identities (DID)')
+    subtitle = _('Manage identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
 
@@ -635,7 +635,7 @@ class DidsView(Credentials):
 
 class DidRegisterView(Credentials, CreateView):
     template_name = "idhub/admin/did_register.html"
-    subtitle = _('Add a new Organization Identities (DID)')
+    subtitle = _('Add a new organizational identity (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
@@ -774,7 +774,7 @@ class SchemasNewView(SchemasMix):
             data = f.read().decode('utf-8')
             assert credtools.validate_schema(json.loads(data))
         except Exception:
-            messages.error(self.request, _('This is not a schema valid!'))
+            messages.error(self.request, _('This is not a valid schema!'))
             return
         schema = Schemas.objects.create(file_schema=file_name, data=data)
         schema.save()
@@ -819,7 +819,7 @@ class SchemasImportAddView(SchemasMix):
         try:
             json.loads(data)
         except Exception:
-            messages.error(self.request, _('This is not a schema valid!'))
+            messages.error(self.request, _('This is not a valid schema!'))
             return
         schema = Schemas.objects.create(file_schema=file_name, data=data)
         schema.save()
@@ -836,7 +836,7 @@ class SchemasImportAddView(SchemasMix):
 
 class ImportView(ImportExport, TemplateView):
     template_name = "idhub/admin/import.html"
-    subtitle = _('Import data')
+    subtitle = _('Data')
     icon = ''
 
     def get_context_data(self, **kwargs):
@@ -875,7 +875,7 @@ class ImportAddView(ImportExport, FormView):
     def form_valid(self, form):
         creds = form.save()
         if creds:
-            messages.success(self.request, _("The file import was successfully!"))
+            messages.success(self.request, _("The file was imported successfully!"))
             for cred in creds:
                 Event.set_EV_CREDENTIAL_ENABLED(cred)
                 Event.set_EV_CREDENTIAL_CAN_BE_REQUESTED(cred)

@@ -30,7 +30,7 @@ class MyWallet(UserView):
 class DashboardView(UserView, TemplateView):
     template_name = "idhub/user/dashboard.html"
     title = _('Dashboard')
-    subtitle = _('Success')
+    subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-13 11:12+0100\n"
+"POT-Creation-Date: 2023-11-21 12:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -886,7 +886,7 @@ msgstr ""
 #: idhub/templates/idhub/admin/issue_credentials.html:15
 #: idhub/templates/idhub/admin/issue_credentials.html:18
 #: idhub/templates/idhub/admin/issue_credentials.html:90
-#: idhub/templates/idhub/admin/roles.html:25
+#: idhub/templates/idhub/admin/roles.html:27
 #: idhub/templates/idhub/admin/schemas.html:56
 #: idhub/templates/idhub/admin/services.html:29
 #: idhub/templates/idhub/admin/user.html:15
@@ -1533,400 +1533,445 @@ msgstr ""
 msgid "show this help message and exit"
 msgstr ""
 
-#: idhub/admin/forms.py:106
+#: idhub/admin/forms.py:112
 msgid "The user does not exist!"
 msgstr ""
 
-#: idhub/admin/views.py:43 idhub/templates/idhub/base.html:69
-#: idhub/templates/idhub/base_admin.html:69 idhub/user/views.py:33
+#: idhub/admin/forms.py:154 idhub/admin/forms.py:168 idhub/admin/forms.py:177
+msgid "This membership already exists!"
+msgstr ""
+
+#: idhub/admin/forms.py:159
+msgid "The end date is less than the start date"
+msgstr ""
+
+#: idhub/admin/forms.py:206
+msgid "Is not possible to have a duplicate role"
+msgstr ""
+
+#: idhub/admin/views.py:48 idhub/templates/idhub/base.html:69
+#: idhub/templates/idhub/base_admin.html:69 idhub/user/views.py:32
 msgid "Dashboard"
 msgstr ""
 
-#: idhub/admin/views.py:44 idhub/templates/idhub/admin/import.html:17
-#: idhub/user/views.py:34
-msgid "Success"
-msgstr ""
-
-#: idhub/admin/views.py:56
-msgid "User Management"
+#: idhub/admin/views.py:49 idhub/user/views.py:33
+msgid "Events"
 msgstr ""
 
 #: idhub/admin/views.py:61
-msgid "Access control management"
+msgid "User management"
 msgstr ""
 
 #: idhub/admin/views.py:66
-msgid "Credential Management"
+msgid "Access control management"
 msgstr ""
 
-#: idhub/admin/views.py:71
-msgid "Template Management"
+#: idhub/admin/views.py:71 idhub/user/views.py:74
+msgid "Credential management"
 msgstr ""
 
 #: idhub/admin/views.py:76
+msgid "Template management"
+msgstr ""
+
+#: idhub/admin/views.py:81
 msgid "Data file management"
 msgstr ""
 
-#: idhub/admin/views.py:82 idhub/templates/idhub/base_admin.html:81
+#: idhub/admin/views.py:87 idhub/templates/idhub/base_admin.html:81
 msgid "View users"
 msgstr ""
 
-#: idhub/admin/views.py:95
+#: idhub/admin/views.py:100
 msgid "User personal information"
 msgstr ""
 
-#: idhub/admin/views.py:119
-msgid "Is not possible deactivate your account!"
+#: idhub/admin/views.py:124
+msgid "It is not possible deactivate your account!"
 msgstr ""
 
-#: idhub/admin/views.py:143 idhub/admin/views.py:261
-msgid "Is not possible delete your account!"
+#: idhub/admin/views.py:148
+msgid "It is not possible delete your account!"
 msgstr ""
 
 #: idhub/admin/views.py:155
-msgid "The account is updated successfully"
+msgid "Update user"
 msgstr ""
 
-#: idhub/admin/views.py:164 idhub/templates/idhub/base_admin.html:86
+#: idhub/admin/views.py:184
+msgid "The account was updated successfully"
+msgstr ""
+
+#: idhub/admin/views.py:193 idhub/templates/idhub/base_admin.html:86
 msgid "Add user"
 msgstr ""
 
-#: idhub/admin/views.py:179
+#: idhub/admin/views.py:207
 msgid "The account was created successfully"
 msgstr ""
 
-#: idhub/admin/views.py:193
+#: idhub/admin/views.py:221 idhub/admin/views.py:265
 msgid "Associate a membership to the user"
 msgstr ""
 
-#: idhub/admin/views.py:230
-msgid "People add membership"
+#: idhub/admin/views.py:252 idhub/admin/views.py:342
+msgid "Membership created successfully"
 msgstr ""
 
-#: idhub/admin/views.py:268
+#: idhub/admin/views.py:297 idhub/admin/views.py:377
+msgid "Membership updated successfully"
+msgstr ""
+
+#: idhub/admin/views.py:312
+msgid "Is not possible delete your account!"
+msgstr ""
+
+#: idhub/admin/views.py:319
 msgid "Add a user role to access a service"
 msgstr ""
 
-#: idhub/admin/views.py:298
+#: idhub/admin/views.py:355
 msgid "Modify a user role to access a service"
 msgstr ""
 
-#: idhub/admin/views.py:333 idhub/templates/idhub/base_admin.html:99
+#: idhub/admin/views.py:403 idhub/templates/idhub/base_admin.html:99
 msgid "Manage roles"
 msgstr ""
 
-#: idhub/admin/views.py:345 idhub/templates/idhub/admin/roles.html:31
-#: idhub/templates/idhub/admin/user_edit.html:93
-msgid "Add Role"
-msgstr ""
-
-#: idhub/admin/views.py:354
-msgid "Role created successfully"
-msgstr ""
-
-#: idhub/admin/views.py:361
-msgid "Edit Role"
-msgstr ""
-
-#: idhub/admin/views.py:376
-msgid "Role updated successfully"
-msgstr ""
-
-#: idhub/admin/views.py:389
-msgid "Role deleted successfully"
-msgstr ""
-
-#: idhub/admin/views.py:396 idhub/templates/idhub/base_admin.html:104
-msgid "Manage services"
-msgstr ""
-
-#: idhub/admin/views.py:408
-msgid "Add service"
-msgstr ""
-
-#: idhub/admin/views.py:417
-msgid "Service created successfully"
+#: idhub/admin/views.py:415
+msgid "Add role"
 msgstr ""
 
 #: idhub/admin/views.py:424
+msgid "Role created successfully"
+msgstr ""
+
+#: idhub/admin/views.py:431
+msgid "Edit role"
+msgstr ""
+
+#: idhub/admin/views.py:446
+msgid "Role updated successfully"
+msgstr ""
+
+#: idhub/admin/views.py:459
+msgid "Role deleted successfully"
+msgstr ""
+
+#: idhub/admin/views.py:466 idhub/templates/idhub/base_admin.html:104
+msgid "Manage services"
+msgstr ""
+
+#: idhub/admin/views.py:478 idhub/templates/idhub/admin/services.html:35
+msgid "Add service"
+msgstr ""
+
+#: idhub/admin/views.py:492
+msgid "Service created successfully"
+msgstr ""
+
+#: idhub/admin/views.py:499
 msgid "Modify service"
 msgstr ""
 
-#: idhub/admin/views.py:439
+#: idhub/admin/views.py:519
 msgid "Service updated successfully"
 msgstr ""
 
-#: idhub/admin/views.py:452
+#: idhub/admin/views.py:532
 msgid "Service deleted successfully"
 msgstr ""
 
-#: idhub/admin/views.py:459 idhub/templates/idhub/base_admin.html:117
+#: idhub/admin/views.py:539 idhub/templates/idhub/base_admin.html:117
 msgid "View credentials"
 msgstr ""
 
-#: idhub/admin/views.py:472
-msgid "Change status of Credential"
+#: idhub/admin/views.py:552
+msgid "Change credential status"
 msgstr ""
 
-#: idhub/admin/views.py:514
+#: idhub/admin/views.py:594
 msgid "Credential revoked successfully"
 msgstr ""
 
-#: idhub/admin/views.py:536
+#: idhub/admin/views.py:616
 msgid "Credential deleted successfully"
 msgstr ""
 
-#: idhub/admin/views.py:545
-msgid "Manage Identities (DID)"
+#: idhub/admin/views.py:625
+msgid "Manage identities (DID)"
 msgstr ""
 
-#: idhub/admin/views.py:558
-msgid "Add a new Organization Identities (DID)"
+#: idhub/admin/views.py:638
+msgid "Add a new organizational identity (DID)"
 msgstr ""
 
-#: idhub/admin/views.py:570 idhub/user/views.py:195
+#: idhub/admin/views.py:650 idhub/user/views.py:194
 msgid "DID created successfully"
 msgstr ""
 
-#: idhub/admin/views.py:577 idhub/admin/views.py:596
+#: idhub/admin/views.py:657 idhub/admin/views.py:676
 msgid "Organization Identities (DID)"
 msgstr ""
 
-#: idhub/admin/views.py:591 idhub/user/views.py:218
+#: idhub/admin/views.py:671 idhub/user/views.py:217
 msgid "DID updated successfully"
 msgstr ""
 
-#: idhub/admin/views.py:607 idhub/user/views.py:234
+#: idhub/admin/views.py:687 idhub/user/views.py:233
 msgid "DID delete successfully"
 msgstr ""
 
-#: idhub/admin/views.py:613 idhub/templates/idhub/base_admin.html:132
+#: idhub/admin/views.py:693 idhub/templates/idhub/base_admin.html:132
 msgid "View org. credentials"
 msgstr ""
 
-#: idhub/admin/views.py:620 idhub/templates/idhub/base_admin.html:137
+#: idhub/admin/views.py:700 idhub/templates/idhub/base_admin.html:137
 msgid "Configure credential issuance"
 msgstr ""
 
-#: idhub/admin/views.py:627
+#: idhub/admin/views.py:707
 msgid "View credential templates"
 msgstr ""
 
-#: idhub/admin/views.py:661
+#: idhub/admin/views.py:741
 msgid "Upload template"
 msgstr ""
 
-#: idhub/admin/views.py:677
+#: idhub/admin/views.py:757
 msgid "There are some errors in the file"
 msgstr ""
 
-#: idhub/admin/views.py:691
+#: idhub/admin/views.py:771
 msgid "This template already exists!"
 msgstr ""
 
-#: idhub/admin/views.py:697 idhub/admin/views.py:742
-msgid "This is not a schema valid!"
+#: idhub/admin/views.py:777 idhub/admin/views.py:822
+msgid "This is not a valid schema!"
 msgstr ""
 
-#: idhub/admin/views.py:706
+#: idhub/admin/views.py:786
 msgid "Import template"
 msgstr ""
 
-#: idhub/admin/views.py:734
+#: idhub/admin/views.py:814
 msgid "The schema was added sucessfully"
 msgstr ""
 
-#: idhub/admin/views.py:759 idhub/templates/idhub/admin/import.html:31
-#: idhub/templates/idhub/base_admin.html:153
-msgid "Import data"
+#: idhub/admin/views.py:839
+msgid "Data"
 msgstr ""
 
-#: idhub/admin/views.py:772 idhub/admin/views.py:785
+#: idhub/admin/views.py:852 idhub/admin/views.py:865
 msgid "Import"
 msgstr ""
 
-#: idhub/admin/views.py:798
-msgid "The file import was successfully!"
+#: idhub/admin/views.py:878
+msgid "The file was imported successfully!"
 msgstr ""
 
-#: idhub/admin/views.py:803
+#: idhub/admin/views.py:883
 msgid "Error importing the file!"
 msgstr ""
 
-#: idhub/models.py:58
+#: idhub/models.py:67
 #, python-brace-format
 msgid ""
 "The user {username} was registered: name: {first_name}, last name: "
 "{last_name}"
 msgstr ""
 
-#: idhub/models.py:70
+#: idhub/models.py:79
 #, python-brace-format
 msgid ""
 "Welcome. You has been registered: name: {first_name}, last name: {last_name}"
 msgstr ""
 
-#: idhub/models.py:83
+#: idhub/models.py:92
 #, python-brace-format
 msgid ""
 "The user '{username}' has request the update of the following information: "
 msgstr ""
 
-#: idhub/models.py:95
+#: idhub/models.py:104
 msgid "You have requested the update of the following information: "
 msgstr ""
 
-#: idhub/models.py:132
+#: idhub/models.py:141
 #, python-brace-format
 msgid "The admin has deleted the user: username: {username}"
 msgstr ""
 
-#: idhub/models.py:142
+#: idhub/models.py:151
 #, python-brace-format
 msgid "New DID with DID-ID: '{did}' created by user '{username}'"
 msgstr ""
 
-#: idhub/models.py:153
+#: idhub/models.py:162
 #, python-brace-format
 msgid "New DID with label: '{label}' and DID-ID: '{did}' was created'"
 msgstr ""
 
-#: idhub/models.py:165
+#: idhub/models.py:174
 #, python-brace-format
 msgid ""
 "The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet"
 msgstr ""
 
-#: idhub/models.py:177
+#: idhub/models.py:186
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was deleted"
 msgstr ""
 
-#: idhub/models.py:188
+#: idhub/models.py:197
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was deleted from your wallet"
 msgstr ""
 
-#: idhub/models.py:200
+#: idhub/models.py:209
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued for user {username}"
 msgstr ""
 
-#: idhub/models.py:212
+#: idhub/models.py:221
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued and stored in your "
 "wallet"
 msgstr ""
 
-#: idhub/models.py:254
+#: idhub/models.py:263
 #, python-brace-format
 msgid "The credential of type '{type}' was enabled for user {username}"
 msgstr ""
 
-#: idhub/models.py:265
+#: idhub/models.py:274
 #, python-brace-format
 msgid "You can request the '{type}' credential"
 msgstr ""
 
-#: idhub/models.py:276
+#: idhub/models.py:285
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked for "
 msgstr ""
 
-#: idhub/models.py:287
+#: idhub/models.py:296
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked by admin"
 msgstr ""
 
-#: idhub/models.py:299
+#: idhub/models.py:308
 msgid "A new role was created by admin"
 msgstr ""
 
-#: idhub/models.py:307
+#: idhub/models.py:316
 msgid "The role was modified by admin"
 msgstr ""
 
-#: idhub/models.py:315
+#: idhub/models.py:324
 msgid "The role was removed by admin"
 msgstr ""
 
-#: idhub/models.py:323
+#: idhub/models.py:332
 msgid "A new service was created by admin"
 msgstr ""
 
-#: idhub/models.py:331
+#: idhub/models.py:340
 msgid "The service was modified by admin"
 msgstr ""
 
-#: idhub/models.py:339
+#: idhub/models.py:348
 msgid "The service was removed by admin"
 msgstr ""
 
-#: idhub/models.py:347
+#: idhub/models.py:356
 #, python-brace-format
 msgid ""
 "New Organisational DID with label: '{label}' and DID-ID: '{did}' was created"
 msgstr ""
 
-#: idhub/models.py:358
+#: idhub/models.py:367
 #, python-brace-format
 msgid ""
 "Organisational DID with label: '{label}' and DID-ID: '{did}' was removed"
 msgstr ""
 
-#: idhub/models.py:438
+#: idhub/models.py:457
 msgid "Enabled"
 msgstr ""
 
-#: idhub/models.py:439 idhub/templates/idhub/admin/credentials.html:17
+#: idhub/models.py:458 idhub/templates/idhub/admin/credentials.html:17
 #: idhub/templates/idhub/user/credentials.html:17
 msgid "Issued"
 msgstr ""
 
-#: idhub/models.py:440
+#: idhub/models.py:459
 msgid "Revoked"
 msgstr ""
 
-#: idhub/models.py:441
+#: idhub/models.py:460
 msgid "Expired"
 msgstr ""
 
-#: idhub/models.py:499
+#: idhub/models.py:576
 msgid "Beneficiary"
 msgstr ""
 
-#: idhub/models.py:500
+#: idhub/models.py:577
 msgid "Employee"
 msgstr ""
 
-#: idhub/models.py:501
+#: idhub/models.py:578
 msgid "Member"
 msgstr ""
 
-#: idhub/models.py:503
+#: idhub/models.py:580
 msgid "Type of membership"
 msgstr ""
 
-#: idhub/models.py:505
+#: idhub/models.py:582
 msgid "Start date"
 msgstr ""
 
-#: idhub/models.py:506
+#: idhub/models.py:583
 msgid "What date did the membership start?"
 msgstr ""
 
-#: idhub/models.py:511
+#: idhub/models.py:588
 msgid "End date"
 msgstr ""
 
-#: idhub/models.py:512
+#: idhub/models.py:589
 msgid "What date will the membership end?"
 msgstr ""
 
-#: idhub/models.py:564
+#: idhub/models.py:605
+msgid "name"
+msgstr ""
+
+#: idhub/models.py:606 idhub/models.py:614
+#: idhub/templates/idhub/admin/dashboard.html:14
+#: idhub/templates/idhub/admin/roles.html:16
+#: idhub/templates/idhub/admin/schemas.html:18
+#: idhub/templates/idhub/admin/services.html:16
+#: idhub/templates/idhub/admin/user.html:88
+#: idhub/templates/idhub/admin/user_edit.html:74
+#: idhub/templates/idhub/user/dashboard.html:14
+#: idhub/templates/idhub/user/roles.html:16
+msgid "Description"
+msgstr ""
+
+#: idhub/models.py:613 idhub/templates/templates/musician/addresses.html:16
+msgid "Domain"
+msgstr ""
+
+#: idhub/models.py:622
+msgid "None"
+msgstr ""
+
+#: idhub/models.py:647
 msgid "Url where to send the presentation"
 msgstr ""
 
@@ -2056,7 +2101,6 @@ msgid "Password reset on %(site_name)s"
 msgstr ""
 
 #: idhub/templates/idhub/admin/credentials.html:15
-#: idhub/templates/idhub/admin/dashboard.html:13
 #: idhub/templates/idhub/user/credentials.html:15
 #: idhub/templates/idhub/user/dashboard.html:13
 #: idhub/templates/templates/musician/billing.html:21
@@ -2080,19 +2124,13 @@ msgid "User"
 msgstr ""
 
 #: idhub/templates/idhub/admin/credentials.html:31
-#: idhub/templates/idhub/admin/people.html:37
+#: idhub/templates/idhub/admin/people.html:33
 #: idhub/templates/idhub/admin/schemas.html:30
 msgid "View"
 msgstr ""
 
-#: idhub/templates/idhub/admin/dashboard.html:14
-#: idhub/templates/idhub/admin/schemas.html:18
-#: idhub/templates/idhub/admin/services.html:16
-#: idhub/templates/idhub/admin/user.html:88
-#: idhub/templates/idhub/admin/user_edit.html:74
-#: idhub/templates/idhub/user/dashboard.html:14
-#: idhub/templates/idhub/user/roles.html:16
-msgid "Description"
+#: idhub/templates/idhub/admin/dashboard.html:13
+msgid "Event"
 msgstr ""
 
 #: idhub/templates/idhub/admin/dashboard.html:15
@@ -2144,7 +2182,7 @@ msgid "Label"
 msgstr ""
 
 #: idhub/templates/idhub/admin/dids.html:28
-#: idhub/templates/idhub/admin/roles.html:24
+#: idhub/templates/idhub/admin/roles.html:26
 #: idhub/templates/idhub/admin/services.html:28
 #: idhub/templates/idhub/admin/user_edit.html:54
 #: idhub/templates/idhub/admin/user_edit.html:86
@@ -2174,7 +2212,16 @@ msgstr ""
 
 #: idhub/templates/idhub/admin/import.html:15
 #: idhub/templates/idhub/admin/schemas.html:15
-msgid "Created at"
+msgid "Created"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import.html:17
+msgid "Success"
+msgstr ""
+
+#: idhub/templates/idhub/admin/import.html:31
+#: idhub/templates/idhub/base_admin.html:153
+msgid "Import data"
 msgstr ""
 
 #: idhub/templates/idhub/admin/issue_credentials.html:14
@@ -2265,6 +2312,11 @@ msgstr ""
 msgid "User activation on %(site)s"
 msgstr ""
 
+#: idhub/templates/idhub/admin/roles.html:33
+#: idhub/templates/idhub/admin/user_edit.html:93
+msgid "Add Role"
+msgstr ""
+
 #: idhub/templates/idhub/admin/schemas.html:16
 msgid "Template file"
 msgstr ""
@@ -2300,10 +2352,6 @@ msgstr ""
 #: idhub/templates/idhub/admin/user_edit.html:75
 #: idhub/templates/idhub/user/roles.html:17
 msgid "Service"
-msgstr ""
-
-#: idhub/templates/idhub/admin/services.html:35
-msgid "Add Service"
 msgstr ""
 
 #: idhub/templates/idhub/admin/user.html:13
@@ -2350,20 +2398,20 @@ msgstr ""
 msgid "My personal information"
 msgstr ""
 
-#: idhub/templates/idhub/base.html:86 idhub/user/views.py:63
+#: idhub/templates/idhub/base.html:86 idhub/user/views.py:62
 msgid "My roles"
 msgstr ""
 
-#: idhub/templates/idhub/base.html:91 idhub/user/views.py:69
+#: idhub/templates/idhub/base.html:91 idhub/user/views.py:68
 msgid "GDPR info"
 msgstr ""
 
-#: idhub/templates/idhub/base.html:99 idhub/user/views.py:27
+#: idhub/templates/idhub/base.html:99 idhub/user/views.py:26
 msgid "My wallet"
 msgstr ""
 
-#: idhub/templates/idhub/base.html:104 idhub/user/views.py:170
-#: idhub/user/views.py:204 idhub/user/views.py:223
+#: idhub/templates/idhub/base.html:104 idhub/user/views.py:169
+#: idhub/user/views.py:203 idhub/user/views.py:222
 msgid "Identities (DIDs)"
 msgstr ""
 
@@ -2380,15 +2428,16 @@ msgid "Present a credential"
 msgstr ""
 
 #: idhub/templates/idhub/base_admin.html:76
-msgid "User managament"
+msgid "Users"
 msgstr ""
 
 #: idhub/templates/idhub/base_admin.html:94
-msgid "Access control managament"
+msgid "Roles"
 msgstr ""
 
-#: idhub/templates/idhub/base_admin.html:112 idhub/user/views.py:75
-msgid "Credential management"
+#: idhub/templates/idhub/base_admin.html:112
+#: idhub/templates/idhub/user/profile.html:46
+msgid "Credentials"
 msgstr ""
 
 #: idhub/templates/idhub/base_admin.html:122
@@ -2423,10 +2472,6 @@ msgstr ""
 msgid "Notice of Privacy"
 msgstr ""
 
-#: idhub/templates/idhub/user/profile.html:46
-msgid "Credentials"
-msgstr ""
-
 #: idhub/templates/templates/musician/address_check_delete.html:7
 #, python-format
 msgid "Are you sure that you want remove the address: \"%(address_name)s\"?"
@@ -2439,10 +2484,6 @@ msgstr ""
 
 #: idhub/templates/templates/musician/addresses.html:15
 msgid "Email"
-msgstr ""
-
-#: idhub/templates/templates/musician/addresses.html:16
-msgid "Domain"
 msgstr ""
 
 #: idhub/templates/templates/musician/addresses.html:17
@@ -2724,42 +2765,46 @@ msgstr ""
 msgid "Open service admin panel"
 msgstr ""
 
-#: idhub/user/views.py:22
+#: idhub/user/views.py:21
 msgid "My profile"
 msgstr ""
 
-#: idhub/user/views.py:41
+#: idhub/user/views.py:40
 msgid "My personal data"
 msgstr ""
 
-#: idhub/user/views.py:88
+#: idhub/user/views.py:87
 msgid "Credential"
 msgstr ""
 
-#: idhub/user/views.py:124
+#: idhub/user/views.py:123
 msgid "Credential request"
 msgstr ""
 
-#: idhub/user/views.py:137
+#: idhub/user/views.py:136
 msgid "The credential was issued successfully!"
 msgstr ""
 
-#: idhub/user/views.py:141
+#: idhub/user/views.py:140
 msgid "The credential does not exist!"
 msgstr ""
 
-#: idhub/user/views.py:147
+#: idhub/user/views.py:146
 msgid "Credential presentation"
 msgstr ""
 
-#: idhub/user/views.py:162
+#: idhub/user/views.py:161
 msgid "The credential was presented successfully!"
 msgstr ""
 
-#: idhub/user/views.py:164
+#: idhub/user/views.py:163
 msgid "Error sending credential!"
 msgstr ""
 
-#: idhub/user/views.py:183
+#: idhub/user/views.py:182
 msgid "Add a new Identity (DID)"
+msgstr ""
+
+#: idhub_auth/forms.py:19 idhub_auth/forms.py:27
+msgid "The string must contain only characters and spaces"
 msgstr ""
