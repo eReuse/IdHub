@@ -73,7 +73,7 @@
               <li class="nav-item">
                 <a class="admin {% if section == 'People' %}active {% endif %}nav-link fw-bold" data-bs-toggle="collapse" data-bs-target="#people" aria-expanded="false" aria-controls="people" href="javascript:void()">
                   <i class="bi bi-people icon_sidebar"></i>
-                  {% trans 'User managament' %}
+                  {% trans 'Users' %}
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'People' %}expanded{% else %}collapse{% endif %}" id="people" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
@@ -91,7 +91,7 @@
               <li class="nav-item">
                 <a class="admin nav-link {% if section == 'AccessControl' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#control-access" aria-expanded="false" aria-controls="control-access" href="javascript:void()">
                   <i class="fa-solid fa-arrow-right-from-bracket icon_sidebar"></i>
-                  {% trans 'Access control managament' %}
+                  {% trans 'Roles' %}
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'AccessControl' %}expanded{% else %}collapse{% endif %}" id="control-access" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
@@ -109,7 +109,7 @@
               <li class="nav-item">
                 <a class="admin nav-link {% if section == 'Credential' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#credential" aria-expanded="false" aria-controls="credential" href="javascript:void()">
                   <i class="bi bi-patch-check icon_sidebar"></i>
-                  {% trans 'Credential management' %}
+                  {% trans 'Credentials' %}
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Credential' %}expanded{% else %}collapse{% endif %}" id="credential" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
