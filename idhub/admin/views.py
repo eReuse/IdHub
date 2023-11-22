@@ -812,7 +812,7 @@ class SchemasImportAddView(SchemasMix):
         schema = self.create_schema(file_name)
         if schema:
             messages.success(self.request, _("The schema was added sucessfully"))
-        return redirect('idhub:admin_schemas_import')
+        return redirect('idhub:admin_schemas')
 
     def create_schema(self, file_name):
         data = self.open_file(file_name)
