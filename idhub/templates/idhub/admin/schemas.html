@@ -27,7 +27,7 @@
             <td>{{ schema.file_schema }}</td>
             <td>{{ schema.name }}</td>
             <td>{{ schema.description }}</td>
-            <td><a class="btn btn-green-admin" href="{% url 'idhub:admin_schemas_download' schema.id %}" target="_blank" title="{% trans 'View' %}">{% trans 'View' %}</a></td>
+            <td><a class="text-primary" href="{% url 'idhub:admin_schemas_download' schema.id %}" target="_blank" title="{% trans 'View' %}"><i class="bi bi-eye"></i></a></td>
             <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ schema.id }}" title="{% trans 'Remove' %}"><i class="bi bi-x-circle"></i></a></td>
           </tr>
           {% endfor %}
