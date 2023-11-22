@@ -116,7 +116,7 @@
         {% trans 'Are you sure that you want delete this user?' %}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Clancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
         <a href="{% url 'idhub:admin_people_delete' object.id %}" type="button" class="btn btn-danger">{% trans 'Delete' %}</a>
       </div>
     </div>
