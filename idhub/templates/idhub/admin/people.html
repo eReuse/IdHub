@@ -30,7 +30,7 @@
         <td class="text-center">
           {{ user.get_roles }}
         </td>
-        <td><a type="button" class="btn btn-green-admin rounded-pill" href="{% url 'idhub:admin_people' user.id %}">{% trans 'View' %}</td>
+        <td><a type="button" class="text-primary" href="{% url 'idhub:admin_people' user.id %}" title="{% trans 'View' %}"><i class="bi bi-eye"></i></td>
       </tr>
     {% endfor %}
     </tbody>
