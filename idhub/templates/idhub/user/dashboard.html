@@ -18,7 +18,7 @@
     <tbody>
       {% for ev in user.events.all %}
       <tr>
-        <td>{{ ev.get_type }}</td>
+        <td>{{ ev.get_type_name }}</td>
         <td>{{ ev.message }}</td>
         <td>{{ ev.created }}</td>
       </tr>
