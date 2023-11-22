@@ -177,7 +177,8 @@ MESSAGE_TAGS = {
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
-LANGUAGE_CODE="es"
+LANGUAGE_CODE="en"
+# LANGUAGE_CODE="es"
 USE_I18N = True
 USE_L10N = True
 
