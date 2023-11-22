@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 from jsonschema import validate
 from smtplib import SMTPException
+from django_tables2 import SingleTableView
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -30,6 +31,11 @@ from idhub.admin.forms import (
     SchemaForm,
     UserRolForm,
 )
+from idhub.admin.tables import (
+        UserTable,
+        DashboardTable,
+        RolesTable
+)
 from idhub.models import (
     DID,
     Event,
@@ -43,19 +49,15 @@ from idhub.models import (
 )
 
 
-class DashboardView(AdminView, TemplateView):
+class DashboardView(AdminView, SingleTableView):
     template_name = "idhub/admin/dashboard.html"
+    table_class = DashboardTable
     title = _('Dashboard')
     subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
+    model = Event
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'events': Event.objects.filter(user=None),
-        })
-        return context
 
 class People(AdminView):
     title = _("User management")
@@ -82,10 +84,12 @@ class ImportExport(AdminView):
     section = "ImportExport"
 
 
-class PeopleListView(People, TemplateView):
+class PeopleListView(People, SingleTableView):
     template_name = "idhub/admin/people.html"
     subtitle = _('View users')
     icon = 'bi bi-person'
+    table_class = UserTable
+    model = User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -402,13 +406,16 @@ class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Manage roles')
     icon = ''
+    table_class = RolesTable
+    model = Rol
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'roles': Rol.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
+
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
