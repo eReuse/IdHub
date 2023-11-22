@@ -43,6 +43,7 @@ body {
 
 .sidebar .nav-link {
   font-weight: 300;
+  font-size: 1.2em;
   color: #333;
 }
 
@@ -142,7 +143,7 @@ body {
 }
 
 h3 {
-  font-sice: 1.2em;
+  font-size: 1.5em;
 }
 
 .btn {
