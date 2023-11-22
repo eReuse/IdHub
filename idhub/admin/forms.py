@@ -27,6 +27,7 @@ class ImportForm(forms.Form):
         self._schema = None
         self._did = None
         self.rows = {}
+        self.properties = {}
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
@@ -59,6 +60,16 @@ class ImportForm(forms.Form):
             raise ValidationError("Schema is not valid!")
 
         self._schema = schema.first()
+        try:
+            self.json_schema = json.loads(self._schema.data)
+            prop = self.json_schema['properties']
+            self.properties = prop['credentialSubject']['properties']
+        except Exception:
+            raise ValidationError("Schema is not valid!")
+
+        if not self.properties:
+            raise ValidationError("Schema is not valid!")
+
 
         return data
 
@@ -68,15 +79,13 @@ class ImportForm(forms.Form):
         if File_datas.objects.filter(file_name=self.file_name, success=True).exists():
             raise ValidationError("This file already exists!")
 
-        self.json_schema = json.loads(self._schema.data)
         df = pd.read_csv (data, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
         data_pd = df.fillna('').to_dict()
 
         if not data_pd:
             self.exception("This file is empty!")
 
-        properties = self.json_schema['properties']['credentialSubject']['properties']
-        head_row = {x: '' for x in properties.keys()}
+        head_row = {x: '' for x in self.properties.keys()}
         for n in range(df.last_valid_index()+1):
             row = head_row.copy()
             for k in data_pd.keys():
