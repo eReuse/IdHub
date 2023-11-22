@@ -28,7 +28,7 @@
             <td>{{ schema.name }}</td>
             <td>{{ schema.description }}</td>
             <td><a class="text-primary" href="{% url 'idhub:admin_schemas_download' schema.id %}" target="_blank" title="{% trans 'View' %}"><i class="bi bi-eye"></i></a></td>
-            <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ schema.id }}" title="{% trans 'Remove' %}"><i class="bi bi-x-circle"></i></a></td>
+            <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ schema.id }}" title="{% trans 'Remove' %}"><i class="bi bi-trash"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
