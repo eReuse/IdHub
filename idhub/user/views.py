@@ -38,7 +38,7 @@ class DashboardView(UserView, TemplateView):
 class ProfileView(MyProfile, UpdateView):
     template_name = "idhub/user/profile.html"
     subtitle = _('My personal data')
-    icon = 'bi bi-person'
+    icon = 'bi bi-person-gear'
     from_class = ProfileForm
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:user_profile')
