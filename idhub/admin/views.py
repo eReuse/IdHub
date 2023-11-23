@@ -402,7 +402,7 @@ class PeopleRolDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
 
-class RolesView(AccessControl):
+class RolesView(AccessControl, SingleTableView):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Manage roles')
     icon = ''
