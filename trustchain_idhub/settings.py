@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_bootstrap5',
-    'django_tables',
+    'django_tables2',
     'idhub_auth',
     'idhub'
 ]
