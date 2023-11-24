@@ -1,6 +1,5 @@
 import json
 import pytz
-import requests
 import datetime
 from django.db import models
 from django.conf import settings
@@ -639,18 +638,3 @@ class UserRol(models.Model):
 
     class Meta:
         unique_together = ('user', 'service',)
-
-
-class Organization(models.Model):
-    name = models.CharField(max_length=250)
-    url = models.CharField(
-        help_text=_("Url where to send the presentation"),
-        max_length=250
-    )
-
-    def __str__(self):
-        return self.name
-
-    def send(self, cred):
-        return
-        requests.post(self.url, data=cred.data)

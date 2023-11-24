@@ -1,7 +1,7 @@
 from django import forms
 from idhub_auth.models import User
-from idhub.models import DID, VerificableCredential, Organization
-
+from idhub.models import DID, VerificableCredential
+from oidc4vp.models import Organization
 
 
 class ProfileForm(forms.ModelForm):
@@ -54,7 +54,6 @@ class RequestCredentialForm(forms.Form):
             return cred
         
         return 
-
 
 
 class CredentialPresentationForm(forms.Form):
