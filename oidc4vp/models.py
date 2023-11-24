@@ -36,8 +36,15 @@ class Organization(models.Model):
       This class represent a member of one net trust or federated host
     """
     name = models.CharField(max_length=250)
-    client_id = models.CharField(max_length=24, default=set_client_id)
-    client_secret = models.CharField(max_length=48, default=set_client_secret)
+    client_id = models.CharField(
+        max_length=24,
+        default=set_client_id,
+        unique=True
+    )
+    client_secret = models.CharField(
+        max_length=48,
+        default=set_client_secret
+    )
     response_uri = models.URLField(
         help_text=_("Url where to send the verificable presentation"),
         max_length=250
