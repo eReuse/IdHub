@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_bootstrap5',
     'idhub_auth',
+    'oidc4vp',
     'idhub'
 ]
 
@@ -183,3 +184,4 @@ USE_I18N = True
 USE_L10N = True
 
 AUTH_USER_MODEL = 'idhub_auth.User'
+RESPONSE_URI = config('RESPONSE_URI', default="")
