@@ -20,6 +20,7 @@ from django.urls import path, reverse_lazy
 from .views import LoginView
 from .admin import views as views_admin
 from .user import views as views_user
+from .verification_portal import views as views_verification_portal
 
 app_name = 'idhub'
 
@@ -171,4 +172,7 @@ urlpatterns = [
         name='admin_import'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+
+    path('verification_portal/verify/', views_verification_portal.verify,
+         name="verification_portal_verify")
 ]
