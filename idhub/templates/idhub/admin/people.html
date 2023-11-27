@@ -1,11 +1,39 @@
 {% extends "idhub/base_admin.html" %}
 {% load i18n %}
-{% load render_table from django_tables2 %}
 
 {% block content %}
 <h3>
   <i class="{{ icon }}"></i>
   {{ subtitle }}
 </h3>
-{% render_table table %}
+<div class="table-responsive">
+  <table class="table table-striped table-sm">
+    <thead>
+      <tr>
+        <th scope="col"><button type="button" class="btn btn-green-admin border border-dark">{% trans 'Last name' %}</button></th>
+        <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'First name' %}</button></th>
+        <th scope="col"><button type="button" class="btn btn-grey border border-dark">Email</button></th>
+        <th scope="col" class="text-center"><button type="button" class="btn btn-grey border border-dark">{% trans 'Membership' %}</button></th>
+        <th scope="col" class="text-center"><button type="button" class="btn btn-grey border border-dark">{% trans 'Role' %}</button></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      <tr>
+        <td>{{ user.last_name|default:'' }}</td>
+        <td>{{ user.first_name|default:'' }}</td>
+        <td>{{ user.email }}</td>
+        <td class="text-center">
+          {{ user.get_memberships }}
+        </td>
+        <td class="text-center">
+          {{ user.get_roles }}
+        </td>
+        <td><a type="button" class="text-primary" href="{% url 'idhub:admin_people' user.id %}" title="{% trans 'View' %}"><i class="bi bi-eye"></i></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}
