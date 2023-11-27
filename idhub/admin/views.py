@@ -32,9 +32,7 @@ from idhub.admin.forms import (
     UserRolForm,
 )
 from idhub.admin.tables import (
-        UserTable,
-        DashboardTable,
-        RolesTable
+        DashboardTable
 )
 from idhub.models import (
     DID,
@@ -84,12 +82,10 @@ class ImportExport(AdminView):
     section = "ImportExport"
 
 
-class PeopleListView(People, SingleTableView):
+class PeopleListView(People, TemplateView):
     template_name = "idhub/admin/people.html"
     subtitle = _('View users')
     icon = 'bi bi-person'
-    table_class = UserTable
-    model = User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -402,20 +398,17 @@ class PeopleRolDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
 
-class RolesView(AccessControl, SingleTableView):
+class RolesView(AccessControl):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Manage roles')
     icon = ''
-    table_class = RolesTable
-    model = Rol
 
     def get_context_data(self, **kwargs):
-        queryset = kwargs.pop('object_list', None)
-        if queryset is None:
-            self.object_list = self.model.objects.all()
-
-        return super().get_context_data(**kwargs)
-
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'roles': Rol.objects,
+        })
+        return context
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
