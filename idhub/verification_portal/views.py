@@ -2,6 +2,8 @@ import json
 
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
+
+from utils.idhub_ssikit import verify_presentation
 from .models import VPVerifyRequest
 from django.shortcuts import get_object_or_404
 from more_itertools import flatten, unique_everseen
@@ -9,7 +11,10 @@ from more_itertools import flatten, unique_everseen
 
 def verify(request):
     assert request.method == "POST"
-    # TODO: use request.POST["presentation_submission"]
+    # TODO: incorporate request.POST["presentation_submission"] as schema definition
+    (presentation_valid, _) = verify_presentation(request.POST["vp_token"])
+    if not presentation_valid:
+        raise Exception("Failed to verify signature on the given Verifiable Presentation.")
     vp = json.loads(request.POST["vp_token"])
     nonce = vp["nonce"]
     # "vr" = verification_request
