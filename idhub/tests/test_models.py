@@ -6,7 +6,7 @@ from idhub_auth.models import User
 class EventModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        user = User.objects.create(email='testuser@email.com')
+        user = User.objects.create(email='testuser@example.org')
         Event.objects.create(message='Test Event', type=1, user=user)
 
     def test_event_creation(self):

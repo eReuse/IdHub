@@ -11,7 +11,7 @@ from idhub.models import Event
 class AdminDashboardTableTest(TestCase):
     def setUp(self):
         self.admin_user = User.objects.create_superuser(
-                email='adminuser@mail.com',
+                email='adminuser@example.org',
                 password='adminpass12')
 
     @classmethod
@@ -41,7 +41,7 @@ class AdminDashboardTableTest(TestCase):
                         < sorted_records[2].record.created)
 
     def test_table_in_template(self):
-        self.client.login(email='adminuser@mail.com', password='adminpass12')
+        self.client.login(email='adminuser@example.org', password='adminpass12')
         response = self.client.get(reverse('idhub:admin_dashboard'))
 
         self.assertTemplateUsed(response, 'idhub/custom_table.html')

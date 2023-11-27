@@ -8,11 +8,11 @@ class TemplateTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.admin_user = User.objects.create_superuser(
-                email='adminuser@mail.com',
+                email='adminuser@example.org',
                 password='adminpass12')
 
     def test_dashboard_template(self):
-        self.client.login(email='adminuser@mail.com', password='adminpass12')
+        self.client.login(email='adminuser@example.org', password='adminpass12')
         response = self.client.get(reverse('idhub:admin_dashboard'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'idhub/base_admin.html')
