@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 from jsonschema import validate
 from smtplib import SMTPException
+from django_tables2 import SingleTableView
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -30,6 +31,9 @@ from idhub.admin.forms import (
     SchemaForm,
     UserRolForm,
 )
+from idhub.admin.tables import (
+        DashboardTable
+)
 from idhub.models import (
     DID,
     Event,
@@ -43,19 +47,15 @@ from idhub.models import (
 )
 
 
-class DashboardView(AdminView, TemplateView):
+class DashboardView(AdminView, SingleTableView):
     template_name = "idhub/admin/dashboard.html"
+    table_class = DashboardTable
     title = _('Dashboard')
     subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
+    model = Event
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'events': Event.objects.filter(user=None),
-        })
-        return context
 
 class People(AdminView):
     title = _("User management")
