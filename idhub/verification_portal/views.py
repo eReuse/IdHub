@@ -1,7 +1,7 @@
 import json
 
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import VPVerifyRequest
 from django.shortcuts import get_object_or_404
 from more_itertools import flatten, unique_everseen
@@ -39,5 +39,6 @@ def verify(request):
         pass
     else:
         raise Exception("Unknown action!")
-    return HttpResponse("OK! Your verifiable presentation was successfully presented.")
+    # OK! Your verifiable presentation was successfully presented.
+    return HttpResponseRedirect(vr.response_or_redirect)
 
