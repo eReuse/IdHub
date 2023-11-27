@@ -1,6 +1,7 @@
 django==4.2.5
 django-bootstrap5==23.3
 django-extensions==3.2.3
+django-tables2==2.6.0
 black==23.9.1
 python-decouple==3.8
 jsonschema==4.19.1
