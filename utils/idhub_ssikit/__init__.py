@@ -72,3 +72,40 @@ def verify_credential(vc, proof_options):
         return didkit.verify_credential(vc, proof_options)
 
     return asyncio.run(inner())
+
+
+def issue_verifiable_presentation(vc_list: list[str], jwk_holder: str, holder_did: str) -> str:
+    async def inner():
+        unsigned_vp = unsigned_vp_template.render(data)
+        signed_vp = await didkit.issue_presentation(
+            unsigned_vp,
+            '{"proofFormat": "ldp"}',
+            jwk_holder
+        )
+        return signed_vp
+
+    # TODO: convert from Jinja2 -> django-templates
+    env = Environment(
+        loader=FileSystemLoader("vc_templates"),
+        autoescape=select_autoescape()
+    )
+    unsigned_vp_template = env.get_template("verifiable_presentation.json")
+    data = {
+        "holder_did": holder_did,
+        "verifiable_credential_list": "[" + ",".join(vc_list) + "]"
+    }
+
+    return asyncio.run(inner())
+
+
+def verify_presentation(vp):
+    """
+    Returns a (bool, str) tuple indicating whether the credential is valid.
+    If the boolean is true, the credential is valid and the second argument can be ignored.
+    If it is false, the VC is invalid and the second argument contains a JSON object with further information.
+    """
+    async def inner():
+        proof_options = '{"proofFormat": "ldp"}'
+        return didkit.verify_presentation(vp, proof_options)
+
+    return asyncio.run(inner())
