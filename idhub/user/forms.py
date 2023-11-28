@@ -81,10 +81,8 @@ class DemandAuthorizationForm(forms.Form):
         if commit:
             url = self.org.demand_authorization()
             auth = (self.org.client_id, self.org.client_secret)
-            # res = requests.get(url, auth=auth)
-            # import pdb; pdb.set_trace()
-            # if res.status == 200:
-                # return res.body
+            if url.status_code == 200:
+                return url.json().get('redirect_uri')
         
         return 
 
