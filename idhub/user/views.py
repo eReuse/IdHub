@@ -12,7 +12,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
+from idhub.user.forms import (
+    ProfileForm,
+    RequestCredentialForm,
+    CredentialPresentationForm,
+    DemandAuthorizationForm
+)
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event
 
@@ -141,6 +146,28 @@ class CredentialsRequestView(MyWallet, FormView):
         return super().form_valid(form)
 
 
+class DemandAuthorizationView(MyWallet, FormView):
+    template_name = "idhub/user/credentials_presentation.html"
+    subtitle = _('Credential presentation')
+    icon = 'bi bi-patch-check-fill'
+    form_class = DemandAuthorizationForm
+    success_url = reverse_lazy('idhub:user_demand_authorization')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        authorization = form.save()
+        if authorization:
+            if authorization.get('redirect_uri'):
+                redirect(authorization.get('redirect_uri'))
+        else:
+            messages.error(self.request, _("Error sending credential!"))
+        return super().form_valid(form)
+
+    
 class CredentialsPresentationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
     subtitle = _('Credential presentation')
@@ -151,6 +178,7 @@ class CredentialsPresentationView(MyWallet, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['authorize'] = self.request.GET.params.get("uri")
         return kwargs
     
     def form_valid(self, form):

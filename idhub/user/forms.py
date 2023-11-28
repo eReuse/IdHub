@@ -1,4 +1,6 @@
+import requests
 from django import forms
+from django.conf import settings
 from idhub_auth.models import User
 from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
@@ -56,9 +58,40 @@ class RequestCredentialForm(forms.Form):
         return 
 
 
+class DemandAuthorizationForm(forms.Form):
+    organization = forms.ChoiceField(choices=[])
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].choices = [
+            (x.id, x.name) for x in Organization.objects.filter() 
+                if x.response_uri != settings.RESPONSE_URI
+        ]
+
+    def save(self, commit=True):
+        self.org = Organization.objects.filter(
+            id=self.data['organization']
+        )
+        if not self.org.exists():
+            return
+
+        self.org = self.org[0]
+
+        if commit:
+            url = self.org.demand_authorization()
+            auth = (self.org.client_id, self.org.client_secret)
+            # res = requests.get(url, auth=auth)
+            # import pdb; pdb.set_trace()
+            # if res.status == 200:
+                # return res.body
+        
+        return 
+
+    
 class CredentialPresentationForm(forms.Form):
     organization = forms.ChoiceField(choices=[])
-    credential = forms.ChoiceField(choices=[])
+    # credential = forms.ChoiceField(choices=[])
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -66,12 +99,12 @@ class CredentialPresentationForm(forms.Form):
         self.fields['organization'].choices = [
             (x.id, x.name) for x in Organization.objects.filter()
         ]
-        self.fields['credential'].choices = [
-            (x.id, x.type()) for x in VerificableCredential.objects.filter(
-                user=self.user,
-                status=VerificableCredential.Status.ISSUED
-            )
-        ]
+        # self.fields['credential'].choices = [
+        #     (x.id, x.type()) for x in VerificableCredential.objects.filter(
+        #         user=self.user,
+        #         status=VerificableCredential.Status.ISSUED
+        #     )
+        # ]
 
     def save(self, commit=True):
         self.org = Organization.objects.filter(
