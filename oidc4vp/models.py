@@ -54,11 +54,26 @@ class Organization(models.Model):
         """
           Send the verificable presentation to Verifier
         """
-        org = Organization.objects.get(
+        org = self.__class__.objects.get(
             response_uri=settings.RESPONSE_URI
         )
         auth = (org.client_id, org.client_secret)
         return requests.post(self.url, data=vp, auth=auth)
+
+    def demand_authorization(self):
+        """
+          Send the a request for start a process of Verifier
+        """
+        org = self.__class__.objects.get(
+            response_uri=settings.RESPONSE_URI
+        )
+        # import pdb; pdb.set_trace()
+        url = "{url}/?demand_uri={redirect_uri}".format(
+            url=self.response_uri.strip("/"),
+            redirect_uri=settings.RESPONSE_URI
+        )
+        auth = (org.client_id, org.client_secret)
+        return requests.get(url, auth=auth)
 
     def __str__(self):
         return self.name
@@ -75,11 +90,11 @@ class Authorization(models.Model):
       The Verifier need to do a redirection to the user to Wallet.
       The code we use as a soft foreing key between Authorization and OAuth2VPToken.
     """
-    nonce = models.CharField(max_length=50)
-    expected_credentials = models.CharField(max_length=255)
-    expected_contents = models.TextField()
-    action = models.TextField()
-    response_or_redirect = models.CharField(max_length=255)
+    # nonce = models.CharField(max_length=50)
+    # expected_credentials = models.CharField(max_length=255)
+    # expected_contents = models.TextField()
+    # action = models.TextField()
+    # response_or_redirect = models.CharField(max_length=255)
 
     code = models.CharField(max_length=24, default=set_code)
     created = models.DateTimeField(auto_now=True)
@@ -98,7 +113,7 @@ class Authorization(models.Model):
 
     def authorize(self):
         response_uri = self.__class__.objects.filter(
-            response_uri=settings.RESPONSE_URI
+            response_uri=settings.ALLOW_CODE_URI
         )
         data = {
             "response_type": "vp_token",

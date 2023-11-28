@@ -41,4 +41,4 @@ class Command(BaseCommand):
 
 
     def create_organizations(self, name, url):
-        Organization.objects.create(name=name, url=url)
+        Organization.objects.create(name=name, response_uri=url)
