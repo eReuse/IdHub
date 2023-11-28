@@ -1,26 +1,25 @@
 import json
 
-from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic.edit import View
 
-from utils.idhub_ssikit import verify_presentation
-from .models import VPVerifyRequest
-from django.shortcuts import get_object_or_404
-# from more_itertools import flatten, unique_everseen
 from oidc4vp.models import Authorization
+from django.http import HttpResponse
 
 
-# class PeopleListView(People, TemplateView):
-#     template_name = "idhub/admin/people.html"
-#     subtitle = _('View users')
-#     icon = 'bi bi-person'
+# from django.core.mail import send_mail
+# from django.http import HttpResponse, HttpResponseRedirect
 
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context.update({
-#             'users': User.objects.filter(),
-#         })
-#         return context
+# from utils.idhub_ssikit import verify_presentation
+# from oidc4vp.models import VPVerifyRequest
+# from django.shortcuts import get_object_or_404
+# from more_itertools import flatten, unique_everseen
+
+
+class VerifyView(View):
+    def get(self, request, *args, **kwargs):
+        import pdb; pdb.set_trace()
+        res = json.dumps({"uri": "http://localhost:10000"})
+        return HttpResponse(res)
 
 
 def DemandAuthorizationView(request):
