@@ -112,15 +112,11 @@ class Authorization(models.Model):
     )
 
     def authorize(self):
-        response_uri = self.__class__.objects.filter(
-            response_uri=settings.ALLOW_CODE_URI
-        )
         data = {
             "response_type": "vp_token",
             "response_mode": "direct_post",
             "client_id": self.organization.client_id,
-            "response_uri": response_uri,
-            "presentation_definition": "...",
+            "presentation_definition": self.presentation_definition,
             "nonce": gen_salt(5),
         }
         query_dict = QueryDict('', mutable=True)

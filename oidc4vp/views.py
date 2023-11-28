@@ -1,9 +1,11 @@
 import json
+import base64
 
 from django.views.generic.edit import View
 
 from oidc4vp.models import Authorization, Organization
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404
 
 
 # from django.core.mail import send_mail
@@ -11,21 +13,36 @@ from django.http import HttpResponse
 
 # from utils.idhub_ssikit import verify_presentation
 # from oidc4vp.models import VPVerifyRequest
-from django.shortcuts import get_object_or_404
 # from more_itertools import flatten, unique_everseen
 
 
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
-        org_url = request.GET.get('demand_uri')
-        org = get_object_or_404(Organization, response_uri=org_url)
+        org = self.validate(request)
+        if not org:
+            raise Http404("Page not Found!")
+        
         authorization = Authorization(
             organization=org,
             presentation_definition="MemberCredential"
         )
-        import pdb; pdb.set_trace()
-        res = json.dumps({"redirect_uri": authorization.authorize()})
         return HttpResponse(res)
+
+    def validate(self, request):
+        auth_header = request.headers.get('Authorization', b'')
+        auth_data = auth_header.split()
+
+        if len(auth_data) == 2 and auth_data[0].lower() == b'basic':
+            decoded_auth = base64.b64decode(auth_data[1]).decode('utf-8')
+            client_id, client_secret = decoded_auth.split(':', 1)
+            org_url = request.GET.get('demand_uri')
+            org = get_object_or_404(
+                Organization,
+                response_uri=org_url,
+                client_id=client_id,
+                client_secret=client_secret
+            )
+            return org
 
     def post(self, request, *args, **kwargs):
         import pdb; pdb.set_trace()

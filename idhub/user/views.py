@@ -160,9 +160,9 @@ class DemandAuthorizationView(MyWallet, FormView):
     
     def form_valid(self, form):
         authorization = form.save()
+        # import pdb; pdb.set_trace()
         if authorization:
-            if authorization.get('redirect_uri'):
-                redirect(authorization.get('redirect_uri'))
+            redirect(authorization)
         else:
             messages.error(self.request, _("Error sending credential!"))
         return super().form_valid(form)
