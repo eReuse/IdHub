@@ -19,13 +19,13 @@ from django.shortcuts import get_object_or_404
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
-        if not org:
-            raise Http404("Page not Found!")
-        
+        # TODO Not hardcode the list of types of presentation_definition
+        presentation_definition = json.dumps(['MemberCredential'])
         authorization = Authorization(
             organization=org,
-            presentation_definition="MemberCredential"
+            presentation_definition=presentation_definition
         )
+        res = json.dumps({"redirect_uri": authorization.authorize()})
         return HttpResponse(res)
 
     def validate(self, request):
@@ -45,6 +45,7 @@ class VerifyView(View):
             return org
 
     def post(self, request, *args, **kwargs):
+        org = self.validate(request)
         import pdb; pdb.set_trace()
         # # TODO: incorporate request.POST["presentation_submission"] as schema definition
         # (presentation_valid, _) = verify_presentation(request.POST["vp_token"])

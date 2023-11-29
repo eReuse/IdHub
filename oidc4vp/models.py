@@ -54,12 +54,9 @@ class Organization(models.Model):
     )
     my_client_id = models.CharField(
         max_length=24,
-        default=set_client_id,
-        unique=True
     )
     my_client_secret = models.CharField(
         max_length=48,
-        default=set_client_secret
     )
     response_uri = models.URLField(
         help_text=_("Url where to send the verificable presentation"),
@@ -128,7 +125,7 @@ class Authorization(models.Model):
         data = {
             "response_type": "vp_token",
             "response_mode": "direct_post",
-            "client_id": self.organization.client_id,
+            "client_id": self.organization.my_client_id,
             "presentation_definition": self.presentation_definition,
             "nonce": gen_salt(5),
         }
