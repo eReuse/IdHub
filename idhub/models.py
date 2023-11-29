@@ -431,6 +431,7 @@ class DID(models.Model):
 
 
 class Schemas(models.Model):
+    type = models.CharField(max_length=250)
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
@@ -492,10 +493,9 @@ class VerificableCredential(models.Model):
         return json.loads(self.data)
 
     def type(self):
-        if self.data:
-            return self.get_schema.get('type')[-1]
-
-        return self.schema.name()
+        # if self.data and:
+        #     return self.get_schema.get('type')[-1]
+        return self.schema.type
 
     def description(self):
         if not self.data:
