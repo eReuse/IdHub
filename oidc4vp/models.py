@@ -33,7 +33,14 @@ def set_code():
 
 class Organization(models.Model):
     """
-      This class represent a member of one net trust or federated host
+      This class represent a member of one net trust or federated host.
+      Client_id and client_secret are the credentials of this organization
+      get a connection to my. (receive a request)
+      My_client_id and my_client_secret are my credentials than to use if I
+      want to connect to this organization. (send a request)
+      For use the packages requests we need use my_client_id
+      For use in the get or post method of a View, then we need use client_id
+      and secret_id
     """
     name = models.CharField(max_length=250)
     client_id = models.CharField(
@@ -42,6 +49,15 @@ class Organization(models.Model):
         unique=True
     )
     client_secret = models.CharField(
+        max_length=48,
+        default=set_client_secret
+    )
+    my_client_id = models.CharField(
+        max_length=24,
+        default=set_client_id,
+        unique=True
+    )
+    my_client_secret = models.CharField(
         max_length=48,
         default=set_client_secret
     )
@@ -54,11 +70,8 @@ class Organization(models.Model):
         """
           Send the verificable presentation to Verifier
         """
-        org = self.__class__.objects.get(
-            response_uri=settings.RESPONSE_URI
-        )
-        auth = (org.client_id, org.client_secret)
-        return requests.post(self.url, data=vp, auth=auth)
+        auth = (self.my_client_id, self.client_secret)
+        return requests.post(self.response_uri, data=vp, auth=auth)
 
     def demand_authorization(self):
         """
@@ -72,7 +85,7 @@ class Organization(models.Model):
             url=self.response_uri.strip("/"),
             redirect_uri=settings.RESPONSE_URI
         )
-        auth = (org.client_id, org.client_secret)
+        auth = (self.my_client_id, self.client_secret)
         return requests.get(url, auth=auth)
 
     def __str__(self):
