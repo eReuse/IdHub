@@ -17,6 +17,10 @@ from django.shortcuts import get_object_or_404
 # from more_itertools import flatten, unique_everseen
 
 
+class AuthorizationView(View):
+    pass
+
+
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
