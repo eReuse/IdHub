@@ -159,7 +159,15 @@ class DemandAuthorizationView(MyWallet, FormView):
         return kwargs
     
     def form_valid(self, form):
-        authorization = form.save()
+        try:
+            authorization = form.save()
+        except Exception:
+            txt = _("Problems connecting with {url}").format(
+                url=form.org.response_uri
+            )
+            messages.error(self.request, txt)
+            return super().form_valid(form)
+
         if authorization:
             return redirect(authorization)
         else:
