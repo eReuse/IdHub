@@ -1,6 +1,7 @@
 import json
 import base64
 
+from django.conf import settings
 from django.views.generic.edit import View
 
 from oidc4vp.models import Authorization, Organization
@@ -19,8 +20,7 @@ from django.shortcuts import get_object_or_404
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
-        # TODO Not hardcode the list of types of presentation_definition
-        presentation_definition = json.dumps(['MemberCredential'])
+        presentation_definition = json.dumps(settings.SUPPORTED_CREDENTIALS)
         authorization = Authorization(
             organization=org,
             presentation_definition=presentation_definition

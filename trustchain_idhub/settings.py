@@ -187,3 +187,8 @@ USE_L10N = True
 AUTH_USER_MODEL = 'idhub_auth.User'
 RESPONSE_URI = config('RESPONSE_URI', default="")
 ALLOW_CODE_URI= config('ALLOW_CODE_URI', default="")
+SUPPORTED_CREDENTIALS = config(
+    'SUPPORTED_CREDENTIALS',
+    default='[]',
+    cast=literal_eval
+)
