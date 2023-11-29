@@ -82,7 +82,7 @@ class Organization(models.Model):
             url=self.response_uri.strip("/"),
             redirect_uri=settings.RESPONSE_URI
         )
-        auth = (self.my_client_id, self.client_secret)
+        auth = (self.my_client_id, self.my_client_secret)
         return requests.get(url, auth=auth)
 
     def __str__(self):
