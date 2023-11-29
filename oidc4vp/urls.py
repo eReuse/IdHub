@@ -9,6 +9,6 @@ app_name = 'oidc4vp'
 urlpatterns = [
     path('verify', views.VerifyView.as_view(),
          name="verify"),
-    path('authorization', views.AuthorizationView.as_view(),
-         name="authorization"),
+    path('authorize', views.AuthorizeView.as_view(),
+         name="authorize"),
 ]

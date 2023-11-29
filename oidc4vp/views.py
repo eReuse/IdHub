@@ -2,12 +2,18 @@ import json
 import base64
 
 from django.conf import settings
-from django.views.generic.edit import View
+from django.views.generic.edit import View, FormView
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
 
 from oidc4vp.models import Authorization, Organization
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
+from idhub.mixins import UserView
 
+from idhub.user.forms import (
+    DemandAuthorizationForm
+)
 
 # from django.core.mail import send_mail
 # from django.http import HttpResponse, HttpResponseRedirect
@@ -17,15 +23,32 @@ from django.shortcuts import get_object_or_404
 # from more_itertools import flatten, unique_everseen
 
 
-class AuthorizationView(View):
-    pass
+class AuthorizeView(UserView, FormView):
+    title = _("My wallet")
+    section = "MyWallet"
+    template_name = "credentials_presentation.html"
+    subtitle = _('Credential presentation')
+    icon = 'bi bi-patch-check-fill'
+    form_class = DemandAuthorizationForm
+    success_url = reverse_lazy('idhub:user_demand_authorization')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        authorization = form.save()
+        if authorization:
+            return redirect(authorization)
+        else:
+            messages.error(self.request, _("Error sending credential!"))
+        return super().form_valid(form)
 
 
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
-        if not org:
-            raise Http404("Organization not found!")
         presentation_definition = json.dumps(settings.SUPPORTED_CREDENTIALS)
         authorization = Authorization(
             organization=org,
@@ -49,6 +72,8 @@ class VerifyView(View):
                 client_secret=client_secret
             )
             return org
+
+        raise Http404("Organization not found!")
 
     def post(self, request, *args, **kwargs):
         org = self.validate(request)
