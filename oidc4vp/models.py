@@ -133,7 +133,7 @@ class Authorization(models.Model):
         query_dict.update(data)
 
         url = '{response_uri}/authorize?{params}'.format(
-            response_uri=self.organization.response_uri,
+            response_uri=self.organization.response_uri.strip("/"),
             params=query_dict.urlencode()
         )
         return url
