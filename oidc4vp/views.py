@@ -24,6 +24,8 @@ class AuthorizationView(View):
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
+        if not org:
+            return Http404("Organization not found!")
         presentation_definition = json.dumps(settings.SUPPORTED_CREDENTIALS)
         authorization = Authorization(
             organization=org,
