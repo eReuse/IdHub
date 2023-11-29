@@ -67,18 +67,18 @@ class Organization(models.Model):
         """
           Send the verificable presentation to Verifier
         """
+        url = "{url}/verify".format(
+            url=self.response_uri.strip("/"),
+        )
         auth = (self.my_client_id, self.client_secret)
-        return requests.post(self.response_uri, data=vp, auth=auth)
+        return requests.post(url, data=vp, auth=auth)
 
     def demand_authorization(self):
         """
           Send the a request for start a process of Verifier
         """
-        org = self.__class__.objects.get(
-            response_uri=settings.RESPONSE_URI
-        )
         # import pdb; pdb.set_trace()
-        url = "{url}/?demand_uri={redirect_uri}".format(
+        url = "{url}/verify?demand_uri={redirect_uri}".format(
             url=self.response_uri.strip("/"),
             redirect_uri=settings.RESPONSE_URI
         )
