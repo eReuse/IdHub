@@ -32,7 +32,7 @@ class VerifyView(View):
         auth_header = request.headers.get('Authorization', b'')
         auth_data = auth_header.split()
 
-        if len(auth_data) == 2 and auth_data[0].lower() == b'basic':
+        if len(auth_data) == 2 and auth_data[0].lower() == 'basic':
             decoded_auth = base64.b64decode(auth_data[1]).decode('utf-8')
             client_id, client_secret = decoded_auth.split(':', 1)
             org_url = request.GET.get('demand_uri')
