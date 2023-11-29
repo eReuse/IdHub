@@ -32,7 +32,8 @@ from idhub.admin.forms import (
     UserRolForm,
 )
 from idhub.admin.tables import (
-        DashboardTable
+        DashboardTable,
+        UserTable
 )
 from idhub.models import (
     DID,
@@ -82,10 +83,12 @@ class ImportExport(AdminView):
     section = "ImportExport"
 
 
-class PeopleListView(People, TemplateView):
+class PeopleListView(People, SingleTableView):
     template_name = "idhub/admin/people.html"
     subtitle = _('View users')
     icon = 'bi bi-person'
+    table_class = UserTable
+    model = User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -93,6 +96,11 @@ class PeopleListView(People, TemplateView):
             'users': User.objects.filter(),
         })
         return context
+
+    def get_queryset(self, **kwargs):
+        queryset = super().get_queryset(**kwargs)
+
+        return queryset
 
 
 class PeopleView(People, TemplateView):
