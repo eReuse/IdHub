@@ -11,9 +11,8 @@ from django.urls import reverse_lazy
 from oidc4vp.models import Authorization, Organization
 from idhub.mixins import UserView
 
-from idhub.user.forms import (
-    DemandAuthorizationForm
-)
+from oidc4vp.forms import AuthorizeForm
+
 
 # from django.core.mail import send_mail
 # from django.http import HttpResponse, HttpResponseRedirect
@@ -29,12 +28,15 @@ class AuthorizeView(UserView, FormView):
     template_name = "credentials_presentation.html"
     subtitle = _('Credential presentation')
     icon = 'bi bi-patch-check-fill'
-    form_class = DemandAuthorizationForm
+    form_class = AuthorizeForm
     success_url = reverse_lazy('idhub:user_demand_authorization')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        vps = self.request.GET.get('presentation_definition')
+        # import pdb; pdb.set_trace()
+        kwargs['presentation_definition'] = json.loads(vps)
         return kwargs
     
     def form_valid(self, form):
@@ -77,7 +79,7 @@ class VerifyView(View):
 
     def post(self, request, *args, **kwargs):
         org = self.validate(request)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         # # TODO: incorporate request.POST["presentation_submission"] as schema definition
         # (presentation_valid, _) = verify_presentation(request.POST["vp_token"])
         # if not presentation_valid:
