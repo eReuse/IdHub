@@ -10,9 +10,10 @@ class ButtonColumn(tables.Column):
         "a": {
             "type": "button",
             "class": "text-primary",
-            "title": "'View'",
         }
     }
+    # it makes no sense to order a column of buttons
+    orderable = False
     # django_tables will only call the render function if it doesn't find
     # any empty values in the data, so we stop it from matching the data
     # to any value considered empty
@@ -28,10 +29,14 @@ class UserTable(tables.Table):
                 "viewname": "idhub:admin_people",
                 "args": [tables.A("pk")]
             },
-            orderable=False,
-            )
+            orderable=False
+    )
+
     membership = tables.Column(empty_values=())
     role = tables.Column(empty_values=())
+
+    def render_view_user(self):
+        return format_html('<i class="bi bi-eye"></i>')
 
     def render_membership(self, record):
         return record.get_memberships()
@@ -62,6 +67,28 @@ class UserTable(tables.Table):
 
 
 class RolesTable(tables.Table):
+    view_role = ButtonColumn(
+            linkify={
+                "viewname": "idhub:admin_rol_edit",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+
+    delete_role = ButtonColumn(
+            linkify={
+                "viewname": "idhub:admin_rol_del",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+
+    def render_view_role(self):
+        return format_html('<i class="bi bi-pencil-square"></i>')
+
+    def render_delete_role(self):
+        return format_html('<i class="bi bi-trash">')
+
     class Meta:
         model = Rol
         template_name = "idhub/custom_table.html"
