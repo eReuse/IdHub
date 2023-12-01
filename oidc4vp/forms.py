@@ -45,34 +45,44 @@ from oidc4vp.models import Organization
 
 
 class AuthorizeForm(forms.Form):
-    organization = forms.ChoiceField(choices=[])
+    # organization = forms.ChoiceField(choices=[])
 
     def __init__(self, *args, **kwargs):
         # import pdb; pdb.set_trace()
+        self.data = kwargs.get('data', {}).copy()
         self.user = kwargs.pop('user', None)
         self.presentation_definition = kwargs.pop('presentation_definition', [])
+
+        reg = r'({})'.format('|'.join(self.presentation_definition))
+
         self.credentials = self.user.vcredentials.filter(
-            schema__type__in=self.presentation_definition
+            schema__type__iregex=reg
         )
         super().__init__(*args, **kwargs)
-        self.fields['organization'].choices = [
-            (x.id, x.name) for x in Organization.objects.filter() 
-                if x.response_uri != settings.RESPONSE_URI
-        ]
+        for vp in self.presentation_definition:
+            vp = vp.lower()
+            choices = [
+                (str(x.id), x.schema.type.lower()) for x in self.credentials.filter(
+                    schema__type__iexact=vp)
+            ]
+            self.fields[vp.lower()] = forms.ChoiceField(
+                widget=forms.RadioSelect,
+                choices=choices
+            )
 
     def save(self, commit=True):
-        self.org = Organization.objects.filter(
-            id=self.data['organization']
-        )
-        if not self.org.exists():
-            return
+        # self.org = Organization.objects.filter(
+        #     id=self.data['organization']
+        # )
+        # if not self.org.exists():
+        #     return
 
-        self.org = self.org[0]
+        # self.org = self.org[0]
 
-        if commit:
-            url = self.org.demand_authorization()
-            if url.status_code == 200:
-                return url.json().get('redirect_uri')
+        # if commit:
+        #     url = self.org.demand_authorization()
+        #     if url.status_code == 200:
+        #         return url.json().get('redirect_uri')
         
         return 
 
