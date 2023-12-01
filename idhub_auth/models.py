@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from nacl import secret, pwhash
 
 
 class UserManager(BaseUserManager):
@@ -43,6 +44,10 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
+    # TODO: Hay que generar una clave aleatoria para cada usuario cuando se le da de alta en el sistema.
+    encrypted_sensitive_data_encryption_key = models.BinaryField(max_length=255)
+    # TODO: Hay que generar un salt aleatorio para cada usuario cuando se le da de alta en el sistema.
+    salt_of_sensitive_data_encryption_key = models.BinaryField(max_length=255)
 
     objects = UserManager()
 
@@ -85,3 +90,16 @@ class User(AbstractBaseUser):
             for r in s.service.rol.all():
                 roles.append(r.name)
         return ", ".join(set(roles))
+
+    def derive_key_from_password(self, password):
+        kdf = pwhash.argon2i.kdf  # TODO: Move the KDF choice to SETTINGS.PY
+        ops = pwhash.argon2i.OPSLIMIT_INTERACTIVE  # TODO: Move the KDF choice to SETTINGS.PY
+        mem = pwhash.argon2i.MEMLIMIT_INTERACTIVE  # TODO: Move the KDF choice to SETTINGS.PY
+        salt = self.salt_of_sensitive_data_encryption_key
+        return kdf(secret.SecretBox.KEY_SIZE, password, salt, opslimit=ops, memlimit=mem)
+
+    def decrypt_sensitive_data_encryption_key(self, password):
+        sb_key = self.derive_key_from_password(password)
+        sb = secret.SecretBox(sb_key)
+        return sb.decrypt(self.encrypted_sensitive_data_encryption_key)
+

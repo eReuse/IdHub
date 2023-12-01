@@ -6,6 +6,8 @@ from django.db import models
 from django.conf import settings
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+from nacl import secret
+
 from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
@@ -409,13 +411,27 @@ class DID(models.Model):
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
-    key_material = models.CharField(max_length=250)
+    # CHANGED: `key_material` to `_key_material`, datatype from CharField to BinaryField and the key is now stored encrypted.
+    key_material = None
+    _key_material = models.BinaryField(max_length=250)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='dids',
         null=True,
     )
+
+    def get_key_material(self, session):
+        if "sensitive_data_encryption_key" not in session:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
+        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+        return sb.decrypt(self._key_material)
+
+    def set_key_material(self, value, session):
+        if "sensitive_data_encryption_key" not in session:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
+        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+        self._key_material = sb.encrypt(value)
 
     @property
     def is_organization_did(self):
@@ -427,7 +443,8 @@ class DID(models.Model):
         self.key_material = generate_did_controller_key()
         self.did = keydid_from_controller_key(self.key_material)
 
-    def get_key(self):
+    # TODO: darmengo: esta funcion solo se llama desde un fichero que sube cosas a s3 (??) Preguntar a ver que hace.
+    def get_key_deprecated(self):
         return json.loads(self.key_material)
 
 
@@ -464,7 +481,10 @@ class VerificableCredential(models.Model):
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
     subject_did = models.CharField(max_length=250)
-    data = models.TextField()
+    # CHANGED: `data` to `_data`, datatype from TextField to BinaryField and the rendered VC is now stored encrypted.
+    # TODO: verify that BinaryField can hold arbitrary amounts of data (max_length = ???)
+    data = None
+    _data = models.BinaryField()
     csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
@@ -485,6 +505,18 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
+
+    def get_data(self, session):
+        if "sensitive_data_encryption_key" not in session:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
+        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+        return sb.decrypt(self._data)
+
+    def set_data(self, value, session):
+        if "sensitive_data_encryption_key" not in session:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
+        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+        self._data = sb.encrypt(value)
 
     @property
     def get_schema(self):

@@ -25,4 +25,8 @@ class LoginView(auth_views.LoginView):
             if self.extra_context['success_url'] == user_dashboard:
                 self.extra_context['success_url'] = admin_dashboard
         auth_login(self.request, user)
+        # Decrypt the user's sensitive data encryption key and store it in the session.
+        password = form.cleaned_data.get("password")  # TODO: Is this right????????
+        sensitive_data_encryption_key = user.decrypt_sensitive_data_encryption_key(password)
+        self.request.session["sensitive_data_encryption_key"] = sensitive_data_encryption_key
         return HttpResponseRedirect(self.extra_context['success_url'])
