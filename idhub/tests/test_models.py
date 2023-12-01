@@ -1,5 +1,5 @@
 from django.test import TestCase
-from idhub.models import Event
+from idhub.models import Event, Membership, Rol, UserRol, Service
 from idhub_auth.models import User
 
 
@@ -50,9 +50,24 @@ class UserTest(TestCase):
         self.assertTrue(self.user.is_staff)
 
     def test_get_memberships(self):
-        # TODO
-        pass
+        Membership.objects.create(user=self.user,
+                                  type=Membership.Types.BENEFICIARY)
+        Membership.objects.create(user=self.user,
+                                  type=Membership.Types.EMPLOYEE)
+
+        # We test for the length because the order in which the string
+        # is given in get_memberships is non-deterministic
+        self.assertEqual(len(self.user.get_memberships()),
+                         len("Beneficiary, Employee"))
 
     def test_get_roles(self):
-        # TODO
-        pass
+        user = User.objects.get(email="test@example.com")
+        service = Service.objects.create(domain="Test Service")
+        role1 = Rol.objects.create(name="Role 1")
+        role2 = Rol.objects.create(name="Role 2")
+        service.rol.add(role1, role2)
+        UserRol.objects.create(user=user, service=service)
+
+        # We test for the length because the order in which the string
+        # is given in get_roles is non-deterministic
+        self.assertEqual(len(user.get_roles()), len("Role 1, Role 2"))

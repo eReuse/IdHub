@@ -4,8 +4,8 @@ from django.test import TestCase
 from django.urls import reverse
 
 from idhub_auth.models import User
-from idhub.admin.tables import DashboardTable
-from idhub.models import Event
+from idhub.admin.tables import DashboardTable, UserTable
+from idhub.models import Event, Membership, Rol, UserRol, Service
 
 
 class AdminDashboardTableTest(TestCase):
@@ -63,3 +63,34 @@ class AdminDashboardTableTest(TestCase):
     def test_pagination(self):
         # TODO
         pass
+
+
+class UserTableTest(TestCase):
+
+    def setUp(self):
+        self.user1 = User.objects.create(email="user1@example.com")
+        self.user2 = User.objects.create(email="user2@example.com")
+        Membership.objects.create(user=self.user1,
+                                  type=Membership.Types.BENEFICIARY)
+
+        # Set up roles and services
+        service = Service.objects.create(domain="Test Service")
+        role = Rol.objects.create(name="Role 1")
+        service.rol.add(role)
+        UserRol.objects.create(user=self.user1, service=service)
+
+        self.table = UserTable(User.objects.all())
+
+    def test_membership_column_render(self):
+        # Get the user instance for the first row
+        user = self.table.rows[0].record
+        # Use the render_membership method of UserTable
+        rendered_column = self.table.columns['membership'].render(user)
+        self.assertIn("Beneficiary", str(rendered_column))
+
+    def test_role_column_render(self):
+        # Get the user instance for the first row
+        user = self.table.rows[0].record
+        # Use the render_role method of UserTable
+        rendered_column = self.table.columns['role'].render(user)
+        self.assertIn("Role 1", str(rendered_column))
