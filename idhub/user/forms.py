@@ -18,6 +18,7 @@ class RequestCredentialForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.session = kwargs.pop('session', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
@@ -45,7 +46,7 @@ class RequestCredentialForm(forms.Form):
         did = did[0].did
         cred = cred[0]
         try:
-            cred.issue(did)
+            cred.issue(did, self.session)
         except Exception:
             return
 
