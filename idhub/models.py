@@ -486,22 +486,11 @@ class VerificableCredential(models.Model):
         related_name='vcredentials',
     )
 
-    @property
-    def get_schema(self):
-        if not self.data:
-            return {}
-        return json.loads(self.data)
-
     def type(self):
-        # if self.data and:
-        #     return self.get_schema.get('type')[-1]
         return self.schema.type
 
     def description(self):
-        if not self.data:
-            return self.schema.description()
-
-        for des in self.get_schema.get('description', []):
+        for des in json.loads(self.render()).get('description', []):
             if settings.LANGUAGE_CODE == des.get('lang'):
                 return des.get('value', '')
         return ''
@@ -527,8 +516,10 @@ class VerificableCredential(models.Model):
 
     def get_context(self):
         d = json.loads(self.csv_data)
-        format = "%Y-%m-%dT%H:%M:%SZ"
-        issuance_date = self.issued_on.strftime(format)
+        issuance_date = ''
+        if self.issued_on:
+            format = "%Y-%m-%dT%H:%M:%SZ"
+            issuance_date = self.issued_on.strftime(format)
 
         context = {
             'vc_id': self.id,
