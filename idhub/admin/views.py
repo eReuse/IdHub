@@ -419,12 +419,7 @@ class RolesView(AccessControl, SingleTableView):
         if queryset is None:
             self.object_list = self.model.objects.all()
 
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'roles': Rol.objects,
-        })
-
-        return context
+        return super().get_context_data(**kwargs)
 
 
 class RolRegisterView(AccessControl, CreateView):
