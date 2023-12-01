@@ -439,9 +439,16 @@ class DID(models.Model):
             return True
         return False
 
-    def set_did(self):
-        self.key_material = generate_did_controller_key()
-        self.did = keydid_from_controller_key(self.key_material)
+    def set_did(self, session):
+        """
+        Generates a new DID Controller Key and derives a DID from it.
+        Because DID Controller Keys are stored encrypted using a User's Sensitive Data Encryption Key,
+        this function needs to be called in the context of a request.
+        """
+        new_key_material = generate_did_controller_key()
+        self.did = keydid_from_controller_key(new_key_material)
+        self.set_key_material(new_key_material, session)
+
 
     # TODO: darmengo: esta funcion solo se llama desde un fichero que sube cosas a s3 (??) Preguntar a ver que hace.
     def get_key_deprecated(self):
@@ -546,7 +553,7 @@ class VerificableCredential(models.Model):
         data = json.loads(self.csv_data).items()
         return data
 
-    def issue(self, did):
+    def issue(self, did, session):
         if self.status == self.Status.ISSUED:
             return
 
@@ -555,7 +562,7 @@ class VerificableCredential(models.Model):
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
         self.data = sign_credential(
             self.render(),
-            self.issuer_did.key_material
+            self.issuer_did.get_key_material(session)
         )
 
     def get_context(self):
