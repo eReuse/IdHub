@@ -7,6 +7,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
+from django.contrib import messages
 
 from oidc4vp.models import Authorization, Organization
 from idhub.mixins import UserView
