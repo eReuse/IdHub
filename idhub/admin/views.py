@@ -820,7 +820,6 @@ class SchemasImportAddView(SchemasMix):
     def create_schema(self, file_name):
         data = self.open_file(file_name)
         try:
-            json.loads(data)
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
             name = ldata.get('name')
