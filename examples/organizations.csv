@@ -1,4 +1,4 @@
 "ExO";"https://verify.exo.cat"
 "Somos Connexión";"https://verify.somosconexion.coop"
-"test2";"http://localhost:9000/oidc4vp/verify"
-"test1";"http://localhost:8000/oidc4vp/verify"
+"test2";"http://localhost:9000/oidc4vp/"
+"test1";"http://localhost:8000/oidc4vp/"
