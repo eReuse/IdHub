@@ -463,7 +463,6 @@ class VerificableCredential(models.Model):
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
-    subject_did = models.CharField(max_length=250)
     data = models.TextField()
     csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
@@ -474,6 +473,11 @@ class VerificableCredential(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='vcredentials',
+    )
+    subject_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        related_name='subject_credentials',
     )
     issuer_did = models.ForeignKey(
         DID,
