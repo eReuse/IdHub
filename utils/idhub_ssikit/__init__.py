@@ -94,6 +94,18 @@ def issue_verifiable_presentation(vp_template: Template, vc_list: list[str], jwk
     return asyncio.run(inner())
 
 
+def create_verifiable_presentation(jwk_holder: str, unsigned_vp: str) -> str:
+    async def inner():
+        signed_vp = await didkit.issue_presentation(
+            unsigned_vp,
+            '{"proofFormat": "ldp"}',
+            jwk_holder
+        )
+        return signed_vp
+
+    return asyncio.run(inner())
+
+
 def verify_presentation(vp):
     """
     Returns a (bool, str) tuple indicating whether the credential is valid.

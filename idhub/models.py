@@ -529,7 +529,7 @@ class VerificableCredential(models.Model):
         context = {
             'vc_id': self.id,
             'issuer_did': self.issuer_did.did,
-            'subject_did': self.subject_did.did,
+            'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,

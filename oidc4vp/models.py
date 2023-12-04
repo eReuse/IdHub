@@ -71,13 +71,13 @@ class Organization(models.Model):
             url=self.response_uri.strip("/"),
         )
         auth = (self.my_client_id, self.my_client_secret)
+        # import pdb; pdb.set_trace()
         return requests.post(url, data=vp, auth=auth)
 
     def demand_authorization(self):
         """
           Send the a request for start a process of Verifier
         """
-        # import pdb; pdb.set_trace()
         url = "{url}/verify?demand_uri={redirect_uri}".format(
             url=self.response_uri.strip("/"),
             redirect_uri=settings.RESPONSE_URI
