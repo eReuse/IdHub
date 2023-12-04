@@ -1,9 +1,13 @@
+import json
 import requests
+
 from django import forms
 from django.conf import settings
 from django.template.loader import get_template
+from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
-from utils.idhub_ssikit import issue_verifiable_presentation
+from utils.idhub_ssikit import create_verifiable_presentation
 from oidc4vp.models import Organization
 
 
@@ -33,34 +37,36 @@ class AuthorizeForm(forms.Form):
             )
     def clean(self):
         data = super().clean()
-        import pdb; pdb.set_trace()
         self.list_credentials = []
         for c in self.credentials:
             if str(c.id) == data.get(c.schema.type.lower()):
+                if c.status is not c.Status.ISSUED.value or not c.data:
+                    txt = _('There are some problems with this credentials')
+                    raise ValidationError(txt)
+
                 self.list_credentials.append(c)
+
         return data
 
     def save(self, commit=True):
         if not self.list_credentials:
             return
 
-        did = self.list_credentials[0].subject_did
-        vp_template = get_template('credentials/verifiable_presentation.json')
-
-        # self.vp = issue_verifiable_presentation(
-        #     vp_template: Template,
-        #     vc_list: list[str],
-        #     jwk_holder: str,
-        #     holder_did: str)
-
-        self.vp = issue_verifiable_presentation(
-            vp_template,
-            self.list_credentials,
-            did.key_material,
-            did.did)
+        self.get_verificable_presentation()
 
         if commit:
-            return org.send(self.vp)
+            return self.org.send(self.vp)
 
         return
 
+    def get_verificable_presentation(self):
+        did = self.list_credentials[0].subject_did
+        vp_template = get_template('credentials/verifiable_presentation.json')
+        vc_list = json.dumps([json.loads(x.data) for x in self.list_credentials])
+
+        context = {
+            "holder_did": did.did,
+            "verifiable_credential_list": vc_list
+        }
+        unsigned_vp = vp_template.render(context)
+        self.vp = create_verifiable_presentation(did.key_material, unsigned_vp)
