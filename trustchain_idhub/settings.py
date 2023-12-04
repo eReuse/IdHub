@@ -73,7 +73,8 @@ INSTALLED_APPS = [
     'django_tables2',
     'idhub_auth',
     'oidc4vp',
-    'idhub'
+    'idhub',
+    'promotion'
 ]
 
 MIDDLEWARE = [
