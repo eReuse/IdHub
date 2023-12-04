@@ -44,7 +44,7 @@ class RequestCredentialForm(forms.Form):
         if not all([cred.exists(), did.exists()]):
             return
 
-        did = did[0].did
+        did = did[0]
         cred = cred[0]
         try:
             cred.issue(did)
