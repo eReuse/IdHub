@@ -3,7 +3,7 @@ import base64
 
 from django.conf import settings
 from django.views.generic.edit import View, FormView
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -45,12 +45,11 @@ class AuthorizeView(UserView, FormView):
     
     def form_valid(self, form):
         authorization = form.save()
-        import pdb; pdb.set_trace()
         if not authorization or authorization.status_code != 200:
             messages.error(self.request, _("Error sending credential!"))
             return super().form_valid(form)
         try:
-            authorization = json.loads(authorization.text)
+            authorization = authorization.json()
         except:
             messages.error(self.request, _("Error sending credential!"))
             return super().form_valid(form)
@@ -127,7 +126,7 @@ class VerifyView(View):
         
         response["verify"] = "Ok, Verification correct"
         response["response"] = "Validation Code 255255255"
-        return HttpResponse(json.dumps(response))
+        return JsonResponse(response)
 
     def get_response_verify(self):
         return {
