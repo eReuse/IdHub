@@ -478,6 +478,7 @@ class VerificableCredential(models.Model):
         DID,
         on_delete=models.CASCADE,
         related_name='subject_credentials',
+        null=True
     )
     issuer_did = models.ForeignKey(
         DID,
@@ -528,7 +529,7 @@ class VerificableCredential(models.Model):
         context = {
             'vc_id': self.id,
             'issuer_did': self.issuer_did.did,
-            'subject_did': self.subject_did,
+            'subject_did': self.subject_did.did,
             'issuance_date': issuance_date,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,

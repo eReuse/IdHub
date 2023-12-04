@@ -70,7 +70,7 @@ class Organization(models.Model):
         url = "{url}/verify".format(
             url=self.response_uri.strip("/"),
         )
-        auth = (self.my_client_id, self.client_secret)
+        auth = (self.my_client_id, self.my_client_secret)
         return requests.post(url, data=vp, auth=auth)
 
     def demand_authorization(self):

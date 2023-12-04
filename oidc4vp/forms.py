@@ -1,5 +1,7 @@
+import requests
 from django import forms
 from django.conf import settings
+from django.template.loader import get_template
 
 from utils.idhub_ssikit import issue_verifiable_presentation
 from oidc4vp.models import Organization
@@ -10,6 +12,7 @@ class AuthorizeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.data = kwargs.get('data', {}).copy()
         self.user = kwargs.pop('user', None)
+        self.org = kwargs.pop('org', None)
         self.presentation_definition = kwargs.pop('presentation_definition', [])
 
         reg = r'({})'.format('|'.join(self.presentation_definition))
@@ -42,22 +45,22 @@ class AuthorizeForm(forms.Form):
             return
 
         did = self.list_credentials[0].subject_did
+        vp_template = get_template('credentials/verifiable_presentation.json')
+
+        # self.vp = issue_verifiable_presentation(
+        #     vp_template: Template,
+        #     vc_list: list[str],
+        #     jwk_holder: str,
+        #     holder_did: str)
 
         self.vp = issue_verifiable_presentation(
-            vp_template: Template,
-            vc_list: list[str],
-            jwk_holder: str,
-            holder_did: str)
-
-        self.vp = issue_verifiable_presentation(
-            vp_template: Template,
+            vp_template,
             self.list_credentials,
             did.key_material,
             did.did)
 
         if commit:
-            result = requests.post(self.vp)
-            return result
+            return org.send(self.vp)
 
         return
 

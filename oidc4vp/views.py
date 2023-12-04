@@ -38,6 +38,7 @@ class AuthorizeView(UserView, FormView):
         vps = self.request.GET.get('presentation_definition')
         # import pdb; pdb.set_trace()
         kwargs['presentation_definition'] = json.loads(vps)
+        kwargs["org"] = self.get_org()
         return kwargs
     
     def form_valid(self, form):
@@ -48,6 +49,17 @@ class AuthorizeView(UserView, FormView):
             messages.error(self.request, _("Error sending credential!"))
         return super().form_valid(form)
 
+    def get_org(self):
+        client_id = self.request.GET.get("client_id")
+        if not client_id:
+            raise Http404("Organization not found!")
+
+        org = get_object_or_404(
+            Organization,
+            client_id=client_id,
+        )
+        return org
+ 
 
 class VerifyView(View):
     def get(self, request, *args, **kwargs):
