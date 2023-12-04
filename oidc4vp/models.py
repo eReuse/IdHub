@@ -71,8 +71,8 @@ class Organization(models.Model):
             url=self.response_uri.strip("/"),
         )
         auth = (self.my_client_id, self.my_client_secret)
-        # import pdb; pdb.set_trace()
-        return requests.post(url, data=vp, auth=auth)
+        data = {"vp_token": vp}
+        return requests.post(url, data=data, auth=auth)
 
     def demand_authorization(self):
         """
