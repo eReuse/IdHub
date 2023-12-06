@@ -37,7 +37,8 @@ from idhub.admin.tables import (
         RolesTable,
         ServicesTable,
         CredentialTable,
-        DIDTable
+        DIDTable,
+        DataTable
 )
 from idhub.models import (
     DID,
@@ -867,10 +868,12 @@ class SchemasImportAddView(SchemasMix):
         return data
 
 
-class ImportView(ImportExport, TemplateView):
+class ImportView(ImportExport, SingleTableView):
     template_name = "idhub/admin/import.html"
+    table_class = DataTable
     subtitle = _('Import data')
     icon = ''
+    model = File_datas
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
