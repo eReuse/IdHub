@@ -1,7 +1,14 @@
 import django_tables2 as tables
 from django.utils.html import format_html
 
-from idhub.models import Rol, Event, Service, VerificableCredential, DID
+from idhub.models import (
+        Rol,
+        Event,
+        Service,
+        VerificableCredential,
+        DID,
+        File_datas
+)
 from idhub_auth.models import User
 
 
@@ -199,3 +206,13 @@ class DIDTable(tables.Table):
         model = DID
         template_name = "idhub/custom_table.html"
         fields = ("created_at", "label", "did", "edit_did", "delete_did")
+
+
+class DataTable(tables.Table):
+    created_at = tables.Column(verbose_name="Date")
+    file_name = tables.Column(verbose_name="File")
+
+    class Meta:
+        model = File_datas
+        template_name = "idhub/custom_table.html"
+        fields = ("created_at", "file_name", "success")
