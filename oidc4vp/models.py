@@ -4,8 +4,10 @@ import secrets
 from django.conf import settings
 from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
 from idhub_auth.models import User
 from django.db import models
+from utils.idhub_ssikit import verify_presentation
 
 
 SALT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -63,7 +65,7 @@ class Organization(models.Model):
         max_length=250
     )
 
-    def send(self, vp):
+    def send(self, vp, code):
         """
           Send the verificable presentation to Verifier
         """
@@ -72,6 +74,9 @@ class Organization(models.Model):
         )
         auth = (self.my_client_id, self.my_client_secret)
         data = {"vp_token": vp}
+        if code:
+            data["code"] = code
+
         return requests.post(url, data=data, auth=auth)
 
     def demand_authorization(self):
@@ -100,13 +105,8 @@ class Authorization(models.Model):
       The Verifier need to do a redirection to the user to Wallet.
       The code we use as a soft foreing key between Authorization and OAuth2VPToken.
     """
-    # nonce = models.CharField(max_length=50)
-    # expected_credentials = models.CharField(max_length=255)
-    # expected_contents = models.TextField()
-    # action = models.TextField()
-    # response_or_redirect = models.CharField(max_length=255)
-
     code = models.CharField(max_length=24, default=set_code)
+    code_used = models.BooleanField()
     created = models.DateTimeField(auto_now=True)
     presentation_definition = models.CharField(max_length=250)
     organization = models.ForeignKey(
@@ -121,19 +121,24 @@ class Authorization(models.Model):
         null=True,
     )
 
-    def authorize(self):
+    def authorize(self, path=None):
         data = {
             "response_type": "vp_token",
             "response_mode": "direct_post",
             "client_id": self.organization.my_client_id,
             "presentation_definition": self.presentation_definition,
+            "code": self.code,
             "nonce": gen_salt(5),
         }
         query_dict = QueryDict('', mutable=True)
         query_dict.update(data)
 
+        response_uri = self.organization.response_uri.strip("/")
+        if path:
+            response_uri = "{}/{}".format(response_uri, path.strip("/"))
+
         url = '{response_uri}/authorize?{params}'.format(
-            response_uri=self.organization.response_uri.strip("/"),
+            response_uri=response_uri,
             params=query_dict.urlencode()
         )
         return url
@@ -145,9 +150,8 @@ class OAuth2VPToken(models.Model):
       and the result of verify.
     """
     created = models.DateTimeField(auto_now=True)
-    code = models.CharField(max_length=250)
-    result_verify = models.BooleanField(max_length=250)
-    presentation_definition = models.CharField(max_length=250)
+    result_verify = models.CharField(max_length=255)
+    vp_token = models.TextField()
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
@@ -163,31 +167,54 @@ class OAuth2VPToken(models.Model):
     authorization = models.ForeignKey(
         Authorization,
         on_delete=models.SET_NULL,
+        related_name='oauth2vptoken',
         null=True,
     )
 
+    def __init__(self, *args, **kwargs):
+        code = kwargs.pop("code", None)
+        super().__init__(*args, **kwargs)
+        
+        self.authorization = get_object_or_404(
+                Authorization,
+                code=code
+        )
+
     def verifing(self):
-        pass
+        self.result_verify = verify_presentation(self.vp_token)
 
+    def get_response_verify(self):
+        response = {
+            "verify": ',',
+            "redirect_uri": "",
+            "response": "",
+        }
+        verification = json.loads(self.result_verify)
+        if verification.get('errors') or verification.get('warnings'):
+            response["verify"] = "Error, Verification Failed"
+            return response
+        
+        response["verify"] = "Ok, Verification correct"
+        response["redirect_uri"] = self.get_redirect_url()
+        return response
 
-class VPVerifyRequest(models.Model):
-    """
-    `nonce` is an opaque random string used to lookup verification requests. URL-safe.
-      Example: "UPBQ3JE2DGJYHP5CPSCRIGTHRTCYXMQPNQ"
-    `expected_credentials` is a JSON list of credential types that must be present in this VP.
-      Example: ["FinancialSituationCredential", "HomeConnectivitySurveyCredential"]
-    `expected_contents` is a JSON object that places optional constraints on the contents of the
-      returned VP.
-      Example: [{"FinancialSituationCredential": {"financial_vulnerability_score": "7"}}]
-    `action` is (for now) a JSON object describing the next steps to take if this verification
-      is successful. For example "send mail to <destination> with <subject> and <body>"
-      Example: {"action": "send_mail", "params": {"to": "orders@somconnexio.coop", "subject": "New client", "body": ...}
-    `response` is a URL that the user's wallet will redirect the user to.
-    `submitted_on` is used (by a cronjob) to purge old entries that didn't complete verification
-    """
-    nonce = models.CharField(max_length=50)
-    expected_credentials = models.CharField(max_length=255)
-    expected_contents = models.TextField()
-    action = models.TextField()
-    response_or_redirect = models.CharField(max_length=255)
-    submitted_on = models.DateTimeField(auto_now=True)
+    def get_redirect_url(self):
+        data = {
+            "code": self.authorization.code,
+        }
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(data)
+
+        response_uri = settings.ALLOW_CODE_URI
+
+        url = '{response_uri}?{params}'.format(
+            response_uri=response_uri,
+            params=query_dict.urlencode()
+        )
+        return url
+
+    def get_user_info(self):
+        tk = json.loads(self.vp_token)
+        self.user_info = tk.get(
+            "verifiableCredential", [{}]
+        )[-1].get("credentialSubject")

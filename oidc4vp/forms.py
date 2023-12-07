@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 
 from utils.idhub_ssikit import create_verifiable_presentation
 from oidc4vp.models import Organization
+from idhub.models import VerificableCredential
 
 
 class AuthorizeForm(forms.Form):
@@ -17,12 +18,14 @@ class AuthorizeForm(forms.Form):
         self.data = kwargs.get('data', {}).copy()
         self.user = kwargs.pop('user', None)
         self.org = kwargs.pop('org', None)
+        self.code = kwargs.pop('code', None)
         self.presentation_definition = kwargs.pop('presentation_definition', [])
 
         reg = r'({})'.format('|'.join(self.presentation_definition))
 
         self.credentials = self.user.vcredentials.filter(
-            schema__type__iregex=reg
+            schema__type__iregex=reg,
+            status=VerificableCredential.Status.ISSUED.value
         )
         super().__init__(*args, **kwargs)
         for vp in self.presentation_definition:
@@ -46,6 +49,10 @@ class AuthorizeForm(forms.Form):
 
                 self.list_credentials.append(c)
 
+        if not self.code:
+            txt = _("There isn't code in request")
+            raise ValidationError(txt)
+
         return data
 
     def save(self, commit=True):
@@ -55,7 +62,7 @@ class AuthorizeForm(forms.Form):
         self.get_verificable_presentation()
 
         if commit:
-            return self.org.send(self.vp)
+            return self.org.send(self.vp, self.code)
 
         return
 
