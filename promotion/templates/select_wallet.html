@@ -528,6 +528,32 @@ bt_experiments["19676"] = {"name":"A\/B Test Home 3 variants (oct. 2013)","conve
 <article id="single-blocks" class="single-page-article wpex-clr">
 	
 	<div><h2><a href="{% url 'promotion:select_wallet' %}">Contractar amb credencial</a></h2></div>
+{% load i18n %}
+{% load django_bootstrap5 %}
+<form role="form" method="post">
+{% csrf_token %}
+{% if form.errors %}
+<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+  <div class="message">
+    {% for field, error in form.errors.items %}
+      {{ error }}<br />
+    {% endfor %}
+    <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
+  </div>
+</div>
+{% endif %}
+<div class="row">
+  <div class="col-sm-4">
+    {% bootstrap_form form %}
+  </div>
+</div>
+<div class="form-actions-no-box">
+  <a class="btn btn-grey" href="{% url 'promotion:show_promotion' %}">{% trans "Cancel" %}</a>
+  <input class="btn btn-green-admin" type="submit" name="submit" value="{% trans 'Save' %}" />
+</div>
+
+</form>
 </article>
 				
 			</div>
