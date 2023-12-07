@@ -12,10 +12,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django_tables2 import SingleTableView
+from idhub.user.tables import (
+        DashboardTable,
+)
 from idhub.user.forms import (
-    ProfileForm,
-    RequestCredentialForm,
-    DemandAuthorizationForm
+        ProfileForm,
+        RequestCredentialForm,
+        CredentialPresentationForm
 )
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event
@@ -31,12 +35,19 @@ class MyWallet(UserView):
     section = "MyWallet"
 
 
-class DashboardView(UserView, TemplateView):
+class DashboardView(UserView, SingleTableView):
     template_name = "idhub/user/dashboard.html"
+    table_class = DashboardTable
     title = _('Dashboard')
     subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
+
+    def get_queryset(self, **kwargs):
+        queryset = Event.objects.select_related('user').filter(
+                user=self.request.user)
+
+        return queryset
 
 
 class ProfileView(MyProfile, UpdateView):
