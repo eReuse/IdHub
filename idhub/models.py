@@ -489,6 +489,7 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(null=True)
     data = models.TextField()
     csv_data = models.TextField()
+    description = models.TextField(null=True)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
         default=Status.ENABLED
@@ -518,7 +519,8 @@ class VerificableCredential(models.Model):
     def type(self):
         return self.schema.type
 
-    def description(self):
+    @property
+    def get_description(self):
         for des in json.loads(self.render()).get('description', []):
             if settings.LANGUAGE_CODE == des.get('lang'):
                 return des.get('value', '')
