@@ -30,7 +30,8 @@ class Command(BaseCommand):
             f = csv.reader(csvfile, delimiter=';', quotechar='"')
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
-        self.sync_credentials_organizations()
+        self.sync_credentials_organizations("test1", "test2")
+        self.sync_credentials_organizations("test3", "test4")
 
     def create_admin_users(self, email, password):
         User.objects.create_superuser(email=email, password=password)
@@ -45,9 +46,9 @@ class Command(BaseCommand):
     def create_organizations(self, name, url):
         Organization.objects.create(name=name, response_uri=url)
 
-    def sync_credentials_organizations(self):
-        org1 = Organization.objects.get(name="test1")
-        org2 = Organization.objects.get(name="test2")
+    def sync_credentials_organizations(self, test1, test2):
+        org1 = Organization.objects.get(name=test1)
+        org2 = Organization.objects.get(name=test2)
         org2.my_client_id = org1.client_id
         org2.my_client_secret = org1.client_secret
         org1.my_client_id = org2.client_id
