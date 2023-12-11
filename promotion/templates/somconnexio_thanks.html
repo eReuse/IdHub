@@ -526,57 +526,109 @@ bt_experiments["19676"] = {"name":"A\/B Test Home 3 variants (oct. 2013)","conve
 				
 				
 <article id="single-blocks" class="single-page-article wpex-clr">
-		<h1>HOLA HOLA</h1>
+		<h1>Contrato</h1>
 
 	
 <div class="single-page-content single-content entry wpex-clr"><div data-vc-full-width="true" data-vc-full-width-init="false" data-vc-stretch-content="true" class="vc_row wpb_row vc_row-fluid custom_faq faq_tarifas vc_row-no-padding vc_row-o-equal-height vc_row-flex wpex-vc-row-stretched"><div class="wpb_column vc_column_container vc_col-sm-8"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="vcex-shortcode wpex-clr"><div id="framecontainer">
-<div style="margin-left:25%; margin-bottom: 25px;">
-{% load i18n %}
-{% load django_bootstrap5 %}
-<form role="form" method="post">
-{% csrf_token %}
-{% if form.errors %}
-<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
-  <div class="message">
-    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-    <span class="mdi mdi-close" aria-hidden="true"></span>
-    </button>
-    {% for field, error in form.errors.items %}
-      {{ error }}
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-{% bootstrap_form form %}
-<div class="form-actions-no-box">
-  <a class="btn btn-grey" href="{% url 'promotion:show_promotion' %}">{% trans "Cancel" %}</a>
-  <input class="btn btn-green-admin" type="submit" name="submit" value="{% trans 'Continue' %}" />
-</div>
-
-</form>
+<div style="margin-left:25%">
+Contrato realizado correctamente. Te hemos enviado la información por email.
 </div>
 </div></div></div></div></div><div class="wpb_column bg-gray vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="vcex-shortcode wpex-clr"><div class="kbe_widget p-5 my-2">
-	<div><h2><a href="javascript:void()">Contracta</a></h2></div>
+	<div><h2><a href="{% url 'promotion:select_wallet' %}">Contractar amb credencial</a></h2></div>
 	<div class="px-3">
+		<div class="textwidget text-uppercase"><strong class="d-block">El més preguntat</strong></div>
 		<ul id="dynfaq">
-			<strong>
-			Resum
-			</strong>
-			<li style="padding-left: 15px;">
-			Imports inicials
+						<li data-id="7988" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Mòbil: tarifes i detalls</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Pots consultar els preus i detalls de les tarifes de mòbil en <a href="https://somconnexio.coop/preguntes/tarifes-i-condicions-generals-mobil/" target="_blank" rel="noopener noreferrer">aquest enllaç</a>.</p>
+<p>&nbsp;</p>
+				</div>
 			</li>
-			<li style="padding-left: 15px;">
-			Tarjeta SIM {{ sim }}€
+						<li data-id="13378" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Quina cobertura de mòbil té Som Connexió?</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>La cobertura del servei és Yoigo/MásMóvil, Orange (4G) i Movistar (3G) i el nostre proveïdor de serveis és MásMóvil.</p>
+				</div>
 			</li>
-			<li style="padding-left: 15px;">
-			Factura mensual
+						<li data-id="8538" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Trucades gratuïtes entre mòbils de Som Connexió</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p><strong>Les tarifes de mòbil de 0 minuts i 150 minuts inclouen 1.000 minuts de trucades gratuïtes a d&#8217;altres telèfons mòbils de Som Connexió</strong> (a la tarifa de minuts il·limitats ja estan incloses totes les trucades a mòbils de qualsevol operadora dins l&#8217;estat espanyol).</p>
+<p>Això vol dir que si truques a un telèfon mòbil de Som Connexió, els minuts que utilitzis no es descomptaran del teu abonament sinó d’aquests 1.000 minuts.</p>
+<p><strong>Aquesta prestació només s&#8217;aplica a la telefonia mòbil de Som Connexió.</strong> La telefonia fixa de Som Connexió no inclou aquests minuts, ni en el servei de Fibra ni en el d&#8217;ADSL.</p>
+<p>Aquest servei és automàtic. No s’ha de fer res per activar-lo i no es pot desactivar.</p>
+				</div>
 			</li>
-			<li style="padding-left: 15px;">
-			{{ mensual }}€
+						<li data-id="7881" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Costos d&#8217;alta (mòbil)</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Quan es fa una alta de servei de telefonia mòbil, afegim a la factura els <strong>costos de l’alta del servei: 2,05€</strong> (IVA inclòs)</p>
+				</div>
 			</li>
-			Total {{ total }}€ (IVA inclòs)
-		</ul>
+						<li data-id="10285" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Puc mantenir el meu número de mòbil?</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Sí, sense cap dubte! Se&#8217;n diu portabilitat. Però si vols, també es pot canviar.</p>
+				</div>
+			</li>
+						<li data-id="15486" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Contractar dades addicionals</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Si esgotes dades abans d&#8217;acabar el mes, tens l&#8217;opció de contractar<strong> dades addicionals que podràs utilitzar fins a acabar el mes:</strong></p>
+<ul>
+<li><strong>500 MB (2 €)*</strong></li>
+<li><strong>1 GB (3 €)*</strong></li>
+<li><strong>3 GB (5 €)*</strong></li>
+<li><strong>5 GB (6 €)*</strong></li>
+<li><strong>10 GB (9€)*</strong></li>
+</ul>
+<p>* IVA inclòs</p>
+<p><u><a href="https://somconnexio.coop/preguntes/contractar-dades-addicionals-2/" target="_blank" rel="noopener" data-saferedirecturl="https://www.google.com/url?q=https://somconnexio.coop/preguntes/contractar-dades-addicionals-2/&amp;source=gmail&amp;ust=1696074005678000&amp;usg=AOvVaw1qtf5C2WFutLMhaFEz52JC">Aquí t&#8217;expliquem com afegir dades extra</a>.</u></p>
+<p><strong>Contractar dades addicionals en les tarifes compartides</strong></p>
+<p>Si els mòbils que estan compartint dades esgoten els 50 GB abans que acabi el més, es pot <b>comprar una ampliació de 10 GB per 9€ o de 20 GB per 12€ que podran consumir els diferents mòbils. </b><a href="https://somconnexio.coop/preguntes/afegir-dades-extra-tarifa-dades-compartides/">Aquí t&#8217;expliquem com afegir dades extra a les tarifes compartides</a>.</p>
+				</div>
+			</li>
+						<li data-id="10328" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Preus SMS</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Els SMS tenen un preu de 0,10€/sms</p>
+<p><strong>IMPORTANT</strong>: els SMS no estan inclosos a cap de les tarifes de Som Connexió. Tampoc a la tarifa de minuts il·limitats.</p>
+				</div>
+			</li>
+						<li data-id="17701" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Preus de trucades fora de tarifa des del mòbil</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p>Aquests són els preus de les trucades un cop has superat els minuts que tens contractats a la teva tarifa:</p>
+<p><strong>0,18€ per l’establiment de la trucada, que inclou els 5 primers minuts de la conversa.</strong></p>
+<p><strong>A partir del minut 6, es paga 0,036€/min.</strong></p>
+<p>Consulta les tarifes de roaming <a href="https://somconnexio.coop/preguntes/tarifes-roaming-actualitzades-gener-2023/"><strong>AQUÍ</strong></a>.</p>
+				</div>
+			</li>
+						<li data-id="10336" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">Tarifa bàsica mòbil: 0 min i 0 Gb</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p><span style="font-weight: 400;">Amb un cost base de 2€ mensuals, es tracta d&#8217;un consum &#8220;a granel&#8221;, és a dir, que es paga per minut i per unitat de dades consumides.</span></p>
+<p><span style="font-weight: 400;">Aquesta tarifa és adequada per a persones que utilitzen el mòbil per estar localitzables i fer una trucada molt puntualment (només surt a compte si es fan menys de 6 trucades al mes de curta durada) i no utilitza el mòbil per connectar-se a Internet o ho fa de una manera molt esporàdica.</span></p>
+<p><span style="font-weight: 400;">El preu per trucada en aquest abonament és de 0,18€ per l&#8217;establiment de la trucada, que inclou els 5 primers minuts de la conversa. </span>A partir del minut 6, es paga 0,036€/min</p>
+<p><span style="font-weight: 400;">El preu del servei de dades quan no s&#8217;ha contractat cap abonament és de 0,036€/Mb</span></p>
+<p><span style="font-weight: 400;">Si vols desactivar el servei de dades, ens ho has de sol·licitar a <a href="mailto:serveis@somconnexio.coop"><span style="text-decoration: underline;"><strong>serveis@somconnexio.coop</strong></span></a>.</span></p>
+				</div>
+			</li>
+						<li data-id="10334" class="vc_toggle vc_toggle_color_default vc_toggle_size_md kbe-object-list-item">
+				<a class="vc_toggle_title">NÚMEROS DE TARIFACIÓ ESPECIAL</a>
+				<div class="vc_toggle_content m-0 p-4">
+					<p><span style="font-weight: 400;">Els preus estàndard de veu o missatges exclouen:</span></p>
+<ul>
+<li style="font-weight: 400;"><span style="font-weight: 400;">Els serveis de tarifació especial (per exemple: 80x, 90x o SMS Premium). Mira la taula de tarifes </span><a href="https://somconnexio.coop/wp-content/uploads/2021/11/Trucades-tarifacio-especial.pdf" target="_blank" rel="noopener noreferrer"><span style="text-decoration: underline;"><strong>AQUÍ</strong></span></a></li>
+<li style="font-weight: 400;"><span style="font-weight: 400;">Trànsit internacional</span></li>
+<li style="font-weight: 400;"><span style="font-weight: 400;">Trànsit en itinerància</span></li>
+</ul>
+<p>Alguns dels serveis de tarifació especial de cost elevat estan bloquejats per defecte. Per tenir més informació sobre l’opció de bloqueig dels números de cost especial, consulta aquesta <a href="https://somconnexio.coop/wp-content/uploads/2017/08/Numeros-Premium-Bloqueos-CAT.pdf" target="_blank" rel="noopener noreferrer">TAULA</a>.</p>
+<p>En aquest <a href="https://www.ocu.org/tecnologia/internet-telefonia/informe/precio-numeros-telefono" target="_blank" rel="noopener noreferrer">enllaç de la OCU</a> ens donen més informació sobre els números de tarificació especial.</p>
+				</div>
+			</li>
+					</ul>
 	</div>
 </div></div>
 	<div class="wpb_raw_code wpb_content_element wpb_raw_html" >
