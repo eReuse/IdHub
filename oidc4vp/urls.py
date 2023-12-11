@@ -11,4 +11,6 @@ urlpatterns = [
          name="verify"),
     path('authorize', views.AuthorizeView.as_view(),
          name="authorize"),
+    path('allow_code', views.AllowCodeView.as_view(),
+         name="allow_code"),
 ]
