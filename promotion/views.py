@@ -11,7 +11,7 @@ from promotion.forms import WalletForm, ContractForm
 
 
 class PromotionView(View):
-    template_name = "somconnexio_tarifes-mobil.html"
+    template_name = "somconnexio_tarifes_mobil.html"
     def get(self, request, *args, **kwargs):
         self.context = {}
         template = get_template(
@@ -76,8 +76,7 @@ class ContractView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = form.save()
-        return redirect(url)
+        return super().form_valid(form)
 
     def get_discount(self, code):
         if not code:
