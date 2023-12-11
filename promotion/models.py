@@ -27,3 +27,4 @@ class Promotion(models.Model):
 
     def get_discount(self, price):
         return price - price*0.25
+
