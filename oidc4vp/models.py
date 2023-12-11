@@ -168,7 +168,7 @@ class OAuth2VPToken(models.Model):
     authorization = models.ForeignKey(
         Authorization,
         on_delete=models.SET_NULL,
-        related_name='oauth2vptoken',
+        related_name='vp_tokens',
         null=True,
     )
 
@@ -176,10 +176,7 @@ class OAuth2VPToken(models.Model):
         code = kwargs.pop("code", None)
         super().__init__(*args, **kwargs)
         
-        self.authorization = get_object_or_404(
-                Authorization,
-                code=code
-        )
+        self.authorization = Authorization.objects.filter(code=code).first()
 
     def verifing(self):
         self.result_verify = verify_presentation(self.vp_token)
