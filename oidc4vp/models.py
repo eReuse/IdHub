@@ -106,7 +106,7 @@ class Authorization(models.Model):
       The code we use as a soft foreing key between Authorization and OAuth2VPToken.
     """
     code = models.CharField(max_length=24, default=set_code)
-    code_used = models.BooleanField()
+    code_used = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now=True)
     presentation_definition = models.CharField(max_length=250)
     organization = models.ForeignKey(
