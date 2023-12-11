@@ -145,9 +145,9 @@ class AllowCodeView(View):
                 code=code,
                 code_used=False
         )
-        if not self.authorization.promotions:
+        if not self.authorization.promotions.exists():
             raise Http404("Page not Found!")
 
-        promotion = self.authorization.promotions[0]
+        promotion = self.authorization.promotions.all()[0]
         return redirect(promotion.get_url(code))
 
