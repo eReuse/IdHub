@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.contrib import messages
 
-from oidc4vp.models import Authorization, Organization
+from oidc4vp.models import Authorization, Organization, OAuth2VPToken
 from idhub.mixins import UserView
 
 from oidc4vp.forms import AuthorizeForm
@@ -34,13 +34,13 @@ class AuthorizeView(UserView, FormView):
             vps = json.loads(self.request.GET.get('presentation_definition'))
         except:
             vps = []
-        # import pdb; pdb.set_trace()
         kwargs['presentation_definition'] = vps
         kwargs["org"] = self.get_org()
         kwargs["code"] = self.request.GET.get('code')
         return kwargs
     
     def form_valid(self, form):
+        # import pdb; pdb.set_trace()
         authorization = form.save()
         if not authorization or authorization.status_code != 200:
             messages.error(self.request, _("Error sending credential!"))
@@ -67,6 +67,7 @@ class AuthorizeView(UserView, FormView):
         return super().form_valid(form)
 
     def get_org(self):
+        # import pdb; pdb.set_trace()
         client_id = self.request.GET.get("client_id")
         if not client_id:
             raise Http404("Organization not found!")
