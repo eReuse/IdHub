@@ -110,8 +110,9 @@ class VerifyView(View):
         vp_token.verifing()
         response = vp_token.get_response_verify()
         vp_token.save()
-        if response["redirect_uri"]:
-            response["response"] = "Validation Code 255255255"
+        if not vp_token.authorization.promotions.exists():
+            response["redirect_uri"] = ""
+            response["response"] = "Validation Code {}".format(code)
 
         return JsonResponse(response)
 
