@@ -40,7 +40,6 @@ class AuthorizeView(UserView, FormView):
         return kwargs
     
     def form_valid(self, form):
-        # import pdb; pdb.set_trace()
         authorization = form.save()
         if not authorization or authorization.status_code != 200:
             messages.error(self.request, _("Error sending credential!"))
@@ -67,7 +66,6 @@ class AuthorizeView(UserView, FormView):
         return super().form_valid(form)
 
     def get_org(self):
-        # import pdb; pdb.set_trace()
         client_id = self.request.GET.get("client_id")
         if not client_id:
             raise Http404("Organization not found!")
@@ -93,7 +91,6 @@ class VerifyView(View):
         return HttpResponse(res)
 
     def post(self, request, *args, **kwargs):
-        # import pdb; pdb.set_trace()
         code = self.request.POST.get("code")
         vp_tk = self.request.POST.get("vp_token")
 
@@ -107,6 +104,8 @@ class VerifyView(View):
             organization=org,
             code=code
         )
+        if not vp_token.authorization:
+            raise Http404("Page not Found!")
 
         vp_token.verifing()
         response = vp_token.get_response_verify()
