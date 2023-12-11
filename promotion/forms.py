@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 
 from utils.idhub_ssikit import create_verifiable_presentation
 from oidc4vp.models import Organization, Authorization
+from promotion.models import Promotion
 
 
 class WalletForm(forms.Form):
