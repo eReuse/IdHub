@@ -52,3 +52,5 @@ class Command(BaseCommand):
         org2.my_client_secret = org1.client_secret
         org1.my_client_id = org2.client_id
         org1.my_client_secret = org2.client_secret
+        org1.save()
+        org2.save()
