@@ -61,3 +61,4 @@ class ContractForm(forms.Form):
     birthday = forms.CharField()
     gen = forms.CharField()
     lang = forms.CharField()
+
