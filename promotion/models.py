@@ -24,6 +24,7 @@ class Promotion(models.Model):
             reverse_lazy("promotion:contract"),
             code
         )
+        return url
 
     def get_discount(self, price):
         return price - price*0.25
