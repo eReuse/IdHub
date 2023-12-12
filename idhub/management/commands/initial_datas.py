@@ -30,8 +30,8 @@ class Command(BaseCommand):
             f = csv.reader(csvfile, delimiter=';', quotechar='"')
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
-        self.sync_credentials_organizations("test1", "test2")
-        self.sync_credentials_organizations("test3", "test4")
+        self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
+        self.sync_credentials_organizations("local 8000", "local 9000")
 
     def create_admin_users(self, email, password):
         User.objects.create_superuser(email=email, password=password)
