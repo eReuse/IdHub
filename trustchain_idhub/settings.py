@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 
 from ast import literal_eval
+from dj_database_url import parse as db_url
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
@@ -112,10 +113,15 @@ WSGI_APPLICATION = 'trustchain_idhub.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+    'default': config(
+        'DATABASE_URL',
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+        cast=db_url
+    )
     # 'default': config(
     #     'DATABASE_URL',
     #     default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
