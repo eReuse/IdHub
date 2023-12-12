@@ -81,8 +81,11 @@ class CredentialsView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        creds = VerificableCredential.objects.filter(
+            user=self.request.user
+        )
         context.update({
-            'credentials': VerificableCredential.objects,
+            'credentials': creds,
         })
         return context
 
