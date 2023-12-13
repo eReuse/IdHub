@@ -144,6 +144,9 @@ class CredentialsRequestView(MyWallet, FormView):
             messages.success(self.request, _("The credential was issued successfully!"))
             Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)
             Event.set_EV_CREDENTIAL_ISSUED(cred)
+            url = self.request.session.pop('next_url', None)
+            if url:
+                return redirect(url)
         else:
             messages.error(self.request, _("The credential does not exist!"))
         return super().form_valid(form)

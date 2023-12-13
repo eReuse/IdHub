@@ -23,8 +23,10 @@ class AuthorizeForm(forms.Form):
 
         reg = r'({})'.format('|'.join(self.presentation_definition))
 
-        self.credentials = self.user.vcredentials.filter(
+        self.all_credentials = self.user.vcredentials.filter(
             schema__type__iregex=reg,
+        )
+        self.credentials = self.all_credentials.filter(
             status=VerificableCredential.Status.ISSUED.value
         )
         super().__init__(*args, **kwargs)

@@ -27,6 +27,12 @@ class AuthorizeView(UserView, FormView):
     form_class = AuthorizeForm
     success_url = reverse_lazy('idhub:user_demand_authorization')
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.request.session.get('next_url'):
+            return redirect(reverse_lazy('idhub:user_credentials_request'))
+        return response
+            
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
@@ -38,6 +44,12 @@ class AuthorizeView(UserView, FormView):
         kwargs["org"] = self.get_org()
         kwargs["code"] = self.request.GET.get('code')
         return kwargs
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        if form.all_credentials.exists() and not form.credentials.exists():
+            self.request.session['next_url'] = self.request.get_full_path()
+        return form
     
     def form_valid(self, form):
         authorization = form.save()
