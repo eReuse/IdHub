@@ -6,15 +6,12 @@ from idhub_auth.models import User
 
 
 class ProfileForm(forms.ModelForm):
-    first_name = forms.CharField(label=_("First name"), required=True)
-    last_name = forms.CharField(label=_("Last name"), required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
-        labels = {
-            'email': _('Email address'),
-        }
 
     def clean_first_name(self):
         first_name = super().clean()['first_name']
