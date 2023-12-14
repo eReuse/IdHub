@@ -190,6 +190,12 @@ LOCALE_PATHS = [
 # LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
 LANGUAGE_CODE="ca"
+gettext = lambda s: s
+LANGUAGES = (
+    ('de', gettext('German')),
+    ('en', gettext('English')),
+    ('ca', gettext('Catalan')),
+)
 USE_I18N = True
 USE_L10N = True
 
