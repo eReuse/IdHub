@@ -553,7 +553,7 @@ class ServiceDeleteView(AccessControl):
         return redirect('idhub:admin_services')
 
 
-class CredentialsView(Credentials, SingleTableView):
+class CredentialsView(Credentials):
     template_name = "idhub/admin/credentials.html"
     table_class = CredentialTable
     subtitle = _('View credentials')
