@@ -109,10 +109,10 @@ class DIDTable(tables.Table):
 
 
 class CredentialsTable(tables.Table):
-    description = tables.Column(verbose_name="Details")
+    description = tables.Column(verbose_name="Details", empty_values=())
 
     def render_description(self, record):
-        return record.get_description()
+        return record.get_description
 
     def render_status(self, record):
         return record.get_status()
