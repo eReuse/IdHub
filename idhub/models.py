@@ -629,6 +629,7 @@ class UserRol(models.Model):
     )
     service = models.ForeignKey(
         Service,
+        verbose_name=_("Service"),
         on_delete=models.CASCADE,
         related_name='users',
     )

@@ -15,7 +15,6 @@ from django.contrib import messages
 from idhub.user.forms import (
     ProfileForm,
     RequestCredentialForm,
-    CredentialPresentationForm,
     DemandAuthorizationForm
 )
 from idhub.mixins import UserView
@@ -176,30 +175,6 @@ class DemandAuthorizationView(MyWallet, FormView):
 
         if authorization:
             return redirect(authorization)
-        else:
-            messages.error(self.request, _("Error sending credential!"))
-        return super().form_valid(form)
-
-    
-class CredentialsPresentationView(MyWallet, FormView):
-    template_name = "idhub/user/credentials_presentation.html"
-    subtitle = _('Credential presentation')
-    icon = 'bi bi-patch-check-fill'
-    form_class = CredentialPresentationForm
-    success_url = reverse_lazy('idhub:user_credentials')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['authorize'] = self.request.GET.params.get("uri")
-        return kwargs
-    
-    def form_valid(self, form):
-        cred = form.save()
-        if cred:
-            Event.set_EV_CREDENTIAL_PRESENTED_BY_USER(cred, form.org)
-            Event.set_EV_CREDENTIAL_PRESENTED(cred, form.org)
-            messages.success(self.request, _("The credential was presented successfully!"))
         else:
             messages.error(self.request, _("Error sending credential!"))
         return super().form_valid(form)

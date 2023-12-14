@@ -139,7 +139,7 @@ class ImportForm(forms.Form):
 
 
 class SchemaForm(forms.Form):
-    file_template = forms.FileField()
+    file_template = forms.FileField(label=_("File template"))
 
     
 class MembershipForm(forms.ModelForm):

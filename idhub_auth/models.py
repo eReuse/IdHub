@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
 
@@ -35,14 +36,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(
-        verbose_name="email address",
+        _('Email address'),
         max_length=255,
         unique=True,
     )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(_("First name"), max_length=255, blank=True, null=True)
+    last_name = models.CharField(_("Last name"), max_length=255, blank=True, null=True)
 
     objects = UserManager()
 

@@ -88,9 +88,6 @@ urlpatterns = [
     path('user/credentials_presentation/demand',
         views_user.DemandAuthorizationView.as_view(),
         name='user_demand_authorization'),
-    path('user/credentials_presentation/',
-        views_user.CredentialsPresentationView.as_view(),
-        name='user_credentials_presentation'),
 
     # Admin
     path('admin/dashboard/', views_admin.DashboardView.as_view(),
