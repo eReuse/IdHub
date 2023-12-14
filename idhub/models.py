@@ -46,9 +46,10 @@ class Event(models.Model):
         EV_USR_DEACTIVATED_BY_ADMIN = 29, "User deactivated"
         EV_USR_ACTIVATED_BY_ADMIN = 30, "User activated"
 
-    created = models.DateTimeField(auto_now=True)
-    message = models.CharField(max_length=350)
+    created = models.DateTimeField(_("Date"), auto_now=True)
+    message = models.CharField(_("Description"), max_length=350)
     type = models.PositiveSmallIntegerField(
+        _("Event"),
         choices=Types.choices,
     )
     user = models.ForeignKey(
@@ -403,7 +404,7 @@ class Event(models.Model):
 
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
-    label = models.CharField(max_length=50)
+    label = models.CharField(_("Label"), max_length=50)
     did = models.CharField(max_length=250)
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
