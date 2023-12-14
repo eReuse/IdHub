@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 
 from ast import literal_eval
+from dj_database_url import parse as db_url
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
@@ -72,7 +73,9 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'django_tables2',
     'idhub_auth',
-    'idhub'
+    'oidc4vp',
+    'idhub',
+    'promotion'
 ]
 
 MIDDLEWARE = [
@@ -111,10 +114,15 @@ WSGI_APPLICATION = 'trustchain_idhub.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+    'default': config(
+        'DATABASE_URL',
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+        cast=db_url
+    )
     # 'default': config(
     #     'DATABASE_URL',
     #     default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -179,9 +187,17 @@ MESSAGE_TAGS = {
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
-LANGUAGE_CODE="en"
+# LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
+LANGUAGE_CODE="ca"
 USE_I18N = True
 USE_L10N = True
 
 AUTH_USER_MODEL = 'idhub_auth.User'
+RESPONSE_URI = config('RESPONSE_URI', default="")
+ALLOW_CODE_URI= config('ALLOW_CODE_URI', default="")
+SUPPORTED_CREDENTIALS = config(
+    'SUPPORTED_CREDENTIALS',
+    default='[]',
+    cast=literal_eval
+)

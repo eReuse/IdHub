@@ -12,7 +12,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
-from idhub.user.forms import ProfileForm, RequestCredentialForm, CredentialPresentationForm
+from idhub.user.forms import (
+    ProfileForm,
+    RequestCredentialForm,
+    CredentialPresentationForm,
+    DemandAuthorizationForm
+)
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event
 
@@ -76,8 +81,11 @@ class CredentialsView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        creds = VerificableCredential.objects.filter(
+            user=self.request.user
+        )
         context.update({
-            'credentials': VerificableCredential.objects,
+            'credentials': creds,
         })
         return context
 
@@ -136,11 +144,43 @@ class CredentialsRequestView(MyWallet, FormView):
             messages.success(self.request, _("The credential was issued successfully!"))
             Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)
             Event.set_EV_CREDENTIAL_ISSUED(cred)
+            url = self.request.session.pop('next_url', None)
+            if url:
+                return redirect(url)
         else:
             messages.error(self.request, _("The credential does not exist!"))
         return super().form_valid(form)
 
 
+class DemandAuthorizationView(MyWallet, FormView):
+    template_name = "idhub/user/credentials_presentation.html"
+    subtitle = _('Credential presentation')
+    icon = 'bi bi-patch-check-fill'
+    form_class = DemandAuthorizationForm
+    success_url = reverse_lazy('idhub:user_demand_authorization')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        try:
+            authorization = form.save()
+        except Exception:
+            txt = _("Problems connecting with {url}").format(
+                url=form.org.response_uri
+            )
+            messages.error(self.request, txt)
+            return super().form_valid(form)
+
+        if authorization:
+            return redirect(authorization)
+        else:
+            messages.error(self.request, _("Error sending credential!"))
+        return super().form_valid(form)
+
+    
 class CredentialsPresentationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
     subtitle = _('Credential presentation')
@@ -151,6 +191,7 @@ class CredentialsPresentationView(MyWallet, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['authorize'] = self.request.GET.params.get("uri")
         return kwargs
     
     def form_valid(self, form):
