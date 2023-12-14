@@ -117,6 +117,13 @@ class CredentialsTable(tables.Table):
     def render_status(self, record):
         return record.get_status()
 
+    def order_type(self, queryset, is_descending):
+        queryset = queryset.order_by(
+                ("-" if is_descending else "") + "schema__type"
+                )
+
+        return (queryset, True)
+
     class Meta:
         model = VerificableCredential
         template_name = "idhub/custom_table.html"
