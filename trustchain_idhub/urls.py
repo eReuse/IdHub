@@ -24,4 +24,6 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     # path('django-admin/', admin.site.urls),
     path('', include('idhub.urls')),
+    path('oidc4vp/', include('oidc4vp.urls')),
+    path('promotion/', include('promotion.urls')),
 ]

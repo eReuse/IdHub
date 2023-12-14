@@ -1,6 +1,5 @@
 import json
 import pytz
-import requests
 import datetime
 from django.db import models
 from django.conf import settings
@@ -464,7 +463,6 @@ class VerificableCredential(models.Model):
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
-    subject_did = models.CharField(max_length=250)
     data = models.TextField()
     csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
@@ -475,6 +473,12 @@ class VerificableCredential(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='vcredentials',
+    )
+    subject_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        related_name='subject_credentials',
+        null=True
     )
     issuer_did = models.ForeignKey(
         DID,
@@ -525,7 +529,7 @@ class VerificableCredential(models.Model):
         context = {
             'vc_id': self.id,
             'issuer_did': self.issuer_did.did,
-            'subject_did': self.subject_did,
+            'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
@@ -630,18 +634,3 @@ class UserRol(models.Model):
 
     class Meta:
         unique_together = ('user', 'service',)
-
-
-class Organization(models.Model):
-    name = models.CharField(max_length=250)
-    url = models.CharField(
-        help_text=_("Url where to send the presentation"),
-        max_length=250
-    )
-
-    def __str__(self):
-        return self.name
-
-    def send(self, cred):
-        return
-        requests.post(self.url, data=cred.data)

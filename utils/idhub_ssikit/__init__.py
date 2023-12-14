@@ -4,6 +4,7 @@ import didkit
 import json
 import jinja2
 from django.template.backends.django import Template
+from django.template.loader import get_template
 
 
 def generate_did_controller_key():
@@ -49,26 +50,71 @@ def render_and_sign_credential(vc_template: jinja2.Template, jwk_issuer, vc_data
     
 def sign_credential(unsigned_vc: str, jwk_issuer):
     """
-        Signs the and unsigned credential with the provided key.
+    Signs the unsigned credential with the provided key.
+    The credential template must be rendered with all user data.
     """
     async def inner():
-      signed_vc = await didkit.issue_credential(
-          unsigned_vc,
-          '{"proofFormat": "ldp"}',
-          jwk_issuer
-      )
-      return signed_vc
+        signed_vc = await didkit.issue_credential(
+            unsigned_vc,
+            '{"proofFormat": "ldp"}',
+            jwk_issuer
+        )
+        return signed_vc
 
     return asyncio.run(inner())
 
 
-def verify_credential(vc, proof_options):
+def verify_credential(vc):
     """
     Returns a (bool, str) tuple indicating whether the credential is valid.
     If the boolean is true, the credential is valid and the second argument can be ignored.
     If it is false, the VC is invalid and the second argument contains a JSON object with further information.
     """
     async def inner():
-        return didkit.verify_credential(vc, proof_options)
+        return await didkit.verify_credential(vc, '{"proofFormat": "ldp"}')
 
     return asyncio.run(inner())
+
+
+def issue_verifiable_presentation(vp_template: Template, vc_list: list[str], jwk_holder: str, holder_did: str) -> str:
+    async def inner():
+        unsigned_vp = vp_template.render(data)
+        signed_vp = await didkit.issue_presentation(
+            unsigned_vp,
+            '{"proofFormat": "ldp"}',
+            jwk_holder
+        )
+        return signed_vp
+
+    data = {
+        "holder_did": holder_did,
+        "verifiable_credential_list": "[" + ",".join(vc_list) + "]"
+    }
+
+    return asyncio.run(inner())
+
+
+def create_verifiable_presentation(jwk_holder: str, unsigned_vp: str) -> str:
+    async def inner():
+        signed_vp = await didkit.issue_presentation(
+            unsigned_vp,
+            '{"proofFormat": "ldp"}',
+            jwk_holder
+        )
+        return signed_vp
+
+    return asyncio.run(inner())
+
+
+def verify_presentation(vp):
+    """
+    Returns a (bool, str) tuple indicating whether the credential is valid.
+    If the boolean is true, the credential is valid and the second argument can be ignored.
+    If it is false, the VC is invalid and the second argument contains a JSON object with further information.
+    """
+    async def inner():
+        proof_options = '{"proofFormat": "ldp"}'
+        return await didkit.verify_presentation(vp, proof_options)
+
+    return asyncio.run(inner())
+

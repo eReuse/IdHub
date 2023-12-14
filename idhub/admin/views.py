@@ -629,7 +629,7 @@ class DidsView(Credentials):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'dids': DID.objects,
+            'dids': DID.objects.filter(user=self.request.user),
         })
         return context
 
@@ -824,7 +824,6 @@ class SchemasImportAddView(SchemasMix):
             assert credtools.validate_schema(ldata)
             name = ldata.get('name')
             assert name
-
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
