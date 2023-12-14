@@ -19,10 +19,6 @@ class RolesTable(tables.Table):
 
 
 class DashboardTable(tables.Table):
-    type = tables.Column(verbose_name=_("Event"))
-    message = tables.Column(verbose_name=_("Description"))
-    created = tables.Column(verbose_name=_("Date"))
-
     class Meta:
         model = Event
         template_name = "idhub/custom_table.html"

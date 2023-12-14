@@ -19,9 +19,9 @@ from idhub_auth.models import User
 
 
 class ImportForm(forms.Form):
-    did = forms.ChoiceField(choices=[])
-    schema = forms.ChoiceField(choices=[])
-    file_import = forms.FileField()
+    did = forms.ChoiceField(label=_("Did"), choices=[])
+    schema = forms.ChoiceField(label=_("Schema"), choices=[])
+    file_import = forms.FileField(label=_("File import"))
 
     def __init__(self, *args, **kwargs):
         self._schema = None

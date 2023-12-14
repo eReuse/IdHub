@@ -52,7 +52,7 @@
             <td>{{ membership.start_date|default:'' }}</td>
             <td>{{ membership.end_date|default:'' }}</td>
             <td><a href="{% url 'idhub:admin_people_membership_edit' membership.id %}" title="{% trans 'Edit' %}"><i class="bi bi-pencil-square"></i></a></td>
-            <td><a href="{% url 'idhub:admin_people_membership_del' membership.id %}" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a></td>
+            <td><a class="text-danger" href="{% url 'idhub:admin_people_membership_del' membership.id %}" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -84,7 +84,7 @@
             <td>{{ rol.service.description }}</td>
             <td>{{ rol.service.domain }}</td>
             <td><a href="{% url 'idhub:admin_people_rol_edit' rol.id %}" title="{% trans 'Edit' %}"><i class="bi bi-pencil-square"></i></a></td>
-            <td><a href="{% url 'idhub:admin_people_rol_del' rol.id %}" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a></td>
+            <td><a class="text-danger" href="{% url 'idhub:admin_people_rol_del' rol.id %}" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a></td>
           </tr>
           {% endfor %}
         </tbody>
