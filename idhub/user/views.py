@@ -107,16 +107,6 @@ class CredentialsView(MyWallet, SingleTableView):
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        creds = VerificableCredential.objects.filter(
-            user=self.request.user
-        )
-        context.update({
-            'credentials': creds,
-        })
-        return context
-
     def get_queryset(self):
         queryset = VerificableCredential.objects.filter(
                 user=self.request.user)
