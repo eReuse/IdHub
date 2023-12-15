@@ -438,6 +438,7 @@ class Schemas(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     _name = models.CharField(max_length=250, null=True, db_column='name')
     _description = models.CharField(max_length=250, null=True, db_column='description')
+    template_description = models.TextField()
 
     @property
     def get_schema(self):
@@ -489,7 +490,6 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(null=True)
     data = models.TextField()
     csv_data = models.TextField()
-    description = models.TextField(null=True)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
         default=Status.ENABLED
@@ -519,12 +519,8 @@ class VerificableCredential(models.Model):
     def type(self):
         return self.schema.type
 
-    @property
     def get_description(self):
-        for des in json.loads(self.render()).get('description', []):
-            if settings.LANGUAGE_CODE == des.get('lang'):
-                return des.get('value', '')
-        return ''
+        return self.schema.template_description
 
     def get_status(self):
         return self.Status(self.status).label
@@ -570,7 +566,6 @@ class VerificableCredential(models.Model):
         )
         tmpl = get_template(template_name)
         return tmpl.render(context)
-
 
     def get_issued_on(self):
         if self.issued_on:

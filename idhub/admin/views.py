@@ -8,6 +8,7 @@ from smtplib import SMTPException
 from django_tables2 import SingleTableView
 
 from django.conf import settings
+from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import (
@@ -833,13 +834,13 @@ class SchemasImportView(SchemasMix):
             if not Schemas.objects.filter(file_schema=x).exists()]
         return schemas
 
-        
+
 class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        if not file_name in schemas_files:
+        if file_name not in schemas_files:
             messages.error(self.request, f"The schema {file_name} not exist!")
             return redirect('idhub:admin_schemas_import')
 
@@ -858,7 +859,10 @@ class SchemasImportAddView(SchemasMix):
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name, data=data, type=name)
+        schema = Schemas.objects.create(file_schema=file_name,
+                                        data=data, type=name,
+                                        template_description=self.get_description()
+                                        )
         schema.save()
         return schema
 
@@ -869,6 +873,20 @@ class SchemasImportAddView(SchemasMix):
             data = schema_file.read()
 
         return data
+
+    def get_template_description(self):
+        context = self.get_context()
+        template_name = 'credentials/{}'.format(
+            self.schema.file_schema
+        )
+        tmpl = get_template(template_name)
+        return tmpl.render(context)
+
+    def get_description(self):
+        for des in json.loads(self.render()).get('description', []):
+            if settings.LANGUAGE_CODE == des.get('lang'):
+                return des.get('value', '')
+        return ''
 
 
 class ImportView(ImportExport, SingleTableView):
