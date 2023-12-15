@@ -1,14 +1,17 @@
 import random
-import string
 
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from idhub.models import Event, Rol, Service, UserRol
 from idhub_auth.models import User
 
+from faker import Faker
+
 DEFAULT_OBJECTS_CREATED = 30
 RANDOM_STRING_LENGTH = 30
 EMAIL_RANDOM_STRING_LENGTH = 10
+
+fake = Faker()
 
 
 class Command(BaseCommand):
@@ -109,7 +112,7 @@ class Command(BaseCommand):
             try:
                 Event.objects.create(
                         type=random.randint(1, 30),
-                        message=create_random_string(),
+                        message=fake.paragraph(nb_sentences=3),
                         user=user
                 )
                 created_event_amount += 1
@@ -120,13 +123,12 @@ class Command(BaseCommand):
     def create_users(self, amount):
         created_user_amount = 0
         for value in range(0, amount):
-            email = create_random_string(EMAIL_RANDOM_STRING_LENGTH) + "@example.org"
+            email = fake.email()
             try:
                 User.objects.create(
                         email=email,
-                        # Could be improved, maybe using Faker
-                        first_name=create_random_string(random.randint(5, 10)),
-                        last_name=create_random_string(random.randint(5, 10))
+                        first_name=fake.first_name(),
+                        last_name=fake.last_name()
                 )
                 self.created_users.append(email)
                 created_user_amount += 1
@@ -139,7 +141,7 @@ class Command(BaseCommand):
         """Superusers can only be created from the specific command"""
         created_superuser_amount = 0
         for value in range(0, amount):
-            email = create_random_string(EMAIL_RANDOM_STRING_LENGTH)
+            email = fake.email()
             try:
                 User.objects.create_superuser(email)
                 created_superuser_amount += 1
@@ -150,12 +152,11 @@ class Command(BaseCommand):
     def create_services(self, amount):
         created_service_amount = 0
         for value in range(0, amount):
-            domain = create_random_string(random.randint(5, 15))
+            domain = fake.text(max_nb_chars=200)
             try:
                 service = Service.objects.create(
                         domain=domain,
-                        description=create_random_string(
-                            random.randint(50, 100))
+                        description=fake.text(max_nb_chars=250)
                 )
                 self.created_services.append(domain)
                 try:
@@ -173,12 +174,11 @@ class Command(BaseCommand):
     def create_roles(self, amount):
         created_role_amount = 0
         for value in range(0, amount):
-            # Could be improved, maybe using Faker
-            name = create_random_string(random.randint(5, 10))
+            name = fake.job()
             try:
                 Rol.objects.create(name=name,
-                                   description=create_random_string(
-                                       random.randint(50, 100)))
+                                   description=fake.text(max_nb_chars=250)
+                                   )
                 created_role_amount += 1
             except IntegrityError:
                 self.stdout.write("Couldn't create role " + name)
@@ -211,8 +211,3 @@ class Command(BaseCommand):
 
     def create_superuser(self, email, password):
         User.objects.create_superuser(email, password)
-
-
-def create_random_string(string_length=RANDOM_STRING_LENGTH):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits,
-                                  k=string_length))
