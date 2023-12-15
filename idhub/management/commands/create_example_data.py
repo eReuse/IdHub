@@ -51,6 +51,14 @@ class Command(BaseCommand):
             service = options["userrole"][1]
             self.create_user_roles(1, user, service)
             any_option_used = True
+        if options["register"]:
+            email = options["register"][0]
+            password = options["register"][1]
+            self.create_user(email, password)
+        if options["register_superuser"]:
+            email = options["register_superuser"][0]
+            password = options["register_superuser"][1]
+            self.create_superuser(email, password)
 
         if options["amount"]:
             self.create_all(options["amount"])
@@ -81,6 +89,12 @@ class Command(BaseCommand):
             help='Create a user role for user U and service S',
             metavar=('U', 'S'),
         )
+        parser.add_argument('--register', nargs=2, type=str,
+                            help='Create a user with email E and password P',
+                            metavar=('E', 'P'))
+        parser.add_argument('--register-superuser', nargs=2, type=str,
+                            help='Create a superuser with email E and password P',
+                            metavar=('E', 'P'))
 
     def create_all(self, amount=DEFAULT_OBJECTS_CREATED):
         self.create_events(amount)
@@ -191,6 +205,12 @@ class Command(BaseCommand):
             user_id = random.choice(self.created_users)
             service_id = random.choice(self.created_services)
         self.stdout.write(f"Created {created_user_role_amount} user roles")
+
+    def create_user(self, email, password):
+        User.objects.create_user(email, password)
+
+    def create_superuser(self, email, password):
+        User.objects.create_superuser(email, password)
 
 
 def create_random_string(string_length=RANDOM_STRING_LENGTH):
