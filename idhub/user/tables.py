@@ -112,7 +112,7 @@ class CredentialsTable(tables.Table):
     description = tables.Column(verbose_name="Details", empty_values=())
 
     def render_description(self, record):
-        return record.get_description
+        return record.get_description()
 
     def render_status(self, record):
         return record.get_status()
@@ -120,6 +120,13 @@ class CredentialsTable(tables.Table):
     def order_type(self, queryset, is_descending):
         queryset = queryset.order_by(
                 ("-" if is_descending else "") + "schema__type"
+                )
+
+        return (queryset, True)
+
+    def order_description(self, queryset, is_descending):
+        queryset = queryset.order_by(
+                ("-" if is_descending else "") + "schema__template_description"
                 )
 
         return (queryset, True)
