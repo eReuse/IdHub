@@ -443,9 +443,19 @@ class Schemas(models.Model):
             return {}
         return json.loads(self.data)
 
-    def name(self):
-        return self.get_schema.get('name', '')
+    def name(self, request=None):
+        names = {}
+        for name in self.get_schema.get('name', []):
+            lang = name.get('lang')
+            if 'ca' in lang:
+                lang = 'ca'
+            names[lang]= name.get('value')
 
+        if request and request.LANGUAGE_CODE in names.keys():
+            return names[request.LANGUAGE_CODE]
+
+        return names[settings.LANGUAGE_CODE]
+            
     def description(self):
         return self.get_schema.get('description', '')
 
