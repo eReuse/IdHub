@@ -7,7 +7,8 @@ from idhub.models import (
         Service,
         VerificableCredential,
         DID,
-        File_datas
+        File_datas,
+        Schemas
 )
 from idhub_auth.models import User
 
@@ -216,3 +217,28 @@ class DataTable(tables.Table):
         model = File_datas
         template_name = "idhub/custom_table.html"
         fields = ("created_at", "file_name", "success")
+
+
+class TemplateTable(tables.Table):
+    view_schema = ButtonColumn(
+            linkify={
+                "viewname": "idhub:admin_schemas_download",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+    delete_template_code = """<a class="text-danger"
+                            href="javascript:void()"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirm-delete-{{ record.id }}"
+                            title="Remove"
+                            ><i class="bi bi-trash"></i></a>"""
+    delete_schema = tables.TemplateColumn(template_code=delete_template_code,
+                                          orderable=False,
+                                          verbose_name="Delete schema")
+
+    class Meta:
+        model = Schemas
+        template_name = "idhub/custom_table.html"
+        fields = ("created_at", "file_schema", "name", "description",
+                  "view_schema", "delete_schema")
