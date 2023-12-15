@@ -154,7 +154,8 @@ class DashboardTable(tables.Table):
 
 class CredentialTable(tables.Table):
     type = tables.Column(empty_values=())
-    details = tables.Column(empty_values=())
+    # Pending VerificableCredential description fix
+    details = tables.Column(empty_values=(), orderable=False)
     issued_on = tables.Column(verbose_name="Issued")
     view_credential = ButtonColumn(
             linkify={
@@ -172,6 +173,13 @@ class CredentialTable(tables.Table):
 
     def render_view_credential(self):
         return format_html('<i class="bi bi-eye"></i>')
+
+    def order_type(self, queryset, is_descending):
+        queryset = queryset.order_by(
+            ("-" if is_descending else "") + "schema__type"
+        )
+
+        return (queryset, True)
 
     class Meta:
         model = VerificableCredential
