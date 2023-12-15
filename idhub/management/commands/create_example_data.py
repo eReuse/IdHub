@@ -12,25 +12,15 @@ EMAIL_RANDOM_STRING_LENGTH = 10
 
 
 class Command(BaseCommand):
-    help = """
+    """
     Populate the database with dummy values.
     You can either specify which model to create objects for,
     or create objects for all models.
     If no data is specified it will create 30 events, users,
-    services, roles, and user roles
-
-    usage: create_example_data [-h] [--option args]
-    options:
-        --amount N      Create N objects (includes events, users, services,
-                                          roles, and user roles)
-        --events N      Create N events
-        --users N       Create N users
-        --superusers N  Create N superusers
-        --services N    Create N services
-        --roles N       Create N roles
-        --userroles N   Create N user roles
-        --userrole u s  Create a user role for user u and service s
+    services, roles, and user roles.
     """
+
+    help = 'Populate the database with dummy values for testing.'
     created_users = []
     created_roles = []
     created_services = []
@@ -70,14 +60,27 @@ class Command(BaseCommand):
             self.create_all()
 
     def add_arguments(self, parser):
-        parser.add_argument("--amount", type=int, action='store')
-        parser.add_argument("--events", type=int)
-        parser.add_argument("--users", type=int)
-        parser.add_argument("--superusers", type=int)
-        parser.add_argument("--services", type=int)
-        parser.add_argument("--roles", type=int)
-        parser.add_argument("--userroles", type=int)
-        parser.add_argument("--userrole", nargs=2, type=str)
+        parser.add_argument(
+            '--amount', type=int, action='store',
+            help='Create N objects (includes events, users, services, roles, and user roles)'
+        )
+        parser.add_argument('--events', type=int,
+                            help='Create the specified number of events')
+        parser.add_argument('--users', type=int,
+                            help='Create the specified number of users')
+        parser.add_argument('--superusers', type=int,
+                            help='Create the specified number of superusers')
+        parser.add_argument('--services', type=int,
+                            help='Create the specified number of services')
+        parser.add_argument('--roles', type=int,
+                            help='Create the specified number of roles')
+        parser.add_argument('--userroles', type=int,
+                            help='Create the specified number of user roles')
+        parser.add_argument(
+            '--userrole', nargs=2, type=str,
+            help='Create a user role for user U and service S',
+            metavar=('U', 'S'),
+        )
 
     def create_all(self, amount=DEFAULT_OBJECTS_CREATED):
         self.create_events(amount)
