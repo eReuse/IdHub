@@ -38,7 +38,8 @@ from idhub.admin.tables import (
         ServicesTable,
         CredentialTable,
         DIDTable,
-        DataTable
+        DataTable,
+        TemplateTable
 )
 from idhub.models import (
     DID,
@@ -730,19 +731,21 @@ class WalletConfigIssuesView(Credentials):
     wallet = True
 
 
-class SchemasView(SchemasMix):
+class SchemasView(SchemasMix, SingleTableView):
     template_name = "idhub/admin/schemas.html"
+    table_class = TemplateTable
     subtitle = _('View credential templates')
     icon = ''
+    model = Schemas
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'schemas': Schemas.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
 
-        
+        return super().get_context_data(**kwargs)
+
+
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):

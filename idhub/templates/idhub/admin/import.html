@@ -7,32 +7,8 @@
   <i class="{{ icon }}"></i>
   {{ subtitle }}
 </h3>
-<div class="row mt-5">
-  <div class="col">
-      {% render_table table %}
-    <div class="table-responsive">
-      <table class="table table-striped table-sm">
-        <thead>
-          <tr>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Created' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'File' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Success' %}</button></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for f in dates.all %}
-          <tr style="font-size:15px;">
-            <td>{{ f.created_at }}</td>
-            <td>{{ f.file_name }}</td>
-            <td>{% if f.success %}<i class="bi bi-check-circle text-primary"></i>{% else %}<i class="bi bi-x-circle text-danger"></i>{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div class="form-actions-no-box">
-        <a class="btn btn-green-admin" href="{% url 'idhub:admin_import_add' %}">{% translate "Import data" %} <i class="bi bi-plus"></i></a>
-      </div>
-    </div>
-  </div>
+{% render_table table %}
+<div class="form-actions-no-box">
+    <a class="btn btn-green-admin" href="{% url 'idhub:admin_import_add' %}">{% translate "Import data" %} <i class="bi bi-plus"></i></a>
 </div>
 {% endblock %}
