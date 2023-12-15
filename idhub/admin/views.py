@@ -554,7 +554,7 @@ class ServiceDeleteView(AccessControl):
         return redirect('idhub:admin_services')
 
 
-class CredentialsView(Credentials):
+class CredentialsView(Credentials, SingleTableView):
     template_name = "idhub/admin/credentials.html"
     table_class = CredentialTable
     subtitle = _('View credentials')
@@ -562,11 +562,11 @@ class CredentialsView(Credentials):
     model = VerificableCredential
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'credentials': VerificableCredential.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
 
 
 class CredentialView(Credentials):
