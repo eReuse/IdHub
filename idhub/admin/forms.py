@@ -62,7 +62,8 @@ class ImportForm(forms.Form):
         self._schema = schema.first()
         try:
             self.json_schema = json.loads(self._schema.data)
-            prop = self.json_schema['properties']
+            props = [x for x in self.json_schema["allOf"] if 'properties' in x]
+            prop = props[0]['properties']
             self.properties = prop['credentialSubject']['properties']
         except Exception:
             raise ValidationError("Schema is not valid!")
@@ -110,8 +111,10 @@ class ImportForm(forms.Form):
         return 
 
     def validate_jsonld(self, line, row):
+        import pdb; pdb.set_trace()
         try:
-            credtools.validate_json(row, self.json_schema)
+            check = credtools.validate_json(row, self.json_schema)
+            raise ValidationError("Not valid row")
         except Exception as e:
             msg = "line {}: {}".format(line+1, e)
             self.exception(msg)
