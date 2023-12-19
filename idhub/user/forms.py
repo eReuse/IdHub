@@ -1,12 +1,9 @@
-import requests
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from idhub.models import DID, VerificableCredential, Organization
-
-from idhub_auth.models import User
 from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
+
 
 class RequestCredentialForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
