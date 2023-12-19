@@ -438,7 +438,7 @@ class Schemas(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     _name = models.CharField(max_length=250, null=True, db_column='name')
     _description = models.CharField(max_length=250, null=True, db_column='description')
-    template_description = models.TextField()
+    template_description = models.TextField(null=True)
 
     @property
     def get_schema(self):

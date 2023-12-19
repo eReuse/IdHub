@@ -22,7 +22,7 @@ from idhub.user.tables import (
 )
 from idhub.user.forms import (
         RequestCredentialForm,
-        CredentialPresentationForm
+        DemandAuthorizationForm
 )
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event, Membership
