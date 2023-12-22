@@ -58,10 +58,12 @@ class Command(BaseCommand):
             email = options["register"][0]
             password = options["register"][1]
             self.create_user(email, password)
+            any_option_used = True
         if options["register_superuser"]:
             email = options["register_superuser"][0]
             password = options["register_superuser"][1]
             self.create_superuser(email, password)
+            any_option_used = True
 
         if options["amount"]:
             self.create_all(options["amount"])
