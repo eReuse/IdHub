@@ -128,7 +128,6 @@ class CredentialsRequestView(MyWallet, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['session'] = self.request.session
         return kwargs
     
     def form_valid(self, form):
@@ -190,7 +189,7 @@ class DidRegisterView(MyWallet, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did(self.request.session)
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
 

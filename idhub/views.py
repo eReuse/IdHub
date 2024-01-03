@@ -1,8 +1,10 @@
 from django.urls import reverse_lazy
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.http import HttpResponseRedirect
+from nacl import secret
 
 
 class LoginView(auth_views.LoginView):
@@ -24,9 +26,19 @@ class LoginView(auth_views.LoginView):
             admin_dashboard = reverse_lazy('idhub:admin_dashboard')
             if self.extra_context['success_url'] == user_dashboard:
                 self.extra_context['success_url'] = admin_dashboard
+            password = form.cleaned_data.get("password")
+            # Decrypt the user's sensitive data encryption key and store it in the session.
+            self.decript_key(user, password)
+
         auth_login(self.request, user)
-        # Decrypt the user's sensitive data encryption key and store it in the session.
-        password = form.cleaned_data.get("password")  # TODO: Is this right????????
-        sensitive_data_encryption_key = user.decrypt_sensitive_data_encryption_key(password)
-        self.request.session["sensitive_data_encryption_key"] = sensitive_data_encryption_key
         return HttpResponseRedirect(self.extra_context['success_url'])
+
+    def decript_key(self, user, password):
+        if not settings.KEY_CREDENTIALS:
+            return
+
+        sb_key = user.derive_key_from_password(password)
+        sb = secret.SecretBox(sb_key)
+        data_decript = sb.decrypt(settings.KEY_CREDENTIALS)
+        settings.KEY_CREDENTIALS_CLEAN = data_decript
+
