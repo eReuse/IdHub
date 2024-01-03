@@ -33,7 +33,7 @@ class LoginView(auth_views.LoginView):
         sensitive_data_encryption_key = user.decrypt_sensitive_data_encryption_key(password)
         key_dids = cache.get("KEY_DIDS", {})
         key_dids[user.id] = sensitive_data_encryption_key
-        cache.set("KEY_DIDS", key_dids)
+        cache.set("KEY_DIDS", key_dids, None)
 
         return HttpResponseRedirect(self.extra_context['success_url'])
 
