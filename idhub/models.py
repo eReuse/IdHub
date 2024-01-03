@@ -421,16 +421,16 @@ class DID(models.Model):
         null=True,
     )
 
-    def get_key_material(self, session):
-        if "sensitive_data_encryption_key" not in session:
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
-        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+    def get_key_material(self):
+        if not settings.KEY_CREDENTIALS_CLEAN:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
+        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
         return sb.decrypt(self._key_material)
 
-    def set_key_material(self, value, session):
-        if "sensitive_data_encryption_key" not in session:
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
-        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+    def set_key_material(self, value):
+        if not settings.KEY_CREDENTIALS_CLEAN:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
+        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
         self._key_material = sb.encrypt(value)
 
     @property
@@ -439,7 +439,7 @@ class DID(models.Model):
             return True
         return False
 
-    def set_did(self, session):
+    def set_did(self):
         """
         Generates a new DID Controller Key and derives a DID from it.
         Because DID Controller Keys are stored encrypted using a User's Sensitive Data Encryption Key,
@@ -447,7 +447,7 @@ class DID(models.Model):
         """
         new_key_material = generate_did_controller_key()
         self.did = keydid_from_controller_key(new_key_material)
-        self.set_key_material(new_key_material, session)
+        self.set_key_material(new_key_material)
 
 
     # TODO: darmengo: esta funcion solo se llama desde un fichero que sube cosas a s3 (??) Preguntar a ver que hace.
@@ -513,16 +513,16 @@ class VerificableCredential(models.Model):
         related_name='vcredentials',
     )
 
-    def get_data(self, session):
-        if "sensitive_data_encryption_key" not in session:
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
-        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+    def get_data(self):
+        if not settings.KEY_CREDENTIALS_CLEAN:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
+        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
         return sb.decrypt(self._data)
 
-    def set_data(self, value, session):
-        if "sensitive_data_encryption_key" not in session:
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave de usuario.")
-        sb = secret.SecretBox(session["sensitive_data_encryption_key"])
+    def set_data(self, value):
+        if not settings.KEY_CREDENTIALS_CLEAN:
+            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
+        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
         self._data = sb.encrypt(value)
 
     @property
@@ -553,7 +553,7 @@ class VerificableCredential(models.Model):
         data = json.loads(self.csv_data).items()
         return data
 
-    def issue(self, did, session):
+    def issue(self, did):
         if self.status == self.Status.ISSUED:
             return
 
@@ -562,7 +562,7 @@ class VerificableCredential(models.Model):
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
         self.data = sign_credential(
             self.render(),
-            self.issuer_did.get_key_material(session)
+            self.issuer_did.get_key_material()
         )
 
     def get_context(self):

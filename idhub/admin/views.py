@@ -645,7 +645,7 @@ class DidRegisterView(Credentials, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did(self.request.session)
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
