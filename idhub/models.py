@@ -436,6 +436,8 @@ class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=250, null=True)
+    description = models.CharField(max_length=250, null=True)
 
     @property
     def get_schema(self):
@@ -443,10 +445,10 @@ class Schemas(models.Model):
             return {}
         return json.loads(self.data)
 
-    def name(self):
+    def get_name(self):
         return self.get_schema.get('name', '')
 
-    def description(self):
+    def get_description(self):
         return self.get_schema.get('description', '')
 
 
