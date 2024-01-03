@@ -1,11 +1,13 @@
 from datetime import datetime
+from unittest.mock import MagicMock
 
 from django.test import TestCase
 from django.urls import reverse
+from django.core.exceptions import FieldError
 
 from idhub_auth.models import User
-from idhub.admin.tables import DashboardTable, UserTable
-from idhub.models import Event, Membership, Rol, UserRol, Service
+from idhub.admin.tables import DashboardTable, UserTable, TemplateTable
+from idhub.models import Event, Membership, Rol, UserRol, Service, Schemas
 
 
 class AdminDashboardTableTest(TestCase):
@@ -94,3 +96,62 @@ class UserTableTest(TestCase):
         # Use the render_role method of UserTable
         rendered_column = self.table.columns['role'].render(user)
         self.assertIn("Role 1", str(rendered_column))
+
+
+class TemplateTableTest(TestCase):
+
+    def setUp(self):
+        self.table = TemplateTable(Schemas.objects.all())
+        self.create_schemas(amount=3)
+
+    def create_schemas(self, amount):
+        for i in range(amount):
+            self.create_schemas_object("testname" + str(i), "testdesc" + str(i))
+
+    def create_schemas_object(self, name, description):
+        data = self.format_data_for_json_reader(name, description)
+        Schemas.objects.create(
+                type="testy",
+                file_schema="filey",
+                data=data,
+                created_at=datetime.now()
+        )
+
+    def format_data_for_json_reader(self, name, description):
+        return '{"name": "'+name+'", "description": "'+description+'"}'
+
+    def test_order_table_by_name_throws_no_exception(self):
+        try:
+            # Apply sorting
+            self.table.order_by = 'name'
+        except FieldError:
+            self.fail("Ordering template table by name raised FieldError")
+
+    def test_order_table_by_name_correctly_orders(self):
+        self.table.order_by = 'name'
+        # Fetch the sorted records
+        sorted_records = list(self.table.rows)
+
+        # Verify the order is as expected
+        self.assertTrue(sorted_records[0].record.name
+                        < sorted_records[1].record.name)
+        self.assertTrue(sorted_records[1].record.name
+                        < sorted_records[2].record.name)
+
+    def test_order_table_by_name_ascending_correctly_orders(self):
+        self.table.order_by = '-name'
+        # Fetch the sorted records
+        sorted_records = list(self.table.rows)
+
+        # Verify the order is as expected
+        self.assertTrue(sorted_records[0].record.name
+                        > sorted_records[1].record.name)
+        self.assertTrue(sorted_records[1].record.name
+                        > sorted_records[2].record.name)
+
+    def test_order_table_by_description_works(self):
+        try:
+            # Apply sorting
+            self.table.order_by = 'description'
+        except FieldError:
+            self.fail("Ordering template table by descripition raised FieldError")
