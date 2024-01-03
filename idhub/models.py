@@ -4,6 +4,7 @@ import requests
 import datetime
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from nacl import secret
@@ -422,15 +423,17 @@ class DID(models.Model):
     )
 
     def get_key_material(self):
-        if not settings.KEY_CREDENTIALS_CLEAN:
+        key_dids = cache.get("KEY_DIDS", {})
+        if not key_dids.get(user.id):
             raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
+        sb = secret.SecretBox(key_dids[user.id])
         return sb.decrypt(self._key_material)
 
     def set_key_material(self, value):
-        if not settings.KEY_CREDENTIALS_CLEAN:
+        key_dids = cache.get("KEY_DIDS", {})
+        if not key_dids.get(user.id):
             raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
+        sb = secret.SecretBox(key_dids[user.id])
         self._key_material = sb.encrypt(value)
 
     @property
@@ -514,15 +517,17 @@ class VerificableCredential(models.Model):
     )
 
     def get_data(self):
-        if not settings.KEY_CREDENTIALS_CLEAN:
+        key_dids = cache.get("KEY_DIDS", {})
+        if not key_dids.get(user.id):
             raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
+        sb = secret.SecretBox(key_dids[user.id])
         return sb.decrypt(self._data)
 
     def set_data(self, value):
-        if not settings.KEY_CREDENTIALS_CLEAN:
+        key_dids = cache.get("KEY_DIDS", {})
+        if not key_dids.get(user.id):
             raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(settings.KEY_CREDENTIALS_CLEAN)
+        sb = secret.SecretBox(key_dids[user.id])
         self._data = sb.encrypt(value)
 
     @property
