@@ -120,7 +120,7 @@ class CredentialJsonView(MyWallet, TemplateView):
             pk=pk,
             user=self.request.user
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        response = HttpResponse(self.object.get_data(), content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
