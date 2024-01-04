@@ -3,7 +3,6 @@ import pytz
 import datetime
 from django.db import models
 from django.conf import settings
-from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from nacl import secret
@@ -541,13 +540,15 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        self.status = self.Status.ISSUED
+        # self.status = self.Status.ISSUED
+        import pdb; pdb.set_trace()
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        self.data = sign_credential(
+        data = sign_credential(
             self.render(),
             self.issuer_did.get_key_material()
         )
+        self.data = self.user.encrypt_data(data)
 
     def get_context(self):
         d = json.loads(self.csv_data)
