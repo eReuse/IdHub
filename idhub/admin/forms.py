@@ -34,7 +34,7 @@ class ImportForm(forms.Form):
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
         ]
         self.fields['schema'].choices = [
-            (x.id, x.name()) for x in Schemas.objects.filter()
+            (x.id, x.name) for x in Schemas.objects.filter()
         ]
 
     def clean_did(self):

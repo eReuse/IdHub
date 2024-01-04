@@ -245,18 +245,11 @@ class TemplateTable(tables.Table):
                                           orderable=False,
                                           verbose_name="Delete schema")
 
-    # empty_values makes django_tables call render_attr
-    name = tables.Column(empty_values=())
-    description = tables.Column(empty_values=())
-
-    def render_name(self, record):
-        return record.get_name()
-
-    def render_description(self, record):
-        return record.get_description()
+    _name = tables.Column(verbose_name="Name")
+    _description = tables.Column(verbose_name="Description")
 
     class Meta:
         model = Schemas
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "file_schema", "name", "description",
+        fields = ("created_at", "file_schema", "_name", "_description",
                   "view_schema", "delete_schema")
