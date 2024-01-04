@@ -69,7 +69,14 @@ class RolesTable(tables.Table):
 
     def order_description(self, queryset, is_descending):
         queryset = queryset.order_by(
-                ("-" if is_descending else "") + "service__rol__description"
+                ("-" if is_descending else "") + "service__description"
+                )
+
+        return (queryset, True)
+
+    def order_service(self, queryset, is_descending):
+        queryset = queryset.order_by(
+                ("-" if is_descending else "") + "service__domain"
                 )
 
         return (queryset, True)
