@@ -10,16 +10,13 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
-      with:
-        # Version being used in local development
-        python-version: '3.10'
 
     - name: Create virtual environment
       run: |
