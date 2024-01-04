@@ -634,7 +634,7 @@ class Service(models.Model):
 
     def get_roles(self):
         if self.rol.exists():
-            return ", ".join([x.name for x in self.rol.all()])
+            return ", ".join([x.name for x in self.rol.order_by("name")])
         return _("None")
     
     def __str__(self):
