@@ -1,6 +1,7 @@
 import nacl
 import base64
 
+from nacl import pwhash
 from django.db import models
 from django.core.cache import cache
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
@@ -93,9 +94,9 @@ class User(AbstractBaseUser):
         return ", ".join(set(roles))
 
     def derive_key_from_password(self, password):
-        kdf = nacl.pwhash.argon2i.kdf
-        ops = nacl.pwhash.argon2i.OPSLIMIT_INTERACTIVE
-        mem = nacl.pwhash.argon2i.MEMLIMIT_INTERACTIVE
+        kdf = pwhash.argon2i.kdf
+        ops = pwhash.argon2i.OPSLIMIT_INTERACTIVE
+        mem = pwhash.argon2i.MEMLIMIT_INTERACTIVE
         return kdf(
             nacl.secret.SecretBox.KEY_SIZE,
             password,
@@ -120,7 +121,7 @@ class User(AbstractBaseUser):
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         
-        return sb.encrypt(data).decode('utf-8')
+        return base64.b64encode(sb.encrypt(data)).decode('utf-8')
 
     def get_salt(self):
         return base64.b64decode(self.salt.encode('utf-8'))
@@ -135,12 +136,12 @@ class User(AbstractBaseUser):
         key = base64.b64encode(nacl.utils.random(64))
         key_dids = cache.get("KEY_DIDS", {})
 
-        if key_dids.get(user.id):
-            key = key_dids[user.id]
+        if key_dids.get(self.id):
+            key = key_dids[self.id]
         else:
             self.set_salt()
 
         key_crypted = self.encrypt_sensitive_data(password, key)
-        self.encrypted_sensitive_data = base64.b64encode(key_crypted).decode('utf-8')
+        self.encrypted_sensitive_data = key_crypted
 
 

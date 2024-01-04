@@ -2,7 +2,7 @@ import re
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from idhub_auth.models import User, gen_salt
+from idhub_auth.models import User
 
 
 class ProfileForm(forms.ModelForm):
