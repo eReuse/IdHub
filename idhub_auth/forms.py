@@ -2,7 +2,7 @@ import re
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from idhub_auth.models import User
+from idhub_auth.models import User, gen_salt
 
 
 class ProfileForm(forms.ModelForm):
@@ -30,5 +30,4 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError(txt)
 
         return last_name
-
 

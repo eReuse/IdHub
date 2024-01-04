@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.http import HttpResponseRedirect
-from nacl import secret
 
 
 class LoginView(auth_views.LoginView):
@@ -23,7 +22,7 @@ class LoginView(auth_views.LoginView):
         user = form.get_user()
         # Decrypt the user's sensitive data encryption key and store it in the session.
         password = form.cleaned_data.get("password")
-        sensitive_data_encryption_key = user.decrypt_sensitive_data_encryption_key(password)
+        sensitive_data_encryption_key = user.decrypt_sensitive_data(password)
         key_dids = cache.get("KEY_DIDS", {})
         if not user.is_anonymous and user.is_admin:
             user_dashboard = reverse_lazy('idhub:user_dashboard')
@@ -41,3 +40,14 @@ class LoginView(auth_views.LoginView):
 
         return HttpResponseRedirect(self.extra_context['success_url'])
 
+
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = 'auth/password_reset_confirm.html'
+    success_url = reverse_lazy('idhub:password_reset_complete')
+
+    def form_valid(self, form):
+        password = form.cleaned_data.get("password")
+        user = form.get_user()
+        user.set_encrypted_sensitive_data(password)
+        user.save()
+        return HttpResponseRedirect(self.success_url)

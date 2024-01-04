@@ -1,6 +1,9 @@
+import nacl
+import base64
+
 from django.db import models
+from django.core.cache import cache
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-from nacl import secret, pwhash
 
 
 class UserManager(BaseUserManager):
@@ -44,10 +47,8 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
-    # TODO: Hay que generar una clave aleatoria para cada usuario cuando se le da de alta en el sistema.
-    encrypted_sensitive_data_encryption_key = models.BinaryField(max_length=255)
-    # TODO: Hay que generar un salt aleatorio para cada usuario cuando se le da de alta en el sistema.
-    salt_of_sensitive_data_encryption_key = models.BinaryField(max_length=255)
+    encrypted_sensitive_data = models.CharField(max_length=255)
+    salt = models.CharField(max_length=255)
 
     objects = UserManager()
 
@@ -92,14 +93,54 @@ class User(AbstractBaseUser):
         return ", ".join(set(roles))
 
     def derive_key_from_password(self, password):
-        kdf = pwhash.argon2i.kdf  # TODO: Move the KDF choice to SETTINGS.PY
-        ops = pwhash.argon2i.OPSLIMIT_INTERACTIVE  # TODO: Move the KDF choice to SETTINGS.PY
-        mem = pwhash.argon2i.MEMLIMIT_INTERACTIVE  # TODO: Move the KDF choice to SETTINGS.PY
-        salt = self.salt_of_sensitive_data_encryption_key
-        return kdf(secret.SecretBox.KEY_SIZE, password, salt, opslimit=ops, memlimit=mem)
+        kdf = nacl.pwhash.argon2i.kdf
+        ops = nacl.pwhash.argon2i.OPSLIMIT_INTERACTIVE
+        mem = nacl.pwhash.argon2i.MEMLIMIT_INTERACTIVE
+        return kdf(
+            nacl.secret.SecretBox.KEY_SIZE,
+            password,
+            self.get_salt(),
+            opslimit=ops,
+            memlimit=mem
+        )
 
-    def decrypt_sensitive_data_encryption_key(self, password):
-        sb_key = self.derive_key_from_password(password)
-        sb = secret.SecretBox(sb_key)
-        return sb.decrypt(self.encrypted_sensitive_data_encryption_key)
+    def decrypt_sensitive_data(self, password, data=None):
+        sb_key = self.derive_key_from_password(password.encode('utf-8'))
+        sb = nacl.secret.SecretBox(sb_key)
+        if not data:
+            data = self.get_encrypted_sensitive_data()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+
+        return sb.decrypt(data).decode('utf-8')
+
+    def encrypt_sensitive_data(self, password, data):
+        sb_key = self.derive_key_from_password(password.encode('utf-8'))
+        sb = nacl.secret.SecretBox(sb_key)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        
+        return sb.encrypt(data).decode('utf-8')
+
+    def get_salt(self):
+        return base64.b64decode(self.salt.encode('utf-8'))
+
+    def set_salt(self):
+        self.salt = base64.b64encode(nacl.utils.random(16)).decode('utf-8')
+
+    def get_encrypted_sensitive_data(self):
+        return base64.b64decode(self.encrypted_sensitive_data.encode('utf-8'))
+
+    def set_encrypted_sensitive_data(self, password):
+        key = base64.b64encode(nacl.utils.random(64))
+        key_dids = cache.get("KEY_DIDS", {})
+
+        if key_dids.get(user.id):
+            key = key_dids[user.id]
+        else:
+            self.set_salt()
+
+        key_crypted = self.encrypt_sensitive_data(password, key)
+        self.encrypted_sensitive_data = base64.b64encode(key_crypted).decode('utf-8')
+
 
