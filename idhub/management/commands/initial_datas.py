@@ -7,6 +7,7 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from decouple import config
 from idhub.models import DID, Schemas
 from oidc4vp.models import Organization
@@ -43,6 +44,9 @@ class Command(BaseCommand):
         su = User.objects.create_superuser(email=email, password=password)
         su.set_encrypted_sensitive_data(password)
         su.save()
+        key = su.decrypt_sensitive_data(password)
+        key_dids = {su.id: key}
+        cache.set("KEY_DIDS", key_dids, None)
 
 
     def create_users(self, email, password):
@@ -50,6 +54,10 @@ class Command(BaseCommand):
         u.set_password(password)
         u.set_encrypted_sensitive_data(password)
         u.save()
+        key_dids = cache.get("KEY_DIDS", {})
+        key = u.decrypt_sensitive_data(password)
+        key_dids.update({u.id: key})
+        cache.set("KEY_DIDS", key_dids)
 
 
     def create_organizations(self, name, url):

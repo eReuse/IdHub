@@ -412,9 +412,7 @@ class DID(models.Model):
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
-    # CHANGED: `key_material` to `_key_material`, datatype from CharField to BinaryField and the key is now stored encrypted.
-    key_material = None
-    _key_material = models.BinaryField(max_length=250)
+    key_material = models.CharField(max_length=255)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -423,18 +421,16 @@ class DID(models.Model):
     )
 
     def get_key_material(self):
-        key_dids = cache.get("KEY_DIDS", {})
-        if not key_dids.get(user.id):
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(key_dids[user.id])
-        return sb.decrypt(self._key_material)
+        return self.user.decrypt_data(self.key_material)
 
     def set_key_material(self, value):
-        key_dids = cache.get("KEY_DIDS", {})
-        if not key_dids.get(user.id):
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(key_dids[user.id])
-        self._key_material = sb.encrypt(value)
+        self.key_material = self.user.encrypt_data(value)
+        
+    def get_data(self):
+        return self.user.decrypt_data(self.data)
+
+    def set_data(self, value):
+        self.data = self.user.encrypt_data(value)
 
     @property
     def is_organization_did(self):
