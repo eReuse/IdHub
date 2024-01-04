@@ -32,7 +32,14 @@ from idhub.admin.forms import (
     UserRolForm,
 )
 from idhub.admin.tables import (
-        DashboardTable
+        DashboardTable,
+        UserTable,
+        RolesTable,
+        ServicesTable,
+        CredentialTable,
+        DIDTable,
+        DataTable,
+        TemplateTable
 )
 from idhub.models import (
     DID,
@@ -82,10 +89,12 @@ class ImportExport(AdminView):
     section = "ImportExport"
 
 
-class PeopleListView(People, TemplateView):
+class PeopleListView(People, SingleTableView):
     template_name = "idhub/admin/people.html"
     subtitle = _('View users')
     icon = 'bi bi-person'
+    table_class = UserTable
+    model = User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -93,6 +102,11 @@ class PeopleListView(People, TemplateView):
             'users': User.objects.filter(),
         })
         return context
+
+    def get_queryset(self, **kwargs):
+        queryset = super().get_queryset(**kwargs)
+
+        return queryset
 
 
 class PeopleView(People, TemplateView):
@@ -398,17 +412,20 @@ class PeopleRolDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
 
-class RolesView(AccessControl):
+class RolesView(AccessControl, SingleTableView):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Manage roles')
+    table_class = RolesTable
     icon = ''
+    model = Rol
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'roles': Rol.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
+
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
@@ -461,17 +478,20 @@ class RolDeleteView(AccessControl):
         return redirect('idhub:admin_roles')
 
 
-class ServicesView(AccessControl):
+class ServicesView(AccessControl, SingleTableView):
     template_name = "idhub/admin/services.html"
+    table_class = ServicesTable
     subtitle = _('Manage services')
     icon = ''
+    model = Service
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'services': Service.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
+
 
 class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
@@ -534,17 +554,19 @@ class ServiceDeleteView(AccessControl):
         return redirect('idhub:admin_services')
 
 
-class CredentialsView(Credentials):
+class CredentialsView(Credentials, SingleTableView):
     template_name = "idhub/admin/credentials.html"
+    table_class = CredentialTable
     subtitle = _('View credentials')
     icon = ''
+    model = VerificableCredential
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'credentials': VerificableCredential.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
 
 
 class CredentialView(Credentials):
@@ -620,18 +642,25 @@ class DeleteCredentialsView(Credentials):
         return redirect(self.success_url)
 
 
-class DidsView(Credentials):
+class DidsView(Credentials, SingleTableView):
     template_name = "idhub/admin/dids.html"
+    table_class = DIDTable
     subtitle = _('Manage identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
+    model = DID
 
     def get_context_data(self, **kwargs):
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
         context = super().get_context_data(**kwargs)
         context.update({
             'dids': DID.objects.filter(user=self.request.user),
         })
         return context
+
 
 class DidRegisterView(Credentials, CreateView):
     template_name = "idhub/admin/did_register.html"
@@ -702,19 +731,21 @@ class WalletConfigIssuesView(Credentials):
     wallet = True
 
 
-class SchemasView(SchemasMix):
+class SchemasView(SchemasMix, SingleTableView):
     template_name = "idhub/admin/schemas.html"
+    table_class = TemplateTable
     subtitle = _('View credential templates')
     icon = ''
+    model = Schemas
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'schemas': Schemas.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
 
-        
+        return super().get_context_data(**kwargs)
+
+
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
@@ -840,10 +871,12 @@ class SchemasImportAddView(SchemasMix):
         return data
 
 
-class ImportView(ImportExport, TemplateView):
+class ImportView(ImportExport, SingleTableView):
     template_name = "idhub/admin/import.html"
+    table_class = DataTable
     subtitle = _('Import data')
     icon = ''
+    model = File_datas
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -888,4 +921,3 @@ class ImportAddView(ImportExport, FormView):
         else:
             messages.error(self.request, _("Error importing the file!"))
         return super().form_valid(form)
-
