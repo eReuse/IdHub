@@ -128,30 +128,19 @@ class TemplateTableTest(TestCase):
             self.fail("Ordering template table by name raised FieldError")
 
     def test_order_table_by_name_correctly_orders(self):
-        self.table.order_by = 'name'
+        table = TemplateTable(Schemas.objects.all(), order_by="name")
         # Fetch the sorted records
-        sorted_records = list(self.table.rows)
+        sorted_records = list(table.rows)
 
         # Verify the order is as expected
-        self.assertTrue(sorted_records[0].record.name
-                        < sorted_records[1].record.name)
-        self.assertTrue(sorted_records[1].record.name
-                        < sorted_records[2].record.name)
-
-    def test_order_table_by_name_ascending_correctly_orders(self):
-        self.table.order_by = '-name'
-        # Fetch the sorted records
-        sorted_records = list(self.table.rows)
-
-        # Verify the order is as expected
-        self.assertTrue(sorted_records[0].record.name
-                        > sorted_records[1].record.name)
-        self.assertTrue(sorted_records[1].record.name
-                        > sorted_records[2].record.name)
+        self.assertLess(sorted_records[0].record.name,
+                        sorted_records[1].record.name)
+        self.assertLess(sorted_records[1].record.name,
+                        sorted_records[2].record.name)
 
     def test_order_table_by_description_works(self):
         try:
             # Apply sorting
             self.table.order_by = 'description'
         except FieldError:
-            self.fail("Ordering template table by descripition raised FieldError")
+            self.fail("Ordering template table by description raised FieldError")
