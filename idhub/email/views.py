@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.template import loader
 from django.core.mail import EmailMultiAlternatives
@@ -5,6 +7,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+
+
+logger = logging.getLogger(__name__)
 
 
 class NotifyActivateUserByEmail:
@@ -49,10 +54,11 @@ class NotifyActivateUserByEmail:
         email_message.attach_alternative(html_email, 'text/html')
         try:
             if settings.DEVELOPMENT:
-                print(to_email)
-                print(body)
+                logger.warning(to_email)
+                logger.warning(body)
                 return
 
             email_message.send()
-        except Exception:
+        except Exception as err:
+            logger.error(err)
             return
