@@ -31,12 +31,15 @@ class Command(BaseCommand):
                 self.create_organizations(r[0].strip(), r[1].strip())
 
     def create_admin_users(self, email, password):
-        User.objects.create_superuser(email=email, password=password)
+        su = User.objects.create_superuser(email=email, password=password)
+        su.set_encrypted_sensitive_data(password)
+        su.save()
 
 
     def create_users(self, email, password):
-        u= User.objects.create(email=email, password=password)
+        u = User.objects.create(email=email, password=password)
         u.set_password(password)
+        u.set_encrypted_sensitive_data(password)
         u.save()
 
 
