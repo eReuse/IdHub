@@ -1,6 +1,5 @@
 import json
 import pytz
-import requests
 import datetime
 from django.db import models
 from django.conf import settings
@@ -50,9 +49,10 @@ class Event(models.Model):
         EV_USR_DEACTIVATED_BY_ADMIN = 29, "User deactivated"
         EV_USR_ACTIVATED_BY_ADMIN = 30, "User activated"
 
-    created = models.DateTimeField(auto_now=True)
-    message = models.CharField(max_length=350)
+    created = models.DateTimeField(_("Date"), auto_now=True)
+    message = models.CharField(_("Description"), max_length=350)
     type = models.PositiveSmallIntegerField(
+        _("Event"),
         choices=Types.choices,
     )
     user = models.ForeignKey(
@@ -407,7 +407,7 @@ class Event(models.Model):
 
 class DID(models.Model):
     created_at = models.DateTimeField(auto_now=True)
-    label = models.CharField(max_length=50)
+    label = models.CharField(_("Label"), max_length=50)
     did = models.CharField(max_length=250)
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
@@ -459,6 +459,7 @@ class DID(models.Model):
 
 
 class Schemas(models.Model):
+    type = models.CharField(max_length=250)
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
@@ -490,11 +491,7 @@ class VerificableCredential(models.Model):
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
     issued_on = models.DateTimeField(null=True)
-    subject_did = models.CharField(max_length=250)
-    # CHANGED: `data` to `_data`, datatype from TextField to BinaryField and the rendered VC is now stored encrypted.
-    # TODO: verify that BinaryField can hold arbitrary amounts of data (max_length = ???)
-    data = None
-    _data = models.BinaryField()
+    data = models.TextField()
     csv_data = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
@@ -504,6 +501,12 @@ class VerificableCredential(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='vcredentials',
+    )
+    subject_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        related_name='subject_credentials',
+        null=True
     )
     issuer_did = models.ForeignKey(
         DID,
@@ -517,36 +520,16 @@ class VerificableCredential(models.Model):
     )
 
     def get_data(self):
-        key_dids = cache.get("KEY_DIDS", {})
-        if not key_dids.get(user.id):
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(key_dids[user.id])
-        return sb.decrypt(self._data)
+        return self.user.decrypt_data(self.data)
 
     def set_data(self, value):
-        key_dids = cache.get("KEY_DIDS", {})
-        if not key_dids.get(user.id):
-            raise Exception("Ojo! Se intenta acceder a datos cifrados sin tener la clave.")
-        sb = secret.SecretBox(key_dids[user.id])
-        self._data = sb.encrypt(value)
-
-    @property
-    def get_schema(self):
-        if not self.data:
-            return {}
-        return json.loads(self.data)
+        self.data = self.user.encrypt_data(value)
 
     def type(self):
-        if self.data:
-            return self.get_schema.get('type')[-1]
-
-        return self.schema.name()
+        return self.schema.type
 
     def description(self):
-        if not self.data:
-            return self.schema.description()
-
-        for des in self.get_schema.get('description', []):
+        for des in json.loads(self.render()).get('description', []):
             if settings.LANGUAGE_CODE == des.get('lang'):
                 return des.get('value', '')
         return ''
@@ -572,13 +555,15 @@ class VerificableCredential(models.Model):
 
     def get_context(self):
         d = json.loads(self.csv_data)
-        format = "%Y-%m-%dT%H:%M:%SZ"
-        issuance_date = self.issued_on.strftime(format)
+        issuance_date = ''
+        if self.issued_on:
+            format = "%Y-%m-%dT%H:%M:%SZ"
+            issuance_date = self.issued_on.strftime(format)
 
         context = {
             'vc_id': self.id,
             'issuer_did': self.issuer_did.did,
-            'subject_did': self.subject_did,
+            'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
@@ -677,24 +662,10 @@ class UserRol(models.Model):
     )
     service = models.ForeignKey(
         Service,
+        verbose_name=_("Service"),
         on_delete=models.CASCADE,
         related_name='users',
     )
 
     class Meta:
         unique_together = ('user', 'service',)
-
-
-class Organization(models.Model):
-    name = models.CharField(max_length=250)
-    url = models.CharField(
-        help_text=_("Url where to send the presentation"),
-        max_length=250
-    )
-
-    def __str__(self):
-        return self.name
-
-    def send(self, cred):
-        return
-        requests.post(self.url, data=cred.data)

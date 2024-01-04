@@ -16,7 +16,7 @@ class ProfileForm(forms.ModelForm):
     def clean_first_name(self):
         first_name = super().clean()['first_name']
         match = r'^[a-zA-ZäöüßÄÖÜáéíóúàèìòùÀÈÌÒÙÁÉÍÓÚßñÑçÇ\s\'-]+'
-        if not re.match(match, first_name):
+        if not re.fullmatch(match, first_name):
             txt = _("The string must contain only characters and spaces")
             raise forms.ValidationError(txt)
 
@@ -25,7 +25,7 @@ class ProfileForm(forms.ModelForm):
     def clean_last_name(self):
         last_name = super().clean()['last_name']
         match = r'^[a-zA-ZäöüßÄÖÜáéíóúàèìòùÀÈÌÒÙÁÉÍÓÚßñÑçÇ\s\'-]+'
-        if not re.match(match, last_name):
+        if not re.fullmatch(match, last_name):
             txt = _("The string must contain only characters and spaces")
             raise forms.ValidationError(txt)
 

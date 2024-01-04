@@ -629,7 +629,7 @@ class DidsView(Credentials):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'dids': DID.objects,
+            'dids': DID.objects.filter(user=self.request.user),
         })
         return context
 
@@ -772,11 +772,14 @@ class SchemasNewView(SchemasMix):
             return
         try:
             data = f.read().decode('utf-8')
-            assert credtools.validate_schema(json.loads(data))
+            ldata = json.loads(data)
+            assert credtools.validate_schema(ldata)
+            name = ldata.get('name')
+            assert name
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name, data=data)
+        schema = Schemas.objects.create(file_schema=file_name, data=data, type=name)
         schema.save()
         return schema
 
@@ -817,11 +820,14 @@ class SchemasImportAddView(SchemasMix):
     def create_schema(self, file_name):
         data = self.open_file(file_name)
         try:
-            json.loads(data)
+            ldata = json.loads(data)
+            assert credtools.validate_schema(ldata)
+            name = ldata.get('name')
+            assert name
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name, data=data)
+        schema = Schemas.objects.create(file_schema=file_name, data=data, type=name)
         schema.save()
         return schema
 

@@ -4,6 +4,7 @@ import base64
 from nacl import pwhash
 from django.db import models
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
 
@@ -40,14 +41,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(
-        verbose_name="email address",
+        _('Email address'),
         max_length=255,
         unique=True,
     )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(_("First name"), max_length=255, blank=True, null=True)
+    last_name = models.CharField(_("Last name"), max_length=255, blank=True, null=True)
     encrypted_sensitive_data = models.CharField(max_length=255)
     salt = models.CharField(max_length=255)
 
@@ -144,4 +145,21 @@ class User(AbstractBaseUser):
         key_crypted = self.encrypt_sensitive_data(password, key)
         self.encrypted_sensitive_data = key_crypted
 
+    def encrypt_data(self, data):
+        sb = self.get_secret_box()
+        value = base64.b64encode(data.encode('utf-8'))
+        return sb.encrypt(data)
 
+    def decrypt_data(self, data):
+        sb = self.get_secret_box()
+        value = base64.b64decode(data.encode('utf-8'))
+        return sb.decrypt(data)
+
+    def get_secret_box(self):
+        key_dids = cache.get("KEY_DIDS", {})
+        if not key_dids.get(self.id):
+            err = "An attempt is made to access encrypted "
+            err += "data without having the key."
+            raise Exception(_(err))
+
+        return secret.SecretBox(key_dids[self.id])

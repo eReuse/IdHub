@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from idhub.models import Rol, Event
 from idhub_auth.models import User
 
@@ -18,10 +19,6 @@ class RolesTable(tables.Table):
 
 
 class DashboardTable(tables.Table):
-    type = tables.Column(verbose_name="Event")
-    message = tables.Column(verbose_name="Description")
-    created = tables.Column(verbose_name="Date")
-
     class Meta:
         model = Event
         template_name = "idhub/custom_table.html"
