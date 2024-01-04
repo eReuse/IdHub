@@ -436,6 +436,8 @@ class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
+    _name = models.CharField(max_length=250, null=True, db_column='name')
+    _description = models.CharField(max_length=250, null=True, db_column='description')
 
     @property
     def get_schema(self):
@@ -443,12 +445,33 @@ class Schemas(models.Model):
             return {}
         return json.loads(self.data)
 
+    def _update_and_get_field(self, field_attr, schema_key):
+        field_value = getattr(self, field_attr)
+        if not field_value:
+            field_value = self.get_schema.get(schema_key, '')
+            self._update_model_field(field_attr, field_value)
+        return field_value
+
+    def _update_model_field(self, field_attr, field_value):
+        if field_value:
+            setattr(self, field_attr, field_value)
+            self.save(update_fields=[field_attr])
+
+    @property
     def name(self):
-        return self.get_schema.get('name', '')
+        return self._update_and_get_field('_name', 'name')
 
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
     def description(self):
-        return self.get_schema.get('description', '')
+        return self._update_and_get_field('_description', 'description')
 
+    @description.setter
+    def description(self, value):
+        self._description = value
 
 class VerificableCredential(models.Model):
     """

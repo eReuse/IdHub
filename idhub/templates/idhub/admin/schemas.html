@@ -1,47 +1,19 @@
 {% extends "idhub/base_admin.html" %}
 {% load i18n %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 <h3>
   <i class="{{ icon }}"></i>
   {{ subtitle }}
 </h3>
-<div class="row mt-5">
-  <div class="col">
-    <div class="table-responsive">
-      <table class="table table-striped table-sm">
-        <thead>
-          <tr>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Created' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Template file' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Name' %}</button></th>
-            <th scope="col"><button type="button" class="btn btn-grey border border-dark">{% trans 'Description' %}</button></th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for schema in schemas.all %}
-          <tr style="font-size:15px;">
-            <td>{{ schema.created_at }}</td>
-            <td>{{ schema.file_schema }}</td>
-            <td>{{ schema.name }}</td>
-            <td>{{ schema.description }}</td>
-            <td><a class="text-primary" href="{% url 'idhub:admin_schemas_download' schema.id %}" target="_blank" title="{% trans 'View' %}"><i class="bi bi-eye"></i></a></td>
-            <td><a class="text-danger" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#confirm-delete-{{ schema.id }}" title="{% trans 'Remove' %}"><i class="bi bi-trash"></i></a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div class="form-actions-no-box">
-        <a class="btn btn-green-admin" href="{% url 'idhub:admin_schemas_import' %}">{% translate "Add template" %} <i class="bi bi-plus"></i></a>
-      </div>
-    </div>
-  </div>
+{% render_table table %}
+<div class="form-actions-no-box">
+    <a class="btn btn-green-admin" href="{% url 'idhub:admin_schemas_import' %}">{% translate "Add template" %} <i class="bi bi-plus"></i></a>
 </div>
 <!-- Modal -->
-{% for schema in schemas.all %}
-<div class="modal" id="confirm-delete-{{ schema.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{% for schema in object_list %}
+<div class="modal" id="confirm-delete-{{ schema.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
