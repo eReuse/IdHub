@@ -148,12 +148,13 @@ class User(AbstractBaseUser):
     def encrypt_data(self, data):
         sb = self.get_secret_box()
         value = base64.b64encode(data.encode('utf-8'))
-        return sb.encrypt(data)
+        value_enc = sb.encrypt(data.encode('utf-8'))
+        return base64.b64encode(value_enc).decode('utf-8')
 
     def decrypt_data(self, data):
         sb = self.get_secret_box()
         value = base64.b64decode(data.encode('utf-8'))
-        return sb.decrypt(data)
+        return sb.decrypt(value).decode('utf-8')
 
     def get_secret_box(self):
         key_dids = cache.get("KEY_DIDS", {})
@@ -162,4 +163,6 @@ class User(AbstractBaseUser):
             err += "data without having the key."
             raise Exception(_(err))
 
-        return secret.SecretBox(key_dids[self.id])
+        pw = base64.b64decode(key_dids[self.id].encode('utf-8'))
+        sb_key = self.derive_key_from_password(pw)
+        return nacl.secret.SecretBox(sb_key)
