@@ -3,6 +3,7 @@ import pytz
 import datetime
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from nacl import secret
@@ -419,25 +420,19 @@ class DID(models.Model):
         null=True,
     )
 
-    def get_key_material(self):
-        return self.user.decrypt_data(self.key_material)
+    def get_key_material(self, password):
+        return self.user.decrypt_data(self.key_material, password)
 
-    def set_key_material(self, value):
-        self.key_material = self.user.encrypt_data(value)
+    def set_key_material(self, value, password):
+        self.key_material = self.user.encrypt_data(value, password)
         
-    def get_data(self):
-        return self.user.decrypt_data(self.data)
-
-    def set_data(self, value):
-        self.data = self.user.encrypt_data(value)
-
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
 
-    def set_did(self):
+    def set_did(self, password):
         """
         Generates a new DID Controller Key and derives a DID from it.
         Because DID Controller Keys are stored encrypted using a User's Sensitive Data Encryption Key,
@@ -445,12 +440,7 @@ class DID(models.Model):
         """
         new_key_material = generate_did_controller_key()
         self.did = keydid_from_controller_key(new_key_material)
-        self.set_key_material(new_key_material)
-
-
-    # TODO: darmengo: esta funcion solo se llama desde un fichero que sube cosas a s3 (??) Preguntar a ver que hace.
-    def get_key_deprecated(self):
-        return json.loads(self.key_material)
+        self.set_key_material(new_key_material, password)
 
 
 class Schemas(models.Model):
@@ -514,11 +504,13 @@ class VerificableCredential(models.Model):
         related_name='vcredentials',
     )
 
-    def get_data(self):
-        return self.user.decrypt_data(self.data)
+    def get_data(self, password):
+        if not self.data:
+            return ""
+        return self.user.decrypt_data(self.data, password)
 
-    def set_data(self, value):
-        self.data = self.user.encrypt_data(value)
+    def set_data(self, value, password):
+        self.data = self.user.encrypt_data(value, password)
 
     def type(self):
         return self.schema.type
@@ -536,19 +528,19 @@ class VerificableCredential(models.Model):
         data = json.loads(self.csv_data).items()
         return data
 
-    def issue(self, did):
+    def issue(self, did, password):
         if self.status == self.Status.ISSUED:
             return
 
-        # self.status = self.Status.ISSUED
-        import pdb; pdb.set_trace()
+        self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
+        issuer_pass = cache.get("KEY_DIDS")
         data = sign_credential(
             self.render(),
-            self.issuer_did.get_key_material()
+            self.issuer_did.get_key_material(issuer_pass)
         )
-        self.data = self.user.encrypt_data(data)
+        self.data = self.user.encrypt_data(data, password)
 
     def get_context(self):
         d = json.loads(self.csv_data)
