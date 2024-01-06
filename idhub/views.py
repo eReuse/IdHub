@@ -20,23 +20,23 @@ class LoginView(auth_views.LoginView):
 
     def form_valid(self, form):
         user = form.get_user()
-        # Decrypt the user's sensitive data encryption key and store it in the session.
         password = form.cleaned_data.get("password")
+        auth_login(self.request, user)
+
         sensitive_data_encryption_key = user.decrypt_sensitive_data(password)
-        key_dids = cache.get("KEY_DIDS", {})
+
         if not user.is_anonymous and user.is_admin:
             user_dashboard = reverse_lazy('idhub:user_dashboard')
             admin_dashboard = reverse_lazy('idhub:admin_dashboard')
             if self.extra_context['success_url'] == user_dashboard:
                 self.extra_context['success_url'] = admin_dashboard
 
-            key_dids[user.id] = sensitive_data_encryption_key
-            cache.set("KEY_DIDS", key_dids, None)
-        else:
-            key_dids[user.id] = sensitive_data_encryption_key
-            cache.set("KEY_DIDS", key_dids)
+            cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
 
-        auth_login(self.request, user)
+        self.request.session["key_did"] = user.encrypt_data(
+            sensitive_data_encryption_key,
+            user.password+self.request.session._session_key
+        )
 
         return HttpResponseRedirect(self.extra_context['success_url'])
 

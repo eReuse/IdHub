@@ -37,7 +37,6 @@ class Command(BaseCommand):
                 self.create_organizations(r[0].strip(), r[1].strip())
         self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
         self.sync_credentials_organizations("local 8000", "local 9000")
-        self.create_defaults_dids()
         self.create_schemas()
 
     def create_admin_users(self, email, password):
@@ -47,6 +46,7 @@ class Command(BaseCommand):
         key = su.decrypt_sensitive_data(password)
         key_dids = {su.id: key}
         cache.set("KEY_DIDS", key_dids, None)
+        self.create_defaults_dids(su, key)
 
 
     def create_users(self, email, password):
@@ -54,10 +54,8 @@ class Command(BaseCommand):
         u.set_password(password)
         u.set_encrypted_sensitive_data(password)
         u.save()
-        key_dids = cache.get("KEY_DIDS", {})
         key = u.decrypt_sensitive_data(password)
-        key_dids.update({u.id: key})
-        cache.set("KEY_DIDS", key_dids)
+        self.create_defaults_dids(u, key)
 
 
     def create_organizations(self, name, url):
@@ -73,11 +71,10 @@ class Command(BaseCommand):
         org1.save()
         org2.save()
 
-    def create_defaults_dids(self):
-        for u in User.objects.all():
-            did = DID(label="Default", user=u)
-            did.set_did()
-            did.save()
+    def create_defaults_dids(self, u, password):
+        did = DID(label="Default", user=u)
+        did.set_did(password)
+        did.save()
 
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
