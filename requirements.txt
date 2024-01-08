@@ -13,3 +13,13 @@ jsonref==1.1.0
 pyld==2.0.3
 more-itertools==10.1.0
 dj-database-url==2.1.0
+PyPDF2
+svg2rlg
+svglib
+cairosvg
+pypdf
+pyhanko
+qrcode
+uharfbuzz==0.38.0
+fontTools==4.47.0
+weasyprint==60.2
