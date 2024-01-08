@@ -1,5 +1,16 @@
+import os
+import base64
+import qrcode
 import logging
+import weasyprint
+import qrcode.image.svg
 
+from io import BytesIO
+from pathlib import Path
+from pyhanko.sign import fields, signers
+from pyhanko import stamp
+from pyhanko.pdf_utils import text
+from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import (
     UpdateView,
@@ -112,6 +123,105 @@ class CredentialView(MyWallet, TemplateView):
 
 
 class CredentialJsonView(MyWallet, TemplateView):
+    template_name = "certificates/4_Model_Certificat.html"
+    subtitle = _('Credential management')
+    icon = 'bi bi-patch-check-fill'
+    file_name = "certificate.pdf"
+    _pss = '123456'
+
+    def get(self, request, *args, **kwargs):
+        # pk = kwargs['pk']
+        # self.object = get_object_or_404(
+        #     VerificableCredential,
+        #     pk=pk,
+        #     user=self.request.user
+        # )
+        # return self.render_to_response(context=self.get_context_data())
+
+        data = self.build_certificate()
+        doc = self.insert_signature(data)
+        import pdb; pdb.set_trace()
+        response = HttpResponse(doc, content_type="application/pdf")
+        response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        this_folder = str(Path.cwd())
+        path_img_sig = "idhub/static/images/4_Model_Certificat_html_58d7f7eeb828cf29.jpg"
+        img_signature = next(Path.cwd().glob(path_img_sig))
+        with open(img_signature, 'rb') as _f:
+            img_sig = base64.b64encode(_f.read()).decode('utf-8')
+
+        path_img_head = "idhub/static/images/4_Model_Certificat_html_7a0214c6fc8f2309.jpg"
+        img_header= next(Path.cwd().glob(path_img_head))
+        with open(img_header, 'rb') as _f:
+            img_head = base64.b64encode(_f.read()).decode('utf-8')
+
+        qr = self.generate_qr_code("http://localhost")
+        context.update({
+        #     'object': self.object,
+            "image_signature": img_sig,
+            "image_header": img_head,
+            "qr": qr
+        })
+        return context
+
+    def build_certificate(self):
+        doc = self.render_to_response(context=self.get_context_data())
+        doc.render()
+        pdf = weasyprint.HTML(string=doc.content)
+        return pdf.write_pdf()
+
+    def generate_qr_code(self, data):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        img_buffer = BytesIO()
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save(img_buffer, format="PNG")
+
+        return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+
+    def signer_init(self):
+        fname = "examples/signerDNIe004.pfx"
+        # pfx_buffer = BytesIO()
+        pfx_file= next(Path.cwd().glob(fname))
+        s = signers.SimpleSigner.load_pkcs12(
+            pfx_file=pfx_file, passphrase=self._pss.encode('utf-8')
+        )
+        return s
+
+    def insert_signature(self, doc):
+        sig = self.signer_init()
+        _buffer = BytesIO()
+        _buffer.write(doc)
+        w = IncrementalPdfFileWriter(_buffer)
+        fields.append_signature_field(
+            w, sig_field_spec=fields.SigFieldSpec(
+                'Signature', box=(150, 100, 450, 150)
+            )
+        )
+
+        meta = signers.PdfSignatureMetadata(field_name='Signature')
+        pdf_signer = signers.PdfSigner(
+            meta, signer=sig, stamp_style=stamp.QRStampStyle(
+                stamp_text='Signed by: %(signer)s\nTime: %(ts)s\nURL: %(url)s',
+                text_box_style=text.TextBoxStyle()
+            )
+        )
+        _bf_out = BytesIO()
+        url = "https://localhost:8000/"
+        pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': url})
+        return _bf_out.read()
+
+
+class CredentialJsonView2(MyWallet, TemplateView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
