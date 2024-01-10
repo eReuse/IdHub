@@ -1,11 +1,14 @@
 import csv
 import json
+import base64
 import pandas as pd
+
+from pyhanko.sign import signers
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from utils import credtools
+from utils import credtools, certs
 from idhub.models import (
     DID,
     File_datas,
@@ -216,3 +219,67 @@ class UserRolForm(forms.ModelForm):
             raise forms.ValidationError(msg)
 
         return data['service']
+
+
+class ImportCertificateForm(forms.Form):
+    label = forms.CharField(label=_("Label"))
+    password = forms.CharField(
+        label=_("Password of certificate"),
+        widget=forms.PasswordInput
+    )
+    file_import = forms.FileField(label=_("File import"))
+
+    def __init__(self, *args, **kwargs):
+        self._did = None
+        self._s = None
+        self._label = None
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        data = super().clean()
+        # import pdb; pdb.set_trace()
+        file_import = data.get('file_import')
+        self.pfx_file = file_import.read()
+        self.file_name = file_import.name
+        self._pss = data.get('password')
+        self._label = data.get('label')
+        if not self.pfx_file or not self._pss:
+            msg = _("Is not a valid certificate")
+            raise forms.ValidationError(msg)
+
+        self.signer_init()
+        if not self._s:
+            msg = _("Is not a valid certificate")
+            raise forms.ValidationError(msg)
+
+        self.new_did()
+        return data
+
+    def new_did(self):
+        cert = self.pfx_file
+        keys = {
+            "cert": base64.b64encode(self.pfx_file).decode('utf-8'),
+            "passphrase": self._pss
+        }
+        key_material = json.dumps(keys)
+        self._did = DID(
+            key_material=key_material,
+            did=self.file_name,
+            label=self._label,
+            eidas1=True,
+            user=self.user
+        )
+
+    def save(self, commit=True):
+
+        if commit:
+            self._did.save()
+            return self._did
+
+        return
+
+    def signer_init(self):
+        self._s = certs.load_cert(
+            self.pfx_file, self._pss.encode('utf-8')
+        )

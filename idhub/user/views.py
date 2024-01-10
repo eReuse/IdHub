@@ -1,7 +1,9 @@
 import os
+import json
 import base64
 import qrcode
 import logging
+import datetime
 import weasyprint
 import qrcode.image.svg
 
@@ -28,6 +30,7 @@ from idhub.user.forms import (
     RequestCredentialForm,
     DemandAuthorizationForm
 )
+from utils import certs
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event
 
@@ -130,17 +133,16 @@ class CredentialJsonView(MyWallet, TemplateView):
     _pss = '123456'
 
     def get(self, request, *args, **kwargs):
-        # pk = kwargs['pk']
-        # self.object = get_object_or_404(
-        #     VerificableCredential,
-        #     pk=pk,
-        #     user=self.request.user
-        # )
-        # return self.render_to_response(context=self.get_context_data())
+        pk = kwargs['pk']
+        self.user = self.request.user
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+            user=self.request.user
+        )
 
         data = self.build_certificate()
         doc = self.insert_signature(data)
-        import pdb; pdb.set_trace()
         response = HttpResponse(doc, content_type="application/pdf")
         response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
         return response
@@ -159,10 +161,31 @@ class CredentialJsonView(MyWallet, TemplateView):
             img_head = base64.b64encode(_f.read()).decode('utf-8')
 
         qr = self.generate_qr_code("http://localhost")
+        if DID.objects.filter(eidas1=True).exists():
+            qr = ""
+
+        first_name = self.user.first_name and self.user.first_name.upper() or ""
+        last_name = self.user.first_name and self.user.last_name.upper() or ""
+        document_id = "0000000-L"
+        course = "COURSE 1"
+        address = "ADDRESS"
+        date_course = datetime.datetime.now()
+        n_hours = 40
+        n_lections = 5
+        issue_date = datetime.datetime.now()
         context.update({
-        #     'object': self.object,
+            'object': self.object,
             "image_signature": img_sig,
             "image_header": img_head,
+            "first_name": first_name,
+            "last_name": last_name,
+            "document_id": document_id,
+            "course": course,
+            "address": address,
+            "date_course": date_course,
+            "n_hours": n_hours,
+            "n_lections": n_lections,
+            "issue_date": issue_date,
             "qr": qr
         })
         return context
@@ -188,17 +211,31 @@ class CredentialJsonView(MyWallet, TemplateView):
 
         return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
+    def get_pfx_data(self):
+        did = DID.objects.filter(eidas1=True).first()
+        if not did:
+            return None, None
+        key_material = json.loads(did.key_material)
+        cert = key_material.get("cert")
+        passphrase = key_material.get("passphrase")
+        if cert and passphrase:
+            return base64.b64decode(cert), passphrase.encode('utf-8')
+        return None, None
+        
+
     def signer_init(self):
-        fname = "examples/signerDNIe004.pfx"
-        # pfx_buffer = BytesIO()
-        pfx_file= next(Path.cwd().glob(fname))
-        s = signers.SimpleSigner.load_pkcs12(
-            pfx_file=pfx_file, passphrase=self._pss.encode('utf-8')
+        pfx_data, passphrase = self.get_pfx_data()
+        s = certs.load_cert(
+            pfx_data, passphrase
         )
         return s
 
     def insert_signature(self, doc):
+        # import pdb; pdb.set_trace()
         sig = self.signer_init()
+        if not sig:
+            return
+
         _buffer = BytesIO()
         _buffer.write(doc)
         w = IncrementalPdfFileWriter(_buffer)

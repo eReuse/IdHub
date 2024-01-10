@@ -30,6 +30,7 @@ from idhub.admin.forms import (
     MembershipForm,
     SchemaForm,
     UserRolForm,
+    ImportCertificateForm,
 )
 from idhub.admin.tables import (
         DashboardTable
@@ -695,11 +696,27 @@ class WalletCredentialsView(Credentials):
     wallet = True
 
 
-class WalletConfigIssuesView(Credentials):
+class WalletConfigIssuesView(Credentials, FormView):
     template_name = "idhub/admin/wallet_issues.html"
     subtitle = _('Configure credential issuance')
     icon = 'bi bi-patch-check-fill'
     wallet = True
+    form_class = ImportCertificateForm
+    success_url = reverse_lazy('idhub:admin_dids')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        cred = form.save()
+        if cred:
+            messages.success(self.request, _("The credential was imported successfully!"))
+            Event.set_EV_ORG_DID_CREATED_BY_ADMIN(cred)
+        else:
+            messages.error(self.request, _("Error importing the credential!"))
+        return super().form_valid(form)
 
 
 class SchemasView(SchemasMix):
