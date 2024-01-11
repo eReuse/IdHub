@@ -14,6 +14,7 @@ from pyhanko import stamp
 from pyhanko.pdf_utils import text
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import View
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -25,6 +26,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django.conf import settings
 from idhub.user.forms import (
     ProfileForm,
     RequestCredentialForm,
@@ -125,7 +127,7 @@ class CredentialView(MyWallet, TemplateView):
         return context
 
 
-class CredentialJsonView(MyWallet, TemplateView):
+class CredentialPdfView(MyWallet, TemplateView):
     template_name = "certificates/4_Model_Certificat.html"
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
@@ -138,11 +140,19 @@ class CredentialJsonView(MyWallet, TemplateView):
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
+            public=True,
             user=self.request.user
+        )
+        self.url_id = "{}/public/credentials/{}".format(
+            settings.DOMAIN.strip("/"),
+            self.object.hash
         )
 
         data = self.build_certificate()
-        doc = self.insert_signature(data)
+        if DID.objects.filter(eidas1=True).exists():
+            doc = self.insert_signature(data)
+        else:
+            doc = data
         response = HttpResponse(doc, content_type="application/pdf")
         response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
         return response
@@ -160,9 +170,7 @@ class CredentialJsonView(MyWallet, TemplateView):
         with open(img_header, 'rb') as _f:
             img_head = base64.b64encode(_f.read()).decode('utf-8')
 
-        qr = self.generate_qr_code("http://localhost")
-        if DID.objects.filter(eidas1=True).exists():
-            qr = ""
+        qr = self.generate_qr_code(self.url_id)
 
         first_name = self.user.first_name and self.user.first_name.upper() or ""
         last_name = self.user.first_name and self.user.last_name.upper() or ""
@@ -231,7 +239,6 @@ class CredentialJsonView(MyWallet, TemplateView):
         return s
 
     def insert_signature(self, doc):
-        # import pdb; pdb.set_trace()
         sig = self.signer_init()
         if not sig:
             return
@@ -247,18 +254,17 @@ class CredentialJsonView(MyWallet, TemplateView):
 
         meta = signers.PdfSignatureMetadata(field_name='Signature')
         pdf_signer = signers.PdfSigner(
-            meta, signer=sig, stamp_style=stamp.QRStampStyle(
+            meta, signer=sig, stamp_style=stamp.TextStampStyle(
                 stamp_text='Signed by: %(signer)s\nTime: %(ts)s\nURL: %(url)s',
                 text_box_style=text.TextBoxStyle()
             )
         )
         _bf_out = BytesIO()
-        url = "https://localhost:8000/"
-        pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': url})
+        pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': self.url_id})
         return _bf_out.read()
 
 
-class CredentialJsonView2(MyWallet, TemplateView):
+class CredentialJsonView(MyWallet, TemplateView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
@@ -266,6 +272,19 @@ class CredentialJsonView2(MyWallet, TemplateView):
             VerificableCredential,
             pk=pk,
             user=self.request.user
+        )
+        response = HttpResponse(self.object.data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+        return response
+
+
+class PublicCredentialJsonView(View):
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            hash=pk,
         )
         response = HttpResponse(self.object.data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")

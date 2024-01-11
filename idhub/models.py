@@ -1,5 +1,6 @@
 import json
 import pytz
+import hashlib
 import datetime
 from django.db import models
 from django.conf import settings
@@ -467,6 +468,8 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(null=True)
     data = models.TextField()
     csv_data = models.TextField()
+    public = models.BooleanField(default=settings.DEFAULT_PUBLIC_CREDENTIALS)
+    hash = models.CharField(max_length=260)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
         default=Status.ENABLED
@@ -520,6 +523,8 @@ class VerificableCredential(models.Model):
             self.render(),
             self.issuer_did.key_material
         )
+        if self.public:
+            self.hash = hashlib.sha3_256(self.data.encode()).hexdigest()
 
     def get_context(self):
         d = json.loads(self.csv_data)
@@ -528,8 +533,12 @@ class VerificableCredential(models.Model):
             format = "%Y-%m-%dT%H:%M:%SZ"
             issuance_date = self.issued_on.strftime(format)
 
-        url_id = "{}/credentials/{}".format(
+        cred_path = 'credentials'
+        if self.public:
+            cred_path = 'public/credentials'
+        url_id = "{}/{}/{}".format(
             settings.DOMAIN.strip("/"),
+            cred_path,
             self.id
         )
         context = {

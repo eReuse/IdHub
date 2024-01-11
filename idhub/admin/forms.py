@@ -239,7 +239,6 @@ class ImportCertificateForm(forms.Form):
 
     def clean(self):
         data = super().clean()
-        # import pdb; pdb.set_trace()
         file_import = data.get('file_import')
         self.pfx_file = file_import.read()
         self.file_name = file_import.name
