@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "./DeviceFactory.sol";
 import "./Ownable.sol";
-import "./AccessList.sol";
+import "./IAbacContract.sol";
 
 /**
  * @title Ereuse Device basic implementation
@@ -13,36 +13,25 @@ import "./AccessList.sol";
 contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
     DeviceFactory factory;
-    AccessList roles;
+    IAbacContract roles;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
     struct DevData {
         string chid;
         string phid;
-        string issuerID;
         uint registerDate;
         address owner;
         bool deregistered;
     }
 
-    struct RegisterProofData {
-        string chid;
-        uint timestamp;
-        uint blockNumber;
-    }
+    // struct RegisterProofData {
+    //     string chid;
+    //     uint timestamp;
+    //     uint blockNumber;
+    // }
 
     struct DeRegisterProofData {
         string chid;
-        uint timestamp;
-        uint blockNumber;
-    }
-
-    struct IssueProofData {
-        string chid;
-        string phid;
-        string documentID;
-        string documentSignature;
-        string issuerID;
         uint timestamp;
         uint blockNumber;
     }
@@ -63,9 +52,11 @@ contract DepositDevice is Ownable {
 
     struct GenericProofData {
         string chid;
-        string issuerID;
-        string documentID;
-        string documentSignature;
+        string phid;
+        address issuerID;
+        string inventoryID;
+        string documentHashAlgorithm;
+        string documentHash;
         string documentType;
         uint timestamp;
         uint blockNumber;
@@ -88,9 +79,9 @@ contract DepositDevice is Ownable {
 
     // variables -------------------------------------------------------------
     DevData data;
-    RegisterProofData[] registerProofs;
+    // RegisterProofData[] registerProofs;
     DeRegisterProofData[] deRegisterProofs; //shouldnt be a vector? it is for simplicity?
-    IssueProofData[] issueProofs;
+    string[] phids;
     TransferProofData[] transferProofs;
     //RecycleProofData[] recycleProofs;
     GenericProofData[] genericProofs;
@@ -98,12 +89,12 @@ contract DepositDevice is Ownable {
 
     // events ----------------------------------------------------------------
     event proofGenerated(bytes32 indexed proofHash);
-    event registerProof(address deviceAddress, string chid, uint timestamp);
+    // event registerProof(address deviceAddress, string chid, uint timestamp);
     event deRegisterProof(address deviceAddress, string chid, uint timestamp);
-    event issueProof(address deviceAddress, string chid, string phid, string documentID, string documentSignature, string issuerID, uint timestamp);
+    // event issueProof(address deviceAddress, string chid, string phid, string documentID, string documentSignature, string issuerID, uint timestamp);
     event transferProof(address supplierAddress, address receiverAddress, address deviceAddress, uint timestamp);
     //event recycleProof(address userAddress, address deviceAddress, uint timestamp); 
-    event genericProof(address deviceAddress, string chid, string issuerID, string documentID, string documentSignature, string documentType, uint timestamp);  
+    event genericProof(address deviceAddress, string chid, string phid, address issuerID, string documentHashAlgorithm, string documentHash, string documentType, uint timestamp, string inventoryID);  
     //event DeviceTransferred(address deviceAddress, address new_owner, string new_registrant);
     event DeviceRecycled(address deviceAddress);
 
@@ -111,41 +102,73 @@ contract DepositDevice is Ownable {
         string memory _chid,
         address _sender,
         address _factory,
-        address _roles
+        address _roles,
+        string memory _documentHashAlgorithm,
+        string memory _documentHash,
+        string memory _inventoryID
     ) {
         factory = DeviceFactory(_factory);
-        roles = AccessList(_roles);
+        roles = IAbacContract(_roles);
         data.deregistered = false;
         data.owner = _sender;
         data.chid = _chid;
         data.registerDate = block.timestamp;
         _transferOwnership(_sender);
 
-        RegisterProofData memory proof_data;
-        proof_data.chid = _chid;
-        proof_data.timestamp = block.timestamp;
-        proof_data.blockNumber = block.number;
-        generateRegisterProof(proof_data);
+        // RegisterProofData memory proof_data;
+        // proof_data.chid = _chid;
+        // proof_data.timestamp = block.timestamp;
+        // proof_data.blockNumber = block.number;
+        // generateRegisterProof(proof_data);
+
+        _generateGenericProof(_sender, _documentHashAlgorithm, _documentHash, "Device_creation", _inventoryID);
+    }
+
+    function checkIfOperator(address _address) internal returns(bool){
+        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
+        for (uint i = 0; i < attrs.length; i++){
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator')))
+                return true;
+        }
+        return false;
+    }
+
+    function checkIfWitness(address _address) internal returns(bool){
+        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
+        for (uint i = 0; i < attrs.length; i++){
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('witness')))
+                return true;
+        }
+        return false;
+    }
+
+    function checkIfVerifier(address _address) internal returns(bool){
+        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
+        for (uint i = 0; i < attrs.length; i++){
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('verifier')))
+                return true;
+        }
+        return false;
     }
 
     modifier onlyOpWitVer() {
         require((owner == msg.sender || 
-        roles.checkIfOperator(msg.sender) == true || 
-        roles.checkIfWitness(msg.sender) == true || 
-        roles.checkIfVerifier(msg.sender) == true), "The message sender is not an owner, operator, verifier or witness");
+        checkIfOperator(msg.sender) == true || 
+        checkIfWitness(msg.sender) == true || 
+        checkIfVerifier(msg.sender) == true), "The message sender is not an owner, operator, verifier or witness");
         _;
     }
 
     modifier onlyOpWit() {
         require((owner == msg.sender || 
-        roles.checkIfOperator(msg.sender) == true || 
-        roles.checkIfWitness(msg.sender) == true), "The message sender is not an owner, operator or witness");
+        checkIfOperator(msg.sender) == true || 
+        checkIfWitness(msg.sender) == true), "The message sender is not an owner, operator or witness");
         _;
     }
 
     modifier onlyOp() {
         require((owner == msg.sender || 
-        roles.checkIfOperator(msg.sender) == true), "The message sender is not an owner or operator");
+        checkIfOperator(msg.sender) == true), "The message sender is not an owner or operator");
         _;
     }
 
@@ -154,57 +177,57 @@ contract DepositDevice is Ownable {
     _;
     }
 
-    function generateRegisterProof(RegisterProofData memory proof_data) internal {
-        registerProofs.push(proof_data);
-        emit registerProof(address(this), proof_data.chid, proof_data.timestamp);
-    }
+    // function generateRegisterProof(RegisterProofData memory proof_data) internal {
+    //     registerProofs.push(proof_data);
+    //     emit registerProof(address(this), proof_data.chid, proof_data.timestamp);
+    // }
 
     function generateDeRegisterProof(DeRegisterProofData memory proof_data) internal {
         deRegisterProofs.push(proof_data);
         emit deRegisterProof(address(this), proof_data.chid, proof_data.timestamp);
     }
     
-    function generateIssueProof(IssueProofData memory proof_data) internal {
-        issueProofs.push(proof_data);
-        emit issueProof(address(this), proof_data.chid, proof_data.phid, proof_data.documentID, proof_data.documentSignature, proof_data.issuerID, proof_data.timestamp);
-    }
+    // function generateIssueProof(IssueProofData memory proof_data) internal {
+    //     issueProofs.push(proof_data);
+    //     emit issueProof(address(this), proof_data.chid, proof_data.phid, proof_data.documentID, proof_data.documentSignature, proof_data.issuerID, proof_data.timestamp);
+    // }
 
     //function emitGenericProof(GenericProofData memory proof_data) internal {
     //    genericProofs.push(proof_data);
     //    emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
     //}
 
-    function issuePassport(string calldata _chid, string calldata _phid, string calldata _documentID, string calldata _documentSignature, string calldata _issuerID) public registered onlyOpWit{
-        IssueProofData memory proof_data;
-        proof_data.chid = _chid;
-        proof_data.phid = _phid;
-        proof_data.documentID = _documentID;
-        proof_data.documentSignature = _documentSignature;
-        proof_data.issuerID = _issuerID;
-        proof_data.timestamp = block.timestamp;
-        proof_data.blockNumber = block.number;
+    function issuePassport(string calldata _phid, string calldata _documentHashAlgorithm, string calldata _documentHash, string calldata _inventoryID) public registered onlyOpWit{
+        phids.push(_phid);
 
-        data.chid = _chid;
         data.phid = _phid;
-        data.issuerID = _issuerID;
 
-        generateIssueProof(proof_data);
+        // generateIssueProof(proof_data);
+
+        _generateGenericProof(msg.sender, _documentHashAlgorithm, _documentHash, "DPP_creation", _inventoryID);
     }
     
-    function generateGenericProof(string calldata _deviceCHID, string calldata _issuerID, string calldata _documentID, string calldata _documentSignature, string calldata _documentType) public registered onlyOpWit{
+    function generateGenericProof(string calldata _documentHashAlgorithm, string calldata _documentHash, string calldata _documentType, string calldata _inventoryID) public registered onlyOpWit{
+        _generateGenericProof(msg.sender, _documentHashAlgorithm, _documentHash, _documentType, _inventoryID);   
+    }
+
+    function _generateGenericProof(address _sender, string memory _documentHashAlgorithm, string memory _documentHash, string memory _documentType, string memory _inventoryID) internal {
         GenericProofData memory proof_data;
-        proof_data.chid = _deviceCHID;
-        proof_data.issuerID = _issuerID;
-        proof_data.documentID = _documentID;
-        proof_data.documentSignature = _documentSignature;
+        proof_data.chid = data.chid;
+        proof_data.phid = data.phid;
+        proof_data.issuerID = _sender;
+        proof_data.documentHashAlgorithm = _documentHashAlgorithm;
+        proof_data.documentHash = _documentHash;
         proof_data.documentType = _documentType;
         proof_data.timestamp = block.timestamp;
         proof_data.blockNumber = block.number;
+        proof_data.inventoryID = _inventoryID;
 
         //emitGenericProof(proof_data);
         genericProofs.push(proof_data);
-        emit genericProof(address(this), proof_data.chid, proof_data.issuerID, proof_data.documentID, proof_data.documentSignature, proof_data.documentType, proof_data.timestamp);
+        emit genericProof(address(this), proof_data.chid, proof_data.phid, proof_data.issuerID, proof_data.documentHashAlgorithm, proof_data.documentHash, proof_data.documentType, proof_data.timestamp, proof_data.inventoryID);
     }
+    
 
     function deRegisterDevice(string calldata _deviceCHID) public registered onlyOp{
         data.deregistered = true;
@@ -230,27 +253,30 @@ contract DepositDevice is Ownable {
     //     generateIssueProof(proof_data);
     // }
 
-    function getData() public view onlyOpWitVer returns (DevData memory _data) {
+    function getData() public view returns (DevData memory _data) {
         return data;
     }
 
-    function getRegisterProofs() public view onlyOpWitVer returns (RegisterProofData[] memory _data) {
-        return registerProofs;
+    // function getRegisterProofs() public view onlyOpWitVer returns (RegisterProofData[] memory _data) {
+    //     return registerProofs;
+    // }
+
+    // function getIssueProofs() public view onlyOpWitVer returns (IssueProofData[] memory _data){
+    //     return issueProofs;
+    // }
+    function getDPPs() public view returns (string[] memory _data){
+        return phids;
     }
 
-    function getIssueProofs() public view onlyOpWitVer returns (IssueProofData[] memory _data){
-        return issueProofs;
-    }
-
-    function getGenericProofs() public view onlyOpWitVer returns (GenericProofData[] memory _data){
+    function getGenericProofs() public view returns (GenericProofData[] memory _data){
         return genericProofs;
     }
 
-    function getDeRegisterProofs() public view onlyOpWitVer returns (DeRegisterProofData[] memory _data) {
+    function getDeRegisterProofs() public view returns (DeRegisterProofData[] memory _data) {
         return deRegisterProofs;
     }
 
-     function getTrasferProofs() public view onlyOpWitVer returns (TransferProofData[] memory _data){
+     function getTrasferProofs() public view  returns (TransferProofData[] memory _data){
          return transferProofs;
      }
 

@@ -8,6 +8,25 @@ const iota = require("../utils/iota/iota-helper.js")
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
+const CryptoJS = require('crypto-js')
+const axios = require('axios')
+
+const {
+  sha3_512,
+  sha3_384,
+  sha3_256,
+  sha3_224,
+  keccak512,
+  keccak384,
+  keccak256,
+  keccak224,
+  shake128,
+  shake256,
+  cshake128,
+  cshake256,
+  kmac128,
+  kmac25
+} = require('js-sha3');
 
 const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../utils/constants')
 
@@ -22,19 +41,6 @@ const cosmos_name = "cosmos"
 //   await multiacc.set_admin()
 // }
 //initial_steps()
-
-async function temp_error(tx){
-try {
-          let code = await ethereum.provider.call(tx, tx.blockNumber)
-        } catch (er){
-          try{
-            reason = er.error.error.message
-            return reason.slice(20)
-          } catch(err){
-            return "THIS SHOULDN'T HAPPEN"
-          }
-        }
-}
 
 function get_error_object(error) {
   switch (error) {
@@ -59,8 +65,8 @@ class Parameters {
     this.api_token = req.body.api_token ?? "";
     this.deviceCHID = req.body.DeviceCHID ?? "";
     this.deviceDPP = req.body.DeviceDPP ?? "";
-    this.documentID = req.body.DocumentID ?? "";
-    this.documentSignature = req.body.DocumentSignature ?? "";
+    this.documentHashAlgorithm = req.body.DocumentHashAlgorithm ?? "";
+    this.documentHash = req.body.DocumentHash ?? "";
     this.issuerID = req.body.IssuerID ?? "";
     this.type = req.body.Type ?? "";
     this.dlt = req.headers.dlt ?? "";
@@ -68,7 +74,12 @@ class Parameters {
     this.endpoint = req.body.endpoint ?? "";
     this.description = req.body.description ?? "";
     this.fragment = req.body.fragment ?? "";
+    this.inventoryID=req.body.InventoryID ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
+    // The ones below should be deleted later
+    this.documentID = req.body.DocumentID ?? "";
+    this.documentSignature = req.body.DocumentSignature ?? "";
+    this.timestamp = req.body.Timestamp ?? "";
   }
 }
 
@@ -102,7 +113,7 @@ router
       next(ApiError.badRequest('Invalid DLT identifier'));
       return
     }
-    if (check_undefined_params([parameters.deviceCHID])) {
+    if (check_undefined_params([parameters.deviceCHID, parameters.documentHash, parameters.documentHashAlgorithm, parameters.inventoryID])) {
       next(ApiError.badRequest('Invalid Syntax.'));
       return
     }
@@ -153,7 +164,7 @@ router
 
       const deviceFactoryContract = ethHelper.createContract
       (ethereum.DEVICEFACTORY_ADDRESS, "../../../build/contracts/DeviceFactory.json", wallet)
-      var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, { gasLimit: 6721975, gasPrice:0 })
+      var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, parameters.documentHashAlgorithm, parameters.documentHash, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
       var txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'DeviceRegistered', ethereum.deviceFactoryIface)
@@ -182,12 +193,10 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
-        let code = await ethereum.provider.call(tx, tx.blockNumber)
-        reason = ethHelper.translateHexToString(138, code)
+        // let code = await ethereum.provider.call(tx, tx.blockNumber)
+        // reason = ethHelper.translateHexToString(138, code)
+        reason = "Error: couldn't retrieve a reason."
       }
       reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
       next(ApiError.badRequest(reason));
@@ -279,9 +288,6 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -305,7 +311,7 @@ router
     }
     //why check for issuerid, documentid and documentsignature if they are optional?
     //if (check_undefined_params([parameters.deviceDPP, parameters.issuerID, parameters.documentID, parameters.documentSignature])) {
-    if (check_undefined_params([parameters.deviceDPP])) {
+    if (check_undefined_params([parameters.deviceDPP, parameters.documentHash, parameters.documentHashAlgorithm, parameters.inventoryID])) {
       next(ApiError.badRequest('Invalid Syntax.'));
       return
     }
@@ -358,10 +364,10 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.issuePassport(deviceCHID, devicePHID, parameters.documentID, parameters.documentSignature, parameters.issuerID, { gasLimit: 6721975, gasPrice:0 })
+      const txResponse = await depositDeviceContract.issuePassport(devicePHID, parameters.documentHashAlgorithm, parameters.documentHash, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
-      (txReceipt, 'issueProof', ethereum.depositDeviceIface)
+      (txReceipt, 'genericProof', ethereum.depositDeviceIface)
 
       response_data = {
         timestamp: parseInt(Number(args.timestamp), 10)
@@ -386,9 +392,6 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -410,7 +413,7 @@ router
       next(ApiError.badRequest('Invalid DLT identifier'));
       return
     }
-    if (check_undefined_params([parameters.deviceCHID])) {
+    if (check_undefined_params([parameters.deviceCHID,parameters.inventoryID])) {
       next(ApiError.badRequest('Invalid Syntax.'));
       return
     }    
@@ -453,7 +456,7 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const txResponse = await depositDeviceContract.generateGenericProof(parameters.deviceCHID, parameters.issuerID, parameters.documentID, parameters.documentSignature, parameters.type, { gasLimit: 6721975, gasPrice:0 })
+      const txResponse = await depositDeviceContract.generateGenericProof(parameters.documentHashAlgorithm, parameters.documentHash, parameters.type, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
       var args = ethHelper.getEvents
       (txReceipt, 'genericProof', ethereum.depositDeviceIface)
@@ -480,9 +483,6 @@ router
         var result = await ethHelper.makeReceiptCall(e.transactionHash)
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
-      }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
       }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
@@ -596,9 +596,6 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -652,12 +649,15 @@ router
       if (value.length != 0) {
         value.forEach(elem => {
           let proof_data = {
-            IssuerID: elem[1],
-            DocumentID: elem[2],
-            DocumentSignature: elem[3],
-            DocumentType: elem[4],
-            timestamp: parseInt(Number(elem[5]), 10),
-            blockNumber: parseInt(Number(elem[6]), 10),
+            chid: elem[0],
+            phid: elem[1],
+            IssuerID: elem[2],
+            InventoryID: elem[3],
+            DocumentHashAlgorithm: elem[4],
+            DocumentHash: elem[5],
+            Type: elem[6],
+            timestamp: parseInt(Number(elem[7]), 10),
+            blockNumber: parseInt(Number(elem[8]), 10),
           }
           data.push(proof_data)
         })
@@ -680,12 +680,12 @@ router
   }
 })
 
-.post("/getIssueProofs", async (req, res, next) => {
+.post("/getDPPs", async (req, res, next) => {
   const parameters = new Parameters(req)
   var response_data;
 
   try {
-    console.log(`Called /getIssueProofs with chid: ${parameters.deviceCHID}`)
+    console.log(`Called /getDPPs with chid: ${parameters.deviceCHID}`)
     is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
@@ -717,19 +717,11 @@ router
       const depositDeviceContract = ethHelper.createContract
       (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
 
-      const value = await depositDeviceContract.getIssueProofs();
+      const value = await depositDeviceContract.getDPPs();
       var data = []
       if (value.length != 0) {
         value.forEach(elem => {
-          let proof_data = {
-            DeviceDPP: `${elem[0]}:${elem[1]}`,
-            IssuerID: elem[4],
-            DocumentID: elem[2],
-            DocumentSignature: elem[3],
-            timestamp: parseInt(Number(elem[5]), 10),
-            blockNumber: parseInt(Number(elem[6]), 10),
-          }
-          data.push(proof_data)
+          data.push(`${parameters.deviceCHID}:${elem}`)
         })
       }
       response_data = data
@@ -1062,9 +1054,6 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -1127,9 +1116,6 @@ router
         var revert = result.data.result.revertReason
         reason = ethHelper.translateHexToString(138, revert)
       }
-      else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
       else {
         let code = await ethereum.provider.call(tx, tx.blockNumber)
         reason = ethHelper.translateHexToString(138, code)
@@ -1138,6 +1124,43 @@ router
       next(ApiError.badRequest(reason));
       return
     }
+  }
+})
+
+.post("/verifyProof", async (req, res, next) => {
+  const parameters = new Parameters(req)
+  var response_data;
+
+  try {
+    console.log(`Called /verifyProof with chid: ${parameters.deviceCHID}`)
+    check_undefined_params([parameters.documentHash,parameters.inventoryID, parameters.timestamp])
+
+    var inventoryURL = await axios.get(ethereum.idIndexURL+"/getURL?id="+parameters.inventoryID)
+    inventoryURL = inventoryURL.data.url
+
+    var proof = await axios.get(inventoryURL+"/proofs/"+parameters.timestamp)
+    var algorithm = proof.data.data.algorithm
+    var document = proof.data.data.document
+
+    var hash = sha3_256(document).toString(CryptoJS.enc.Hex);
+
+    var test = hash == parameters.documentHash
+
+    response_data = test
+    // response_data = data
+
+    res.status(200);
+    res.json({
+      data: response_data,
+    })
+  }
+  catch (e) {
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
   }
 })
 

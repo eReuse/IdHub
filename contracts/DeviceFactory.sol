@@ -4,10 +4,10 @@ pragma solidity ^0.8.6;
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
-import "./AccessList.sol";
+import "./IAbacContract.sol";
 
 contract DeviceFactory {
-    AccessList public roles;
+    IAbacContract public roles;
 
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
@@ -18,23 +18,38 @@ contract DeviceFactory {
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
     constructor(address rolesAddress) {
-        roles = AccessList(rolesAddress);
+        roles = IAbacContract(rolesAddress);
+    }
+
+    function checkIfOperator(address _address) internal returns(bool){
+        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
+        for (uint i = 0; i < attrs.length; i++){
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator')))
+                return true;
+        }
+        return false;
     }
 
     modifier onlyOp() {
-        require(roles.checkIfOperator(msg.sender) == true, "The message sender is not an operator");
+        require(checkIfOperator(msg.sender) == true, "The message sender is not an operator");
         _;
     }
 
     function registerDevice( 
-        string calldata _chid
+        string calldata _chid,
+        string calldata _documentHashAlgorithm,
+        string calldata _documentHash,
+        string calldata _inventoryID
     ) public onlyOp returns (address _device) {
         require(translation[_chid] == address(0), "Can't register an already registered device");
         DepositDevice newContract = new DepositDevice(
             _chid,
             msg.sender,
             address(this),
-            address(roles)
+            address(roles),
+            _documentHashAlgorithm,
+            _documentHash,
+            _inventoryID
         );
         deployed_devices[msg.sender].push(address(newContract));
         translation[_chid] = address(newContract);

@@ -1,4 +1,5 @@
 const express = require("express")
+const cors = require('cors')
 var bodyParser = require('body-parser')
 const apiErrorHandler = require('./utils/apiErrorHandler')
 const apiInitializer = require('./utils/apiInitializer')
@@ -14,6 +15,7 @@ app.use(
     extended: true,
   })
 )
+app.use(cors())
 
 const port = 3010
 const host = "0.0.0.0"

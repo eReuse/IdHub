@@ -1,15 +1,39 @@
 pragma solidity ^0.8.6;
+pragma abicoder v2;
+
 
 contract AccessList {
+
+    struct Credential{
+        address issuer;
+        bool valid;
+    }
+
+    struct Actor{
+        bool exists;
+        Credential[] issuer_credentials;
+        Credential[] operator_credentials;
+        Credential[] witness_credentials;
+        Credential[] verifier_credentials;
+    }
+
     mapping(address => bool) issuers;
     mapping(address => bool) operators;
     mapping(address => bool) witnesses;
     mapping(address => bool) verifiers;
+    mapping(address => Actor) actors;
 
     address trustAnchor;
 
+    function registerActor(address _address) internal {
+        if (!actors[_address].exists){
+            actors[_address].exists = true;
+        }
+    }
+
     constructor(address _trustAnchor) {
         trustAnchor = _trustAnchor;
+        registerActor(_trustAnchor);
     }
 
     modifier TAnotSet() {
@@ -40,30 +64,52 @@ contract AccessList {
     //Trust Anchor management
     function setTA(address _address) public TAnotSet {
         trustAnchor = _address;
+        registerActor(_address);
     }
 
     function changeTA(address _address) public TAonly {
         trustAnchor = _address;
+        registerActor(_address);
     }
 
-    //registers
-    function registerIssuer(address _address) public TAonly {
+    // //registers
+    function registerIssuer(address _address) public TAIssuerOnly {
         issuers[_address] = true;
+        registerActor(_address);
+        Credential memory newCredential;
+        newCredential.issuer = msg.sender;
+        newCredential.valid = true;
+        actors[_address].issuer_credentials.push(newCredential);
     }
 
     function registerOperator(address _address) public TAIssuerOnly {
         operators[_address] = true;
+        registerActor(_address);
+        Credential memory newCredential;
+        newCredential.issuer = msg.sender;
+        newCredential.valid = true;
+        actors[_address].operator_credentials.push(newCredential);
     }
 
     function registerWitness(address _address) public TAIssuerOnly {
         witnesses[_address] = true;
+        registerActor(_address);
+        Credential memory newCredential;
+        newCredential.issuer = msg.sender;
+        newCredential.valid = true;
+        actors[_address].witness_credentials.push(newCredential);
     }
 
     function registerVerifier(address _address) public TAIssuerOnly {
         verifiers[_address] = true;
+        registerActor(_address);
+        Credential memory newCredential;
+        newCredential.issuer = msg.sender;
+        newCredential.valid = true;
+        actors[_address].verifier_credentials.push(newCredential);
     }
 
-    //invalidates
+    //invalidates TODO add logic so this works with VC
     function invalidateIssuer(address _address) public TAonly {
         issuers[_address] = false;
     }
@@ -99,5 +145,19 @@ contract AccessList {
 
     function checkTA() public view returns (address result) {
         result = trustAnchor;
+    }
+
+    //outside world calls
+    function get_issuer_credentials(address _address) public view returns (Credential memory credentials){
+        return actors[_address].issuer_credentials[0];
+    }
+    function get_operator_credentials(address _address) public view returns (Credential memory credentials){
+        return actors[_address].operator_credentials[0];
+    }
+    function get_witness_credentials(address _address) public view returns (Credential memory credentials){
+        return actors[_address].witness_credentials[0];
+    }
+    function get_verifier_credentials(address _address) public view returns (Credential memory credentials){
+        return actors[_address].verifier_credentials[0];
     }
 }

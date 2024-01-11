@@ -16,17 +16,7 @@ const ethereum_name = "ethereum"
 const iota_name = "iota"
 const cosmos_name = "cosmos"
 
-const credential_types = ["Operator", "Witness", "Verifier"]
-
-
-async function temp_error(tx){
-try {
-          let code = await ethereum.provider.call(tx, tx.blockNumber)
-        } catch (er){
-          reason = er.error.error.message
-          return reason.slice(20)
-        }
-}
+const credential_types = ["Operator", "Witness", "Verifier", "Issuer"]
 
 function get_error_object(error) {
     switch (error) {
@@ -66,11 +56,11 @@ router
             console.log(`Called /setIssuer`)
 
             check_dlt(dlt)
-            const admin_token = await multiacc.check_admin(api_token)
-            if (!admin_token) {
-                next(ApiError.badRequest('Need admin token.'));
-                return
-            }
+            // const admin_token = await multiacc.check_admin(api_token)
+            // if (!admin_token) {
+            //     next(ApiError.badRequest('Need admin token.'));
+            //     return
+            // }
             const valid_token = await multiacc.check_token(api_token)
             if (!valid_token) {
                 next(ApiError.badRequest('Invalid API token.'));
@@ -190,9 +180,65 @@ router
                     var revert = result.data.result.revertReason
                     reason = ethHelper.translateHexToString(138, revert)
                 }
-                else if (ethereum.ethClient == "iota_evm") {
-        reason = await temp_error(tx)
-      }
+                else {
+                    let code = await ethereum.provider.call(tx, tx.blockNumber)
+                    reason = ethHelper.translateHexToString(138, code)
+                }
+                reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+                next(ApiError.badRequest(reason));
+                return
+            }
+        }
+    })
+
+    .post("/getCredentials", async (req, res, next) => {
+        const target_user_eth_address = req.body.target_user;
+        const credentialType = req.body.CredentialType;
+        const dlt = req.headers.dlt ?? "";
+        var response_data
+        try {
+            console.log(`Called /getCredentials`)
+
+            check_dlt(dlt)
+            if (!credential_types.includes(credentialType)) {
+                next(ApiError.badRequest("Invalid credential type."));
+                return
+            }
+
+            if (dlt == ethereum_name) {
+                const accessListContract = ethHelper.createContract
+                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", ethHelper.randomWallet())
+                var txResponse
+                if (credentialType == "Operator")
+                    txResponse = await accessListContract.get_operator_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })
+                if (credentialType == "Witness")
+                    txResponse = await accessListContract.get_witness_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })
+                if (credentialType == "Verifier")
+                    txResponse = await accessListContract.get_verifier_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })
+                if (credentialType == "Issuer")
+                    txResponse = await accessListContract.get_issuer_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })
+                response_data = txResponse
+            }
+
+            res.status(201);
+            res.json({
+                status: "Success.",
+                data: response_data
+            })
+        }
+
+        catch (e) {
+            let tx = await ethereum.provider.getTransaction(e.transactionHash)
+            if (!tx) {
+                next(ApiError.internal('Unknown blockchain error'));
+                return
+            } else {
+                var reason = ""
+                if (ethereum.ethClient == "besu") {
+                    var result = await ethHelper.makeReceiptCall(e.transactionHash)
+                    var revert = result.data.result.revertReason
+                    reason = ethHelper.translateHexToString(138, revert)
+                }
                 else {
                     let code = await ethereum.provider.call(tx, tx.blockNumber)
                     reason = ethHelper.translateHexToString(138, code)

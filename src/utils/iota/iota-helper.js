@@ -6,10 +6,10 @@ const {readFileSync} = require('fs');
 const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../constants')
 
 const relPath = process.cwd() + "/utils/iota/";
-const identity_file = "./adminIdentity.json"
-const identity_path = relPath + identity_file;
-const managerIdentityJSON= JSON.parse(readFileSync(identity_path).toString());
-const managerIdentity = toDppIdentity(managerIdentityJSON)
+//const identity_file = "./adminIdentity.json"
+//const identity_path = relPath + identity_file;
+//const managerIdentityJSON= JSON.parse(readFileSync(identity_path).toString());
+//const managerIdentity = toDppIdentity(managerIdentityJSON)
 
 const dppClient = new DppClient(defaultConfig);
 const deviceService = dppClient.devices();

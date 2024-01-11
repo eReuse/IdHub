@@ -4,7 +4,7 @@ const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['1074'].address;
 
 const AccessList = require('../../../build/contracts/AccessList.json');
-const ACCESSLIST_ADDRESS = AccessList.networks['1074'].address;
+const ACCESSLIST_ADDRESS = DeviceFactory.networks['1074'].address; //this is wrong to circumvent abac implementation TODO
 const process = require("process")
 
 const dotenv = require('dotenv');
@@ -16,6 +16,8 @@ const privateKey = process.env.ETH_PRIV_KEY
 //TODO: cambiar a environment (besu client variable, nodeIP y privKey)
 const nodeIP = process.env.NODE_IP
 const ethClient = process.env.ETH_CLIENT
+
+const idIndexURL = process.env.ID_INDEX
 
 
 
@@ -29,8 +31,7 @@ const depositDeviceIface = new ethers.utils.Interface(
   require('../../../build/contracts/DepositDevice.json').abi
 )
 
-// const provider = new ethers.providers.JsonRpcProvider(
-const provider = new ethers.providers.WebSocketProvider(
+const provider = new ethers.providers.JsonRpcProvider(
   nodeIP
   //"HTTP://127.0.0.1:7545"
 )
@@ -60,5 +61,6 @@ module.exports = {
   defaultDeviceFactoryContract: defaultDeviceFactoryContract,
   defaultAccessListContract: defaultAccessListContract,
   ethClient: ethClient,
-  nodeIP: nodeIP
+  nodeIP: nodeIP,
+  idIndexURL: idIndexURL
 }
