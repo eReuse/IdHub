@@ -1,5 +1,6 @@
 import csv
 import json
+import copy
 import pandas as pd
 
 from django import forms
@@ -62,7 +63,7 @@ class ImportForm(forms.Form):
         self._schema = schema.first()
         try:
             self.json_schema = json.loads(self._schema.data)
-            props = [x for x in self.json_schema["allOf"] if 'properties' in x]
+            props = [x for x in self.json_schema["allOf"] if 'properties' in x.keys()]
             prop = props[0]['properties']
             self.properties = prop['credentialSubject']['properties']
         except Exception:
@@ -71,7 +72,10 @@ class ImportForm(forms.Form):
         if not self.properties:
             raise ValidationError("Schema is not valid!")
 
-
+        # TODO we need filter "$ref" of schema for can validate a csv
+        self.json_schema_filtered = copy.copy(self.json_schema)
+        allOf = [x for x in self.json_schema["allOf"] if '$ref' not in x.keys()]
+        self.json_schema_filtered["allOf"] = allOf
         return data
 
     def clean_file_import(self):
@@ -112,10 +116,10 @@ class ImportForm(forms.Form):
         return 
 
     def validate_jsonld(self, line, row):
-        import pdb; pdb.set_trace()
         try:
-            check = credtools.validate_json(row, self.json_schema)
-            raise ValidationError("Not valid row")
+            check = credtools.validate_json(row, self.json_schema_filtered)
+            if check is not True:
+                raise ValidationError("Not valid row")
         except Exception as e:
             msg = "line {}: {}".format(line+1, e)
             self.exception(msg)
