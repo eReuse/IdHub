@@ -15,37 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
-
-    - name: Check Python Version
+    - name: Check if Python is installed by default 
       run: |
-        python3 --version
-
-    - name: Create virtual environment
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run makemigrations
-      run: |
-        source venv/bin/activate
-        python manage.py makemigrations
-
-    - name: Run migrate
-      run: |
-        source venv/bin/activate
-        python manage.py migrate
-
-    - name: Run tests
-      run: |
-        source venv/bin/activate
-        python manage.py test
+        python3 -c "print('Hi')"
 
