@@ -563,6 +563,18 @@ class VerificableCredential(models.Model):
 
         return ''
 
+    def filter_dict(self, dic):
+        new_dict = {}
+        for key, value in dic.items():
+            if isinstance(value, dict):
+                new_value = self.filter_dict(value)
+                if new_value:
+                    new_dict[key] = new_value
+            elif value:
+                new_dict[key] = value
+        return new_dict
+
+
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
     data = models.TextField()
