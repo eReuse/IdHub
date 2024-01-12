@@ -29,11 +29,13 @@ jobs:
       run: |
         python3 -m venv venv
         source venv/bin/activate
+        echo "Virtual environment created successfully"
       # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
       if: steps.install.outcome == 'success'
 
     - name: Install dependencies
       run: |
+        source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements.txt
 
