@@ -15,14 +15,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Check if Python is installed
-      run: |
-        python3 -c "print('Python is installed')"
-
     - name: Install python3-venv
       id: install
       run: |
-        apt-get update && apt-get install python3-virtualenv -y
+        apt-get update
+        apt-get install python3 python3-virtualenv python3-pip -y
+
+    - name: Check Python version
+      run: |
+        python3 --version
 
     - name: Create virtual environment
       run: |
