@@ -143,8 +143,9 @@ class CredentialPdfView(MyWallet, TemplateView):
             public=True,
             user=self.request.user
         )
-        self.url_id = "{}/public/credentials/{}".format(
-            settings.DOMAIN.strip("/"),
+        self.url_id = "{}://{}/public/credentials/{}".format(
+            self.request.scheme,
+            self.request.get_host(),
             self.object.hash
         )
 
