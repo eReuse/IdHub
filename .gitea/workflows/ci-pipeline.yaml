@@ -39,16 +39,6 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run makemigrations
-      run: |
-        source venv/bin/activate
-        python manage.py makemigrations
-
-    - name: Run migrate
-      run: |
-        source venv/bin/activate
-        python manage.py migrate
-
     - name: Run tests
       run: |
         source venv/bin/activate
