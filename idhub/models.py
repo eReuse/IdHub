@@ -542,8 +542,12 @@ class VerificableCredential(models.Model):
             format = "%Y-%m-%dT%H:%M:%SZ"
             issuance_date = self.issued_on.strftime(format)
 
+        url_id = "{}/credentials/{}".format(
+            settings.DOMAIN.strip("/"),
+            self.id
+        )
         context = {
-            'vc_id': self.id,
+            'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,

@@ -80,7 +80,8 @@ class ImportForm(forms.Form):
         if File_datas.objects.filter(file_name=self.file_name, success=True).exists():
             raise ValidationError("This file already exists!")
 
-        df = pd.read_csv (data, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
+        # df = pd.read_csv (data, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
+        df = pd.read_excel(data)
         data_pd = df.fillna('').to_dict()
 
         if not data_pd:
