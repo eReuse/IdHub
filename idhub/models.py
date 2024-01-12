@@ -1,6 +1,8 @@
 import json
+import ujson
 import pytz
 import datetime
+from collections import OrderedDict
 from django.db import models
 from django.conf import settings
 from django.template.loader import get_template
@@ -525,10 +527,13 @@ class VerificableCredential(models.Model):
         self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        self.data = sign_credential(
+        data = sign_credential(
             self.render(),
             self.issuer_did.key_material
         )
+        d_ordered = ujson.loads(data)
+        d_minimum = self.filter_dict(d_ordered)
+        self.data = ujson.dumps(d_minimum)
 
     def get_context(self):
         d = json.loads(self.csv_data)
@@ -544,6 +549,7 @@ class VerificableCredential(models.Model):
             'issuance_date': issuance_date,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
+            'email': self.user.email
         }
         context.update(d)
         return context
@@ -564,7 +570,7 @@ class VerificableCredential(models.Model):
         return ''
 
     def filter_dict(self, dic):
-        new_dict = {}
+        new_dict = OrderedDict()
         for key, value in dic.items():
             if isinstance(value, dict):
                 new_value = self.filter_dict(value)
