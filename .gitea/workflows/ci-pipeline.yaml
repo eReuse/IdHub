@@ -27,6 +27,7 @@ jobs:
     - name: Check Python version
       run: |
         python3 --version
+        echo "Python version: $(python3 --version)"
 
     - name: Create virtual environment
       run: |
@@ -45,7 +46,5 @@ jobs:
     - name: Run tests
       run: |
         source venv/bin/activate
-        # https://stackoverflow.com/questions/61747698/django-error-when-running-server-locally-attributeerror-list-object-has-no
-        pip uninstall subprocess.run
-        python3 manage.py test
+        python manage.py test
 
