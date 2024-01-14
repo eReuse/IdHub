@@ -34,7 +34,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 DEVELOPMENT = config('DEVELOPMENT', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[])
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=[], cast=Csv())
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=[])
 
 DOMAIN = config("DOMAIN", "http://localhost")
 
