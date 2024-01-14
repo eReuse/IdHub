@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      SECRET_KEY: {{ secrets.SECRET_KEY }}
+      SECRET_KEY: "t3st-dummy-s3cr3t-k3y"
       STATIC_ROOT: {{ vars.STATIC_ROOT }}
       MEDIA_ROOT: {{ vars.MEDIA_ROOT }}
 
