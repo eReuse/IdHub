@@ -8,9 +8,12 @@ on:
       - testing-pipeline
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-22.04
+
+    env:
+      SECRET_KEY: "t3st_dummy_s3cr3t_k3y"
 
     steps:
     - uses: actions/checkout@v4
@@ -38,12 +41,6 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Set random secret key
-      run: |
-        source venv/bin/activate
-        SECRET_KEY=$(python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
-        echo "${SECRET_KEY}"
 
     - name: Run tests
       run: |
