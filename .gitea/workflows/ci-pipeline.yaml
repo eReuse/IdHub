@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      SECRET_KEY: "t3st_dummy_s3cr3t_k3y"
+      SECRET_KEY: {{ secrets.SECRET_KEY }}
+      STATIC_ROOT: {{ vars.STATIC_ROOT }}
+      MEDIA_ROOT: {{ vars.MEDIA_ROOT }}
 
     steps:
     - uses: actions/checkout@v4
