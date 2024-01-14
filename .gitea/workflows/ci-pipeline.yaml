@@ -39,6 +39,12 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Set random secret key
+      run: |
+        source venv/bin/activate
+        SECRET_KEY=$(python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
+        echo $SECRET_KEY > .env
+
     - name: Run tests
       run: |
         source venv/bin/activate
