@@ -43,7 +43,7 @@ jobs:
       run: |
         source venv/bin/activate
         SECRET_KEY=$(python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
-        echo $SECRET_KEY > .env
+        echo "${SECRET_KEY}"
 
     - name: Run tests
       run: |
