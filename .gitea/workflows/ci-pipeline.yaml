@@ -14,8 +14,8 @@ jobs:
 
     env:
       SECRET_KEY: "t3st-dummy-s3cr3t-k3y"
-      STATIC_ROOT: {{ vars.STATIC_ROOT }}
-      MEDIA_ROOT: {{ vars.MEDIA_ROOT }}
+      STATIC_ROOT: "tmp/static/"
+      MEDIA_ROOT: "tmp/media/"
 
     steps:
     - uses: actions/checkout@v4
