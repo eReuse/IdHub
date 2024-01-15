@@ -135,6 +135,9 @@ class CredentialsRequestView(MyWallet, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['lang'] = self.request.LANGUAGE_CODE
+        domain = "{}://{}".format(self.request.scheme, self.request.get_host())
+        kwargs['domain'] = domain
         return kwargs
     
     def form_valid(self, form):

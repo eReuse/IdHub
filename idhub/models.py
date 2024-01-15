@@ -11,6 +11,7 @@ from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
     sign_credential,
+    verify_credential
 )
 from idhub_auth.models import User
 
@@ -509,8 +510,21 @@ class VerificableCredential(models.Model):
 
     def description(self):
         for des in json.loads(self.render()).get('description', []):
-            if settings.LANGUAGE_CODE == des.get('lang'):
+            if settings.LANGUAGE_CODE in des.get('lang'):
                 return des.get('value', '')
+        return ''
+
+    def get_type(self, lang=None):
+        schema = json.loads(self.schema.data)
+        if not schema.get('name'):
+            return ''
+        try:
+            for x in schema['name']:
+                if lang or settings.LANGUAGE_CODE in x['lang']:
+                    return x.get('value', '')
+        except:
+            return self.schema.type
+
         return ''
 
     def get_status(self):
@@ -524,16 +538,16 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        self.status = self.Status.ISSUED
+        # self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        data = sign_credential(
-            self.render(),
+        d_ordered = ujson.loads(self.render())
+        d_minimum = self.filter_dict(d_ordered)
+        data = ujson.dumps(d_minimum)
+        self.data = sign_credential(
+            data,
             self.issuer_did.key_material
         )
-        d_ordered = ujson.loads(data)
-        d_minimum = self.filter_dict(d_ordered)
-        self.data = ujson.dumps(d_minimum)
 
     def get_context(self):
         d = json.loads(self.csv_data)
@@ -542,20 +556,25 @@ class VerificableCredential(models.Model):
             format = "%Y-%m-%dT%H:%M:%SZ"
             issuance_date = self.issued_on.strftime(format)
 
-        url_id = "{}/credentials/{}".format(
-            settings.DOMAIN.strip("/"),
-            self.id
-        )
+        try:
+            domain = self._domain
+        except:
+            domain = settings.DOMAIN.strip("/")
+            
+        url_id = "{}/credentials/{}".format(domain, self.id)
+
         context = {
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email
+            'firstName': self.user.first_name or "",
+            'lastName': self.user.last_name or "",
+            'email': self.user.email,
+            'organisation': settings.ORGANIZATION or '',
         }
         context.update(d)
+        context['firstName'] = ""
         return context
 
     def render(self):

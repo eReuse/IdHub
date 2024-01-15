@@ -22,12 +22,14 @@ class RequestCredentialForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.lang = kwargs.pop('lang', None)
+        self._domain = kwargs.pop('domain', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
         ]
         self.fields['credential'].choices = [
-            (x.id, x.type()) for x in VerificableCredential.objects.filter(
+            (x.id, x.get_type(lang=self.lang)) for x in VerificableCredential.objects.filter(
                 user=self.user,
                 status=VerificableCredential.Status.ENABLED
             )
@@ -48,6 +50,7 @@ class RequestCredentialForm(forms.Form):
 
         did = did[0]
         cred = cred[0]
+        cred._domain = self._domain
         try:
             cred.issue(did)
         except Exception:
