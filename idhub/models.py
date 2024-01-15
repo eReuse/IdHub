@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
-    sign_credential,
+    sign_credential, webdid_from_controller_key,
 )
 from idhub_auth.models import User
 
@@ -416,6 +416,7 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    didweb_document = models.TextField()
 
     @property
     def is_organization_did(self):
@@ -423,9 +424,14 @@ class DID(models.Model):
             return True
         return False
 
-    def set_did(self):
+    def set_did(self, type):
         self.key_material = generate_did_controller_key()
-        self.did = keydid_from_controller_key(self.key_material)
+        if type == "key":
+            self.did = keydid_from_controller_key(self.key_material)
+        elif type == "web":
+            didurl, document = webdid_from_controller_key(self.key_material)
+            self.did = didurl
+            self.didweb_document = document
 
     def get_key(self):
         return json.loads(self.key_material)

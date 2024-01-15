@@ -205,7 +205,7 @@ class DidRegisterView(MyWallet, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did()
+        form.instance.set_did(form.instance.type)
         form.save()
         messages.success(self.request, _('DID created successfully'))
 
