@@ -82,10 +82,18 @@ class Command(BaseCommand):
         try:
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
-            name = ldata.get('name')
-            assert name
+            dname = ldata.get('name')
+            assert dname
         except Exception:
             return
+        name = ''
+        try:
+            for x in dname:
+                if settings.LANGUAGE_CODE in x['lang']:
+                    name = x.get('value', '')
+        except Exception:
+            return
+
         Schemas.objects.create(file_schema=file_name, data=data, type=name)
 
     def open_file(self, file_name):
