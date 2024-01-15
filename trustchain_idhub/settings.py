@@ -222,3 +222,4 @@ LOGGING = {
     }
 }
 
+ORGANIZATION = config('ORGANIZATION', 'Pangea')
