@@ -403,6 +403,13 @@ class Event(models.Model):
         
 
 class DID(models.Model):
+    class Types(models.IntegerChoices):
+        KEY = 1, "Key"
+        WEB = 2, "Web"
+    type = models.PositiveSmallIntegerField(
+        _("Type"),
+        choices=Types.choices,
+    )
     created_at = models.DateTimeField(auto_now=True)
     label = models.CharField(_("Label"), max_length=50)
     did = models.CharField(max_length=250)
@@ -424,11 +431,11 @@ class DID(models.Model):
             return True
         return False
 
-    def set_did(self, type):
+    def set_did(self):
         self.key_material = generate_did_controller_key()
-        if type == "key":
+        if self.type == self.Types.KEY:
             self.did = keydid_from_controller_key(self.key_material)
-        elif type == "web":
+        elif self.type == self.Types.WEB:
             didurl, document = webdid_from_controller_key(self.key_material)
             self.did = didurl
             self.didweb_document = document
