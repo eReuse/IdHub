@@ -199,13 +199,13 @@ class DidRegisterView(MyWallet, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did(form.instance.type)
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
 

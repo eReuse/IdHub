@@ -33,7 +33,9 @@ class LoginView(auth_views.LoginView):
 
 
 def serve_did(request, did_id):
-    document = get_object_or_404(DID, did=f'did:web:{settings.DOMAIN}:{did_id}').didweb_document
+    id_did = f'did:web:{settings.DOMAIN}:did-registry:{did_id}'
+    did = get_object_or_404(DID, did=id_did)
+    document = did.didweb_document
     retval = HttpResponse(document)
     retval.headers["Content-Type"] = "application/json"
     return retval
