@@ -639,13 +639,13 @@ class DidRegisterView(Credentials, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:admin_dids')
     object = None
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did(form.instance.type)
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
