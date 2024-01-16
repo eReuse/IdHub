@@ -639,7 +639,7 @@ class DidRegisterView(Credentials, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:admin_dids')
     object = None
 

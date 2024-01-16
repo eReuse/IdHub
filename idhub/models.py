@@ -11,7 +11,7 @@ from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
     sign_credential,
-    verify_credential
+    webdid_from_controller_key,
 )
 from idhub_auth.models import User
 
@@ -406,6 +406,13 @@ class Event(models.Model):
         
 
 class DID(models.Model):
+    class Types(models.IntegerChoices):
+        KEY = 1, "Key"
+        WEB = 2, "Web"
+    type = models.PositiveSmallIntegerField(
+        _("Type"),
+        choices=Types.choices,
+    )
     created_at = models.DateTimeField(auto_now=True)
     label = models.CharField(_("Label"), max_length=50)
     did = models.CharField(max_length=250)
@@ -419,6 +426,7 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    didweb_document = models.TextField()
 
     @property
     def is_organization_did(self):
@@ -428,7 +436,12 @@ class DID(models.Model):
 
     def set_did(self):
         self.key_material = generate_did_controller_key()
-        self.did = keydid_from_controller_key(self.key_material)
+        if self.type == self.Types.KEY:
+            self.did = keydid_from_controller_key(self.key_material)
+        elif self.type == self.Types.WEB:
+            didurl, document = webdid_from_controller_key(self.key_material)
+            self.did = didurl
+            self.didweb_document = document
 
     def get_key(self):
         return json.loads(self.key_material)

@@ -64,7 +64,7 @@ class Command(BaseCommand):
 
     def create_defaults_dids(self):
         for u in User.objects.all():
-            did = DID(label="Default", user=u)
+            did = DID(label="Default", user=u, type=DID.Types.KEY)
             did.set_did()
             did.save()
 
