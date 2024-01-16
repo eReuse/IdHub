@@ -29,14 +29,14 @@ def webdid_from_controller_key(key):
     keydid = keydid_from_controller_key(key)  # "did:key:<...>"
     pubkeyid = keydid.rsplit(":")[-1]  # <...>
     document = json.loads(asyncio.run(resolve_keydid(keydid)))  # Documento DID en terminos "key"
-    webdid_url = f"did:web:{settings.DOMAIN}:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
+    webdid_url = f"did:web:{settings.DOMAIN}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
     webdid_url_owner = webdid_url + "#owner"
     # Reemplazamos los campos del documento DID necesarios:
     document["id"] = webdid_url
-    document["verificationMethod"]["id"] = webdid_url_owner
-    document["verificationMethod"]["controller"] = webdid_url
-    document["authentication"] = webdid_url_owner
-    document["assertionMethod"] = webdid_url_owner
+    document["verificationMethod"][0]["id"] = webdid_url_owner
+    document["verificationMethod"][0]["controller"] = webdid_url
+    document["authentication"][0] = webdid_url_owner
+    document["assertionMethod"][0] = webdid_url_owner
     document_fixed_serialized = json.dumps(document)
     return webdid_url, document_fixed_serialized
 
