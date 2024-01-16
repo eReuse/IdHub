@@ -202,7 +202,7 @@ class DidRegisterView(MyWallet, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 

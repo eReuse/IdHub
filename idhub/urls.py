@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
-from .views import LoginView
+from .views import LoginView, serve_did
 from .admin import views as views_admin
 from .user import views as views_user
 # from .verification_portal import views as views_verification_portal
@@ -172,6 +172,8 @@ urlpatterns = [
         name='admin_import'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+
+    path('did-registry/<str:did_id>', serve_did)
 
     # path('verification_portal/verify/', views_verification_portal.verify,
     #      name="verification_portal_verify")
