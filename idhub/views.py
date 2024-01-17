@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import views as auth_views
@@ -30,7 +31,11 @@ class LoginView(auth_views.LoginView):
         if not user.is_anonymous and user.is_admin:
             admin_dashboard = reverse_lazy('idhub:admin_dashboard')
             self.extra_context['success_url'] = admin_dashboard
-            cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
+            encryption_key = user.encrypt_data(
+                sensitive_data_encryption_key,
+                settings.SECRET_KEY
+            )
+            cache.set("KEY_DIDS", encryption_key, None)
 
         self.request.session["key_did"] = user.encrypt_data(
             sensitive_data_encryption_key,
