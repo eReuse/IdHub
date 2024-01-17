@@ -135,28 +135,23 @@ class User(AbstractBaseUser):
 
     def set_encrypted_sensitive_data(self, password):
         key = base64.b64encode(nacl.utils.random(64))
-        key_dids = cache.get("KEY_DIDS", {})
-
-        if key_dids.get(self.id):
-            key = key_dids[self.id]
-        else:
-            self.set_salt()
+        self.set_salt()
 
         key_crypted = self.encrypt_sensitive_data(password, key)
         self.encrypted_sensitive_data = key_crypted
 
     def encrypt_data(self, data, password):
         sb = self.get_secret_box(password)
-        value = base64.b64encode(data.encode('utf-8'))
         value_enc = sb.encrypt(data.encode('utf-8'))
         return base64.b64encode(value_enc).decode('utf-8')
 
     def decrypt_data(self, data, password):
+        # import pdb; pdb.set_trace()
         sb = self.get_secret_box(password)
         value = base64.b64decode(data.encode('utf-8'))
         return sb.decrypt(value).decode('utf-8')
 
     def get_secret_box(self, password):
-        pw = base64.b64decode(password.encode('utf-8'))
+        pw = base64.b64decode(password.encode('utf-8')*4)
         sb_key = self.derive_key_from_password(pw)
         return nacl.secret.SecretBox(sb_key)
