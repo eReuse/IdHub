@@ -120,7 +120,15 @@ class CredentialJsonView(MyWallet, TemplateView):
             pk=pk,
             user=self.request.user
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        pass_enc = self.request.session.get("key_did")
+        data = ""
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+            data = self.object.get_data(user_pass)
+        response = HttpResponse(data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
@@ -138,6 +146,15 @@ class CredentialsRequestView(MyWallet, FormView):
         kwargs['lang'] = self.request.LANGUAGE_CODE
         domain = "{}://{}".format(self.request.scheme, self.request.get_host())
         kwargs['domain'] = domain
+        pass_enc = self.request.session.get("key_did")
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+        else:
+            pass_enc = None
+        kwargs['password'] = user_pass
         return kwargs
     
     def form_valid(self, form):
@@ -208,7 +225,11 @@ class DidRegisterView(MyWallet, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did()
+        pw = self.request.user.decrypt_data(
+            self.request.session.get("key_did"),
+            self.request.user.password+self.request.session._session_key
+        )
+        form.instance.set_did(pw)
         form.save()
         messages.success(self.request, _('DID created successfully'))
 

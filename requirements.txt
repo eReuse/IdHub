@@ -12,6 +12,7 @@ requests==2.31.0
 jinja2==3.1.2
 jsonref==1.1.0
 pyld==2.0.3
+pynacl==1.5.0
 more-itertools==10.1.0
 dj-database-url==2.1.0
 ujson==5.9.0
