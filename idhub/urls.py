@@ -176,7 +176,7 @@ urlpatterns = [
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
 
-    path('did-registry/<str:did_id>', serve_did)
+    path('did-registry/<str:did_id>/did.json', serve_did)
 
     # path('verification_portal/verify/', views_verification_portal.verify,
     #      name="verification_portal_verify")
