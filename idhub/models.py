@@ -5,8 +5,11 @@ import datetime
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+from nacl import secret
+
 from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
@@ -419,7 +422,7 @@ class DID(models.Model):
     # In JWK format. Must be stored as-is and passed whole to library functions.
     # Example key material:
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
-    key_material = models.CharField(max_length=250)
+    key_material = models.CharField(max_length=255)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -428,24 +431,31 @@ class DID(models.Model):
     )
     didweb_document = models.TextField()
 
+    def get_key_material(self, password):
+        return self.user.decrypt_data(self.key_material, password)
+
+    def set_key_material(self, value, password):
+        self.key_material = self.user.encrypt_data(value, password)
+        
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
 
-    def set_did(self):
-        self.key_material = generate_did_controller_key()
+    def set_did(self, password):
+        new_key_material = generate_did_controller_key()
+        self.set_key_material(new_key_material, password)
+
         if self.type == self.Types.KEY:
-            self.did = keydid_from_controller_key(self.key_material)
+            self.did = keydid_from_controller_key(new_key_material)
         elif self.type == self.Types.WEB:
-            didurl, document = webdid_from_controller_key(self.key_material)
+            didurl, document = webdid_from_controller_key(new_key_material)
             self.did = didurl
             self.didweb_document = document
 
     def get_key(self):
         return json.loads(self.key_material)
-
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
@@ -518,6 +528,14 @@ class VerificableCredential(models.Model):
         related_name='vcredentials',
     )
 
+    def get_data(self, password):
+        if not self.data:
+            return ""
+        return self.user.decrypt_data(self.data, password)
+
+    def set_data(self, value, password):
+        self.data = self.user.encrypt_data(value, password)
+
     def type(self):
         return self.schema.type
 
@@ -547,20 +565,23 @@ class VerificableCredential(models.Model):
         data = json.loads(self.csv_data).items()
         return data
 
-    def issue(self, did):
+    def issue(self, did, password):
         if self.status == self.Status.ISSUED:
             return
 
-        # self.status = self.Status.ISSUED
+        self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        d_ordered = ujson.loads(self.render())
-        d_minimum = self.filter_dict(d_ordered)
-        data = ujson.dumps(d_minimum)
-        self.data = sign_credential(
-            data,
-            self.issuer_did.key_material
+        issuer_pass = cache.get("KEY_DIDS")
+        # issuer_pass = self.user.decrypt_data(
+        #     cache.get("KEY_DIDS"),
+        #     settings.SECRET_KEY,
+        # )
+        data = sign_credential(
+            self.render(),
+            self.issuer_did.get_key_material(issuer_pass)
         )
+        self.data = self.user.encrypt_data(data, password)
 
     def get_context(self):
         d = json.loads(self.csv_data)
@@ -596,7 +617,9 @@ class VerificableCredential(models.Model):
             self.schema.file_schema
         )
         tmpl = get_template(template_name)
-        return tmpl.render(context)
+        d_ordered = ujson.loads(tmpl.render(context))
+        d_minimum = self.filter_dict(d_ordered)
+        return ujson.dumps(d_minimum)
 
 
     def get_issued_on(self):
