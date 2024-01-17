@@ -535,7 +535,10 @@ class VerificableCredential(models.Model):
         self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        issuer_pass = cache.get("KEY_DIDS")
+        issuer_pass = self.user.decrypt_data(
+            cache.get("KEY_DIDS"),
+            settings.SECRET_KEY,
+        )
         data = sign_credential(
             self.render(),
             self.issuer_did.get_key_material(issuer_pass)
