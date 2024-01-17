@@ -14,8 +14,10 @@ class LoginView(auth_views.LoginView):
     }
 
     def get(self, request, *args, **kwargs):
-        if request.GET.get('next'):
-            self.extra_context['success_url'] = request.GET.get('next')
+        self.extra_context['success_url'] = request.GET.get(
+            'next',
+            reverse_lazy('idhub:user_dashboard')
+        )
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -26,11 +28,8 @@ class LoginView(auth_views.LoginView):
         sensitive_data_encryption_key = user.decrypt_sensitive_data(password)
 
         if not user.is_anonymous and user.is_admin:
-            user_dashboard = reverse_lazy('idhub:user_dashboard')
             admin_dashboard = reverse_lazy('idhub:admin_dashboard')
-            if self.extra_context['success_url'] == user_dashboard:
-                self.extra_context['success_url'] = admin_dashboard
-
+            self.extra_context['success_url'] = admin_dashboard
             cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
 
         self.request.session["key_did"] = user.encrypt_data(
