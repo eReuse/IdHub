@@ -26,6 +26,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django.core.cache import cache
 from django.conf import settings
 from idhub.user.forms import (
     ProfileForm,
@@ -132,9 +133,9 @@ class CredentialPdfView(MyWallet, TemplateView):
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
     file_name = "certificate.pdf"
-    _pss = '123456'
 
     def get(self, request, *args, **kwargs):
+        self.admin_validated = cache.get("KEY_DIDS")
         pk = kwargs['pk']
         self.user = self.request.user
         self.object = get_object_or_404(

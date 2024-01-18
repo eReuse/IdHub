@@ -588,13 +588,15 @@ class VerificableCredential(models.Model):
         #     cache.get("KEY_DIDS"),
         #     settings.SECRET_KEY,
         # )
+
+        # hash of credential without sign
+        self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
         data = sign_credential(
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
         if self.eidas1_did:
             self.data = data
-            self.hash = hashlib.sha3_256(self.data.encode()).hexdigest()
         else:
             self.data = self.user.encrypt_data(data, password)
 
@@ -606,13 +608,15 @@ class VerificableCredential(models.Model):
             issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
+        sid = self.id
         if self.eidas1_did:
             cred_path = 'public/credentials'
+            sid = self.hash
 
         url_id = "{}/{}/{}".format(
             domain,
             cred_path,
-            self.id
+            sid
         )
 
         context = {
