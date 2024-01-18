@@ -1,10 +1,10 @@
 const ethers = require("ethers")
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks['1074'].address;
+
 
 const AccessList = require('../../../build/contracts/AccessList.json');
-const ACCESSLIST_ADDRESS = DeviceFactory.networks['1074'].address; //this is wrong to circumvent abac implementation TODO
+
 const process = require("process")
 
 const dotenv = require('dotenv');
@@ -18,6 +18,11 @@ const nodeIP = process.env.NODE_IP
 const ethClient = process.env.ETH_CLIENT
 
 const idIndexURL = process.env.ID_INDEX
+
+const chainId = process.env.CHAIN_ID.toString()
+
+const DEVICEFACTORY_ADDRESS = DeviceFactory.networks[chainId].address;
+const ACCESSLIST_ADDRESS = DeviceFactory.networks[chainId].address; //this is wrong to circumvent abac implementation TODO
 
 
 

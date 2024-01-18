@@ -21,11 +21,13 @@ contract DeviceFactory {
         roles = IAbacContract(rolesAddress);
     }
 
-    function checkIfOperator(address _address) internal returns(bool){
+    function checkIfOperator(address _address) internal view returns(bool){
         AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
         for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator')))
-                return true;
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator'))){
+                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
+                    return true;
+            }
         }
         return false;
     }

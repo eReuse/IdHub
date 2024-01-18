@@ -56,7 +56,7 @@ interface IAbacContract {
     function getDid(address addr) external returns (string memory);
 
     function getAccountAttributes(address addr)
-        external
+        external view
         returns (AttributeValue[] memory);
 
     /**

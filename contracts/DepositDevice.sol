@@ -124,29 +124,35 @@ contract DepositDevice is Ownable {
         _generateGenericProof(_sender, _documentHashAlgorithm, _documentHash, "Device_creation", _inventoryID);
     }
 
-    function checkIfOperator(address _address) internal returns(bool){
+    function checkIfOperator(address _address) internal view returns(bool){
         AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
         for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator')))
-                return true;
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator'))){
+                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
+                    return true;
+            }
         }
         return false;
     }
 
-    function checkIfWitness(address _address) internal returns(bool){
+    function checkIfWitness(address _address) internal view returns(bool){
         AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
         for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('witness')))
-                return true;
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('witness'))){
+                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
+                    return true;
+            }
         }
         return false;
     }
 
-    function checkIfVerifier(address _address) internal returns(bool){
+    function checkIfVerifier(address _address) internal view returns(bool){
         AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
         for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('verifier')))
-                return true;
+            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('verifier'))){
+                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
+                    return true;
+            }
         }
         return false;
     }
@@ -253,7 +259,7 @@ contract DepositDevice is Ownable {
     //     generateIssueProof(proof_data);
     // }
 
-    function getData() public view returns (DevData memory _data) {
+    function getData() onlyOpWitVer public view returns (DevData memory _data) {
         return data;
     }
 
@@ -268,15 +274,15 @@ contract DepositDevice is Ownable {
         return phids;
     }
 
-    function getGenericProofs() public view returns (GenericProofData[] memory _data){
+    function getGenericProofs() onlyOpWitVer public view returns (GenericProofData[] memory _data){
         return genericProofs;
     }
 
-    function getDeRegisterProofs() public view returns (DeRegisterProofData[] memory _data) {
+    function getDeRegisterProofs() onlyOpWitVer public view returns (DeRegisterProofData[] memory _data) {
         return deRegisterProofs;
     }
 
-     function getTrasferProofs() public view  returns (TransferProofData[] memory _data){
+     function getTrasferProofs() onlyOpWitVer public view  returns (TransferProofData[] memory _data){
          return transferProofs;
      }
 
