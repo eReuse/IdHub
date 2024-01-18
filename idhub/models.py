@@ -1,15 +1,21 @@
 import json
+import ujson
 import pytz
 import hashlib
 import datetime
+from collections import OrderedDict
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+from nacl import secret
+
 from utils.idhub_ssikit import (
     generate_did_controller_key,
     keydid_from_controller_key,
     sign_credential,
+    webdid_from_controller_key,
 )
 from idhub_auth.models import User
 
@@ -404,6 +410,13 @@ class Event(models.Model):
         
 
 class DID(models.Model):
+    class Types(models.IntegerChoices):
+        KEY = 1, "Key"
+        WEB = 2, "Web"
+    type = models.PositiveSmallIntegerField(
+        _("Type"),
+        choices=Types.choices,
+    )
     created_at = models.DateTimeField(auto_now=True)
     label = models.CharField(_("Label"), max_length=50)
     did = models.CharField(max_length=250)
@@ -418,20 +431,33 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    didweb_document = models.TextField()
 
+    def get_key_material(self, password):
+        return self.user.decrypt_data(self.key_material, password)
+
+    def set_key_material(self, value, password):
+        self.key_material = self.user.encrypt_data(value, password)
+        
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
 
-    def set_did(self):
-        self.key_material = generate_did_controller_key()
-        self.did = keydid_from_controller_key(self.key_material)
+    def set_did(self, password):
+        new_key_material = generate_did_controller_key()
+        self.set_key_material(new_key_material, password)
+
+        if self.type == self.Types.KEY:
+            self.did = keydid_from_controller_key(new_key_material)
+        elif self.type == self.Types.WEB:
+            didurl, document = webdid_from_controller_key(new_key_material)
+            self.did = didurl
+            self.didweb_document = document
 
     def get_key(self):
         return json.loads(self.key_material)
-
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
@@ -445,9 +471,19 @@ class Schemas(models.Model):
             return {}
         return json.loads(self.data)
 
-    def name(self):
-        return self.get_schema.get('name', '')
+    def name(self, request=None):
+        names = {}
+        for name in self.get_schema.get('name', []):
+            lang = name.get('lang')
+            if 'ca' in lang:
+                lang = 'ca'
+            names[lang]= name.get('value')
 
+        if request and request.LANGUAGE_CODE in names.keys():
+            return names[request.LANGUAGE_CODE]
+
+        return names[settings.LANGUAGE_CODE]
+            
     def description(self):
         return self.get_schema.get('description', '')
 
@@ -468,7 +504,6 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(null=True)
     data = models.TextField()
     csv_data = models.TextField()
-    public = models.BooleanField(default=settings.DEFAULT_PUBLIC_CREDENTIALS)
     hash = models.CharField(max_length=260)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices,
@@ -490,19 +525,48 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
+    eidas1_did = models.ForeignKey(
+        DID,
+        on_delete=models.CASCADE,
+        null=True
+    )
     schema = models.ForeignKey(
         Schemas,
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
 
+    def get_data(self, password):
+        if not self.data:
+            return ""
+        if self.eidas1_did:
+            return self.data
+            
+        return self.user.decrypt_data(self.data, password)
+
+    def set_data(self, value, password):
+        self.data = self.user.encrypt_data(value, password)
+
     def type(self):
         return self.schema.type
 
     def description(self):
-        for des in json.loads(self.render()).get('description', []):
-            if settings.LANGUAGE_CODE == des.get('lang'):
+        for des in json.loads(self.render("")).get('description', []):
+            if settings.LANGUAGE_CODE in des.get('lang'):
                 return des.get('value', '')
+        return ''
+
+    def get_type(self, lang=None):
+        schema = json.loads(self.schema.data)
+        if not schema.get('name'):
+            return ''
+        try:
+            for x in schema['name']:
+                if lang or settings.LANGUAGE_CODE in x['lang']:
+                    return x.get('value', '')
+        except:
+            return self.schema.type
+
         return ''
 
     def get_status(self):
@@ -512,21 +576,29 @@ class VerificableCredential(models.Model):
         data = json.loads(self.csv_data).items()
         return data
 
-    def issue(self, did):
+    def issue(self, did, password, domain=settings.DOMAIN.strip("/")):
         if self.status == self.Status.ISSUED:
             return
 
         self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        self.data = sign_credential(
-            self.render(),
-            self.issuer_did.key_material
+        issuer_pass = cache.get("KEY_DIDS")
+        # issuer_pass = self.user.decrypt_data(
+        #     cache.get("KEY_DIDS"),
+        #     settings.SECRET_KEY,
+        # )
+        data = sign_credential(
+            self.render(domain),
+            self.issuer_did.get_key_material(issuer_pass)
         )
-        if self.public:
+        if self.eidas1_did:
+            self.data = data
             self.hash = hashlib.sha3_256(self.data.encode()).hexdigest()
+        else:
+            self.data = self.user.encrypt_data(data, password)
 
-    def get_context(self):
+    def get_context(self, domain):
         d = json.loads(self.csv_data)
         issuance_date = ''
         if self.issued_on:
@@ -534,31 +606,38 @@ class VerificableCredential(models.Model):
             issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
-        if self.public:
+        if self.eidas1_did:
             cred_path = 'public/credentials'
+
         url_id = "{}/{}/{}".format(
-            settings.DOMAIN.strip("/"),
+            domain,
             cred_path,
             self.id
         )
+
         context = {
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
             'issuance_date': issuance_date,
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
+            'firstName': self.user.first_name or "",
+            'lastName': self.user.last_name or "",
+            'email': self.user.email,
+            'organisation': settings.ORGANIZATION or '',
         }
         context.update(d)
+        context['firstName'] = ""
         return context
 
-    def render(self):
-        context = self.get_context()
+    def render(self, domain):
+        context = self.get_context(domain)
         template_name = 'credentials/{}'.format(
             self.schema.file_schema
         )
         tmpl = get_template(template_name)
-        return tmpl.render(context)
+        d_ordered = ujson.loads(tmpl.render(context))
+        d_minimum = self.filter_dict(d_ordered)
+        return ujson.dumps(d_minimum)
 
 
     def get_issued_on(self):
@@ -566,6 +645,18 @@ class VerificableCredential(models.Model):
             return self.issued_on.strftime("%m/%d/%Y")
 
         return ''
+
+    def filter_dict(self, dic):
+        new_dict = OrderedDict()
+        for key, value in dic.items():
+            if isinstance(value, dict):
+                new_value = self.filter_dict(value)
+                if new_value:
+                    new_dict[key] = new_value
+            elif value:
+                new_dict[key] = value
+        return new_dict
+
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)

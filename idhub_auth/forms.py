@@ -31,4 +31,3 @@ class ProfileForm(forms.ModelForm):
 
         return last_name
 
-

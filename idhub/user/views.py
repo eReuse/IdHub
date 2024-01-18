@@ -25,6 +25,7 @@ from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
+from django.core.cache import cache
 from django.contrib import messages
 from django.conf import settings
 from idhub.user.forms import (
@@ -140,7 +141,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
-            public=True,
+            eidas1_did__isnull=False,
             user=self.request.user
         )
         self.url_id = "{}://{}/public/credentials/{}".format(
@@ -150,7 +151,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         )
 
         data = self.build_certificate()
-        if DID.objects.filter(eidas1=True).exists():
+        if self.object.eidas1_did:
             doc = self.insert_signature(data)
         else:
             doc = data
@@ -221,10 +222,11 @@ class CredentialPdfView(MyWallet, TemplateView):
         return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
     def get_pfx_data(self):
-        did = DID.objects.filter(eidas1=True).first()
+        did = self.object.eidas1_did
         if not did:
             return None, None
-        key_material = json.loads(did.key_material)
+        pw = cache.get("KEY_DIDS")
+        key_material = json.loads(did.get_key_material(pw))
         cert = key_material.get("cert")
         passphrase = key_material.get("passphrase")
         if cert and passphrase:
@@ -274,7 +276,15 @@ class CredentialJsonView(MyWallet, TemplateView):
             pk=pk,
             user=self.request.user
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        pass_enc = self.request.session.get("key_did")
+        data = ""
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+            data = self.object.get_data(user_pass)
+        response = HttpResponse(data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
@@ -286,6 +296,7 @@ class PublicCredentialJsonView(View):
         self.object = get_object_or_404(
             VerificableCredential,
             hash=pk,
+            eidas1_did__isnull=False,
         )
         response = HttpResponse(self.object.data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
@@ -302,6 +313,18 @@ class CredentialsRequestView(MyWallet, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['lang'] = self.request.LANGUAGE_CODE
+        domain = "{}://{}".format(self.request.scheme, self.request.get_host())
+        kwargs['domain'] = domain
+        pass_enc = self.request.session.get("key_did")
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+        else:
+            pass_enc = None
+        kwargs['password'] = user_pass
         return kwargs
     
     def form_valid(self, form):
@@ -366,13 +389,17 @@ class DidRegisterView(MyWallet, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did()
+        pw = self.request.user.decrypt_data(
+            self.request.session.get("key_did"),
+            self.request.user.password+self.request.session._session_key
+        )
+        form.instance.set_did(pw)
         form.save()
         messages.success(self.request, _('DID created successfully'))
 

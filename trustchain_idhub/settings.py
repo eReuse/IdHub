@@ -149,6 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -222,4 +223,4 @@ LOGGING = {
     }
 }
 
-DEFAULT_PUBLIC_CREDENTIALS = True
+ORGANIZATION = config('ORGANIZATION', 'Pangea')

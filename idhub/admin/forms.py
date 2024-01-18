@@ -1,11 +1,13 @@
 import csv
 import json
 import base64
+import copy
 import pandas as pd
 
 from pyhanko.sign import signers
 
 from django import forms
+from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from utils import credtools, certs
@@ -23,24 +25,39 @@ from idhub_auth.models import User
 
 class ImportForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
+    eidas1 = forms.ChoiceField(
+        label=_("Signature with Eidas1"),
+        choices=[],
+        required=False
+    )
     schema = forms.ChoiceField(label=_("Schema"), choices=[])
     file_import = forms.FileField(label=_("File import"))
 
     def __init__(self, *args, **kwargs):
         self._schema = None
         self._did = None
+        self._eidas1 = None
         self.rows = {}
         self.properties = {}
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        dids = DID.objects.filter(user=self.user)
         self.fields['did'].choices = [
-            (x.did, x.label) for x in DID.objects.filter(user=self.user)
+            (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
         self.fields['schema'].choices = [
             (x.id, x.name()) for x in Schemas.objects.filter()
         ]
+        if dids.filter(eidas1=True).exists():
+            choices = [("", "")]
+            choices.extend([
+                (x.did, x.label) for x in dids.filter(eidas1=True)
+            ])
+            self.fields['eidas1'].choices = choices
+        else:
+          self.fields.pop('eidas1')
 
-    def clean_did(self):
+    def clean(self):
         data = self.cleaned_data["did"]
         did = DID.objects.filter(
             user=self.user,
@@ -51,6 +68,14 @@ class ImportForm(forms.Form):
             raise ValidationError("Did is not valid!")
 
         self._did = did.first()
+
+        eidas1 = self.cleaned_data.get('eidas1')
+        if eidas1:
+            self._eidas1 = DID.objects.filter(
+                user=self.user,
+                eidas1=True,
+                did=eidas1
+            ).first()
             
         return data
 
@@ -65,7 +90,8 @@ class ImportForm(forms.Form):
         self._schema = schema.first()
         try:
             self.json_schema = json.loads(self._schema.data)
-            prop = self.json_schema['properties']
+            props = [x for x in self.json_schema["allOf"] if 'properties' in x.keys()]
+            prop = props[0]['properties']
             self.properties = prop['credentialSubject']['properties']
         except Exception:
             raise ValidationError("Schema is not valid!")
@@ -73,7 +99,10 @@ class ImportForm(forms.Form):
         if not self.properties:
             raise ValidationError("Schema is not valid!")
 
-
+        # TODO we need filter "$ref" of schema for can validate a csv
+        self.json_schema_filtered = copy.copy(self.json_schema)
+        allOf = [x for x in self.json_schema["allOf"] if '$ref' not in x.keys()]
+        self.json_schema_filtered["allOf"] = allOf
         return data
 
     def clean_file_import(self):
@@ -115,7 +144,9 @@ class ImportForm(forms.Form):
 
     def validate_jsonld(self, line, row):
         try:
-            credtools.validate_json(row, self.json_schema)
+            check = credtools.validate_json(row, self.json_schema_filtered)
+            if check is not True:
+                raise ValidationError("Not valid row")
         except Exception as e:
             msg = "line {}: {}".format(line+1, e)
             self.exception(msg)
@@ -135,6 +166,7 @@ class ImportForm(forms.Form):
             csv_data=json.dumps(row),
             issuer_did=self._did,
             schema=self._schema,
+            eidas1_did=self._eidas1
         )
 
     def exception(self, msg):
@@ -268,8 +300,12 @@ class ImportCertificateForm(forms.Form):
             did=self.file_name,
             label=self._label,
             eidas1=True,
-            user=self.user
+            user=self.user,
+            type=DID.Types.KEY
         )
+
+        pw = cache.get("KEY_DIDS")
+        self._did.set_key_material(key_material, pw)
 
     def save(self, commit=True):
 
