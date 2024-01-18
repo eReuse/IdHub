@@ -25,7 +25,6 @@ from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
-from django.core.cache import cache
 from django.contrib import messages
 from django.conf import settings
 from idhub.user.forms import (
@@ -223,9 +222,9 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_pfx_data(self):
         did = self.object.eidas1_did
-        if not did:
+        pw = self.admin_validated
+        if not did or not pw:
             return None, None
-        pw = cache.get("KEY_DIDS")
         key_material = json.loads(did.get_key_material(pw))
         cert = key_material.get("cert")
         passphrase = key_material.get("passphrase")
@@ -236,6 +235,8 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def signer_init(self):
         pfx_data, passphrase = self.get_pfx_data()
+        if not pfx_data or not passphrase:
+            return
         s = certs.load_cert(
             pfx_data, passphrase
         )
@@ -309,6 +310,12 @@ class CredentialsRequestView(MyWallet, FormView):
     icon = 'bi bi-patch-check-fill'
     form_class = RequestCredentialForm
     success_url = reverse_lazy('idhub:user_credentials')
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if not self.admin_validated:
+            return redirect(reverse_lazy('idhub:user_dashboard'))
+        return response
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
