@@ -146,7 +146,6 @@ class User(AbstractBaseUser):
         return base64.b64encode(value_enc).decode('utf-8')
 
     def decrypt_data(self, data, password):
-        # import pdb; pdb.set_trace()
         sb = self.get_secret_box(password)
         value = base64.b64decode(data.encode('utf-8'))
         return sb.decrypt(value).decode('utf-8')
