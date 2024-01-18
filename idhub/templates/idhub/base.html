@@ -109,11 +109,13 @@
                       {% trans 'My credentials' %}
                     </a>
                   </li>
+                  {% if admin_validated %}
                   <li class="nav-item">
                     <a class="nav-link {% if path == 'user_credentials_request' %}active2{% endif %}" href="{% url 'idhub:user_credentials_request' %}">
                       {% trans 'Request a credential' %}
                     </a>
                   </li>
+                  {% endif %}
                   <li class="nav-item">
                     <a class="nav-link {% if path in 'user_demand_authorization, authorize' %}active2{% endif %}" href="{% url 'idhub:user_demand_authorization' %}">
                       {% trans 'Present a credential' %}
