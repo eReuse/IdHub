@@ -175,6 +175,8 @@ urlpatterns = [
         name='admin_import'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+    path('admin/auth/<uuid:2fauth>', views_admin.DobleFactorAuthView.as_view(),
+        name='admin_2fauth'),
 
     path('did-registry/<str:did_id>/did.json', serve_did)
 

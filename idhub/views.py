@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.conf import settings
@@ -41,6 +42,8 @@ class LoginView(auth_views.LoginView):
             # )
             # cache.set("KEY_DIDS", encryption_key, None)
             cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
+            # self.request.session["2fauth"] = uuid.uuid4()
+            self.request.session["2fauth"] = '0c9116a7-c6e5-41d7-bbf0-e8492cdfca23'
 
         self.request.session["key_did"] = user.encrypt_data(
             sensitive_data_encryption_key,
