@@ -1,0 +1,26 @@
+{% load i18n %}{% autoescape off %}
+<p>
+{% blocktrans %}You're receiving this email because you try to access in {{ site_name }}.{% endblocktrans %}
+</p>
+
+<p>
+{% trans "Please go to the following page" %}
+</p>
+
+<p>
+{% block reset_link %}
+<a href="{{ protocol }}://{{ domain }}{% url 'idhub:admin_2fauth' admin2fauth=token %}">
+{{ protocol }}://{{ domain }}{% url 'idhub:admin_2fauth' admin2fauth=token %}
+</a>
+{% endblock %}
+</p>
+
+<p>
+{% trans "Thanks for using our site!" %}
+</p>
+
+<p>
+{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
+</p>
+
+{% endautoescape %}
