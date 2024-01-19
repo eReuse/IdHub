@@ -9,7 +9,7 @@ from django_tables2 import SingleTableView
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import (
     CreateView,
     DeleteView,
@@ -48,22 +48,18 @@ from idhub.models import (
 )
 
 
-class DobleFactorAuthView(AdminView):
+class DobleFactorAuthView(AdminView, View):
     url = reverse_lazy('idhub:admin_dashboard')
 
     def get(self, request, *args, **kwargs):
-        import pdb; pdb.set_trace()
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
             
-        if self.request.session.get("2fauth") == '0c9116a7-c6e5-41d7-bbf0-e8492cdfca23'
-        if not request.user.is_admin:
-            return redirect(url)
+        if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
+            self.request.session.pop("2fauth", None)
+            return redirect(self.url)
 
-        if self.request.session.get("2fauth"):
-            return redirect(reverse_lazy("idhub:login"))
-
-        return super().get(request, *args, **kwargs)
+        return redirect(reverse_lazy("idhub:login"))
 
 
 class DashboardView(AdminView, SingleTableView):
