@@ -30,4 +30,7 @@ class AdminView(UserView):
             url = reverse_lazy('idhub:user_dashboard')
             return redirect(url)
 
+        if self.request.session.get("2fauth"):
+            return redirect(reverse_lazy("idhub:login"))
+
         return super().get(request, *args, **kwargs)

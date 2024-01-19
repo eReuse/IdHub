@@ -48,6 +48,24 @@ from idhub.models import (
 )
 
 
+class DobleFactorAuthView(AdminView):
+    url = reverse_lazy('idhub:admin_dashboard')
+
+    def get(self, request, *args, **kwargs):
+        import pdb; pdb.set_trace()
+        if not self.request.session.get("2fauth"):
+            return redirect(self.url)
+            
+        if self.request.session.get("2fauth") == '0c9116a7-c6e5-41d7-bbf0-e8492cdfca23'
+        if not request.user.is_admin:
+            return redirect(url)
+
+        if self.request.session.get("2fauth"):
+            return redirect(reverse_lazy("idhub:login"))
+
+        return super().get(request, *args, **kwargs)
+
+
 class DashboardView(AdminView, SingleTableView):
     template_name = "idhub/admin/dashboard.html"
     table_class = DashboardTable
