@@ -1,14 +1,18 @@
 import uuid
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
+from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
-from django.http import HttpResponseRedirect, HttpResponse
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 
 from idhub.models import DID
+from idhub.email.views import NotifyActivateUserByEmail
 from trustchain_idhub import settings
 
 
@@ -42,8 +46,9 @@ class LoginView(auth_views.LoginView):
             # )
             # cache.set("KEY_DIDS", encryption_key, None)
             cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
-            # self.request.session["2fauth"] = uuid.uuid4()
-            self.request.session["2fauth"] = '0c9116a7-c6e5-41d7-bbf0-e8492cdfca23'
+            if not settings.DEVELOPMENT:
+                self.request.session["2fauth"] = str(uuid.uuid4())
+                return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
         self.request.session["key_did"] = user.encrypt_data(
             sensitive_data_encryption_key,
@@ -72,3 +77,23 @@ def serve_did(request, did_id):
     retval = HttpResponse(document)
     retval.headers["Content-Type"] = "application/json"
     return retval
+
+
+class DobleFactorSendView(LoginRequiredMixin, NotifyActivateUserByEmail, TemplateView):
+    template_name = 'auth/2fadmin.html'
+    subject_template_name = 'auth/2fadmin_email_subject.txt'
+    email_template_name = 'auth/2fadmin_email.txt'
+    html_email_template_name = 'auth/2fadmin_email.html'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_admin:
+            raise Http404
+
+        f2auth = self.request.session.get("2fauth")
+        if not f2auth:
+            raise Http404
+
+        self.send_email(self.request.user, token=f2auth)
+        return super().get(request, *args, **kwargs)
+
+

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
-from .views import LoginView, PasswordResetConfirmView, serve_did
+from .views import LoginView, PasswordResetConfirmView, serve_did, DobleFactorSendView
 from .admin import views as views_admin
 from .user import views as views_user
 # from .verification_portal import views as views_verification_portal
@@ -175,8 +175,9 @@ urlpatterns = [
         name='admin_import'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
-    path('admin/auth/<uuid:2fauth>', views_admin.DobleFactorAuthView.as_view(),
+    path('admin/auth/<uuid:admin2fauth>', views_admin.DobleFactorAuthView.as_view(),
         name='admin_2fauth'),
+    path('admin/auth/2f/', DobleFactorSendView.as_view(), name='confirm_send_2f'),
 
     path('did-registry/<str:did_id>/did.json', serve_did)
 
