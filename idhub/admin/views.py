@@ -52,6 +52,7 @@ class DobleFactorAuthView(AdminView, View):
     url = reverse_lazy('idhub:admin_dashboard')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
             
@@ -132,6 +133,7 @@ class PeopleView(People, TemplateView):
 class PeopleActivateView(PeopleView):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -153,6 +155,7 @@ class PeopleActivateView(PeopleView):
 class PeopleDeleteView(PeopleView):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -317,6 +320,7 @@ class PeopleMembershipDeleteView(PeopleView):
     model = Membership
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -404,6 +408,7 @@ class PeopleRolDeleteView(PeopleView):
     model = UserRol
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         user = self.object.user
@@ -467,6 +472,7 @@ class RolDeleteView(AccessControl):
     model = Rol
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -540,6 +546,7 @@ class ServiceDeleteView(AccessControl):
     model = Service
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -584,6 +591,7 @@ class CredentialView(Credentials):
 class CredentialJsonView(Credentials):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -598,6 +606,7 @@ class RevokeCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -617,6 +626,7 @@ class DeleteCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -696,6 +706,7 @@ class DidDeleteView(Credentials, DeleteView):
     success_url = reverse_lazy('idhub:admin_dids')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         Event.set_EV_ORG_DID_DELETED_BY_ADMIN(self.object)
@@ -734,6 +745,7 @@ class SchemasView(SchemasMix):
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
         self.object.delete()
@@ -744,6 +756,7 @@ class SchemasDeleteView(SchemasMix):
 class SchemasDownloadView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
 
@@ -822,6 +835,7 @@ class SchemasImportView(SchemasMix):
 class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
         if not file_name in schemas_files:
