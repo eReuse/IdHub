@@ -23,6 +23,27 @@ class Http403(PermissionDenied):
 class UserView(LoginRequiredMixin):
     login_url = "/login/"
     wallet = False
+    path_terms = [
+        'admin_terms_and_conditions',
+        'user_terms_and_conditions',
+        'user_gdpr',
+    ]
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        url = self.check_gdpr()
+        if url:
+            return url
+
+        return response
+        
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        url = self.check_gdpr()
+        if url:
+            return url
+
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -37,6 +58,14 @@ class UserView(LoginRequiredMixin):
         })
         return context
 
+    def check_gdpr(self):
+        if not self.request.user.accept_gdpr:
+            url = reverse_lazy("idhub:user_terms_and_conditions")
+            if self.request.user.is_admin:
+                url = reverse_lazy("idhub:admin_terms_and_conditions")
+            if resolve(self.request.path).url_name not in self.path_terms:
+                return redirect(url)
+
 
 class AdminView(UserView):
 
@@ -50,8 +79,8 @@ class AdminView(UserView):
 
     def check_valid_user(self):
         if not self.request.user.is_admin:
-            raise Http403
+            raise Http403()
 
         if self.request.session.get("2fauth"):
-            raise Http403
+            raise Http403()
         
