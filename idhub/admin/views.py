@@ -29,6 +29,7 @@ from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
     ImportForm,
     MembershipForm,
+    TermsConditionsForm,
     SchemaForm,
     UserRolForm,
 )
@@ -46,6 +47,26 @@ from idhub.models import (
     UserRol,
     VerificableCredential,
 )
+
+
+class TermsAndConditionsView(AdminView, FormView):
+    template_name = "idhub/admin/terms_conditions.html"
+    title = _("GDPR")
+    section = ""
+    subtitle = _('Accept Terms and Conditions')
+    icon = 'bi bi-file-earmark-medical'
+    form_class = TermsConditionsForm
+    success_url = reverse_lazy('idhub:admin_dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        return super().form_valid(form)
 
 
 class DobleFactorAuthView(AdminView, View):

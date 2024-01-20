@@ -15,7 +15,8 @@ from django.contrib import messages
 from idhub.user.forms import (
     ProfileForm,
     RequestCredentialForm,
-    DemandAuthorizationForm
+    DemandAuthorizationForm,
+    TermsConditionsForm
 )
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event
@@ -87,6 +88,26 @@ class CredentialsView(MyWallet, TemplateView):
             'credentials': creds,
         })
         return context
+
+    
+class TermsAndConditionsView(UserView, FormView):
+    template_name = "idhub/user/terms_conditions.html"
+    title = _("GDPR")
+    section = ""
+    subtitle = _('Accept Terms and Conditions')
+    icon = 'bi bi-file-earmark-medical'
+    form_class = TermsConditionsForm
+    success_url = reverse_lazy('idhub:user_dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        return super().form_valid(form)
 
 
 class CredentialView(MyWallet, TemplateView):
