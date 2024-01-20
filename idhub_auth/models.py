@@ -51,6 +51,7 @@ class User(AbstractBaseUser):
     last_name = models.CharField(_("Last name"), max_length=255, blank=True, null=True)
     encrypted_sensitive_data = models.CharField(max_length=255)
     salt = models.CharField(max_length=255)
+    accept_gdpr = models.BooleanField(default=False)
 
     objects = UserManager()
 

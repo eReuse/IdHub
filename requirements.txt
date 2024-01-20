@@ -26,4 +26,4 @@ uharfbuzz==0.38.0
 fontTools==4.47.0
 weasyprint==60.2
 ujson==5.9.0
-didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
+./didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl

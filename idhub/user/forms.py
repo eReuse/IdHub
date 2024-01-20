@@ -16,6 +16,33 @@ class ProfileForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'email')
 
 
+class TermsConditionsForm(forms.Form):
+    accept = forms.BooleanField(
+        label=_("Accept terms and conditions of the service"),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get("accept"):
+            self.user.accept_gdpr = True
+        else:
+            self.user.accept_gdpr = False        
+        return data
+        
+    def save(self, commit=True):
+
+        if commit:
+            self.user.save()
+            return self.user
+        
+        return 
+
+
 class RequestCredentialForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
     credential = forms.ChoiceField(label=_("Credential"), choices=[])
