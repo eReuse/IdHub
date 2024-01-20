@@ -29,28 +29,18 @@ class UserView(LoginRequiredMixin):
     ]
 
     def get(self, request, *args, **kwargs):
+        self.admin_validated = cache.get("KEY_DIDS")
         response = super().get(request, *args, **kwargs)
         url = self.check_gdpr()
-        if url:
-            return url
 
-        return response
+        return url or response
         
     def post(self, request, *args, **kwargs):
+        self.admin_validated = cache.get("KEY_DIDS")
         response = super().post(request, *args, **kwargs)
         url = self.check_gdpr()
-        if url:
-            return url
 
-        return response
-
-    def get(self, request, *args, **kwargs):
-        self.admin_validated = cache.get("KEY_DIDS")
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.admin_validated = cache.get("KEY_DIDS")
-        return super().post(request, *args, **kwargs)
+        return url or response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
