@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import didkit
 import json
+import urllib
 import jinja2
 from django.template.backends.django import Template
 from django.template.loader import get_template
@@ -29,7 +30,8 @@ def webdid_from_controller_key(key):
     keydid = keydid_from_controller_key(key)  # "did:key:<...>"
     pubkeyid = keydid.rsplit(":")[-1]  # <...>
     document = json.loads(asyncio.run(resolve_keydid(keydid)))  # Documento DID en terminos "key"
-    webdid_url = f"did:web:{settings.DOMAIN}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
+    domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
+    webdid_url = f"did:web:{domain}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
     webdid_url_owner = webdid_url + "#owner"
     # Reemplazamos los campos del documento DID necesarios:
     document["id"] = webdid_url

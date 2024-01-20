@@ -23,6 +23,33 @@ from idhub.models import (
 from idhub_auth.models import User
 
 
+class TermsConditionsForm(forms.Form):
+    accept = forms.BooleanField(
+        label=_("Accept terms and conditions of the service"),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get("accept"):
+            self.user.accept_gdpr = True
+        else:
+            self.user.accept_gdpr = False        
+        return data
+        
+    def save(self, commit=True):
+
+        if commit:
+            self.user.save()
+            return self.user
+        
+        return 
+
+
 class ImportForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
     eidas1 = forms.ChoiceField(
