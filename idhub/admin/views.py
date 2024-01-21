@@ -891,11 +891,13 @@ class SchemasImportAddView(SchemasMix):
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
             name = ldata.get('name')
+            title = ldata.get('title')
             assert name
+            assert title
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name, data=data, type=name)
+        schema = Schemas.objects.create(file_schema=file_name, data=data, type=title)
         schema.save()
         return schema
 
