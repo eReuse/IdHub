@@ -75,15 +75,16 @@ class AuthorizeView(UserView, FormView):
         if 'ok' in result.lower():
             messages.success(self.request, msg)
 
+        cred = form.credentials.first()
+        verifier = form.org.name
+        if cred and verifier:
+            Event.set_EV_CREDENTIAL_PRESENTED(cred, verifier)
+
         if authorization.get('redirect_uri'):
             return redirect(authorization.get('redirect_uri'))
         elif authorization.get('response'):
             txt = authorization.get('response')
             messages.success(self.request, txt)
-            cred = form.credentials.first()
-            verifier = form.org.name
-            if cred and verifier:
-                Event.set_EV_CREDENTIAL_PRESENTED(cred, verifier)
             txt2 = f"Verifier {verifier} send: " + txt
             Event.set_EV_USR_SEND_VP(txt2, self.request.user)
             url = reverse_lazy('idhub:user_dashboard')
@@ -137,7 +138,6 @@ class VerifyView(View):
         response = vp_token.get_response_verify()
         vp_token.save()
         if not vp_token.authorization.promotions.exists():
-            response["redirect_uri"] = ""
             response["response"] = "Validation Code {}".format(code)
 
         return JsonResponse(response)
