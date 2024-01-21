@@ -193,10 +193,15 @@ class OAuth2VPToken(models.Model):
             return response
         
         response["verify"] = "Ok, Verification correct"
-        response["redirect_uri"] = self.get_redirect_url()
+        url = self.get_redirect_url()
+        if url:
+            response["redirect_uri"] = url
         return response
 
     def get_redirect_url(self):
+        if not settings.ALLOW_CODE_URI:
+            return
+
         data = {
             "code": self.authorization.code,
         }
