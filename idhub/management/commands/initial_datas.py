@@ -90,8 +90,11 @@ class Command(BaseCommand):
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
             dname = ldata.get('name')
+            title = ldata.get('title')
             assert dname
+            assert title
         except Exception:
+            title = ''
             return
         name = ''
         try:
@@ -101,7 +104,7 @@ class Command(BaseCommand):
         except Exception:
             return
 
-        Schemas.objects.create(file_schema=file_name, data=data, type=name)
+        Schemas.objects.create(file_schema=file_name, data=data, type=title)
 
     def open_file(self, file_name):
         data = ''
