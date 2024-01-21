@@ -66,6 +66,7 @@ class ImportForm(forms.Form):
         self._eidas1 = None
         self.rows = {}
         self.properties = {}
+        self.users = []
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         dids = DID.objects.filter(user=self.user)
@@ -178,13 +179,11 @@ class ImportForm(forms.Form):
             msg = "line {}: {}".format(line+1, e)
             self.exception(msg)
 
-        user = User.objects.filter(email=row.get('email'))
-        if not user:
-            txt = _('The user does not exist!')
-            msg = "line {}: {}".format(line+1, txt)
-            self.exception(msg)
+        user, new = User.objects.get_or_create(email=row.get('email'))
+        if new:
+            self.users.append(user)
 
-        return user.first()
+        return user
 
     def create_credential(self, user, row):
         return VerificableCredential(
