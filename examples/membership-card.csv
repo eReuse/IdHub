@@ -1,2 +1,0 @@
-firstName	lastName	email	membershipType	membershipId	affiliatedUntil	affiliatedSince	typeOfPerson	identityDocType	identityNumber
-Pepe	Gómez	user1@example.org	individual	123456	2024-01-01T00:00:00Z	2023-01-01T00:00:00Z	natural	DNI	12345678A
