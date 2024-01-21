@@ -52,6 +52,7 @@ class Event(models.Model):
         EV_ORG_DID_DELETED_BY_ADMIN = 28, "Organisational DID deleted by admin"
         EV_USR_DEACTIVATED_BY_ADMIN = 29, "User deactivated"
         EV_USR_ACTIVATED_BY_ADMIN = 30, "User activated"
+        EV_USR_SEND_VP = 31, "User send Verificable Presentation"
 
     created = models.DateTimeField(_("Date"), auto_now=True)
     message = models.CharField(_("Description"), max_length=350)
@@ -406,6 +407,14 @@ class Event(models.Model):
         cls.objects.create(
             type=cls.Types.EV_USR_ACTIVATED_BY_ADMIN,
             message=msg,
+        )
+
+    @classmethod
+    def set_EV_USR_SEND_VP(cls, msg, user):
+        cls.objects.create(
+            type=cls.Types.EV_USR_SEND_VP,
+            message=msg,
+            user=user
         )
         
 
