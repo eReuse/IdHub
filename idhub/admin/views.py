@@ -936,7 +936,7 @@ class ImportStep2View(ImportExport, TemplateView):
         return context
 
 
-class ImportAddView(ImportExport, FormView):
+class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
     template_name = "idhub/admin/import_add.html"
     subtitle = _('Import')
     icon = ''
@@ -957,5 +957,12 @@ class ImportAddView(ImportExport, FormView):
                 Event.set_EV_CREDENTIAL_CAN_BE_REQUESTED(cred)
         else:
             messages.error(self.request, _("Error importing the file!"))
+
+        for user in form.users:
+            try:
+                self.send_email(user)
+            except SMTPException as e:
+                messages.error(self.request, e)
+
         return super().form_valid(form)
 
