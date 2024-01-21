@@ -1,0 +1,176 @@
+{
+    "$id": "https://idhub.pangea.org/vc_schemas/devicePurchase.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Purchase of an eReuse device",
+    "description": "A device purchase credential is a proof of purchase of a device from a seller by a buyer",
+    "name": [
+        {
+            "value": "Device purchase credential",
+            "lang": "en"
+        },
+        {
+            "value": "Credencial d'adquisició d'un dispositiu",
+            "lang": "ca_ES"
+        },
+        {
+            "value": "Credencial de adquisición de un dispositivo",
+            "lang": "es"
+        }
+    ],
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+        },
+        {
+            "properties": {
+                "credentialSubject": {
+                    "description": "Defines additional properties on credentialSubject: the purchase act, to qualify as simplified invoice (ES)",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "description": "Defines a unique identifier (DID) of the credential subject: the purchase act/transaction",
+                            "type": "string"
+                        },
+                        "invoiceNumber": {
+                            "description": "The invoice number of the purchase act/transaction",
+                            "type": "string"
+                        },
+                        "totalAmount": {
+                            "description": "The total amount of the transaction in local currency units: Euro by default",
+                            "type": "string"
+                        },
+                        "sellerId": {
+                            "description": "Defines a unique identifier (DID) of the seller actor",
+                            "type": "string"
+                        },
+                        "sellerBusinessName": {
+                            "description": "Business name of the credential subject in the seller role",
+                            "type": "string"
+                        },
+                        "sellerName": {
+                            "description": "Name of the credential subject in the seller role",
+                            "type": "string"
+                        },
+                        "sellerSurname": {
+                            "description": "Surname of the credential subject in the seller role, if natural person",
+                            "type": "string"
+                        },
+                        "sellerEmail": {
+                            "type": "string",
+                            "format": "email"
+                        },
+                        "sellerPhoneNumber": {
+                            "type": "string"
+                        },
+                        "sellerIdentityDocType": {
+                            "description": "Type of the Identity Document of the credential subject in the seller role",
+                            "type": "string"
+                        },
+                        "sellerIdentityNumber": {
+                            "description": "Number of the Identity Document of the credential subject in the seller role",
+                            "type": "string"
+                        },
+                        "buyerId": {
+                            "description": "Defines a unique identifier (DID) of the credential subject: the buyer actor",
+                            "type": "string"
+                        },
+                        "buyerBusinessName": {
+                            "description": "Business name of the credential subject in the buyer role",
+                            "type": "string"
+                        },
+                        "buyerName": {
+                            "description": "Name of the credential subject in the buyer role",
+                            "type": "string"
+                        },
+                        "buyerSurname": {
+                            "description": "Surname of the credential subject in the buyer role, if natural person",
+                            "type": "string"
+                        },
+                        "buyerEmail": {
+                            "type": "string",
+                            "format": "email"
+                        },
+                        "buyerPhoneNumber": {
+                            "type": "string"
+                        },
+                        "buyerIdentityDocType": {
+                            "description": "Type of the Identity Document of the credential subject in the buyer role",
+                            "type": "string"
+                        },
+                        "buyerIdentityNumber": {
+                            "description": "Number of the Identity Document of the credential subject in the buyer role",
+                            "type": "string"
+                        },
+                        "deliveryStreetAddress": {
+                            "description": "Postal address of the credential Subject in the buyer role",
+                            "type": "string"
+                        },
+                        "deliveryPostCode": {
+                            "description": "Postal code of the credential Subject in the buyer role",
+                            "type": "string"
+                        },
+                        "deliveryCity": {
+                            "description": "City of the credential Subject in the buyer role",
+                            "type": "string"
+                        },
+                        "supplyDescription": {
+                            "description": "Description of the product/device supplied, needed in a simplified invoice",
+                            "type": "string"
+                        },
+                        "taxRate": {
+                            "description": "Description of Tax rate (VAT) and optionally also the expression VAT included, or special circumstances such as REBU, needed in a simplified invoice",
+                            "type": "string"
+                        },
+                        "deviceChassisId": {
+                            "description": "Chassis identifier of the device",
+                            "type": "string"
+                        },
+                        "devicePreciseHardwareId": {
+                            "description": "Chassis precise hardware configuration identifier of the device",
+                            "type": "string"
+                        },
+                        "depositId": {
+                            "description": "Identifier of an economic deposit left on loan to be returned under conditions",
+                            "type": "string"
+                        },
+                        "sponsorId": {
+                            "description": "Identifier of the sponsor of this purchase that paid the economic cost of the purchase",
+                            "type": "string"
+                        },
+                        "sponsorName": {
+                            "description": "Name of the sponsor of this purchase that paid the economic cost of the purchase",
+                            "type": "string"
+                        },
+                        "purchaseDate": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "invoiceDate": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "invoiceNumber",
+                        "totalAmount",
+                        "sellerId",
+                        "sellerName",
+                        "sellerBusinessName",
+                        "sellerSurname",
+                        "sellerEmail",
+                        "sellerIdentityDocType",
+                        "sellerIdentityNumber",
+                        "buyerId",
+                        "buyerEmail",
+                        "supplyDescription",
+                        "taxRate",
+                        "deviceChassisId",
+                        "purchaseDate"
+                    ]
+                }
+            }
+        }
+    ]
+}
