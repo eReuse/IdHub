@@ -13,6 +13,7 @@ from django.contrib import messages
 
 from oidc4vp.models import Authorization, Organization, OAuth2VPToken
 from idhub.mixins import UserView
+from idhub.models import Event
 
 from oidc4vp.forms import AuthorizeForm
 from utils.idhub_ssikit import verify_presentation
@@ -43,6 +44,11 @@ class AuthorizeView(UserView, FormView):
         kwargs['presentation_definition'] = vps
         kwargs["org"] = self.get_org()
         kwargs["code"] = self.request.GET.get('code')
+        enc_pw = self.request.session["key_did"]
+        kwargs['pw'] = self.request.user.decrypt_data(
+            enc_pw,
+            self.request.user.password+self.request.session._session_key
+        )
         return kwargs
 
     def get_form(self, form_class=None):
@@ -55,12 +61,12 @@ class AuthorizeView(UserView, FormView):
         authorization = form.save()
         if not authorization or authorization.status_code != 200:
             messages.error(self.request, _("Error sending credential!"))
-            return super().form_valid(form)
+            return redirect(self.success_url)
         try:
             authorization = authorization.json()
         except:
             messages.error(self.request, _("Error sending credential!"))
-            return super().form_valid(form)
+            return redirect(self.success_url)
 
         verify = authorization.get('verify')
         result, msg = verify.split(",")
@@ -74,8 +80,16 @@ class AuthorizeView(UserView, FormView):
         elif authorization.get('response'):
             txt = authorization.get('response')
             messages.success(self.request, txt)
+            cred = form.credentials.first()
+            verifier = form.org.name
+            if cred and verifier:
+                Event.set_EV_CREDENTIAL_PRESENTED(cred, verifier)
+            txt2 = f"Verifier {verifier} send: " + txt
+            Event.set_EV_USR_SEND_VP(txt2, self.request.user)
+            url = reverse_lazy('idhub:user_dashboard')
+            return redirect(url)
                 
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
     def get_org(self):
         client_id = self.request.GET.get("client_id")

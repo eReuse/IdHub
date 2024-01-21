@@ -19,7 +19,9 @@ class AuthorizeForm(forms.Form):
         self.user = kwargs.pop('user', None)
         self.org = kwargs.pop('org', None)
         self.code = kwargs.pop('code', None)
+        self.pw = kwargs.pop('pw', None)
         self.presentation_definition = kwargs.pop('presentation_definition', [])
+        self.subject_did = None
 
         reg = r'({})'.format('|'.join(self.presentation_definition))
 
@@ -49,7 +51,12 @@ class AuthorizeForm(forms.Form):
                     txt = _('There are some problems with this credentials')
                     raise ValidationError(txt)
 
-                self.list_credentials.append(c)
+                cred = self.user.decrypt_data(
+                    c.data,
+                    self.pw
+                )
+                self.subject_did = c.subject_did
+                self.list_credentials.append(cred)
 
         if not self.code:
             txt = _("There isn't code in request")
@@ -69,13 +76,14 @@ class AuthorizeForm(forms.Form):
         return
 
     def get_verificable_presentation(self):
-        did = self.list_credentials[0].subject_did
+        did = self.subject_did
         vp_template = get_template('credentials/verifiable_presentation.json')
-        vc_list = json.dumps([json.loads(x.data) for x in self.list_credentials])
+        vc_list = json.dumps([json.loads(x) for x in self.list_credentials])
 
         context = {
             "holder_did": did.did,
             "verifiable_credential_list": vc_list
         }
         unsigned_vp = vp_template.render(context)
-        self.vp = create_verifiable_presentation(did.key_material, unsigned_vp)
+        key_material = did.get_key_material(self.pw)
+        self.vp = create_verifiable_presentation(key_material, unsigned_vp)
