@@ -2,9 +2,12 @@ import asyncio
 import datetime
 import didkit
 import json
+import urllib
 import jinja2
 from django.template.backends.django import Template
 from django.template.loader import get_template
+
+from trustchain_idhub import settings
 
 
 def generate_did_controller_key():
@@ -13,6 +16,31 @@ def generate_did_controller_key():
 
 def keydid_from_controller_key(key):
     return didkit.key_to_did("key", key)
+
+
+async def resolve_keydid(keydid):
+    return await didkit.resolve_did(keydid, "{}")
+
+
+def webdid_from_controller_key(key):
+    """
+    Se siguen los pasos para generar un webdid a partir de un keydid.
+    Documentado en la docu de spruceid.
+    """
+    keydid = keydid_from_controller_key(key)  # "did:key:<...>"
+    pubkeyid = keydid.rsplit(":")[-1]  # <...>
+    document = json.loads(asyncio.run(resolve_keydid(keydid)))  # Documento DID en terminos "key"
+    domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
+    webdid_url = f"did:web:{domain}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
+    webdid_url_owner = webdid_url + "#owner"
+    # Reemplazamos los campos del documento DID necesarios:
+    document["id"] = webdid_url
+    document["verificationMethod"][0]["id"] = webdid_url_owner
+    document["verificationMethod"][0]["controller"] = webdid_url
+    document["authentication"][0] = webdid_url_owner
+    document["assertionMethod"][0] = webdid_url_owner
+    document_fixed_serialized = json.dumps(document)
+    return webdid_url, document_fixed_serialized
 
 
 def generate_generic_vc_id():

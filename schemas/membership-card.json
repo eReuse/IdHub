@@ -1,65 +1,94 @@
 {
-  "$id": "https://gitea.pangea.org/trustchain-oc1-orchestral/schemas/membership-card-schema.json",
+  "$id": "https://idhub.pangea.org/vc_schemas/membership-card.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "name": "MembershipCard",
-  "description": "MembershipCard credential using JsonSchema",
-  "type": "object",
-  "properties": {
-    "credentialSubject": {
-      "type": "object",
-      "properties": {
-        "organisation": {
-          "type": "string"
-        },
-        "membershipType": {
-          "type": "string"
-        },
-        "affiliatedSince": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "affiliatedUntil": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "typeOfPerson": {
-          "type": "string",
-          "enum": [
-            "individual",
-            "org"
-          ]
-        },
-        "identityDocType": {
-          "type": "string",
-          "enum": [
-            "DNI",
-            "NIF",
-            "NIE",
-            "PASSPORT"
-          ]
-        },
-        "identityNumber": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "surnames": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        }
-      },
-      "required": [
-        "organisation",
-        "affiliatedSince",
-        "typeOfPerson",
-        "name",
-        "surnames",
-        "email"
-      ]
+  "title": "Membership Card",
+  "description": "The membership card specifies an individual's subscription or enrollment in specific services or benefits issued by an organization.",
+  "name": [
+    {
+      "value": "Membership Card",
+      "lang": "en"
+    },
+    {
+      "value": "Carnet de soci/a",
+      "lang": "ca_ES"
+    },
+    {
+      "value": "Carnet de socio/a",
+      "lang": "es"
     }
-  }
+  ],
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines additional properties on credentialSubject",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines a unique identifier of the credential subject",
+              "type": "string"
+            },
+            "organisation": {
+              "description": "Organisation the credential subject is affiliated with",
+              "type": "string"
+            },
+            "membershipType": {
+              "description": "Type of membership",
+              "type": "string"
+            },
+            "membershipId": {
+              "description": "Membership identifier",
+              "type": "string"
+            },
+            "affiliatedSince": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "affiliatedUntil": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "typeOfPerson": {
+              "type": "string",
+              "enum": [
+                "natural",
+                "legal"
+              ]
+            },
+            "identityDocType": {
+              "description": "Type of the Identity Document of the credential subject",
+              "type": "string"
+            },
+            "identityNumber": {
+              "description": "Number of the Identity Document of the credential subject",
+              "type": "string"
+            },
+            "firstName": {
+              "description": "Name of the natural person or name of the legal person (organisation)",
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "required": [
+            "id",
+            "organisation",
+            "affiliatedSince",
+            "typeOfPerson",
+            "firstName",
+            "email"
+          ]
+        }
+      }
+    }
+  ]
 }

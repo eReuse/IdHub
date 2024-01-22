@@ -6,4 +6,27 @@
   <i class="{{ icon }}"></i>
   {{ subtitle }}
 </h3>
+{% load django_bootstrap5 %}
+<form role="form" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{% if form.errors %}
+<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+  <div class="message">
+    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+    <span class="mdi mdi-close" aria-hidden="true"></span>
+    </button>
+    {% for field, error in form.errors.items %}
+      {{ error }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% bootstrap_form form %}
+<div class="form-actions-no-box">
+  <a class="btn btn-grey" href="{% url 'idhub:admin_import' %}">{% translate "Cancel" %}</a>
+  <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Upload' %}" />
+</div>
+
+</form>
 {% endblock %}

@@ -5,18 +5,56 @@ from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
 
 
+class ProfileForm(forms.ModelForm):
+    MANDATORY_FIELDS = ['first_name', 'last_name', 'email']
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+
+class TermsConditionsForm(forms.Form):
+    accept = forms.BooleanField(
+        label=_("Accept terms and conditions of the service"),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get("accept"):
+            self.user.accept_gdpr = True
+        else:
+            self.user.accept_gdpr = False        
+        return data
+        
+    def save(self, commit=True):
+
+        if commit:
+            self.user.save()
+            return self.user
+        
+        return 
+
+
 class RequestCredentialForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
     credential = forms.ChoiceField(label=_("Credential"), choices=[])
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.lang = kwargs.pop('lang', None)
+        self._domain = kwargs.pop('domain', None)
+        self.password = kwargs.pop('password', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
         ]
         self.fields['credential'].choices = [
-            (x.id, x.type()) for x in VerificableCredential.objects.filter(
+            (x.id, x.get_type(lang=self.lang)) for x in VerificableCredential.objects.filter(
                 user=self.user,
                 status=VerificableCredential.Status.ENABLED
             )
@@ -38,7 +76,8 @@ class RequestCredentialForm(forms.Form):
         did = did[0]
         cred = cred[0]
         try:
-            cred.issue(did)
+            if self.password:
+                cred.issue(did, self.password, domain=self._domain)
         except Exception:
             return
 

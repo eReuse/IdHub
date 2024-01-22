@@ -10,7 +10,7 @@ from django_tables2 import SingleTableView
 from django.conf import settings
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import (
     CreateView,
     DeleteView,
@@ -18,6 +18,7 @@ from django.views.generic.edit import (
     UpdateView,
 )
 from django.shortcuts import get_object_or_404, redirect
+from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
@@ -29,8 +30,10 @@ from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
     ImportForm,
     MembershipForm,
+    TermsConditionsForm,
     SchemaForm,
     UserRolForm,
+    ImportCertificateForm,
 )
 from idhub.admin.tables import (
         DashboardTable,
@@ -53,6 +56,41 @@ from idhub.models import (
     UserRol,
     VerificableCredential,
 )
+
+
+class TermsAndConditionsView(AdminView, FormView):
+    template_name = "idhub/admin/terms_conditions.html"
+    title = _("GDPR")
+    section = ""
+    subtitle = _('Accept Terms and Conditions')
+    icon = 'bi bi-file-earmark-medical'
+    form_class = TermsConditionsForm
+    success_url = reverse_lazy('idhub:admin_dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        return super().form_valid(form)
+
+
+class DobleFactorAuthView(AdminView, View):
+    url = reverse_lazy('idhub:admin_dashboard')
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        if not self.request.session.get("2fauth"):
+            return redirect(self.url)
+            
+        if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
+            self.request.session.pop("2fauth", None)
+            return redirect(self.url)
+
+        return redirect(reverse_lazy("idhub:login"))
 
 
 class DashboardView(AdminView, SingleTableView):
@@ -132,6 +170,7 @@ class PeopleView(People, TemplateView):
 class PeopleActivateView(PeopleView):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -153,6 +192,7 @@ class PeopleActivateView(PeopleView):
 class PeopleDeleteView(PeopleView):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -317,6 +357,7 @@ class PeopleMembershipDeleteView(PeopleView):
     model = Membership
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -404,6 +445,7 @@ class PeopleRolDeleteView(PeopleView):
     model = UserRol
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         user = self.object.user
@@ -470,6 +512,7 @@ class RolDeleteView(AccessControl):
     model = Rol
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -546,6 +589,7 @@ class ServiceDeleteView(AccessControl):
     model = Service
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -592,6 +636,7 @@ class CredentialView(Credentials):
 class CredentialJsonView(Credentials):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -606,6 +651,7 @@ class RevokeCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -625,6 +671,7 @@ class DeleteCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -669,13 +716,13 @@ class DidRegisterView(Credentials, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:admin_dids')
     object = None
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did()
+        form.instance.set_did(cache.get("KEY_DIDS"))
         form.save()
         messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
@@ -710,6 +757,7 @@ class DidDeleteView(Credentials, DeleteView):
     success_url = reverse_lazy('idhub:admin_dids')
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         Event.set_EV_ORG_DID_DELETED_BY_ADMIN(self.object)
@@ -725,11 +773,27 @@ class WalletCredentialsView(Credentials):
     wallet = True
 
 
-class WalletConfigIssuesView(Credentials):
+class WalletConfigIssuesView(Credentials, FormView):
     template_name = "idhub/admin/wallet_issues.html"
     subtitle = _('Configure credential issuance')
     icon = 'bi bi-patch-check-fill'
     wallet = True
+    form_class = ImportCertificateForm
+    success_url = reverse_lazy('idhub:admin_dids')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        cred = form.save()
+        if cred:
+            messages.success(self.request, _("The credential was imported successfully!"))
+            Event.set_EV_ORG_DID_CREATED_BY_ADMIN(cred)
+        else:
+            messages.error(self.request, _("Error importing the credential!"))
+        return super().form_valid(form)
 
 
 class SchemasView(SchemasMix, SingleTableView):
@@ -750,6 +814,7 @@ class SchemasView(SchemasMix, SingleTableView):
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
         self.object.delete()
@@ -760,6 +825,7 @@ class SchemasDeleteView(SchemasMix):
 class SchemasDownloadView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
 
@@ -838,6 +904,7 @@ class SchemasImportView(SchemasMix):
 class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
+        self.check_valid_user()
         file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
         if file_name not in schemas_files:
@@ -855,14 +922,18 @@ class SchemasImportAddView(SchemasMix):
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
             name = ldata.get('name')
+            title = ldata.get('title')
             assert name
+            assert title
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name,
-                                        data=data, type=name,
-                                        template_description=self.get_description()
-                                        )
+        schema = Schemas.objects.create(
+            file_schema=file_name,
+            data=data,
+            type=name,
+            template_description=self.get_description()
+        )
         schema.save()
         return schema
 
@@ -917,7 +988,7 @@ class ImportStep2View(ImportExport, TemplateView):
         return context
 
 
-class ImportAddView(ImportExport, FormView):
+class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
     template_name = "idhub/admin/import_add.html"
     subtitle = _('Import')
     icon = ''
@@ -938,4 +1009,11 @@ class ImportAddView(ImportExport, FormView):
                 Event.set_EV_CREDENTIAL_CAN_BE_REQUESTED(cred)
         else:
             messages.error(self.request, _("Error importing the file!"))
+
+        for user in form.users:
+            try:
+                self.send_email(user)
+            except SMTPException as e:
+                messages.error(self.request, e)
+
         return super().form_valid(form)
