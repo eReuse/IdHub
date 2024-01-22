@@ -58,6 +58,31 @@ python manage.py test
 
 This command will discover and run all tests in the `tests` directories of the application.
 
+
+## Repository Structure
+
+IdHub's repository is organized into several directories, each serving a specific purpose in the project:
+
+- **examples**: ???
+
+- **idhub**: The core directory of the IdHub project. It includes the main functionality of this Django project.
+
+- **idhub_auth**: This directory is dedicated to the authentication system of IdHub. It includes modules and configurations for user authentication and authorization.
+
+- **locale**: Contains localization files for IdHub, enabling support for multiple languages. It's crucial for making the project accessible to a global audience.
+
+- **oidc4vp**: This folder is specific to OpenID Connect for Verifiable Presentations (OIDC4VP) integration, a protocol for handling verifiable credentials in a standardized way.
+
+- **promotion**: Contains an example application for a verification portal.
+
+- **schemas**: Contains verifiable credential schemas used within IdHub. These include some schemas from the [schemas repository], which are copied here to avoid losing access in case of encountering connection problems.
+
+- **ssikit_example_src**: Source code examples demonstrating the usage of SSI (Self-Sovereign Identity) Kit, providing insights into how IdHub integrates with SSI concepts.
+
+- **trustchain_idhub**: This folder includes settings and configurations for the Django project.
+
+- **utils**: A utility folder containing various helper scripts and tools that aid in the development and maintenance of the IdHub project.
+
 ## Documentation
 
 For detailed documentation, visit [Documentation Link].
