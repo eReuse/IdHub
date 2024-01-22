@@ -26,6 +26,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django_tables2 import SingleTableView
+from idhub.user.tables import (
+        DashboardTable,
+        PersonalInfoTable,
+        RolesTable,
+        DIDTable,
+        CredentialsTable
+)
 from django.core.cache import cache
 from django.conf import settings
 from idhub.user.forms import (
@@ -36,7 +44,8 @@ from idhub.user.forms import (
 )
 from utils import certs
 from idhub.mixins import UserView
-from idhub.models import DID, VerificableCredential, Event
+from idhub.models import DID, VerificableCredential, Event, Membership
+from idhub_auth.models import User
 
 
 class MyProfile(UserView):
@@ -49,21 +58,35 @@ class MyWallet(UserView):
     section = "MyWallet"
 
 
-class DashboardView(UserView, TemplateView):
+class DashboardView(UserView, SingleTableView):
     template_name = "idhub/user/dashboard.html"
+    table_class = DashboardTable
     title = _('Dashboard')
     subtitle = _('Events')
     icon = 'bi bi-bell'
     section = "Home"
 
+    def get_queryset(self, **kwargs):
+        queryset = Event.objects.select_related('user').filter(
+                user=self.request.user)
 
-class ProfileView(MyProfile, UpdateView):
+        return queryset
+
+
+class ProfileView(MyProfile, UpdateView, SingleTableView):
     template_name = "idhub/user/profile.html"
+    table_class = PersonalInfoTable
     subtitle = _('My personal data')
     icon = 'bi bi-person-gear'
-    from_class = ProfileForm
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('idhub:user_profile')
+    model = User
+
+    def get_queryset(self, **kwargs):
+        queryset = Membership.objects.select_related('user').filter(
+                user=self.request.user)
+
+        return queryset
 
     def get_object(self):
         return self.request.user
@@ -79,10 +102,16 @@ class ProfileView(MyProfile, UpdateView):
         return super().form_valid(form)
 
 
-class RolesView(MyProfile, TemplateView):
+class RolesView(MyProfile, SingleTableView):
     template_name = "idhub/user/roles.html"
+    table_class = RolesTable
     subtitle = _('My roles')
     icon = 'fa-brands fa-critical-role'
+
+    def get_queryset(self, **kwargs):
+        queryset = self.request.user.roles.all()
+
+        return queryset
 
 
 class GDPRView(MyProfile, TemplateView):
@@ -91,20 +120,17 @@ class GDPRView(MyProfile, TemplateView):
     icon = 'bi bi-file-earmark-medical'
 
 
-class CredentialsView(MyWallet, TemplateView):
+class CredentialsView(MyWallet, SingleTableView):
     template_name = "idhub/user/credentials.html"
+    table_class = CredentialsTable
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        creds = VerificableCredential.objects.filter(
-            user=self.request.user
-        )
-        context.update({
-            'credentials': creds,
-        })
-        return context
+    def get_queryset(self):
+        queryset = VerificableCredential.objects.filter(
+                user=self.request.user)
+
+        return queryset
 
     
 class TermsAndConditionsView(UserView, FormView):
@@ -399,8 +425,9 @@ class DemandAuthorizationView(MyWallet, FormView):
         return super().form_valid(form)
 
     
-class DidsView(MyWallet, TemplateView):
+class DidsView(MyWallet, SingleTableView):
     template_name = "idhub/user/dids.html"
+    table_class = DIDTable
     subtitle = _('Identities (DIDs)')
     icon = 'bi bi-patch-check-fill'
 
@@ -410,6 +437,11 @@ class DidsView(MyWallet, TemplateView):
             'dids': self.request.user.dids,
         })
         return context
+
+    def get_queryset(self, **kwargs):
+        queryset = DID.objects.filter(user=self.request.user)
+
+        return queryset
 
 
 class DidRegisterView(MyWallet, CreateView):

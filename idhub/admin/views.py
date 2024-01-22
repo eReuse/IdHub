@@ -8,6 +8,7 @@ from smtplib import SMTPException
 from django_tables2 import SingleTableView
 
 from django.conf import settings
+from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import (
@@ -35,7 +36,14 @@ from idhub.admin.forms import (
     ImportCertificateForm,
 )
 from idhub.admin.tables import (
-        DashboardTable
+        DashboardTable,
+        UserTable,
+        RolesTable,
+        ServicesTable,
+        CredentialTable,
+        DIDTable,
+        DataTable,
+        TemplateTable
 )
 from idhub.models import (
     DID,
@@ -120,10 +128,12 @@ class ImportExport(AdminView):
     section = "ImportExport"
 
 
-class PeopleListView(People, TemplateView):
+class PeopleListView(People, SingleTableView):
     template_name = "idhub/admin/people.html"
     subtitle = _('View users')
     icon = 'bi bi-person'
+    table_class = UserTable
+    model = User
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,6 +141,11 @@ class PeopleListView(People, TemplateView):
             'users': User.objects.filter(),
         })
         return context
+
+    def get_queryset(self, **kwargs):
+        queryset = super().get_queryset(**kwargs)
+
+        return queryset
 
 
 class PeopleView(People, TemplateView):
@@ -440,17 +455,20 @@ class PeopleRolDeleteView(PeopleView):
         return redirect('idhub:admin_people_edit', user.id)
 
 
-class RolesView(AccessControl):
+class RolesView(AccessControl, SingleTableView):
     template_name = "idhub/admin/roles.html"
     subtitle = _('Manage roles')
+    table_class = RolesTable
     icon = ''
+    model = Rol
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'roles': Rol.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
+
 
 class RolRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/rol_register.html"
@@ -504,17 +522,20 @@ class RolDeleteView(AccessControl):
         return redirect('idhub:admin_roles')
 
 
-class ServicesView(AccessControl):
+class ServicesView(AccessControl, SingleTableView):
     template_name = "idhub/admin/services.html"
+    table_class = ServicesTable
     subtitle = _('Manage services')
     icon = ''
+    model = Service
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'services': Service.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
+
 
 class ServiceRegisterView(AccessControl, CreateView):
     template_name = "idhub/admin/service_register.html"
@@ -578,17 +599,19 @@ class ServiceDeleteView(AccessControl):
         return redirect('idhub:admin_services')
 
 
-class CredentialsView(Credentials):
+class CredentialsView(Credentials, SingleTableView):
     template_name = "idhub/admin/credentials.html"
+    table_class = CredentialTable
     subtitle = _('View credentials')
     icon = ''
+    model = VerificableCredential
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'credentials': VerificableCredential.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
+        return super().get_context_data(**kwargs)
 
 
 class CredentialView(Credentials):
@@ -667,18 +690,25 @@ class DeleteCredentialsView(Credentials):
         return redirect(self.success_url)
 
 
-class DidsView(Credentials):
+class DidsView(Credentials, SingleTableView):
     template_name = "idhub/admin/dids.html"
+    table_class = DIDTable
     subtitle = _('Manage identities (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
+    model = DID
 
     def get_context_data(self, **kwargs):
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
+
         context = super().get_context_data(**kwargs)
         context.update({
             'dids': DID.objects.filter(user=self.request.user),
         })
         return context
+
 
 class DidRegisterView(Credentials, CreateView):
     template_name = "idhub/admin/did_register.html"
@@ -697,7 +727,6 @@ class DidRegisterView(Credentials, CreateView):
         messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
         return super().form_valid(form)
-
 
 
 class DidEditView(Credentials, UpdateView):
@@ -767,19 +796,21 @@ class WalletConfigIssuesView(Credentials, FormView):
         return super().form_valid(form)
 
 
-class SchemasView(SchemasMix):
+class SchemasView(SchemasMix, SingleTableView):
     template_name = "idhub/admin/schemas.html"
+    table_class = TemplateTable
     subtitle = _('View credential templates')
     icon = ''
+    model = Schemas
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'schemas': Schemas.objects,
-        })
-        return context
+        queryset = kwargs.pop('object_list', None)
+        if queryset is None:
+            self.object_list = self.model.objects.all()
 
-        
+        return super().get_context_data(**kwargs)
+
+
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
@@ -869,14 +900,14 @@ class SchemasImportView(SchemasMix):
             if not Schemas.objects.filter(file_schema=x).exists()]
         return schemas
 
-        
+
 class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
         file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        if not file_name in schemas_files:
+        if file_name not in schemas_files:
             messages.error(self.request, f"The schema {file_name} not exist!")
             return redirect('idhub:admin_schemas_import')
 
@@ -897,7 +928,19 @@ class SchemasImportAddView(SchemasMix):
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
-        schema = Schemas.objects.create(file_schema=file_name, data=data, type=title)
+
+        _name = json.dumps(ldata.get('name', ''))
+        _description = json.dumps(ldata.get('description', ''))
+
+        schema = Schemas.objects.create(
+            file_schema=file_name,
+            data=data,
+            type=title,
+            _name=_name,
+            _description=_description,
+            # template_description=_description
+            template_description=self.get_description()
+        )
         schema.save()
         return schema
 
@@ -909,11 +952,27 @@ class SchemasImportAddView(SchemasMix):
 
         return data
 
+    def get_template_description(self):
+        context = {}
+        template_name = 'credentials/{}'.format(
+            self.schema.file_schema
+        )
+        tmpl = get_template(template_name)
+        return tmpl.render(context)
 
-class ImportView(ImportExport, TemplateView):
+    def get_description(self):
+        for des in json.loads(self.get_template_description()).get('description', []):
+            if settings.LANGUAGE_CODE == des.get('lang'):
+                return des.get('value', '')
+        return ''
+
+
+class ImportView(ImportExport, SingleTableView):
     template_name = "idhub/admin/import.html"
+    table_class = DataTable
     subtitle = _('Import data')
     icon = ''
+    model = File_datas
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -965,4 +1024,3 @@ class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
                 messages.error(self.request, e)
 
         return super().form_valid(form)
-

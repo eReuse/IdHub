@@ -33,8 +33,8 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 DEVELOPMENT = config('DEVELOPMENT', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv())
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=[], cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
 DOMAIN = config("DOMAIN", "http://localhost")
 
@@ -190,7 +190,7 @@ LOCALE_PATHS = [
 ]
 # LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
-LANGUAGE_CODE="ca"
+LANGUAGE_CODE="en"
 gettext = lambda s: s
 LANGUAGES = (
     ('de', gettext('German')),

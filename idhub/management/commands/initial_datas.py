@@ -95,16 +95,18 @@ class Command(BaseCommand):
             assert title
         except Exception:
             title = ''
-            return
-        name = ''
-        try:
-            for x in dname:
-                if settings.LANGUAGE_CODE in x['lang']:
-                    name = x.get('value', '')
-        except Exception:
-            return
+            _name = ''
 
-        Schemas.objects.create(file_schema=file_name, data=data, type=title)
+        _name = json.dumps(ldata.get('name', ''))
+        _description = json.dumps(ldata.get('description', ''))
+
+        Schemas.objects.create(
+            file_schema=file_name,
+            data=data,
+            type=title,
+            _name=_name,
+            _description=_description
+        )
 
     def open_file(self, file_name):
         data = ''

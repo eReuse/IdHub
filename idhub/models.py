@@ -473,6 +473,9 @@ class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
+    _name = models.TextField(null=True, db_column='name')
+    _description = models.CharField(max_length=250, null=True, db_column='description')
+    template_description = models.TextField(null=True)
 
     @property
     def get_schema(self):
@@ -480,22 +483,62 @@ class Schemas(models.Model):
             return {}
         return json.loads(self.data)
 
+    def _update_and_get_field(self, field_attr, schema_key, is_json=False):
+        field_value = getattr(self, field_attr)
+        if not field_value:
+            field_value = self.get_schema.get(schema_key, [] if is_json else '')
+            self._update_model_field(field_attr, field_value)
+        try:
+            if is_json:
+                return json.loads(field_value)
+        except json.decoder.JSONDecodeError:
+            return field_value
+        return field_value
+
+    def _update_model_field(self, field_attr, field_value):
+        if field_value:
+            setattr(self, field_attr, field_value)
+            self.save(update_fields=[field_attr])
+
+    @property
     def name(self, request=None):
-        names = {}
-        for name in self.get_schema.get('name', []):
-            lang = name.get('lang')
-            if 'ca' in lang:
-                lang = 'ca'
-            names[lang]= name.get('value')
+        names = self._update_and_get_field('_name', 'name',
+                                           is_json=True)
+        language_code = self._get_language_code(request)
+        name = self._get_name_by_language(names, language_code)
 
-        if request and request.LANGUAGE_CODE in names.keys():
-            return names[request.LANGUAGE_CODE]
+        return name
 
-        return names[settings.LANGUAGE_CODE]
-            
+    def _get_language_code(self, request=None):
+        language_code = settings.LANGUAGE_CODE
+        if request:
+            language_code = request.LANGUAGE_CODE
+        if self._is_catalan_code(language_code):
+            language_code = 'ca'
+
+        return language_code
+
+    def _get_name_by_language(self, names, lang_code):
+        for name in names:
+            if name.get('lang') == lang_code:
+                return name.get('value')
+
+        return None
+
+    def _is_catalan_code(self, language_code):
+        return language_code == 'ca_ES'
+
+    @name.setter
+    def name(self, value):
+        self._name = json.dumps(value)
+
+    @property
     def description(self):
-        return self.get_schema.get('description', '')
+        return self._update_and_get_field('_description', 'description')
 
+    @description.setter
+    def description(self, value):
+        self._description = value
 
 class VerificableCredential(models.Model):
     """
@@ -558,6 +601,9 @@ class VerificableCredential(models.Model):
 
     def type(self):
         return self.schema.type
+
+    def get_description(self):
+        return self.schema._description or ''
 
     def description(self):
         for des in json.loads(self.render("")).get('description', []):
@@ -652,7 +698,6 @@ class VerificableCredential(models.Model):
         d_minimum = self.filter_dict(d_ordered)
         return ujson.dumps(d_minimum)
 
-
     def get_issued_on(self):
         if self.issued_on:
             return self.issued_on.strftime("%m/%d/%Y")
@@ -732,7 +777,7 @@ class Service(models.Model):
 
     def get_roles(self):
         if self.rol.exists():
-            return ", ".join([x.name for x in self.rol.all()])
+            return ", ".join([x.name for x in self.rol.order_by("name")])
         return _("None")
     
     def __str__(self):

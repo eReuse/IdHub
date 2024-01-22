@@ -1,0 +1,52 @@
+name: Django CI Pipeline
+
+on:
+  push:
+    branches: 
+      - main
+      - release
+      - testing-pipeline
+
+jobs:
+  test:
+
+    runs-on: ubuntu-22.04
+
+    env:
+      SECRET_KEY: "t3st-dummy-s3cr3t-k3y"
+      STATIC_ROOT: "tmp/static/"
+      MEDIA_ROOT: "tmp/media/"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install python3-venv
+      id: install
+      run: |
+        apt-get update
+        apt-get install python3 python3-venv python3-pip -y
+
+    - name: Check Python version
+      run: |
+        python3 --version
+        echo "Python version: $(python3 --version)"
+
+    - name: Create virtual environment
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        echo "Virtual environment created successfully"
+      # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
+      if: steps.install.outcome == 'success'
+
+    - name: Install dependencies
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        source venv/bin/activate
+        python manage.py test
+
