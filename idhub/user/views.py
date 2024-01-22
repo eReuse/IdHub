@@ -1,6 +1,20 @@
+import os
+import json
+import base64
+import qrcode
 import logging
+import datetime
+import weasyprint
+import qrcode.image.svg
 
+from io import BytesIO
+from pathlib import Path
+from pyhanko.sign import fields, signers
+from pyhanko import stamp
+from pyhanko.pdf_utils import text
+from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import View
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -20,10 +34,15 @@ from idhub.user.tables import (
         DIDTable,
         CredentialsTable
 )
+from django.core.cache import cache
+from django.conf import settings
 from idhub.user.forms import (
-        RequestCredentialForm,
-        DemandAuthorizationForm
+    ProfileForm,
+    RequestCredentialForm,
+    DemandAuthorizationForm,
+    TermsConditionsForm
 )
+from utils import certs
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event, Membership
 from idhub_auth.models import User
@@ -113,6 +132,26 @@ class CredentialsView(MyWallet, SingleTableView):
 
         return queryset
 
+    
+class TermsAndConditionsView(UserView, FormView):
+    template_name = "idhub/user/terms_conditions.html"
+    title = _("GDPR")
+    section = ""
+    subtitle = _('Accept Terms and Conditions')
+    icon = 'bi bi-file-earmark-medical'
+    form_class = TermsConditionsForm
+    success_url = reverse_lazy('idhub:user_dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        return super().form_valid(form)
+
 
 class CredentialView(MyWallet, TemplateView):
     template_name = "idhub/user/credential.html"
@@ -136,6 +175,147 @@ class CredentialView(MyWallet, TemplateView):
         return context
 
 
+class CredentialPdfView(MyWallet, TemplateView):
+    template_name = "certificates/4_Model_Certificat.html"
+    subtitle = _('Credential management')
+    icon = 'bi bi-patch-check-fill'
+    file_name = "certificate.pdf"
+
+    def get(self, request, *args, **kwargs):
+        self.admin_validated = cache.get("KEY_DIDS")
+        pk = kwargs['pk']
+        self.user = self.request.user
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=pk,
+            eidas1_did__isnull=False,
+            user=self.request.user
+        )
+        self.url_id = "{}://{}/public/credentials/{}".format(
+            self.request.scheme,
+            self.request.get_host(),
+            self.object.hash
+        )
+
+        data = self.build_certificate()
+        if self.object.eidas1_did:
+            doc = self.insert_signature(data)
+        else:
+            doc = data
+        response = HttpResponse(doc, content_type="application/pdf")
+        response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        this_folder = str(Path.cwd())
+        path_img_sig = "idhub/static/images/4_Model_Certificat_html_58d7f7eeb828cf29.jpg"
+        img_signature = next(Path.cwd().glob(path_img_sig))
+        with open(img_signature, 'rb') as _f:
+            img_sig = base64.b64encode(_f.read()).decode('utf-8')
+
+        path_img_head = "idhub/static/images/4_Model_Certificat_html_7a0214c6fc8f2309.jpg"
+        img_header= next(Path.cwd().glob(path_img_head))
+        with open(img_header, 'rb') as _f:
+            img_head = base64.b64encode(_f.read()).decode('utf-8')
+
+        qr = self.generate_qr_code(self.url_id)
+
+        first_name = self.user.first_name and self.user.first_name.upper() or ""
+        last_name = self.user.first_name and self.user.last_name.upper() or ""
+        document_id = "0000000-L"
+        course = "COURSE 1"
+        address = "ADDRESS"
+        date_course = datetime.datetime.now()
+        n_hours = 40
+        n_lections = 5
+        issue_date = datetime.datetime.now()
+        context.update({
+            'object': self.object,
+            "image_signature": img_sig,
+            "image_header": img_head,
+            "first_name": first_name,
+            "last_name": last_name,
+            "document_id": document_id,
+            "course": course,
+            "address": address,
+            "date_course": date_course,
+            "n_hours": n_hours,
+            "n_lections": n_lections,
+            "issue_date": issue_date,
+            "qr": qr
+        })
+        return context
+
+    def build_certificate(self):
+        doc = self.render_to_response(context=self.get_context_data())
+        doc.render()
+        pdf = weasyprint.HTML(string=doc.content)
+        return pdf.write_pdf()
+
+    def generate_qr_code(self, data):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        img_buffer = BytesIO()
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save(img_buffer, format="PNG")
+
+        return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+
+    def get_pfx_data(self):
+        did = self.object.eidas1_did
+        pw = self.admin_validated
+        if not did or not pw:
+            return None, None
+        key_material = json.loads(did.get_key_material(pw))
+        cert = key_material.get("cert")
+        passphrase = key_material.get("passphrase")
+        if cert and passphrase:
+            return base64.b64decode(cert), passphrase.encode('utf-8')
+        return None, None
+        
+
+    def signer_init(self):
+        pfx_data, passphrase = self.get_pfx_data()
+        if not pfx_data or not passphrase:
+            return
+        s = certs.load_cert(
+            pfx_data, passphrase
+        )
+        return s
+
+    def insert_signature(self, doc):
+        sig = self.signer_init()
+        if not sig:
+            return
+
+        _buffer = BytesIO()
+        _buffer.write(doc)
+        w = IncrementalPdfFileWriter(_buffer)
+        fields.append_signature_field(
+            w, sig_field_spec=fields.SigFieldSpec(
+                'Signature', box=(150, 100, 450, 150)
+            )
+        )
+
+        meta = signers.PdfSignatureMetadata(field_name='Signature')
+        pdf_signer = signers.PdfSigner(
+            meta, signer=sig, stamp_style=stamp.TextStampStyle(
+                stamp_text='Signed by: %(signer)s\nTime: %(ts)s\nURL: %(url)s',
+                text_box_style=text.TextBoxStyle()
+            )
+        )
+        _bf_out = BytesIO()
+        pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': self.url_id})
+        return _bf_out.read()
+
+
 class CredentialJsonView(MyWallet, TemplateView):
 
     def get(self, request, *args, **kwargs):
@@ -144,6 +324,28 @@ class CredentialJsonView(MyWallet, TemplateView):
             VerificableCredential,
             pk=pk,
             user=self.request.user
+        )
+        pass_enc = self.request.session.get("key_did")
+        data = ""
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+            data = self.object.get_data(user_pass)
+        response = HttpResponse(data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+        return response
+
+
+class PublicCredentialJsonView(View):
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            hash=pk,
+            eidas1_did__isnull=False,
         )
         response = HttpResponse(self.object.data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
@@ -157,9 +359,27 @@ class CredentialsRequestView(MyWallet, FormView):
     form_class = RequestCredentialForm
     success_url = reverse_lazy('idhub:user_credentials')
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if not self.admin_validated:
+            return redirect(reverse_lazy('idhub:user_dashboard'))
+        return response
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['lang'] = self.request.LANGUAGE_CODE
+        domain = "{}://{}".format(self.request.scheme, self.request.get_host())
+        kwargs['domain'] = domain
+        pass_enc = self.request.session.get("key_did")
+        if pass_enc:
+            user_pass = self.request.user.decrypt_data(
+                pass_enc,
+                self.request.user.password+self.request.session._session_key
+            )
+        else:
+            pass_enc = None
+        kwargs['password'] = user_pass
         return kwargs
     
     def form_valid(self, form):
@@ -230,13 +450,17 @@ class DidRegisterView(MyWallet, CreateView):
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
-    fields = ('label',)
+    fields = ('label', 'type')
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did()
+        pw = self.request.user.decrypt_data(
+            self.request.session.get("key_did"),
+            self.request.user.password+self.request.session._session_key
+        )
+        form.instance.set_did(pw)
         form.save()
         messages.success(self.request, _('DID created successfully'))
 

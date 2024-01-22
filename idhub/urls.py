@@ -17,7 +17,12 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
-from .views import LoginView
+from .views import (
+    LoginView,
+    PasswordResetConfirmView,
+    serve_did,
+    DobleFactorSendView,
+)
 from .admin import views as views_admin
 from .user import views as views_user
 # from .verification_portal import views as views_verification_portal
@@ -45,13 +50,16 @@ urlpatterns = [
         ),
         name='password_reset_done'
     ),
-    path('auth/reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(
-            template_name='auth/password_reset_confirm.html',
-            success_url=reverse_lazy('idhub:password_reset_complete')
-        ),
+    path('auth/reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(),
         name='password_reset_confirm'
     ),
+    # path('auth/reset/<uidb64>/<token>/',
+    #     auth_views.PasswordResetConfirmView.as_view(
+    #         template_name='auth/password_reset_confirm.html',
+    #         success_url=reverse_lazy('idhub:password_reset_complete')
+    #     ),
+    #     name='password_reset_confirm'
+    # ),
     path('auth/reset/done/',
         auth_views.PasswordResetCompleteView.as_view(
             template_name='auth/password_reset_complete.html'
@@ -80,14 +88,20 @@ urlpatterns = [
         name='user_credentials'),
     path('user/credentials/<int:pk>', views_user.CredentialView.as_view(),
         name='user_credential'),
-    path('user/credentials/<int:pk>/json', views_user.CredentialJsonView.as_view(),
+    path('user/credentials/<int:pk>/pdf', views_user.CredentialPdfView.as_view(),
+        name='user_credential_pdf'),
+    path('credentials/<int:pk>/', views_user.CredentialJsonView.as_view(),
         name='user_credential_json'),
+    path('public/credentials/<str:pk>/', views_user.PublicCredentialJsonView.as_view(),
+        name='public_credential_json'),
     path('user/credentials/request/',
         views_user.CredentialsRequestView.as_view(),
         name='user_credentials_request'),
     path('user/credentials_presentation/demand',
         views_user.DemandAuthorizationView.as_view(),
         name='user_demand_authorization'),
+    path('user/terms/', views_user.TermsAndConditionsView.as_view(),
+        name='user_terms_and_conditions'),
 
     # Admin
     path('admin/dashboard/', views_admin.DashboardView.as_view(),
@@ -170,8 +184,15 @@ urlpatterns = [
         name='admin_schemas_import_add'),
     path('admin/import', views_admin.ImportView.as_view(),
         name='admin_import'),
+    path('admin/terms/', views_admin.TermsAndConditionsView.as_view(),
+        name='admin_terms_and_conditions'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+    path('admin/auth/<uuid:admin2fauth>', views_admin.DobleFactorAuthView.as_view(),
+        name='admin_2fauth'),
+    path('admin/auth/2f/', DobleFactorSendView.as_view(), name='confirm_send_2f'),
+
+    path('did-registry/<str:did_id>/did.json', serve_did)
 
     # path('verification_portal/verify/', views_verification_portal.verify,
     #      name="verification_portal_verify")

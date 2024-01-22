@@ -7,6 +7,7 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from decouple import config
 from idhub.models import DID, Schemas
 from oidc4vp.models import Organization
@@ -36,17 +37,25 @@ class Command(BaseCommand):
                 self.create_organizations(r[0].strip(), r[1].strip())
         self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
         self.sync_credentials_organizations("local 8000", "local 9000")
-        self.create_defaults_dids()
         self.create_schemas()
 
     def create_admin_users(self, email, password):
-        User.objects.create_superuser(email=email, password=password)
+        su = User.objects.create_superuser(email=email, password=password)
+        su.set_encrypted_sensitive_data(password)
+        su.save()
+        key = su.decrypt_sensitive_data(password)
+        key_dids = {su.id: key}
+        cache.set("KEY_DIDS", key_dids, None)
+        self.create_defaults_dids(su, key)
 
 
     def create_users(self, email, password):
-        u= User.objects.create(email=email, password=password)
+        u = User.objects.create(email=email, password=password)
         u.set_password(password)
+        u.set_encrypted_sensitive_data(password)
         u.save()
+        key = u.decrypt_sensitive_data(password)
+        self.create_defaults_dids(u, key)
 
 
     def create_organizations(self, name, url):
@@ -61,12 +70,10 @@ class Command(BaseCommand):
         org1.my_client_secret = org2.client_secret
         org1.save()
         org2.save()
-
-    def create_defaults_dids(self):
-        for u in User.objects.all():
-            did = DID(label="Default", user=u)
-            did.set_did()
-            did.save()
+    def create_defaults_dids(self, u, password):
+        did = DID(label="Default", user=u, type=DID.Types.KEY)
+        did.set_did(password)
+        did.save()
 
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
@@ -82,11 +89,22 @@ class Command(BaseCommand):
         try:
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
-            name = ldata.get('name')
-            assert name
+            dname = ldata.get('name')
+            title = ldata.get('title')
+            assert dname
+            assert title
+        except Exception:
+            title = ''
+            return
+        name = ''
+        try:
+            for x in dname:
+                if settings.LANGUAGE_CODE in x['lang']:
+                    name = x.get('value', '')
         except Exception:
             return
-        Schemas.objects.create(file_schema=file_name, data=data, type=name)
+
+        Schemas.objects.create(file_schema=file_name, data=data, type=title)
 
     def open_file(self, file_name):
         data = ''
