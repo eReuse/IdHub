@@ -438,6 +438,7 @@ class Schemas(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     _name = models.CharField(max_length=250, null=True, db_column='name')
     _description = models.CharField(max_length=250, null=True, db_column='description')
+    template_description = models.TextField(null=True)
 
     @property
     def get_schema(self):
@@ -518,11 +519,8 @@ class VerificableCredential(models.Model):
     def type(self):
         return self.schema.type
 
-    def description(self):
-        for des in json.loads(self.render()).get('description', []):
-            if settings.LANGUAGE_CODE == des.get('lang'):
-                return des.get('value', '')
-        return ''
+    def get_description(self):
+        return self.schema.template_description
 
     def get_status(self):
         return self.Status(self.status).label
@@ -568,7 +566,6 @@ class VerificableCredential(models.Model):
         )
         tmpl = get_template(template_name)
         return tmpl.render(context)
-
 
     def get_issued_on(self):
         if self.issued_on:
@@ -637,7 +634,7 @@ class Service(models.Model):
 
     def get_roles(self):
         if self.rol.exists():
-            return ", ".join([x.name for x in self.rol.all()])
+            return ", ".join([x.name for x in self.rol.order_by("name")])
         return _("None")
     
     def __str__(self):
