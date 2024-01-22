@@ -1,19 +1,8 @@
-import requests
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-
-from idhub_auth.models import User
 from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
-
-
-class ProfileForm(forms.ModelForm):
-    MANDATORY_FIELDS = ['first_name', 'last_name', 'email']
-
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
 
 
 class RequestCredentialForm(forms.Form):
