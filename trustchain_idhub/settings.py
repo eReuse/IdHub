@@ -190,7 +190,7 @@ LOCALE_PATHS = [
 ]
 # LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
-LANGUAGE_CODE="ca"
+LANGUAGE_CODE="en"
 gettext = lambda s: s
 LANGUAGES = (
     ('de', gettext('German')),
