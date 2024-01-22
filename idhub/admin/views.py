@@ -928,10 +928,17 @@ class SchemasImportAddView(SchemasMix):
         except Exception:
             messages.error(self.request, _('This is not a valid schema!'))
             return
+
+        _name = json.dumps(ldata.get('name', ''))
+        _description = json.dumps(ldata.get('description', ''))
+
         schema = Schemas.objects.create(
             file_schema=file_name,
             data=data,
-            type=name,
+            type=title,
+            _name=_name,
+            _description=_description,
+            # template_description=_description
             template_description=self.get_description()
         )
         schema.save()
@@ -946,7 +953,7 @@ class SchemasImportAddView(SchemasMix):
         return data
 
     def get_template_description(self):
-        context = self.get_context()
+        context = {}
         template_name = 'credentials/{}'.format(
             self.schema.file_schema
         )
@@ -954,7 +961,7 @@ class SchemasImportAddView(SchemasMix):
         return tmpl.render(context)
 
     def get_description(self):
-        for des in json.loads(self.render()).get('description', []):
+        for des in json.loads(self.get_template_description()).get('description', []):
             if settings.LANGUAGE_CODE == des.get('lang'):
                 return des.get('value', '')
         return ''
