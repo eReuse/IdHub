@@ -74,7 +74,7 @@ class ImportForm(forms.Form):
             (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
         self.fields['schema'].choices = [
-            (x.id, x.name()) for x in Schemas.objects.filter()
+            (x.id, x.name) for x in Schemas.objects.filter()
         ]
         if dids.filter(eidas1=True).exists():
             choices = [("", "")]
