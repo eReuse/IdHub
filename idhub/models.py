@@ -473,7 +473,7 @@ class Schemas(models.Model):
     file_schema = models.CharField(max_length=250)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
-    _name = models.CharField(max_length=250, null=True, db_column='name')
+    _name = models.TextField(null=True, db_column='name')
     _description = models.CharField(max_length=250, null=True, db_column='description')
     template_description = models.TextField(null=True)
 
@@ -488,7 +488,12 @@ class Schemas(models.Model):
         if not field_value:
             field_value = self.get_schema.get(schema_key, [] if is_json else '')
             self._update_model_field(field_attr, field_value)
-        return json.loads(field_value) if is_json else field_value
+        try:
+            if is_json:
+                return json.loads(field_value)
+        except json.decoder.JSONDecodeError:
+            return field_value
+        return field_value
 
     def _update_model_field(self, field_attr, field_value):
         if field_value:
@@ -597,16 +602,14 @@ class VerificableCredential(models.Model):
     def type(self):
         return self.schema.type
 
-#<<<<<<< HEAD
     def get_description(self):
-        return self.schema.template_description
-#=======
+        return self.schema._description or ''
+
     def description(self):
         for des in json.loads(self.render("")).get('description', []):
             if settings.LANGUAGE_CODE in des.get('lang'):
                 return des.get('value', '')
         return ''
-#>>>>>>> main
 
     def get_type(self, lang=None):
         schema = json.loads(self.schema.data)
