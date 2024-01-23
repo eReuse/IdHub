@@ -1,16 +1,18 @@
 # IdHub
 
-IdHub is a Django-based project designed to provide efficient identity management solutions. This README offers an overview of the project, setup instructions, and additional resources.
+IdHub is a Django-based project designed to provide efficient identity management solutions.This README offers an overview of the project, setup instructions, and additional resources.
 
 ## About IdHub
 
-IdHub aims to streamline the process of identity management by leveraging the power and flexibility of Django. It's ideal for organizations looking for a reliable, scalable, and customizable identity management system.
+The idHub service, which facilitates organisations (acting as issuer or verifiers) and beneficiaries (acting as subjects and credential holders) to issue, exchange, and verify data in the form of verifiable credentials for credible and flexible access to benefits or services.
 
 ## Features
 
-- **Admin Dashboard**: A user-friendly admin panel for managing identities.
-- **Identity Verification**: Tools and interfaces to verify and manage identities.
-- ...
+The main modules components it provides:
+- **Admin Dashboard**: A user-friendly admin panel that enables administrator to manage users and roles, handle aspects such as the creation of organisational Decentralized Identifiers (DIDs), credentials issued by the organisation, and upload the information for issuance of credentials to users (including credential schemas and data).
+- **User Dashboard**: A user-friendly user panel equips users to manage their personal information, create an identity (DID), request the issuance of a credential, and present these credentials to entities within our user communitity. This module operates as a user wallet.
+The application's backend is responsible for issuing credentials upun user request through the user module. Meanwhile, the idHub can function as a credential verifier and engage in dialogues with other idHub instances that operate as user wallets by implementing a OIDC4VP based dialog. Consequently, the idHub is multifaceted, capable of functioning as an issuer, wallet or verifier.
+- **OIDC4VP module**: Module where all oidc4vp flows reside for credential presentation.
 
 ## Getting Started
 
@@ -20,9 +22,9 @@ IdHub aims to streamline the process of identity management by leveraging the po
 
 ### Installation
 
-1. Clone the repository: 
+1. Clone this repository: 
    ```
-   git clone [FINAL GitHub LINK]
+   git clone [FINAL IdHub repository LINK]
    ```
 2. (Recommended but optional) Create and activate a virtual environment:
    ```
@@ -67,29 +69,27 @@ This command will discover and run all tests in the `tests` directories of the a
 
 IdHub's repository is organized into several directories, each serving a specific purpose in the project:
 
-- **examples**: ???
+- **examples**: Examples of different data files used in some functionalities.
 
-- **idhub**: The core directory of the IdHub project. It includes the main functionality of this Django project.
+- **idhub**: The core directory of the IdHub project (templates, forms, views, models, etc.). It includes the main functionality of this Django project.
 
-- **idhub_auth**: This directory is dedicated to the authentication system of IdHub. It includes modules and configurations for user authentication and authorization.
+- **idhub_auth**: This directory contains the module where the users and the data encryption/decryption system are defined.
 
-- **locale**: Contains localization files for IdHub, enabling support for multiple languages. It's crucial for making the project accessible to a global audience.
+- **locale**: Contains localization files for IdHub (po and mo files for translations), enabling support for multiple languages.
 
-- **oidc4vp**: This folder is specific to OpenID Connect for Verifiable Presentations (OIDC4VP) integration, a protocol for handling verifiable credentials in a standardized way.
+- **oidc4vp**: Module where all oidc4vp flows (implementation of the credential's presentation dialog) reside.
 
-- **promotion**: Contains an example application for a verification portal.
+- **promotion**: Example module showing how to create a portal that initializes the oidc4vp flow.
 
-- **schemas**: Contains verifiable credential schemas used within IdHub. These include some schemas from the [schemas repository], which are copied here to avoid losing access in case of encountering connection problems.
+- **schemas**: Contains verifiable credential schemas used within IdHub for a preload without having to go to the original source. 
 
-- **ssikit_example_src**: Source code examples demonstrating the usage of SSI (Self-Sovereign Identity) Kit, providing insights into how IdHub integrates with SSI concepts.
+- **trustchain_idhub**: This folder includes settings and configurations for the Django project. It is the entry point of Django, where the global variables, the startup files and the file that defines the endpoints are defined.
 
-- **trustchain_idhub**: This folder includes settings and configurations for the Django project.
-
-- **utils**: A utility folder containing various helper scripts and tools that aid in the development and maintenance of the IdHub project.
+- **utils**: A utility folder containing various helper scripts and tools developed by us but that are independent of idHub. Even so, IdHub uses them and needs them (examples of this are the validation system for the data that is loades by excel, or the system that manages the sskit)
 
 ## Documentation
 
-For detailed documentation, visit [Documentation Link].
+For detailed documentation, visit [Documentation Link](http://idhub.pangea.org/help/).
 
 ## License
 
