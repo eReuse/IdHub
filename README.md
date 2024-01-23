@@ -37,7 +37,11 @@ IdHub aims to streamline the process of identity management by leveraging the po
    ```
    python manage.py migrate
    ```
-5. Start the development server:
+5. Optionally you can install a minumum data set:
+   ```
+   python manage.py initial_datas
+   ```
+6. Start the development server:
    ```
    python manage.py runserver
    ```
