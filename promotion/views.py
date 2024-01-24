@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.views.generic.edit import View, FormView
 from django.shortcuts import redirect
 from django.template.loader import get_template
@@ -116,7 +117,7 @@ class SelectWalletView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['presentation_definition'] = json.dumps(["MemberShipCard"])
+        kwargs['presentation_definition'] = json.dumps(settings.SUPPORTED_CREDENTIALS)
         return kwargs
 
     def form_valid(self, form):
