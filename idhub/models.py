@@ -610,17 +610,7 @@ class VerificableCredential(models.Model):
         return ''
 
     def get_type(self, lang=None):
-        schema = json.loads(self.schema.data)
-        if not schema.get('name'):
-            return ''
-        try:
-            for x in schema['name']:
-                if lang or settings.LANGUAGE_CODE in x['lang']:
-                    return x.get('value', '')
-        except:
-            return self.schema.type
-
-        return ''
+        return self.type
 
     def get_status(self):
         return self.Status(self.status).label

@@ -35,8 +35,8 @@ class AuthorizeForm(forms.Form):
         for vp in self.presentation_definition:
             vp = vp.lower()
             choices = [
-                (str(x.id), x.schema.type.lower()) for x in self.credentials.filter(
-                    schema__type__iexact=vp)
+                (str(x.id), x.type.lower()) for x in self.credentials.filter(
+                    type__iexact=vp)
             ]
             self.fields[vp.lower()] = forms.ChoiceField(
                 widget=forms.RadioSelect,
@@ -46,7 +46,7 @@ class AuthorizeForm(forms.Form):
         data = super().clean()
         self.list_credentials = []
         for c in self.credentials:
-            if str(c.id) == data.get(c.schema.type.lower()):
+            if str(c.id) == data.get(c.type.lower()):
                 if c.status is not c.Status.ISSUED.value or not c.data:
                     txt = _('There are some problems with this credentials')
                     raise ValidationError(txt)
