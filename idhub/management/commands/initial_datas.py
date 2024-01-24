@@ -30,13 +30,14 @@ class Command(BaseCommand):
         self.create_users(USER_EMAIL, USER_PASSWORD)
 
         BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-        ORGANIZATION = os.path.join(BASE_DIR, 'examples/organizations.csv')
+        ORGANIZATION = os.path.join(BASE_DIR, settings.ORG_FILE)
         with open(ORGANIZATION, newline='\n') as csvfile:
             f = csv.reader(csvfile, delimiter=';', quotechar='"')
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
-        self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
-        self.sync_credentials_organizations("local 8000", "local 9000")
+        if settings.SYNC_ORG_DEV == 'y':
+            self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
+            self.sync_credentials_organizations("local 8000", "local 9000")
         self.create_schemas()
 
     def create_admin_users(self, email, password):

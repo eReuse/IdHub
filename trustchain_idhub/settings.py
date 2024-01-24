@@ -224,3 +224,5 @@ LOGGING = {
 }
 
 ORGANIZATION = config('ORGANIZATION', 'Pangea')
+SYNC_ORG_DEV = config('SYNC_ORG_DEV', 'y')
+ORG_FILE = config('ORG_FILE', 'examples/organizations.csv')
