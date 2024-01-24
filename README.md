@@ -95,6 +95,3 @@ For detailed documentation, visit [Documentation Link](http://idhub.pangea.org/h
 
 This project is licensed under the GNU Affero General Public License - see the [LICENSE.md](LICENSE.md) file for details.
 
-## Further Reading
-
-- ...
