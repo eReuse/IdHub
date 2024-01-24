@@ -165,21 +165,11 @@ class CredentialTable(tables.Table):
             orderable=False
             )
 
-    def render_type(self, record):
-        return record.type()
-
     def render_details(self, record):
         return record.description()
 
     def render_view_credential(self):
         return format_html('<i class="bi bi-eye"></i>')
-
-    def order_type(self, queryset, is_descending):
-        queryset = queryset.order_by(
-            ("-" if is_descending else "") + "schema__type"
-        )
-
-        return (queryset, True)
 
     class Meta:
         model = VerificableCredential
