@@ -124,13 +124,6 @@ class CredentialsTable(tables.Table):
     def render_status(self, record):
         return record.get_status()
 
-    def order_type(self, queryset, is_descending):
-        queryset = queryset.order_by(
-                ("-" if is_descending else "") + "schema__type"
-                )
-
-        return (queryset, True)
-
     def order_description(self, queryset, is_descending):
         queryset = queryset.order_by(
                 ("-" if is_descending else "") + "schema__template_description"

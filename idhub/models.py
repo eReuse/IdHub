@@ -192,7 +192,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_DELETED_BY_ADMIN(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was deleted").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id,
         )
         cls.objects.create(
@@ -203,7 +203,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_DELETED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was deleted from your wallet").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id
         )
         cls.objects.create(
@@ -215,7 +215,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_ISSUED_FOR_USER(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was issued for user {username}").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id,
             username=cred.user.username
         )
@@ -227,7 +227,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_ISSUED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was issued and stored in your wallet").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id
         )
         cls.objects.create(
@@ -241,7 +241,7 @@ class Event(models.Model):
         msg = "The credential of type '{type}' and ID: '{id}' "
         msg += "was presented by user {username} to verifier '{verifier}"
         msg = _(msg).format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id,
             username=cred.user.username,
             verifier=verifier
@@ -256,7 +256,7 @@ class Event(models.Model):
         msg = "The credential of type '{type}' and ID: '{id}' "
         msg += "was presented to verifier '{verifier}'"
         msg = _(msg).format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id,
             verifier=verifier
         )
@@ -269,7 +269,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_ENABLED(cls, cred):
         msg = _("The credential of type '{type}' was enabled for user {username}").format(
-            type=cred.type(),
+            type=cred.type,
             username=cred.user.username
         )
         cls.objects.create(
@@ -280,7 +280,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_CAN_BE_REQUESTED(cls, cred):
         msg = _("You can request the '{type}' credential").format(
-            type=cred.type()
+            type=cred.type
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_CAN_BE_REQUESTED,
@@ -291,7 +291,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_REVOKED_BY_ADMIN(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was revoked for ").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id
         )
         cls.objects.create(
@@ -302,7 +302,7 @@ class Event(models.Model):
     @classmethod
     def set_EV_CREDENTIAL_REVOKED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was revoked by admin").format(
-            type=cred.type(),
+            type=cred.type,
             id=cred.id
         )
         cls.objects.create(
@@ -550,6 +550,7 @@ class VerificableCredential(models.Model):
         REVOKED = 3, _("Revoked")
         EXPIRED = 4, _("Expired")
 
+    type = models.CharField(max_length=250)
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
@@ -598,9 +599,6 @@ class VerificableCredential(models.Model):
 
     def set_data(self, value, password):
         self.data = self.user.encrypt_data(value, password)
-
-    def type(self):
-        return self.schema.type
 
     def get_description(self):
         return self.schema._description or ''
@@ -703,6 +701,15 @@ class VerificableCredential(models.Model):
             return self.issued_on.strftime("%m/%d/%Y")
 
         return ''
+
+    def set_type(self):
+        template_name = 'credentials/{}'.format(
+            self.schema.file_schema
+        )
+        tmpl = get_template(template_name)
+        d = json.loads(tmpl.render({}))
+        self.type = d.get('type')[-1]
+        
 
     def filter_dict(self, dic):
         new_dict = OrderedDict()

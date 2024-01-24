@@ -186,7 +186,7 @@ class ImportForm(forms.Form):
         return user
 
     def create_credential(self, user, row):
-        return VerificableCredential(
+        cred = VerificableCredential(
             verified=False,
             user=user,
             csv_data=json.dumps(row),
@@ -194,6 +194,8 @@ class ImportForm(forms.Form):
             schema=self._schema,
             eidas1_did=self._eidas1
         )
+        cred.set_type()
+        return cred
 
     def exception(self, msg):
         File_datas.objects.create(file_name=self.file_name, success=False)
