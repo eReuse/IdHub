@@ -64,7 +64,6 @@ python manage.py test
 
 This command will discover and run all tests in the `tests` directories of the application.
 
-
 ## Repository Structure
 
 IdHub's repository is organized into several directories, each serving a specific purpose in the project:
