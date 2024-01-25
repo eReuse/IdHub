@@ -4,7 +4,7 @@ IdHub is a Django-based project designed to provide efficient identity managemen
 
 ## About IdHub
 
-The idHub service, which facilitates organisations (acting as issuer or verifiers) and beneficiaries (acting as subjects and credential holders) to issue, exchange, and verify data in the form of verifiable credentials for credible and flexible access to benefits or services.
+The idHub service facilitates organisations (acting as issuer or verifiers) and beneficiaries (acting as subjects and credential holders) to issue, exchange, and verify data in the form of verifiable credentials for credible and flexible access to benefits or services.
 
 ## Features
 
