@@ -1,0 +1,69 @@
+{
+    "$id": "https://idhub.pangea.org/vc_schemas/eOperatorClaim.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EOperatorClaim",
+    "description": "Product and waste electronics operator claim, as proposed by eReuse.org",
+    "name": [
+        {
+            "value": "Product and waste electronics operator claim",
+            "lang": "en"
+        },
+        {
+            "value": "Declaració d'operador de productes i residus electrònics",
+            "lang": "ca_ES"
+        },
+        {
+            "value": "Declaración de operador de productos y residuos electrónicos",
+            "lang": "es"
+        }
+    ],
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+        },
+        {
+            "properties": {
+                "credentialSubject": {
+                    "description": "Defines properties on credentialSubject",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "description": "Defines a unique identifier of the credential subject",
+                            "type": "string"
+                        },
+                        "legalName": {
+                            "description": "Legal name of the operator",
+                            "type": "string"
+                        },
+                        "accreditedBy": {
+                            "description": "Legal name of the accrediting entity",
+                            "type": "string"
+                        },
+                        "operatorNumber": {
+                            "description": "Operator number awarded by accrediting entity",
+                            "type": "string"
+                        },
+                        "limitJurisdiction": {
+                            "description": "Regional scope",
+                            "type": "string"
+                        },
+                        "accreditedFor": {
+                            "description": "Operation type: e.g. manufacture, repair, refurbishment, remanufacture, transport, dismantle, recycle, verification, audit",
+                            "type": "string"
+                        },
+                        "role": {
+                            "description": "Role, either operator, witness, auditor",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "legalName",
+                        "role"
+                    ]
+                }
+            }
+        }
+    ]
+}
