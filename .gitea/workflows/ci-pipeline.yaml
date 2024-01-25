@@ -23,8 +23,8 @@ jobs:
     - name: Install pre-requisite packages
       id: prereq
       run: |
-        apt-get install software-properties-common
         apt-get update
+        apt-get install software-properties-common
 
     - name: Install python3-venv
       id: install
