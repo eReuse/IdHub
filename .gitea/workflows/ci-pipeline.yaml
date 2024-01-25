@@ -25,19 +25,17 @@ jobs:
         uname -srm
         cat /etc/os-release
 
-    - name: Install pre-requisite packages
-      id: prereq
-      run: |
-        apt-get update
-        apt-get install software-properties-common -y
+    #- name: Install pre-requisite packages
+      #id: prereq
+      #run: |
+        #apt-get update
+        #apt-get install software-properties-common -y
 
     - name: Install python3-venv
       id: install
       run: |
-        add-apt-repository ppa:deadsnakes/ppa
         apt-get update
-        apt-get install python3.11 python3.11-venv python3.11-pip -y
-      if: steps.prereq.outcome == 'success'
+        apt-get install python3 python3-venv python3-pip -y
 
     - name: Check Python version
       run: |
@@ -55,7 +53,7 @@ jobs:
     - name: Get DIDKit wheel
       id: didkit
       run: |
-        wget https://gitea.pangea.org/trustchain-oc1-orchestral/ssikit_trustchain/raw/branch/master/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
+        wget -O didkit-0.3.2-cp39-cp39-manylinux_2_34_x86_64.whl https://gitea.pangea.org/trustchain-oc1-orchestral/ssikit_trustchain/raw/branch/master/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
         echo "Successfully downloaded DIDkit"
 
     - name: Install dependencies
