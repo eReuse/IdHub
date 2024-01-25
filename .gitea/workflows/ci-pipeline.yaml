@@ -20,6 +20,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Check version and distribution
+      run: |
+        uname -srm
+        lsb_release -a
+
     - name: Install pre-requisite packages
       id: prereq
       run: |
