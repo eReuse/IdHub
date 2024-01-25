@@ -23,6 +23,7 @@ jobs:
     - name: Install python3-venv
       id: install
       run: |
+        add-apt-repository ppa:deadsnakes/ppa
         apt-get update
         apt-get install python3.11 python3.11-venv python3.11-pip -y
 
