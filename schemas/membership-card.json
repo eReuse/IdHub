@@ -74,6 +74,9 @@
             "lastName": {
               "type": "string"
             },
+            "role": {
+              "type": "string"
+            },
             "email": {
               "type": "string",
               "format": "email"
