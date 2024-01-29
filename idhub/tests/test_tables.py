@@ -1,6 +1,9 @@
+import json
+
 from datetime import datetime
 from unittest.mock import MagicMock
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.core.exceptions import FieldError
@@ -15,6 +18,8 @@ class AdminDashboardTableTest(TestCase):
         self.admin_user = User.objects.create_superuser(
                 email='adminuser@example.org',
                 password='adminpass12')
+        self.admin_user.accept_gdpr=True
+        self.admin_user.save()
 
     @classmethod
     def setUpTestData(cls):
@@ -118,7 +123,18 @@ class TemplateTableTest(TestCase):
         )
 
     def format_data_for_json_reader(self, name, description):
-        return '{"name": "'+name+'", "description": "'+description+'"}'
+        v = {
+            "name": [{
+                "lang": settings.LANGUAGE_CODE,
+                "value": name
+            }],
+            "description": [{
+                "lang": settings.LANGUAGE_CODE,
+                "value": description
+            }]
+        }
+        return json.dumps(v)
+        # return '{"name": "'+name+'", "description": "'+description+'"}'
 
     def test_order_table_by_name_throws_no_exception(self):
         try:
