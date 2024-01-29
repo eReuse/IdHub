@@ -8,11 +8,18 @@ from idhub.admin.views import PeopleListView
 class AdminDashboardViewTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(email='normaluser@example.org',
-                                             password='testpass12')
+        self.user = User.objects.create_user(
+            email='normaluser@example.org',
+            password='testpass12',
+        )
+        self.user.accept_gdpr=True
+        self.user.save()
+
         self.admin_user = User.objects.create_superuser(
                 email='adminuser@example.org',
                 password='adminpass12')
+        self.admin_user.accept_gdpr=True
+        self.admin_user.save()
 
     def test_view_url_exists_at_desired_location(self):
         response = self.client.get('/admin/dashboard/', follow=True)
@@ -62,14 +69,20 @@ class PeopleListViewTest(TestCase):
         # Create some user instances for testing
         self.user = User.objects.create_user(email='normaluser@example.org',
                                              password='testpass12')
+        self.user.accept_gdpr=True
+        self.user.save()
         self.admin_user = User.objects.create_superuser(
                 email='adminuser@example.org',
                 password='adminpass12')
+        self.admin_user.accept_gdpr=True
+        self.admin_user.save()
 
         # Create a request object for the view
         self.request = self.factory.get(reverse('idhub:admin_people_list'))
 
         self.request.user = self.admin_user
+        self.client.login(email='adminuser@example.org', password='adminpass12')
+        self.request.session = self.client.session
 
     def test_template_used(self):
         response = PeopleListView.as_view()(self.request)

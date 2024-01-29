@@ -491,8 +491,9 @@ class Schemas(models.Model):
         try:
             if is_json:
                 return json.loads(field_value)
-        except json.decoder.JSONDecodeError:
-            return field_value
+        except Exception:
+            pass
+
         return field_value
 
     def _update_model_field(self, field_attr, field_value):
