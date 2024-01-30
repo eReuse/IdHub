@@ -241,5 +241,5 @@ class TemplateTable(tables.Table):
     class Meta:
         model = Schemas
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "file_schema", "_name", "_description",
+        fields = ("created_at", "file_schema", "name", "_description",
                   "view_schema", "delete_schema")
