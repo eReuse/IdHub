@@ -28,6 +28,12 @@ class LoginView(auth_views.LoginView):
             'next',
             reverse_lazy('idhub:user_dashboard')
         )
+        if not self.request.user.is_anonymous:
+            if self.request.user.is_admin:
+                return redirect(reverse_lazy('idhub:admin_dashboard'))
+            else:
+                return redirect(reverse_lazy('idhub:user_dashboard'))
+            
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
