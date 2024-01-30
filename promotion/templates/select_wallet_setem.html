@@ -1,0 +1,93 @@
+{% load i18n static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Setem">
+    <title>{% block title %}{% if title %}{{ title }} – {% endif %}Setem{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="{% static "/css/bootstrap.min.css" %}" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+  
+    <!-- Custom styles for this template -->
+    <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
+  </head>
+<body id="body-login">
+    <header class="navbar navbar-dark sticky-top bg-grey flex-md-nowrap p-0 shadow">
+      <div class="navbar-nav navbar-sub-brand">
+      </div>
+      <div class="navbar-nav">
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <main class="col-md-12 bt-5">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+
+          <div class="jumbotron vertical-center">
+              <div id="login-wrapper" class="container" style="width: 430px;">
+                  <div id="login-content" class="rounded">
+                      <div id="login-branding">
+                      </div><!-- /login-branding -->
+                      <div class="mt-5">
+                        {% load i18n %}
+                        {% load django_bootstrap5 %}
+                        <form role="form" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                          <div class="col-sm-4">
+                            {% bootstrap_form form %}
+                          </div>
+                        </div>
+                        <div class="form-actions-no-box">
+                          <input class="btn btn-green-admin" type="submit" name="submit" value="{% trans 'Go' %}" />
+                        </div>
+
+                        </form>
+                      </div><!-- /.row-fluid -->
+                  </div>
+                  <!--/#login-content-->
+              </div><!-- /#login-wrapper -->
+          </div><!-- /.jumbotron -->
+
+        </main>
+      </div>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
+    <script src="/static/js/dashboard.js"></script>
+  </body>
+</html>
