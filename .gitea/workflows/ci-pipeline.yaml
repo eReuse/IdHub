@@ -20,6 +20,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Check version and distribution
+      run: |
+        uname -srm
+        cat /etc/os-release
+
     - name: Install python3-venv
       id: install
       run: |
@@ -29,7 +34,6 @@ jobs:
     - name: Check Python version
       run: |
         python3 --version
-        echo "Python version: $(python3 --version)"
 
     - name: Create virtual environment
       run: |
@@ -39,11 +43,22 @@ jobs:
       # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
       if: steps.install.outcome == 'success'
 
+    - name: Get DIDKit wheel
+      id: didkit
+      run: |
+        wget https://gitea.pangea.org/trustchain-oc1-orchestral/ssikit_trustchain/raw/branch/master/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
+        echo "Successfully downloaded DIDkit"
+
     - name: Install dependencies
       run: |
         source venv/bin/activate
+        which python
+        pip -V
         pip install --upgrade pip
+        pip -V
+        python -V
         pip install -r requirements.txt
+      if: steps.didkit.outcome == 'success'
 
     - name: Run tests
       run: |
