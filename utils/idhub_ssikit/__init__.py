@@ -101,7 +101,10 @@ def verify_credential(vc):
     async def inner():
         return await didkit.verify_credential(vc, '{"proofFormat": "ldp"}')
 
-    return asyncio.run(inner())
+    valid, reason = asyncio.run(inner())
+    if not valid:
+        return valid, reason
+    # Credential passes basic signature verification. Now check it against its schema.
 
 
 def issue_verifiable_presentation(vp_template: Template, vc_list: list[str], jwk_holder: str, holder_did: str) -> str:

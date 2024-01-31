@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from django.conf import settings
@@ -11,7 +12,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 
-from idhub.models import DID
+from idhub.models import DID, VerificableCredential
 from idhub.email.views import NotifyActivateUserByEmail
 from trustchain_idhub import settings
 
@@ -79,7 +80,20 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 def serve_did(request, did_id):
     id_did = f'did:web:{settings.DOMAIN}:did-registry:{did_id}'
     did = get_object_or_404(DID, did=id_did)
-    document = did.didweb_document
+    # Deserialize the base DID from JSON storage
+    document = json.loads(did.didweb_document)
+    revoked_credentials = did.verificablecredential_set.filter(status=VerificableCredential.Status.REVOKED)
+    revoked_credential_indexes = []
+    for credential in revoked_credentials:
+        revoked_credential_indexes.append(credential.revocationBitmapIndex)
+    encoded_revocation_bitmap = None  # TODO
+    revocation_service = [{
+        "id": f"{id_did}#revocation",
+        "type": "RevocationBitmap2022",
+        "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
+    }]
+    # Serialize the DID + Revocation list in preparation for sending
+    document = json.dumps(document)
     retval = HttpResponse(document)
     retval.headers["Content-Type"] = "application/json"
     return retval
