@@ -616,7 +616,10 @@ router
     is_dlt_valid(parameters.dlt)
     check_undefined_params([parameters.deviceCHID])
     const valid_token = await multiacc.check_token(parameters.api_token)
-    if (!valid_token) throw new BadRequest("Invalid API token.")
+    if (!valid_token) {
+      next(ApiError.badRequest("Invalid API token."))
+      return;
+    }
 
     if (parameters.dlt == iota_name) {
       const iota_id = await iota.get_iota_id(parameters.api_token)
@@ -638,7 +641,8 @@ router
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
       if (!ethHelper.is_device_address_valid(deviceAddress)) {
-        throw new BadRequest("CHID not registered.")
+        next(ApiError.badRequest("CHID not registered"))
+        return;
       }
 
       const depositDeviceContract = ethHelper.createContract
