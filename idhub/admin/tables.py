@@ -235,11 +235,25 @@ class TemplateTable(tables.Table):
                                           orderable=False,
                                           verbose_name="Delete schema")
 
-    _name = tables.Column(verbose_name="Name")
-    _description = tables.Column(verbose_name="Description")
+    name = tables.Column()
+    description = tables.Column()
+
+    def order_name(self, queryset, is_descending):
+        queryset = Schemas.objects.order_by(
+            ("-" if is_descending else "") + "_name"
+        )
+
+        return (queryset, True)
+
+    def order_description(self, queryset, is_descending):
+        queryset = Schemas.objects.order_by(
+            ("-" if is_descending else "") + "_description"
+        )
+
+        return (queryset, True)
 
     class Meta:
         model = Schemas
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "file_schema", "name", "_description",
+        fields = ("created_at", "file_schema", "name", "description",
                   "view_schema", "delete_schema")
