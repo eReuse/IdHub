@@ -6,6 +6,10 @@ on:
       - main
       - release
       - testing-pipeline
+  pull_request:
+    branches:
+      - main
+      - release
 
 jobs:
   test:
