@@ -10,7 +10,7 @@ on:
 jobs:
   test:
 
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     env:
       SECRET_KEY: "t3st-dummy-s3cr3t-k3y"
