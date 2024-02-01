@@ -100,6 +100,13 @@ class ProfileView(MyProfile, UpdateView, SingleTableView):
 
     def form_valid(self, form):
         return super().form_valid(form)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'lang': self.request.LANGUAGE_CODE,
+        })
+        return context
 
 
 class RolesView(MyProfile, SingleTableView):
@@ -137,7 +144,7 @@ class TermsAndConditionsView(UserView, FormView):
     template_name = "idhub/user/terms_conditions.html"
     title = _("GDPR")
     section = ""
-    subtitle = _('Accept Terms and Conditions')
+    subtitle = _('Terms and Conditions')
     icon = 'bi bi-file-earmark-medical'
     form_class = TermsConditionsForm
     success_url = reverse_lazy('idhub:user_dashboard')
@@ -145,7 +152,12 @@ class TermsAndConditionsView(UserView, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        if self.request.user.accept_gdpr:
+            kwargs['initial'] = {
+                "accept_privacy": True,
+                "accept_legal": True,
+                "accept_cookies": True
+            }
         return kwargs
 
     def form_valid(self, form):

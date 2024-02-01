@@ -62,7 +62,7 @@ class TermsAndConditionsView(AdminView, FormView):
     template_name = "idhub/admin/terms_conditions.html"
     title = _("GDPR")
     section = ""
-    subtitle = _('Accept Terms and Conditions')
+    subtitle = _('Terms and Conditions')
     icon = 'bi bi-file-earmark-medical'
     form_class = TermsConditionsForm
     success_url = reverse_lazy('idhub:admin_dashboard')
