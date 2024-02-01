@@ -69,3 +69,17 @@ jobs:
         source venv/bin/activate
         python manage.py test
 
+
+  deploy:
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Remote Script
+        run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://your-server-ip:5000/trigger-script -H "Authorization: SecretToken")
+        if [ "$response" -ne 200 ]; then
+          echo "Script execution failed with HTTP status $response"
+          exit 1
+        fi
+      if: success() && github.ref == 'refs/heads/main'
