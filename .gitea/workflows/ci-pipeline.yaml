@@ -77,9 +77,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Trigger Remote Script
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://your-server-ip:5000/trigger-script -H "Authorization: SecretToken")
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://45.150.187.54:5000/trigger-script -H "Authorization: SecretToken")
           if [ "$response" -ne 200 ]; then
           echo "Script execution failed with HTTP status $response"
           exit 1
+          else 
+          echo "Script execution successful"
+          exit 0
           fi
         if: success() && github.ref == 'refs/heads/main'
