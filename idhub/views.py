@@ -1,6 +1,9 @@
+import base64
 import json
 import uuid
+import zlib
 
+import pyroaring
 from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse_lazy
@@ -82,16 +85,21 @@ def serve_did(request, did_id):
     did = get_object_or_404(DID, did=id_did)
     # Deserialize the base DID from JSON storage
     document = json.loads(did.didweb_document)
+    # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
+    #  entry to the DID document.
     revoked_credentials = did.verificablecredential_set.filter(status=VerificableCredential.Status.REVOKED)
     revoked_credential_indexes = []
     for credential in revoked_credentials:
         revoked_credential_indexes.append(credential.revocationBitmapIndex)
-    encoded_revocation_bitmap = None  # TODO
+    # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
+    revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
+    encoded_revocation_bitmap = base64.b64encode(zlib.compress(revocation_bitmap.serialize()))
     revocation_service = [{
         "id": f"{id_did}#revocation",
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
     }]
+    document["service"] = revocation_service
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
     retval = HttpResponse(document)
