@@ -189,7 +189,7 @@ class ImportForm(forms.Form):
         cred = VerificableCredential(
             verified=False,
             user=user,
-            csv_data=json.dumps(row),
+            csv_data=json.dumps(row, default=str),
             issuer_did=self._did,
             schema=self._schema,
             eidas1_did=self._eidas1
