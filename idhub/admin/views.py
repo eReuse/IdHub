@@ -25,7 +25,7 @@ from django.contrib import messages
 from utils import credtools
 from idhub_auth.models import User
 from idhub_auth.forms import ProfileForm
-from idhub.mixins import AdminView
+from idhub.mixins import AdminView, Http403
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
     ImportForm,
@@ -82,7 +82,9 @@ class DobleFactorAuthView(AdminView, View):
     url = reverse_lazy('idhub:admin_dashboard')
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
+        if not self.request.user.is_admin:
+            raise Http403()
+
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
             
