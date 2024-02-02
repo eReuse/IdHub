@@ -76,13 +76,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check refs
-        run: |
-          echo $GITHUB_REF_NAME
-          echo $GITHUB_REF
-          echo $GITHUB_REF_TYPE
-        if: success() && github.ref == 'refs/heads/testing-pipeline'
-
       - name: Trigger Remote Script
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://45.150.187.54:5000/trigger-script -H "Authorization: SecretToken")
@@ -93,4 +86,4 @@ jobs:
           echo "Script execution successful"
           exit 0
           fi
-        if: success() && github.ref == 'refs/heads/main'
+          #if: success() && github.ref == 'refs/heads/main'
