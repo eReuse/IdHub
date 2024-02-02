@@ -15,8 +15,16 @@ class ProfileForm(forms.ModelForm):
 
 
 class TermsConditionsForm(forms.Form):
-    accept = forms.BooleanField(
-        label=_("Accept terms and conditions of the service"),
+    accept_privacy = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
+    )
+    accept_legal = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
+    )
+    accept_cookies = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         required=False
     )
 
@@ -24,9 +32,33 @@ class TermsConditionsForm(forms.Form):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
+    def get_label(self, url, read):
+        label = _('You must read the terms and conditions of this service and accept the')
+        label += f' <a class="btn btn-green-user" target="_blank" href="{url}" '
+        label += f'title="{read}">{read}</a>'
+        return label
+
+    def privacy_label(self):
+        url = "https://laweb.pangea.org/politica-de-privacitat/"
+        read = _("Read privacy policy")
+        return self.get_label(url, read)
+
+    def legal_label(self):
+        url = "https://laweb.pangea.org/avis-legal/"
+        read = _("Read legal policy")
+        return self.get_label(url, read)
+
+    def cookies_label(self):
+        url = "https://laweb.pangea.org/politica-de-cookies-2/"
+        read = _("Read cookies policy")
+        return self.get_label(url, read)
+
     def clean(self):
         data = self.cleaned_data
-        if data.get("accept"):
+        privacy = data.get("accept_privacy")
+        legal = data.get("accept_legal")
+        cookies = data.get("accept_cookies")
+        if privacy and legal and cookies:
             self.user.accept_gdpr = True
         else:
             self.user.accept_gdpr = False        
