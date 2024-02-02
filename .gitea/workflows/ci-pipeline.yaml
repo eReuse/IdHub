@@ -81,6 +81,7 @@ jobs:
           echo $GITHUB_REF_NAME
           echo $GITHUB_REF
           echo $GITHUB_REF_TYPE
+        if: success() && github.ref == 'refs/heads/testing-pipeline'
 
       - name: Trigger Remote Script
         run: |
