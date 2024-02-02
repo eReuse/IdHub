@@ -907,19 +907,20 @@ class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
-        file_name = kwargs['file_schema']
+        self.file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        if file_name not in schemas_files:
+        if self.file_name not in schemas_files:
+            file_name = self.file_name
             messages.error(self.request, f"The schema {file_name} not exist!")
             return redirect('idhub:admin_schemas_import')
 
-        schema = self.create_schema(file_name)
+        schema = self.create_schema()
         if schema:
             messages.success(self.request, _("The schema was added sucessfully"))
         return redirect('idhub:admin_schemas')
 
-    def create_schema(self, file_name):
-        data = self.open_file(file_name)
+    def create_schema(self):
+        data = self.open_file()
         try:
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
@@ -935,7 +936,7 @@ class SchemasImportAddView(SchemasMix):
         _description = json.dumps(ldata.get('description', ''))
 
         schema = Schemas.objects.create(
-            file_schema=file_name,
+            file_schema=self.file_name,
             data=data,
             type=title,
             _name=_name,
@@ -946,9 +947,9 @@ class SchemasImportAddView(SchemasMix):
         schema.save()
         return schema
 
-    def open_file(self, file_name):
+    def open_file(self):
         data = ''
-        filename = Path(settings.SCHEMAS_DIR).joinpath(file_name)
+        filename = Path(settings.SCHEMAS_DIR).joinpath(self.file_name)
         with filename.open() as schema_file:
             data = schema_file.read()
 
@@ -957,7 +958,7 @@ class SchemasImportAddView(SchemasMix):
     def get_template_description(self):
         context = {}
         template_name = 'credentials/{}'.format(
-            self.schema.file_schema
+            self.file_name
         )
         tmpl = get_template(template_name)
         return tmpl.render(context)
