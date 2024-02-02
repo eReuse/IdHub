@@ -20,38 +20,28 @@
   </div>
 </div>
 {% endif %}
-<div class="row">
+<div class="row mt-4">
   <div class="col">
-    You must read the terms and conditions of this service and accept the
-    <a class="btn btn-green-user" href="jacascript:void()" data-bs-toggle="modal" data-bs-target="#gdpr" title="{% trans 'GDPR' %}">Read GDPR</a>
+    {{ form.accept_privacy }}
+    {{ form.privacy_label|safe }}
   </div>
 </div>
-<div class="row">
-  <div class="col-sm-4">
-    {% bootstrap_form form %}
+<div class="row mt-2">
+  <div class="col">
+    {{ form.accept_legal }}
+    {{ form.legal_label|safe }}
   </div>
 </div>
-<div class="form-actions-no-box">
+<div class="row mt-2">
+  <div class="col">
+    {{ form.accept_cookies }}
+    {{ form.cookies_label|safe }}
+  </div>
+</div>
+<div class="form-actions-no-box mt-4">
   <a class="btn btn-grey" href="{% url 'idhub:user_dashboard' %}">{% translate "Cancel" %}</a>
   <input class="btn btn-green-user" type="submit" name="submit" value="{% translate 'Save' %}" />
 </div>
 
 </form>
-<!-- Modal -->
-<div class="modal" id="gdpr" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">{% trans 'GDPR info' %}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-       <p>Here we write the info about GDPR</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
