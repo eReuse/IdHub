@@ -76,17 +76,17 @@ class TermsConditionsForm(forms.Form):
 
     def privacy_label(self):
         url = "https://laweb.pangea.org/politica-de-privacitat/"
-        read = _("Read privacy policy")
+        read = _("Privacy policy")
         return self.get_label(url, read)
 
     def legal_label(self):
         url = "https://laweb.pangea.org/avis-legal/"
-        read = _("Read legal policy")
+        read = _("Legal policy")
         return self.get_label(url, read)
 
     def cookies_label(self):
         url = "https://laweb.pangea.org/politica-de-cookies-2/"
-        read = _("Read cookies policy")
+        read = _("Cookies policy")
         return self.get_label(url, read)
 
     def clean(self):
