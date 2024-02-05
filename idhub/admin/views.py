@@ -60,7 +60,7 @@ from idhub.models import (
 
 class TermsAndConditionsView(AdminView, FormView):
     template_name = "idhub/admin/terms_conditions.html"
-    title = _("GDPR")
+    title = _('Data protection')
     section = ""
     subtitle = _('Terms and Conditions')
     icon = 'bi bi-file-earmark-medical'
@@ -70,7 +70,12 @@ class TermsAndConditionsView(AdminView, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        if self.request.user.accept_gdpr:
+            kwargs['initial'] = {
+                "accept_privacy": True,
+                "accept_legal": True,
+                "accept_cookies": True
+            }
         return kwargs
 
     def form_valid(self, form):

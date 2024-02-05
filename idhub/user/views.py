@@ -123,7 +123,7 @@ class RolesView(MyProfile, SingleTableView):
 
 class GDPRView(MyProfile, TemplateView):
     template_name = "idhub/user/gdpr.html"
-    subtitle = _('GDPR info')
+    subtitle = _('Data protection')
     icon = 'bi bi-file-earmark-medical'
 
 
@@ -142,7 +142,7 @@ class CredentialsView(MyWallet, SingleTableView):
     
 class TermsAndConditionsView(UserView, FormView):
     template_name = "idhub/user/terms_conditions.html"
-    title = _("GDPR")
+    title = _("Data Protection")
     section = ""
     subtitle = _('Terms and Conditions')
     icon = 'bi bi-file-earmark-medical'
