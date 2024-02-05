@@ -81,20 +81,22 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 
 def serve_did(request, did_id):
-    id_did = f'did:web:{settings.DOMAIN}:did-registry:{did_id}'
+    import urllib.parse
+    domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
+    id_did = f'did:web:{domain}:did-registry:{did_id}'
     did = get_object_or_404(DID, did=id_did)
     # Deserialize the base DID from JSON storage
     document = json.loads(did.didweb_document)
     # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
     #  entry to the DID document.
-    revoked_credentials = did.verificablecredential_set.filter(status=VerificableCredential.Status.REVOKED)
+    revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
     revoked_credential_indexes = []
     for credential in revoked_credentials:
         revoked_credential_indexes.append(credential.revocationBitmapIndex)
     # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
     revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
     encoded_revocation_bitmap = base64.b64encode(zlib.compress(revocation_bitmap.serialize()))
-    revocation_service = [{
+    revocation_service = [{  # This is an object within a list.
         "id": f"{id_did}#revocation",
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
