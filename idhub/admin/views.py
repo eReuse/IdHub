@@ -978,7 +978,7 @@ class SchemasImportAddView(SchemasMix):
 class ImportView(ImportExport, SingleTableView):
     template_name = "idhub/admin/import.html"
     table_class = DataTable
-    subtitle = _('Import data')
+    subtitle = _('Imported data')
     icon = ''
     model = File_datas
 
