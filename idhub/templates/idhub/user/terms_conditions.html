@@ -39,9 +39,49 @@
   </div>
 </div>
 <div class="form-actions-no-box mt-4">
-  <a class="btn btn-grey" href="{% url 'idhub:user_dashboard' %}">{% translate "Cancel" %}</a>
-  <input class="btn btn-green-user" type="submit" name="submit" value="{% translate 'Save' %}" />
+    <a href="javascript:accepts();" type="button" class="btn btn-green-user">{% trans 'Confirm' %}</a>
 </div>
 
+<!-- Modal -->
+<div class="modal" id="gdpr" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{% trans 'Data protection' %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      {% blocktrans %}
+        <p>If you do not accept all the terms and conditions of this service you will not be able
+to continue.
+        <br /><br />
+        Are you sure to opt out of using this service?</p>
+      {% endblocktrans %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'No' %}</button>
+        <input id="submit" class="btn btn-green-user" type="submit" name="submit" value="{% translate 'Yes' %}" />
+      </div>
+    </div>
+  </div>
+</div>
 </form>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+$(document).ready(function() {
+});
+
+function accepts() {
+  var privacy = $("#id_accept_privacy").prop("checked");
+  var policy = $("#id_accept_legal").prop("checked");
+  var cookies = $("#id_accept_cookies").prop("checked");
+  if (privacy && policy && cookies) {
+    $("#submit").trigger("click");
+  } else {
+    $("#gdpr").modal("show");
+  }
+}
+</script>
 {% endblock %}

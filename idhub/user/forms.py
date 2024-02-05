@@ -33,7 +33,7 @@ class TermsConditionsForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def get_label(self, url, read):
-        label = _('You must read the terms and conditions of this service and accept the')
+        label = _('I read and accepted the')
         label += f' <a class="btn btn-green-user" target="_blank" href="{url}" '
         label += f'title="{read}">{read}</a>'
         return label
