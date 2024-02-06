@@ -227,5 +227,5 @@ SYNC_ORG_DEV = config('SYNC_ORG_DEV', 'y')
 ORG_FILE = config('ORG_FILE', 'examples/organizations.csv')
 ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
 CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
-AUTH2FACTOR = config('AUTH2FACTOR', default=True, cast=bool)
+ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
 
