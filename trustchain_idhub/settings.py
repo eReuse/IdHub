@@ -31,7 +31,6 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
-DEVELOPMENT = config('DEVELOPMENT', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
@@ -226,3 +225,7 @@ LOGGING = {
 ORGANIZATION = config('ORGANIZATION', 'Pangea')
 SYNC_ORG_DEV = config('SYNC_ORG_DEV', 'y')
 ORG_FILE = config('ORG_FILE', 'examples/organizations.csv')
+ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
+CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
+AUTH2FACTOR = config('AUTH2FACTOR', default=True, cast=bool)
+

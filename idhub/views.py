@@ -56,7 +56,7 @@ class LoginView(auth_views.LoginView):
             # )
             # cache.set("KEY_DIDS", encryption_key, None)
             cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
-            if not settings.DEVELOPMENT:
+            if settings.AUTH2FACTOR:
                 self.request.session["2fauth"] = str(uuid.uuid4())
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
