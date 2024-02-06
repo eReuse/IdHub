@@ -707,12 +707,13 @@ class DidsView(Credentials, SingleTableView):
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
+        dids = DID.objects.filter(user=self.request.user)
         if queryset is None:
-            self.object_list = self.model.objects.all()
+            self.object_list = dids.all()
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'dids': DID.objects.filter(user=self.request.user),
+            'dids': dids
         })
         return context
 
