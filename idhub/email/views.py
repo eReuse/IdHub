@@ -57,12 +57,13 @@ class NotifyActivateUserByEmail:
         html_email = loader.render_to_string(self.html_email_template_name, context)
         email_message.attach_alternative(html_email, 'text/html')
         try:
-            if settings.DEVELOPMENT:
-                logger.warning(to_email)
-                logger.warning(body)
+            if settings.ENABLE_EMAIL:
+                email_message.send()
                 return
 
-            email_message.send()
+            logger.warning(to_email)
+            logger.warning(body)
+
         except Exception as err:
             logger.error(err)
             return
