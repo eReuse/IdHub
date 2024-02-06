@@ -86,4 +86,4 @@ jobs:
           echo "Script execution successful"
           exit 0
           fi
-          #if: success() && github.ref == 'refs/heads/main'
+        if: success() && github.ref == 'refs/heads/main'
