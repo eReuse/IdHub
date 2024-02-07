@@ -674,7 +674,6 @@ class VerificableCredential(models.Model):
             'organisation': settings.ORGANIZATION or '',
         }
         context.update(d)
-        context['firstName'] = ""
         return context
 
     def render(self, domain):
