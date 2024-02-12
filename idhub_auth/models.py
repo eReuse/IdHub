@@ -155,3 +155,11 @@ class User(AbstractBaseUser):
         pw = base64.b64decode(password.encode('utf-8')*4)
         sb_key = self.derive_key_from_password(pw)
         return nacl.secret.SecretBox(sb_key)
+
+    def change_password(self, old_password, new_password):
+        sensitive_data = self.decrypt_sensitive_data(old_password)
+        self.encrypted_sensitive_data = self.encrypt_sensitive_data(
+            new_password,
+            sensitive_data
+        )
+        self.set_password(new_password)
