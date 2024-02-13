@@ -440,6 +440,7 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    # JSON-serialized DID document
     didweb_document = models.TextField()
 
     def get_key_material(self, password):
@@ -589,6 +590,7 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
+    revocationBitmapIndex = models.AutoField()
 
     def get_data(self, password):
         if not self.data:
