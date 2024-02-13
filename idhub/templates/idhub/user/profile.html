@@ -17,7 +17,13 @@
     <a href="https://laweb.pangea.org/politica-de-proteccio-de-dades/acces-als-formularis-arco/" target="_blank" type="button" class="btn btn-green-user me-3">{% trans 'ARCO Forms' %}</a>
     {% endif %}
 
-    <a href="javascript:void()" type="button" class="btn btn-green-user">{% trans 'Notice of Privacy' %}</a>
+    <a href=
+        {% if lang == 'es' %}
+        "https://laweb.pangea.org/es/politica-de-privacidad/"
+        {% else %}
+        "https://laweb.pangea.org/politica-de-privacitat/"
+        {% endif %}
+        type="button" class="btn btn-green-user">{% trans 'Privacy Policy' %}</a>
   </div>
 </div>
 {% load django_bootstrap5 %}
