@@ -25,7 +25,7 @@ from django.contrib import messages
 from utils import credtools
 from idhub_auth.models import User
 from idhub_auth.forms import ProfileForm
-from idhub.mixins import AdminView
+from idhub.mixins import AdminView, Http403
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
     ImportForm,
@@ -60,9 +60,9 @@ from idhub.models import (
 
 class TermsAndConditionsView(AdminView, FormView):
     template_name = "idhub/admin/terms_conditions.html"
-    title = _("GDPR")
+    title = _('Data protection')
     section = ""
-    subtitle = _('Accept Terms and Conditions')
+    subtitle = _('Terms and Conditions')
     icon = 'bi bi-file-earmark-medical'
     form_class = TermsConditionsForm
     success_url = reverse_lazy('idhub:admin_dashboard')
@@ -70,7 +70,12 @@ class TermsAndConditionsView(AdminView, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['initial'] = {"accept": self.request.user.accept_gdpr}
+        if self.request.user.accept_gdpr:
+            kwargs['initial'] = {
+                "accept_privacy": True,
+                "accept_legal": True,
+                "accept_cookies": True
+            }
         return kwargs
 
     def form_valid(self, form):
@@ -82,7 +87,9 @@ class DobleFactorAuthView(AdminView, View):
     url = reverse_lazy('idhub:admin_dashboard')
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
+        if not self.request.user.is_admin:
+            raise Http403()
+
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
             
@@ -700,12 +707,13 @@ class DidsView(Credentials, SingleTableView):
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
+        dids = DID.objects.filter(user=self.request.user)
         if queryset is None:
-            self.object_list = self.model.objects.all()
+            self.object_list = dids.all()
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'dids': DID.objects.filter(user=self.request.user),
+            'dids': dids
         })
         return context
 
@@ -905,19 +913,20 @@ class SchemasImportAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
-        file_name = kwargs['file_schema']
+        self.file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        if file_name not in schemas_files:
+        if self.file_name not in schemas_files:
+            file_name = self.file_name
             messages.error(self.request, f"The schema {file_name} not exist!")
             return redirect('idhub:admin_schemas_import')
 
-        schema = self.create_schema(file_name)
+        schema = self.create_schema()
         if schema:
             messages.success(self.request, _("The schema was added sucessfully"))
         return redirect('idhub:admin_schemas')
 
-    def create_schema(self, file_name):
-        data = self.open_file(file_name)
+    def create_schema(self):
+        data = self.open_file()
         try:
             ldata = json.loads(data)
             assert credtools.validate_schema(ldata)
@@ -933,7 +942,7 @@ class SchemasImportAddView(SchemasMix):
         _description = json.dumps(ldata.get('description', ''))
 
         schema = Schemas.objects.create(
-            file_schema=file_name,
+            file_schema=self.file_name,
             data=data,
             type=title,
             _name=_name,
@@ -944,9 +953,9 @@ class SchemasImportAddView(SchemasMix):
         schema.save()
         return schema
 
-    def open_file(self, file_name):
+    def open_file(self):
         data = ''
-        filename = Path(settings.SCHEMAS_DIR).joinpath(file_name)
+        filename = Path(settings.SCHEMAS_DIR).joinpath(self.file_name)
         with filename.open() as schema_file:
             data = schema_file.read()
 
@@ -955,7 +964,7 @@ class SchemasImportAddView(SchemasMix):
     def get_template_description(self):
         context = {}
         template_name = 'credentials/{}'.format(
-            self.schema.file_schema
+            self.file_name
         )
         tmpl = get_template(template_name)
         return tmpl.render(context)
@@ -970,7 +979,7 @@ class SchemasImportAddView(SchemasMix):
 class ImportView(ImportExport, SingleTableView):
     template_name = "idhub/admin/import.html"
     table_class = DataTable
-    subtitle = _('Import data')
+    subtitle = _('Imported data')
     icon = ''
     model = File_datas
 

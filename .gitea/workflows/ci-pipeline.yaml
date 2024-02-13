@@ -50,7 +50,7 @@ jobs:
     - name: Get DIDKit wheel
       id: didkit
       run: |
-        wget https://gitea.pangea.org/trustchain-oc1-orchestral/ssikit_trustchain/raw/branch/master/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
+        wget -O didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl https://gitea.pangea.org/api/v1/repos/trustchain-oc1-orchestral/ssikit_trustchain/raw/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl?token=${{ secrets.FILE_GETTER_TOKEN }}
         echo "Successfully downloaded DIDkit"
 
     - name: Install dependencies
@@ -69,3 +69,21 @@ jobs:
         source venv/bin/activate
         python manage.py test
 
+
+  deploy:
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trigger Remote Script
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://45.150.187.54:5000/trigger-script -H "Authorization: SecretToken")
+          if [ "$response" -ne 200 ]; then
+          echo "Script execution failed with HTTP status $response"
+          exit 1
+          else 
+          echo "Script execution successful"
+          exit 0
+          fi
+        if: success() && github.ref == 'refs/heads/main'

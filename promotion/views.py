@@ -68,9 +68,9 @@ class ContractView(FormView):
             return kwargs
 
         self.vp_token.get_user_info()
-        kwargs['initial']["nif"] = self.vp_token.user_info.get("nif", '')
-        kwargs['initial']["name"] = self.vp_token.user_info.get("name", '')
-        kwargs['initial']["first_last_name"] = self.vp_token.user_info.get("first_last_name", '')
+        kwargs['initial']["nif"] = self.vp_token.user_info.get("identityNumber", '')
+        kwargs['initial']["name"] = self.vp_token.user_info.get("firstName", '')
+        kwargs['initial']["first_last_name"] = self.vp_token.user_info.get("lastName", '')
         kwargs['initial']["second_last_name"] = self.vp_token.user_info.get("second_last_name", '')
         kwargs['initial']["email"] = self.vp_token.user_info.get("email", '')
         kwargs['initial']["email_repeat"] = self.vp_token.user_info.get("email", '')

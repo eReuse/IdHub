@@ -1,5 +1,5 @@
 {
-  "$id": "https://idhub.pangea.org/vc_schemas/federationMembership.json",
+  "$id": "https://idhub.pangea.org/vc_schemas/federation-membership.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Federation membership",
   "description": "The federation membership specifies participation of a NGO into a NGO federation, as proposed by Lafede.cat",
@@ -113,6 +113,7 @@
             "membershipStatus",
             "federation",
             "membershipSince",
+            "email",
             "certificationDate"
           ]
         }
