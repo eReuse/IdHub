@@ -117,6 +117,13 @@ class DIDTable(tables.Table):
 
 class CredentialsTable(tables.Table):
     description = tables.Column(verbose_name="Details", empty_values=())
+    view_credential = ButtonColumn(
+            linkify={
+                "viewname": "idhub:user_credential",
+                "args": [tables.A("pk")]
+                },
+            orderable=False
+            )
 
     def render_description(self, record):
         return record.get_description()
@@ -130,6 +137,9 @@ class CredentialsTable(tables.Table):
                 )
 
         return (queryset, True)
+
+    def render_view_credential(self):
+        return format_html('<i class="bi bi-eye"></i>')
 
     class Meta:
         model = VerificableCredential

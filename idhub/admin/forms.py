@@ -23,7 +23,7 @@ from idhub.models import (
 from idhub_auth.models import User
 
 
-class TermsConditionsForm(forms.Form):
+class TermsConditionsForm2(forms.Form):
     accept = forms.BooleanField(
         label=_("Accept terms and conditions of the service"),
         required=False
@@ -36,6 +36,65 @@ class TermsConditionsForm(forms.Form):
     def clean(self):
         data = self.cleaned_data
         if data.get("accept"):
+            self.user.accept_gdpr = True
+        else:
+            self.user.accept_gdpr = False        
+        return data
+        
+    def save(self, commit=True):
+
+        if commit:
+            self.user.save()
+            return self.user
+        
+        return 
+
+
+class TermsConditionsForm(forms.Form):
+    accept_privacy = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
+    )
+    accept_legal = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
+    )
+    accept_cookies = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def get_label(self, url, read):
+        label = _('I read and accepted the')
+        label += f' <a class="btn btn-green-admin" target="_blank" href="{url}" '
+        label += f'title="{read}">{read}</a>'
+        return label
+
+    def privacy_label(self):
+        url = "https://laweb.pangea.org/politica-de-privacitat/"
+        read = _("Privacy policy")
+        return self.get_label(url, read)
+
+    def legal_label(self):
+        url = "https://laweb.pangea.org/avis-legal/"
+        read = _("Legal policy")
+        return self.get_label(url, read)
+
+    def cookies_label(self):
+        url = "https://laweb.pangea.org/politica-de-cookies-2/"
+        read = _("Cookies policy")
+        return self.get_label(url, read)
+
+    def clean(self):
+        data = self.cleaned_data
+        privacy = data.get("accept_privacy")
+        legal = data.get("accept_legal")
+        cookies = data.get("accept_cookies")
+        if privacy and legal and cookies:
             self.user.accept_gdpr = True
         else:
             self.user.accept_gdpr = False        
@@ -189,7 +248,7 @@ class ImportForm(forms.Form):
         cred = VerificableCredential(
             verified=False,
             user=user,
-            csv_data=json.dumps(row),
+            csv_data=json.dumps(row, default=str),
             issuer_did=self._did,
             schema=self._schema,
             eidas1_did=self._eidas1

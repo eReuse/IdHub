@@ -14,7 +14,10 @@ from promotion.models import Promotion
 
 
 class WalletForm(forms.Form):
-    organization = forms.ChoiceField(choices=[])
+    organization = forms.ChoiceField(
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     def __init__(self, *args, **kwargs):
         self.presentation_definition = kwargs.pop('presentation_definition', [])

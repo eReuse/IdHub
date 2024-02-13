@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 from django.conf import settings
 from django.core.cache import cache
@@ -14,6 +15,9 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from idhub.models import DID
 from idhub.email.views import NotifyActivateUserByEmail
 from trustchain_idhub import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class LoginView(auth_views.LoginView):
@@ -52,7 +56,7 @@ class LoginView(auth_views.LoginView):
             # )
             # cache.set("KEY_DIDS", encryption_key, None)
             cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
-            if not settings.DEVELOPMENT:
+            if settings.ENABLE_2FACTOR_AUTH:
                 self.request.session["2fauth"] = str(uuid.uuid4())
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
@@ -69,10 +73,28 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
     success_url = reverse_lazy('idhub:password_reset_complete')
 
     def form_valid(self, form):
-        password = form.cleaned_data.get("password")
-        user = form.get_user()
+        password = form.cleaned_data.get("new_password1")
+        user = form.user
+        user.set_password(password)
         user.set_encrypted_sensitive_data(password)
         user.save()
+        return HttpResponseRedirect(self.success_url)
+
+
+class PasswordResetView(auth_views.PasswordResetView):
+    template_name = 'auth/password_reset.html'
+    email_template_name = 'auth/password_reset_email.txt'
+    html_email_template_name = 'auth/password_reset_email.html'
+    subject_template_name = 'auth/password_reset_subject.txt'
+    success_url = reverse_lazy('idhub:password_reset_done')
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception as err:
+            logger.error(err)
+        # url_error = reverse_lazy('idhub:password_reset_error')
+        # return HttpResponseRedirect(url_error)
         return HttpResponseRedirect(self.success_url)
 
 
