@@ -590,10 +590,17 @@ class VerificableCredential(models.Model):
         related_name='vcredentials',
     )
 
+    @property
+    def is_didweb(self):
+        if self.issuer_did.type == DID.Types.WEB.value:
+            return True
+        return False
+
     def get_data(self, password):
         if not self.data:
             return ""
-        if self.eidas1_did:
+
+        if self.eidas1_did or self.is_didweb:
             return self.data
             
         return self.user.decrypt_data(self.data, password)
@@ -639,7 +646,7 @@ class VerificableCredential(models.Model):
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
-        if self.eidas1_did:
+        if self.eidas1_did or self.is_didweb:
             self.data = data
         else:
             self.data = self.user.encrypt_data(data, password)
@@ -653,7 +660,7 @@ class VerificableCredential(models.Model):
 
         cred_path = 'credentials'
         sid = self.id
-        if self.eidas1_did:
+        if self.eidas1_did or self.is_didweb:
             cred_path = 'public/credentials'
             sid = self.hash
 

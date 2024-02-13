@@ -73,7 +73,7 @@ class Command(BaseCommand):
         org1.save()
         org2.save()
     def create_defaults_dids(self, u, password):
-        did = DID(label="Default", user=u, type=DID.Types.KEY)
+        did = DID(label="Default", user=u, type=DID.Types.WEB)
         did.set_did(password)
         did.save()
 
