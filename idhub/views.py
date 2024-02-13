@@ -114,7 +114,8 @@ def serve_did(request, did_id):
     revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
     revoked_credential_indexes = []
     for credential in revoked_credentials:
-        revoked_credential_indexes.append(credential.revocationBitmapIndex)
+        revoked_credential_indexes.append(credential.id)
+        # revoked_credential_indexes.append(credential.revocationBitmapIndex)
     # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
     revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
     encoded_revocation_bitmap = base64.b64encode(zlib.compress(revocation_bitmap.serialize()))
