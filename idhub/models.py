@@ -590,7 +590,7 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
-    revocationBitmapIndex = models.AutoField()
+    # revocationBitmapIndex = models.AutoField()
 
     def get_data(self, password):
         if not self.data:
