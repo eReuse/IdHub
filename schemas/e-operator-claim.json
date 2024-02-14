@@ -36,6 +36,14 @@
                             "description": "Legal name of the operator",
                             "type": "string"
                         },
+                        "role": {
+                            "description": "Role, either operator, witness, auditor",
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string",
+                            "format": "email"
+                        },
                         "accreditedBy": {
                             "description": "Legal name of the accrediting entity",
                             "type": "string"
@@ -51,16 +59,13 @@
                         "accreditedFor": {
                             "description": "Operation type: e.g. manufacture, repair, refurbishment, remanufacture, transport, dismantle, recycle, verification, audit",
                             "type": "string"
-                        },
-                        "role": {
-                            "description": "Role, either operator, witness, auditor",
-                            "type": "string"
                         }
                     },
                     "required": [
                         "id",
                         "legalName",
-                        "role"
+                        "role",
+                        "email"
                     ]
                 }
             }
