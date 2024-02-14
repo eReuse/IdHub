@@ -631,7 +631,6 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
         issuer_pass = cache.get("KEY_DIDS")
@@ -650,6 +649,8 @@ class VerificableCredential(models.Model):
             self.data = data
         else:
             self.data = self.user.encrypt_data(data, password)
+
+        self.status = self.Status.ISSUED
 
     def get_context(self, domain):
         d = json.loads(self.csv_data)
