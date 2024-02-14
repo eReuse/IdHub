@@ -600,7 +600,7 @@ class VerificableCredential(models.Model):
         if not self.data:
             return ""
 
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             return self.data
             
         return self.user.decrypt_data(self.data, password)
@@ -646,7 +646,7 @@ class VerificableCredential(models.Model):
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             self.data = data
         else:
             self.data = self.user.encrypt_data(data, password)
@@ -660,7 +660,7 @@ class VerificableCredential(models.Model):
 
         cred_path = 'credentials'
         sid = self.id
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             cred_path = 'public/credentials'
             sid = self.hash
 
