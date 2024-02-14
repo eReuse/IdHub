@@ -117,7 +117,7 @@ def verify_credential(vc):
         return valid, reason
     # Credential passes basic signature verification. Now check it against its schema.
     # TODO: check agasint schema
-    pass
+    # pass
     # Credential verifies against its schema. Now check revocation status.
     vc = json.loads(vc)
     if "credentialStatus" in vc:
@@ -130,7 +130,7 @@ def verify_credential(vc):
             revocation_bitmap = BitMap.deserialize(
                 zlib.decompress(
                     base64.b64decode(
-                        issuer_revocation_list["serviceEndpoint"].rsplit(",")[1]
+                        issuer_revocation_list["serviceEndpoint"].rsplit(",")[1].encode('utf-8')
                     )
                 )
             )
