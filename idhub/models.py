@@ -666,6 +666,7 @@ class VerificableCredential(models.Model):
         )
 
         context = {
+            'id_credential': self.id,
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
