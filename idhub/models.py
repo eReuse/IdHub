@@ -440,6 +440,7 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    # JSON-serialized DID document
     didweb_document = models.TextField()
 
     def get_key_material(self, password):
@@ -589,6 +590,7 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
+    # revocationBitmapIndex = models.AutoField()
 
     @property
     def is_didweb(self):
@@ -600,7 +602,7 @@ class VerificableCredential(models.Model):
         if not self.data:
             return ""
 
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             return self.data
             
         return self.user.decrypt_data(self.data, password)
@@ -646,7 +648,7 @@ class VerificableCredential(models.Model):
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             self.data = data
         else:
             self.data = self.user.encrypt_data(data, password)
@@ -660,7 +662,7 @@ class VerificableCredential(models.Model):
 
         cred_path = 'credentials'
         sid = self.id
-        if self.eidas1_did or self.is_didweb:
+        if self.eidas1_did:
             cred_path = 'public/credentials'
             sid = self.hash
 
@@ -671,6 +673,7 @@ class VerificableCredential(models.Model):
         )
 
         context = {
+            'id_credential': str(self.id),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
@@ -691,6 +694,11 @@ class VerificableCredential(models.Model):
         tmpl = get_template(template_name)
         d_ordered = ujson.loads(tmpl.render(context))
         d_minimum = self.filter_dict(d_ordered)
+
+        # You can revoke only didweb
+        if not self.is_didweb:
+            d_minimum.pop("credentialStatus", None)
+
         return ujson.dumps(d_minimum)
 
     def get_issued_on(self):
