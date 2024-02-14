@@ -195,8 +195,6 @@ class ImportForm(forms.Form):
     def clean_file_import(self):
         data = self.cleaned_data["file_import"]
         self.file_name = data.name
-        if File_datas.objects.filter(file_name=self.file_name, success=True).exists():
-            raise ValidationError("This file already exists!")
 
         # df = pd.read_csv (data, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
         df = pd.read_excel(data)
