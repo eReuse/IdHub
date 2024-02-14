@@ -196,7 +196,6 @@ class ImportForm(forms.Form):
         data = self.cleaned_data["file_import"]
         self.file_name = data.name
 
-        # df = pd.read_csv (data, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL)
         df = pd.read_excel(data)
         data_pd = df.fillna('').to_dict()
 
@@ -205,9 +204,10 @@ class ImportForm(forms.Form):
 
         head_row = {x: '' for x in self.properties.keys()}
         for n in range(df.last_valid_index()+1):
-            row = head_row.copy()
+            row = {}
             for k in data_pd.keys():
-                row[k] = data_pd[k][n] or ''
+                if k in self.properties.keys():
+                    row[k] = data_pd[k][n] or ''
 
             user = self.validate_jsonld(n, row)
             self.rows[user] = row
@@ -229,12 +229,13 @@ class ImportForm(forms.Form):
 
     def validate_jsonld(self, line, row):
         try:
-            check = credtools.validate_json(row, self.json_schema_filtered)
+            # check = credtools.validate_json(row, self.json_schema_filtered)
+            check = credtools.validate_json(row, self.json_schema)
             if check is not True:
                 raise ValidationError("Not valid row")
         except Exception as e:
             msg = "line {}: {}".format(line+1, e)
-            self.exception(msg)
+            return self.exception(msg)
 
         user, new = User.objects.get_or_create(email=row.get('email'))
         if new:
@@ -243,6 +244,18 @@ class ImportForm(forms.Form):
         return user
 
     def create_credential(self, user, row):
+        bcred = VerificableCredential.objects.filter(
+            user=user,
+            schema=self._schema,
+            issuer_did=self._did,
+            status=VerificableCredential.Status.ENABLED
+        )
+        if bcred.exists():
+            cred = bcred.first()
+            cred.csv_data = json.dumps(row, default=str)
+            cred.eidas1_did = self._eidas1
+            return cred
+
         cred = VerificableCredential(
             verified=False,
             user=user,
