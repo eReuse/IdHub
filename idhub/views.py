@@ -118,7 +118,11 @@ def serve_did(request, did_id):
         # revoked_credential_indexes.append(credential.revocationBitmapIndex)
     # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
     revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
-    encoded_revocation_bitmap = base64.b64encode(zlib.compress(revocation_bitmap.serialize()))
+    encoded_revocation_bitmap = base64.b64encode(
+        zlib.compress(
+            revocation_bitmap.serialize()
+        )
+    ).decode('utf-8')
     revocation_service = [{  # This is an object within a list.
         "id": f"{id_did}#revocation",
         "type": "RevocationBitmap2022",
