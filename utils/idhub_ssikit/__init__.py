@@ -1,11 +1,16 @@
 import asyncio
+import base64
 import datetime
+import zlib
+from ast import literal_eval
+
 import didkit
 import json
 import urllib
 import jinja2
 from django.template.backends.django import Template
 from django.template.loader import get_template
+from pyroaring import BitMap
 
 from trustchain_idhub import settings
 
@@ -18,8 +23,11 @@ def keydid_from_controller_key(key):
     return didkit.key_to_did("key", key)
 
 
-async def resolve_keydid(keydid):
-    return await didkit.resolve_did(keydid, "{}")
+def resolve_did(keydid):
+    async def inner():
+        return await didkit.resolve_did(keydid, "{}")
+
+    return asyncio.run(inner())
 
 
 def webdid_from_controller_key(key):
@@ -29,7 +37,7 @@ def webdid_from_controller_key(key):
     """
     keydid = keydid_from_controller_key(key)  # "did:key:<...>"
     pubkeyid = keydid.rsplit(":")[-1]  # <...>
-    document = json.loads(asyncio.run(resolve_keydid(keydid)))  # Documento DID en terminos "key"
+    document = json.loads(resolve_did(keydid))  # Documento DID en terminos "key"
     domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
     webdid_url = f"did:web:{domain}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
     webdid_url_owner = webdid_url + "#owner"
@@ -99,9 +107,37 @@ def verify_credential(vc):
     If it is false, the VC is invalid and the second argument contains a JSON object with further information.
     """
     async def inner():
-        return await didkit.verify_credential(vc, '{"proofFormat": "ldp"}')
+        str_res = await didkit.verify_credential(vc, '{"proofFormat": "ldp"}')
+        res = literal_eval(str_res)
+        ok = res["warnings"] == [] and res["errors"] == []
+        return ok, str_res
 
-    return asyncio.run(inner())
+    valid, reason = asyncio.run(inner())
+    if not valid:
+        return valid, reason
+    # Credential passes basic signature verification. Now check it against its schema.
+    # TODO: check agasint schema
+    # pass
+    # Credential verifies against its schema. Now check revocation status.
+    vc = json.loads(vc)
+    if "credentialStatus" in vc:
+        revocation_index = int(vc["credentialStatus"]["revocationBitmapIndex"])  # NOTE: THIS FIELD SHOULD BE SERIALIZED AS AN INTEGER, BUT IOTA DOCUMENTAITON SERIALIZES IT AS A STRING. DEFENSIVE CAST ADDED JUST IN CASE.
+        vc_issuer = vc["issuer"]["id"]  # This is a DID
+        if vc_issuer[:7] == "did:web":  # Only DID:WEB can revoke
+            issuer_did_document = json.loads(resolve_did(vc_issuer))  # TODO: implement a caching layer so we don't have to fetch the DID (and thus the revocation list) every time a VC is validated.
+            issuer_revocation_list = issuer_did_document["service"][0]
+            assert issuer_revocation_list["type"] == "RevocationBitmap2022"
+            revocation_bitmap = BitMap.deserialize(
+                zlib.decompress(
+                    base64.b64decode(
+                        issuer_revocation_list["serviceEndpoint"].rsplit(",")[1].encode('utf-8')
+                    )
+                )
+            )
+            if revocation_index in revocation_bitmap:
+                return False, "Credential has been revoked by the issuer"
+    # Fallthrough means all is good.
+    return True, "Credential passes all checks"
 
 
 def issue_verifiable_presentation(vp_template: Template, vc_list: list[str], jwk_holder: str, holder_did: str) -> str:
