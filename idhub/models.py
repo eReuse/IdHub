@@ -16,6 +16,7 @@ from utils.idhub_ssikit import (
     keydid_from_controller_key,
     sign_credential,
     webdid_from_controller_key,
+    verify_credential,
 )
 from idhub_auth.models import User
 
@@ -542,6 +543,28 @@ class Schemas(models.Model):
     def description(self, value):
         self._description = value
 
+    def get_credential_subject_schema(self):
+        sc = self.get_data()
+        properties = sc["allOf"][1]["properties"]["credentialSubject"]["properties"]
+        required = sc["allOf"][1]["properties"]["credentialSubject"]["required"]
+
+        if "id" in required:
+            required.remove("id")
+
+        schema = {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": properties,
+            "required": required,
+            "additionalProperties": False
+        }
+
+        return schema
+
+    def get_data(self):
+        return json.loads(self.data)
+
+
 class VerificableCredential(models.Model):
     """
         Definition of Verificable Credentials
@@ -633,7 +656,6 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        self.status = self.Status.ISSUED
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
         issuer_pass = cache.get("KEY_DIDS")
@@ -648,10 +670,16 @@ class VerificableCredential(models.Model):
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
+        valid, reason = verify_credential(data)
+        if not valid:
+            return
+
         if self.eidas1_did:
             self.data = data
         else:
             self.data = self.user.encrypt_data(data, password)
+
+        self.status = self.Status.ISSUED
 
     def get_context(self, domain):
         d = json.loads(self.csv_data)
