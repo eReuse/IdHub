@@ -16,6 +16,7 @@ from utils.idhub_ssikit import (
     keydid_from_controller_key,
     sign_credential,
     webdid_from_controller_key,
+    verify_credential,
 )
 from idhub_auth.models import User
 
@@ -669,6 +670,10 @@ class VerificableCredential(models.Model):
             self.render(domain),
             self.issuer_did.get_key_material(issuer_pass)
         )
+        valid, reason = verify_credential(data)
+        if not valid:
+            return
+
         if self.eidas1_did:
             self.data = data
         else:
