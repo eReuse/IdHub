@@ -440,6 +440,7 @@ class DID(models.Model):
         related_name='dids',
         null=True,
     )
+    # JSON-serialized DID document
     didweb_document = models.TextField()
 
     def get_key_material(self, password):
@@ -611,6 +612,7 @@ class VerificableCredential(models.Model):
         on_delete=models.CASCADE,
         related_name='vcredentials',
     )
+    # revocationBitmapIndex = models.AutoField()
 
     @property
     def is_didweb(self):
@@ -694,6 +696,7 @@ class VerificableCredential(models.Model):
         )
 
         context = {
+            'id_credential': str(self.id),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
@@ -714,6 +717,11 @@ class VerificableCredential(models.Model):
         tmpl = get_template(template_name)
         d_ordered = ujson.loads(tmpl.render(context))
         d_minimum = self.filter_dict(d_ordered)
+
+        # You can revoke only didweb
+        if not self.is_didweb:
+            d_minimum.pop("credentialStatus", None)
+
         return ujson.dumps(d_minimum)
 
     def get_issued_on(self):
