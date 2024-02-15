@@ -6,7 +6,16 @@ Current endpoints are:
 - /getAll: to get the whole index.
 - /registerURL: to register a URL to a new ID.
 
-## Installation
+## Deployment
+
+### Manual
+```javascript
+npm i
+cd src
+node index.js
+```
+
+### Docker
 Build and run the Docker image with:
 ```
 docker-compose up

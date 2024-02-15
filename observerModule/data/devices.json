@@ -1,0 +1,93 @@
+[
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCFL7",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "a521d4b8-0e55-11e2-9ff5-606ea4731e00",
+        "family": "To be filled by O.E.M.",
+        "chid": "f04d3b9143e8b18833fa6311c36d247e4a8e28f18c6d7ce32c172e92898c6770",
+        "phid": "cc13b0529af33eb0f0c4c3f85ebb7d20979dd0b226f1cdea1049eae161eea428"
+    },
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCFW5",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "6ab84758-0e55-11e2-babc-a42f516d1e00",
+        "family": "To be filled by O.E.M.",
+        "chid": "d39f76cc0fb1274e203654dab112efb8784792566af4e2bb98f47ac5e3bf54b3",
+        "phid": "db336c7e725a6126990d0bc7e912c603a080d38092fe8b0729016489b889b46b"
+    },
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCFA6",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "a13e8244-0e4e-11e2-8085-a0d626611e00",
+        "family": "To be filled by O.E.M.",
+        "chid": "aaa8f3f71174e6685e0303ccc6705d4a5dd20807410ba787ce1b7579ff5baea6",
+        "phid": "a1d26006d1f4cafb567e912371cc85e4fd6c57f8c82ffeb688ceb1a6bbdd3d43"
+    },
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCGA4",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "537b5b94-0e59-11e2-879a-04fe1cc41d00",
+        "family": "To be filled by O.E.M.",
+        "chid": "4b3a21dd27710d43da1e0fa5e9d49ecab2c345eeee371067f205b6545e9d8a6a",
+        "phid": "f0a72ad12487c4072f03a9fcb0eb3fbc51a4358c07772abcbf459eb594a8920b"
+    },
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCFF4",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "2d51c370-0e51-11e2-9474-7c41f1801e00",
+        "family": "To be filled by O.E.M.",
+        "chid": "37f5518251d03e29fa5848599c419386e67a40df483cc7e8e03700bb4c6d0d57",
+        "phid": "5ba4c980f42c02d9dbc5537064c4ee54d8e18fb00e59ab98b79c570f976de41a"
+    },
+    {
+        "chassis": "Tower",
+        "manufacturer": "LENOVO",
+        "model": "3227A2G",
+        "serialNumber": "S4MCGB2",
+        "sku": "LENOVO_MT_3227",
+        "type": "Desktop",
+        "version": "ThinkCentre M92P",
+        "system_uuid": "52e2ada4-0e59-11e2-bb28-2cbb96d91d00",
+        "family": "To be filled by O.E.M.",
+        "chid": "109ad00b895c446ec7602a5ed65e1d13ed6c50afca335c59466932ce96bf4e0c",
+        "phid": "9520f206960f3b483f5ee90671bad683cedc9542fadead867b4aa1ca94564574"
+    },
+    {
+        "chassis": "Netbook",
+        "manufacturer": "Hewlett-Packard",
+        "model": "HP ProBook 450 G2",
+        "serialNumber": "CND4286ZJ2",
+        "sku": "F5R46AV",
+        "type": "Laptop",
+        "version": "A3009DD10303",
+        "system_uuid": "67d3257f-d0f6-11e3-a300-2286570180ff",
+        "family": "103C_5336AN G=N L=BUS B=HP S=PRO",
+        "chid": "7818df98dcdcca0e52c914e84f14534e0aafa96b80b895c21ee5d6f5ff669381",
+        "phid": "e67e95311370ed743cbd05f66a7c17b4476e6516e266b7ad49ef76e9a74e5e07"
+    }
+]

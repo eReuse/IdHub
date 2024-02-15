@@ -1,0 +1,11 @@
+version: '3'
+services: 
+  api: 
+    build: ./
+    container_name: observerModule # name of the built image
+    ports:
+      - "3014:3014"
+    restart: always
+    volumes:
+      - ./data:/home/node/observerModule/data:rw
+      - ./src:/home/node/observerModule/src:ro
