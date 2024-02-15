@@ -1,7 +1,7 @@
 const ethers = require("ethers")
 const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
 //457
-
+const TokenContract = require('../../../build/contracts/TokenContract.json');
 
 const AccessList = require('../../../build/contracts/AccessList.json');
 
@@ -23,6 +23,7 @@ const chainId = process.env.CHAIN_ID.toString()
 
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks[chainId].address;
 const ACCESSLIST_ADDRESS = DeviceFactory.networks[chainId].address; //this is wrong to circumvent abac implementation TODO
+const TOKEN_CONTRACT_ADDRESS = TokenContract.networks[chainId].address;
 
 
 
@@ -35,6 +36,10 @@ const accessListIface = new ethers.utils.Interface(
 const depositDeviceIface = new ethers.utils.Interface(
   require('../../../build/contracts/DepositDevice.json').abi
 )
+const tokenContractIface = new ethers.utils.Interface(
+  require('../../../build/contracts/TokenContract.json').abi
+)
+
 
 const provider = new ethers.providers.JsonRpcProvider(
   nodeIP
@@ -67,5 +72,8 @@ module.exports = {
   defaultAccessListContract: defaultAccessListContract,
   ethClient: ethClient,
   nodeIP: nodeIP,
-  idIndexURL: idIndexURL
+  idIndexURL: idIndexURL,
+  TOKEN_CONTRACT_ADDRESS: TOKEN_CONTRACT_ADDRESS,
+  tokenContractIface: tokenContractIface
+
 }

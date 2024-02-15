@@ -5,9 +5,11 @@ pragma solidity ^0.8.6;
 import "./DepositDevice.sol";
 import "./Ownable.sol";
 import "./IAbacContract.sol";
+import "./TokenContract.sol";
 
 contract DeviceFactory {
     IAbacContract public roles;
+    TokenContract public token_contract;
 
     mapping(address => address[]) deployed_devices;
     mapping(string => address) translation;
@@ -17,8 +19,9 @@ contract DeviceFactory {
     //-------  EVENTS  -------//
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
-    constructor(address rolesAddress) {
+    constructor(address rolesAddress, address tokenContractAddress) {
         roles = IAbacContract(rolesAddress);
+        token_contract=TokenContract(tokenContractAddress);
     }
 
     function checkIfOperator(address _address) internal view returns(bool){
@@ -51,8 +54,10 @@ contract DeviceFactory {
             address(roles),
             _documentHashAlgorithm,
             _documentHash,
-            _inventoryID
+            _inventoryID,
+            address(token_contract)
         );
+        require(token_contract.transferFrom(msg.sender, address(newContract), 100), "Token transfer failed");
         deployed_devices[msg.sender].push(address(newContract));
         translation[_chid] = address(newContract);
         if(deployed_devices[msg.sender].length == 1) {

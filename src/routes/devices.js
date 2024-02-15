@@ -80,6 +80,8 @@ class Parameters {
     this.documentID = req.body.DocumentID ?? "";
     this.documentSignature = req.body.DocumentSignature ?? "";
     this.timestamp = req.body.Timestamp ?? "";
+    this.amount = req.body.Amount ?? "";
+    this.address = req.body.Address ?? "";
   }
 }
 
@@ -400,6 +402,228 @@ router
       next(ApiError.badRequest(reason));
       return
     }
+  }
+})
+
+.post("/mintTokens", async (req, res, next) => {
+  const parameters = new Parameters(req)
+
+  try {
+    console.log(`Called /mintTokens to address: ${parameters.address}`)
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+
+    if (check_undefined_params([parameters.address])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+
+    const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+    const tokenContract = ethHelper.createContract
+      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+
+    const txResponse = await tokenContract.mint(parameters.address, { gasLimit: 6721975, gasPrice: 0 })
+    await txResponse.wait()
+
+    res.status(200);
+    res.json({
+      data: "Success"
+    })
+
+  }
+  catch (e) {
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
+  }
+})
+
+.post("/allowTokens", async (req, res, next) => {
+  const parameters = new Parameters(req)
+
+  try {
+    console.log(`Called /allowTokens with amount: ${parameters.amount}`)
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+
+    if (check_undefined_params([parameters.amount])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+
+    const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+    const tokenContract = ethHelper.createContract
+      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+
+    const txResponse = await tokenContract.approve(ethereum.DEVICEFACTORY_ADDRESS, 1000000, { gasLimit: 6721975, gasPrice: 0 })
+    await txResponse.wait()
+
+    res.status(200);
+    res.json({
+      data: "Success"
+    })
+
+  }
+  catch (e) {
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
+  }
+})
+
+.post("/releaseTokens", async (req, res, next) => {
+  const parameters = new Parameters(req)
+  var response_data;
+
+  try {
+    console.log(`Called /releaseTokens with CHID: ${parameters.deviceCHID} to address: ${parameters.address}`)
+    if (!is_dlt_valid(parameters.dlt)) {
+      next(ApiError.badRequest('Invalid DLT identifier'));
+      return
+    }
+    //why check for issuerid, documentid and documentsignature if they are optional?
+    //if (check_undefined_params([parameters.deviceDPP, parameters.issuerID, parameters.documentID, parameters.documentSignature])) {
+    if (check_undefined_params([parameters.deviceCHID, parameters.address])) {
+      next(ApiError.badRequest('Invalid Syntax.'));
+      return
+    }
+    const valid_token = await multiacc.check_token(parameters.api_token)
+    if (!valid_token) {
+      next(ApiError.badRequest('Invalid API token'));
+      return
+    }
+
+    const wallet = await ethHelper.get_wallet(parameters.api_token)
+
+    var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+
+    if (!ethHelper.is_device_address_valid(deviceAddress)) {
+      next(ApiError.badRequest('CHID not registered'));
+      return
+    }
+
+    const depositDeviceContract = ethHelper.createContract
+      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+
+    const txResponse = await depositDeviceContract.releaseFunds(parameters.address, { gasLimit: 6721975, gasPrice: 0 })
+    const txReceipt = await txResponse.wait()
+    var args = ethHelper.getEvents
+      (txReceipt, 'fundsReleased', ethereum.depositDeviceIface)
+
+    response_data = {
+      from: args[0],
+      to: args[1]
+    }
+
+    res.status(201);
+    res.json({
+      data: response_data
+    })
+
+  }
+  catch (e) {
+    let tx = await ethereum.provider.getTransaction(e.transactionHash)
+    if (!tx) {
+      next(ApiError.internal('Unknown blockchain error'));
+      return
+    } else {
+      var reason = ""
+      if (ethereum.ethClient == "besu") {
+        var result = await ethHelper.makeReceiptCall(e.transactionHash)
+        var revert = result.data.result.revertReason
+        reason = ethHelper.translateHexToString(138, revert)
+      }
+      else {
+        let code = await ethereum.provider.call(tx, tx.blockNumber)
+        reason = ethHelper.translateHexToString(138, code)
+      }
+      reason = reason.replace(/\0.*$/g, ''); //delete null characters of a string
+      next(ApiError.badRequest(reason));
+      return
+    }
+  }
+})
+
+.get("/balanceOf", async (req, res, next) => {
+  var chid = req.query.chid
+
+  try {
+    console.log(`Called /balanceOf with chid: ${chid}`)
+
+    var deviceAddress = await ethHelper.chid_to_deviceAdress(chid)
+      if (!ethHelper.is_device_address_valid(deviceAddress)) {
+        next(ApiError.badRequest('CHID not registered'));
+        return
+      }
+
+    const wallet = ethHelper.randomWallet()
+
+    const tokenContract = ethHelper.createContract
+      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+
+    const balance = await tokenContract.balanceOf(deviceAddress);
+
+
+    res.status(200);
+    res.json({
+      balance: parseInt(balance, 10)
+    })
+  }
+  catch (e) {
+    const error_object = get_error_object(e.message)
+    res.status(error_object.code);
+    res.json({
+      status: error_object.message,
+    })
+    next(e)
   }
 })
 

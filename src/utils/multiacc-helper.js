@@ -95,20 +95,20 @@ async function set_admin() {
   const admin_object = await storage.getItem("admin")
   if (admin_object == undefined) {
     console.log("Setting admin user...")
-    const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
+    const privateKey = "0x807118c237e01677f0522f9ca50535b1984481ea2e09115197934a9cd73ab8c1"
     const token_object = generate_token()
     const wallet = new ethers.Wallet(privateKey, ethereum.provider)
 
-    const send_eth_tx={
-      from: ethereum.signer.address,
-      to: "0x2851e010738422CE8786D9F86e166Fc6E1030a1a",
-      value: ethers.utils.parseEther("1"),
-      nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
-      gasLimit: ethers.utils.hexlify(50000),
-      gasPrice: 0
-    }
+    // const send_eth_tx={
+    //   from: ethereum.signer.address,
+    //   to: "0x2851e010738422CE8786D9F86e166Fc6E1030a1a",
+    //   value: ethers.utils.parseEther("1"),
+    //   nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
+    //   gasLimit: ethers.utils.hexlify(50000),
+    //   gasPrice: 0
+    // }
     
-    let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
+    // let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
 
     // const iota_id = adminIdentity.doc.id
     // const iota_key = adminIdentity.key.secret

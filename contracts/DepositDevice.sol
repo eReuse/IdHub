@@ -5,6 +5,7 @@ pragma abicoder v2;
 import "./DeviceFactory.sol";
 import "./Ownable.sol";
 import "./IAbacContract.sol";
+import "./TokenContract.sol";
 
 /**
  * @title Ereuse Device basic implementation
@@ -14,6 +15,7 @@ contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
     DeviceFactory factory;
     IAbacContract roles;
+    TokenContract token_contract;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
     struct DevData {
@@ -97,6 +99,7 @@ contract DepositDevice is Ownable {
     event genericProof(address deviceAddress, string chid, string phid, address issuerID, string documentHashAlgorithm, string documentHash, string documentType, uint timestamp, string inventoryID);  
     //event DeviceTransferred(address deviceAddress, address new_owner, string new_registrant);
     event DeviceRecycled(address deviceAddress);
+    event fundsReleased(address verifierAddress, address receiverAddress);
 
     constructor(
         string memory _chid,
@@ -105,10 +108,12 @@ contract DepositDevice is Ownable {
         address _roles,
         string memory _documentHashAlgorithm,
         string memory _documentHash,
-        string memory _inventoryID
+        string memory _inventoryID,
+        address _tokenContract
     ) {
         factory = DeviceFactory(_factory);
         roles = IAbacContract(_roles);
+        token_contract = TokenContract(_tokenContract);
         data.deregistered = false;
         data.owner = _sender;
         data.chid = _chid;
@@ -178,6 +183,12 @@ contract DepositDevice is Ownable {
         _;
     }
 
+    modifier onlyVer() {
+        require((checkIfVerifier(msg.sender) == true), "The message sender is not a verifier");
+        _;
+    }
+
+
     modifier registered() {
     require(data.deregistered == false, "This device is already deregistered");
     _;
@@ -232,6 +243,12 @@ contract DepositDevice is Ownable {
         //emitGenericProof(proof_data);
         genericProofs.push(proof_data);
         emit genericProof(address(this), proof_data.chid, proof_data.phid, proof_data.issuerID, proof_data.documentHashAlgorithm, proof_data.documentHash, proof_data.documentType, proof_data.timestamp, proof_data.inventoryID);
+    }
+
+    function releaseFunds(address _recycler)public onlyVer{
+        require(token_contract.transfer(_recycler, 100), "Already paid out.");
+        _generateGenericProof(msg.sender, "", "", "Funds_released", "");
+        emit fundsReleased(msg.sender, _recycler);
     }
     
 
