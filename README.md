@@ -52,6 +52,94 @@ The application's backend is responsible for issuing credentials upun user reque
    python manage.py runserver
    ```
 
+### Configuration
+
+Below you can find a sample .env file with the required variables and a descriptive comment.
+
+If you wish to test the application, you can paste the text below into a `.env` file.
+Note that these values are insecure and should not be used in a production environment.
+```
+# Django secret key. 
+# It is used for cryptographic signing, securing password reset tokens, CSRF protection, and cookie security, ensuring the integrity and confidentiality of critical security operations within a Django application.
+# As the name implies, it's critical that this is kept secret in a production environment.
+SECRET_KEY = 'Dummy-S3cr3t-K3y!#12#**3aaxd'
+
+# Enables Django's debug mode, providing detailed error pages and diagnostic information for development purposes.
+DEBUG=True
+
+# Specifies a list of host/domain names that this Django site can serve, enhancing security by preventing HTTP Host header attacks.
+ALLOWED_HOSTS=.localhost,127.0.0.1
+
+# Defines a list of trusted origins for safe cross-site HTTP requests, aiding in the prevention of cross-site request forgery attacks.
+CSRF_TRUSTED_ORIGINS="http://localhost:8000","http://127.0.0.1:8000","http://localhost"
+
+# Designates the file system path where static files will be collected and stored, used for serving static files in a production environment.
+STATIC_ROOT=/tmp/static/
+
+# Sets the file system path for storing uploaded media files from users, such as images and documents.
+MEDIA_ROOT=/tmp/media/
+
+# Typically used for specifying the database connection info in a single environment variable, but Django itself uses database settings defined in its settings.py.
+# Currently unused but will be used in the future
+# DATABASE_URL=postgres://link:to@database:port/idhub
+
+# Defines the admin user after running the initial_datas command
+# Defaults to "admin@example.org" if no ADMIN_EMAIL is provided
+# ADMIN_EMAIL="idhub_admin@pangea.org"
+
+# Configures a list of tuples containing names and email addresses of site administrators who should receive error notifications.
+ADMINS=[('Admin', 'admin@example.org')]
+
+# Specifies a list of individuals who will get emailed for broken link notifications if BrokenLinkEmailsMiddleware is enabled.
+MANAGERS=[('Manager', 'manager@example.org')]
+
+DOMAIN="localhost"
+
+# Determines the default email address to use for automated correspondence from the Django application.
+DEFAULT_FROM_EMAIL="idhub_noreply@pangea.org"
+
+# Set the host, username, password, and port with which to establish an SMTP connection
+EMAIL_HOST="mail.pangea.org"
+EMAIL_HOST_USER="idhub_noreply"
+EMAIL_HOST_PASSWORD="p4ssw0rd!"
+EMAIL_PORT=587
+
+# Enables Transport Layer Security (TLS) for secure email delivery when connecting to the SMTP server.
+EMAIL_USE_TLS=True
+
+# Specifies Django's email backend for sending emails through an SMTP server.
+EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
+
+# Defines the directory in which to save emails that Django sends in development mode.
+EMAIL_FILE_PATH="/tmp/app-messages"
+
+# Sets the time zone for datetime operations and as the default time zone for users.
+TIME_ZONE='Europe/Madrid'
+
+# Determines where the user is redirected after a verification.
+# If this variable is commented out or missing, redirection after verification will be disabled
+RESPONSE_URI="http://localhost:8000/oidc4vp/"
+
+# Used for communication with a secondary IdHub that acts as wallet from a page that requests verification
+# Determines where the verifiers' endpoint will be
+ALLOW_CODE_URI="http://localhost:8000/allow_code"
+
+# Used for communication with a secondary IdHub that acts as wallet from a page that requests verification
+# Determines which credential types will be supported for verification
+SUPPORTED_CREDENTIALS=['Membership Card']
+
+# Determines the name of the credentials emitted by the IdHub application
+ORGANIZATION="Pangea"
+
+# Enables the sending of emails throughout the application.
+# If disabled, all emails sent from application usage will be printed instead.
+ENABLE_EMAIL=false
+
+# Used to determine whether or not the application will enforce 2FA. Its recommended value is `true` for production environments.
+# This requires that the `EMAIL_` related variables are properly configured.
+ENABLE_2FACTOR_AUTH=false
+```
+
 ### Usage
 
 Access the application at `http://localhost:8000`.
