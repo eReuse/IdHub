@@ -1,7 +1,8 @@
 import csv
 import json
-import base64
 import copy
+import base64
+import jsonschema
 import pandas as pd
 
 from pyhanko.sign import signers
@@ -176,20 +177,10 @@ class ImportForm(forms.Form):
 
         self._schema = schema.first()
         try:
-            self.json_schema = json.loads(self._schema.data)
-            props = [x for x in self.json_schema["allOf"] if 'properties' in x.keys()]
-            prop = props[0]['properties']
-            self.properties = prop['credentialSubject']['properties']
+            self.json_schema = self._schema.get_credential_subject_schema()
         except Exception:
             raise ValidationError("Schema is not valid!")
 
-        if not self.properties:
-            raise ValidationError("Schema is not valid!")
-
-        # TODO we need filter "$ref" of schema for can validate a csv
-        self.json_schema_filtered = copy.copy(self.json_schema)
-        allOf = [x for x in self.json_schema["allOf"] if '$ref' not in x.keys()]
-        self.json_schema_filtered["allOf"] = allOf
         return data
 
     def clean_file_import(self):
@@ -197,17 +188,19 @@ class ImportForm(forms.Form):
         self.file_name = data.name
 
         df = pd.read_excel(data)
+        # convert dates to iso 8601
+        for col in df.select_dtypes(include='datetime').columns:
+            df[col] = df[col].dt.strftime("%Y-%m-%d")
+
         data_pd = df.fillna('').to_dict()
 
         if not data_pd:
             self.exception("This file is empty!")
 
-        head_row = {x: '' for x in self.properties.keys()}
         for n in range(df.last_valid_index()+1):
             row = {}
             for k in data_pd.keys():
-                if k in self.properties.keys():
-                    row[k] = data_pd[k][n] or ''
+                row[k] = data_pd[k][n] or ''
 
             user = self.validate_jsonld(n, row)
             self.rows[user] = row
@@ -229,13 +222,15 @@ class ImportForm(forms.Form):
 
     def validate_jsonld(self, line, row):
         try:
-            # check = credtools.validate_json(row, self.json_schema_filtered)
-            check = credtools.validate_json(row, self.json_schema)
-            if check is not True:
-                raise ValidationError("Not valid row")
-        except Exception as e:
-            msg = "line {}: {}".format(line+1, e)
+            jsonschema.validate(instance=row, schema=self.json_schema)
+        except jsonschema.exceptions.ValidationError as err:
+            msg = "line {}: {}".format(line+1, err)
             return self.exception(msg)
+        # try:
+        #     check = credtools.validate_json(row, self.json_schema)
+        #     if check is not True:
+        #         raise ValidationError("Not valid row")
+        # except Exception as e:
 
         user, new = User.objects.get_or_create(email=row.get('email'))
         if new:

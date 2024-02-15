@@ -541,6 +541,28 @@ class Schemas(models.Model):
     def description(self, value):
         self._description = value
 
+    def get_credential_subject_schema(self):
+        sc = self.get_data()
+        properties = sc["allOf"][1]["properties"]["credentialSubject"]["properties"]
+        required = sc["allOf"][1]["properties"]["credentialSubject"]["required"]
+
+        if "id" in required:
+            required.remove("id")
+
+        schema = {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": properties,
+            "required": required,
+            "additionalProperties": False
+        }
+
+        return schema
+
+    def get_data(self):
+        return json.loads(self.data)
+
+
 class VerificableCredential(models.Model):
     """
         Definition of Verificable Credentials

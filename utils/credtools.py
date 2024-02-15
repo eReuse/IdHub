@@ -9,6 +9,7 @@ import requests
 from pyld import jsonld
 import jsonref
 from jsonpath_ng import jsonpath, parse
+from datetime import datetime
 
 
 # def remove_null_values(dictionary):
@@ -205,22 +206,75 @@ def schema_to_xls_comment(schema, xls_file_path):
 
   # Get the xlsxwriter workbook and worksheet objects
   workbook = writer.book
+  
+  matches_title = parse('$.title').find(schema)
+  title = matches_title[0].value if matches_title else 'no title'
+
+  matches_desc = parse('$.description').find(schema)
+  desc = matches_desc[0].value if matches_desc else 'no description'
+  
+  matches_id = parse("$['$id']").find(schema)
+  idschema = matches_id[0].value if matches_id else 'no schema'
+  
+  matches_subject_desc = parse('$..credentialSubject.description').find(schema)
+  subject_desc = matches_subject_desc[0].value if matches_subject_desc else 'no subject description'
+  
+  workbook.set_properties({
+    'title':    title,
+    'subject':  desc,
+    'author':   'IdHub Orchestral',
+    'category': subject_desc,
+    'keywords': 'schema, template, plantilla',
+    'created':  datetime.now().date(), #datetime.date(2018, 1, 1),
+    'comments': 'Created with Python for IdHub'})
+
+  workbook.set_custom_property('Schema', idschema)
+ 
   worksheet = writer.sheets['Full1']
 
   # Define a format for the required header cells
-  req_format = workbook.add_format({'border': 1})
-  # cell_format = workbook.add_format({'bold': True, 'font_color': 'red'})
+  req_f = workbook.add_format({'border': 1})
+  req_da = workbook.add_format({'border': 1, 'num_format': 'yyyy-mm-dd'})
+  req_in = workbook.add_format({'border': 1, 'num_format': '0'})
+  req_st = workbook.add_format({'border': 1, 'num_format': '@'})
+  opt_da = workbook.add_format({'num_format': 'yyyy-mm-dd'})
+  opt_in = workbook.add_format({'num_format': '0'})
+  opt_st = workbook.add_format({'num_format': '@'})
+  fmts = {
+    'string' : {True: req_st, False: opt_st},
+    'date' : {True: req_da, False: opt_da},
+    'integer' : {True: req_in, False: opt_in}
+  }
 
   # Write comments to the cells
   for i, header in enumerate(headers):
-    if header in req:
-        worksheet.set_column(i,i, None, req_format)
+    fmt = {}
+    #if header in req:
+    #    fmt = req_format
+    # worksheet.set_column(i,i, None, req_format)
+   
     # Get the description for the current field
     if 'description' in matches[0][header]:
       description = matches[0][header]['description']
       if description is not None:
         # Write the description as a comment to the corresponding cell
         worksheet.write_comment(0, i, description)
+   
+    # Get the type for the current field
+    if 'type' in matches[0][header]:
+      type_field = matches[0][header]['type']
+
+      format_field = None
+      if 'format' in matches[0][header]:
+        format_field = matches[0][header]['format']
+      
+      if type_field is not None:
+        if format_field is not None and format_field == 'date':
+            type_field = 'date'
+        fmt = fmts[type_field][header in req] # Add type format
+
+    print(f'header {header} with fmt {fmt}\n')
+    worksheet.set_column(i,i, None, fmt)    
         
   # Close the Pandas Excel writer and output the Excel file
   worksheet.autofit()
