@@ -46,11 +46,11 @@
             },
             "affiliatedSince": {
               "type": "string",
-              "format": "date-time"
+              "format": "date"
             },
             "affiliatedUntil": {
               "type": "string",
-              "format": "date-time"
+              "format": "date"
             },
             "typeOfPerson": {
               "type": "string",
