@@ -50,11 +50,11 @@
                         },
                         "operatorNumber": {
                             "description": "Operator number awarded by accrediting entity",
-                            "type": "string"
+                            "type": ["number", "string"]
                         },
                         "limitJurisdiction": {
                             "description": "Regional scope",
-                            "type": "string"
+                            "type": ["number", "string"]
                         },
                         "accreditedFor": {
                             "description": "Operation type: e.g. manufacture, repair, refurbishment, remanufacture, transport, dismantle, recycle, verification, audit",
