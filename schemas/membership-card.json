@@ -42,7 +42,7 @@
             },
             "membershipId": {
               "description": "Membership identifier",
-              "type": "string"
+              "type": ["number", "string"]
             },
             "affiliatedSince": {
               "type": "string",
