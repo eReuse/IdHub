@@ -3,16 +3,16 @@
 
 # About The Project
 
-This repository contains a set of solidity smart contracts developed to manage electronic devices and its Product Passport and an API that can call a IOTA L2 DLT.
+This repository contains a set of solidity smart contracts developed to manage electronic devices and its Product Passport and an API that can call a IOTA L2 DLT with smart contracts.
 
 ### [Contracts](contracts)
 Main contracts:
 - [DeviceFactory](contracts/DeviceFactory.sol): creates devices (contract instances) and keeps track of their location.
 - [DepositDevice](contracts/DepositDevice.sol): device instance contract. Keeps track of the actions performed on a single device.
-- [TokenContract](contracts/TokenContract.sol): manages an ERC20 token.
+- [TokenContract](contracts/TokenContract.sol): manages an ERC20 token for Extended Producer Responsibility (EPR) from manufacturers to recyclers.
 
 ### [Connector HTTP API](src)
-HTTP API that acts as an interface to interact with the smart contracts.
+HTTP API for device inventory service instances (such as DeviceHub) that report proof events. It acts as an interface to interact with smart contracts managing a verifiable registry about product items, DPPs, changes, actors and deposits.
 Calls defined inside two different files, [devices](src/routes/devices.js), and [api_management](src/routes/api_management.js).
 
 ### [DID resolver (ereuse method)](didResolverApi)
