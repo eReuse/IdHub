@@ -67,10 +67,25 @@ class DashboardView(UserView, SingleTableView):
     section = "Home"
 
     def get_queryset(self, **kwargs):
+        events_for_users = self.get_user_events()
         queryset = Event.objects.select_related('user').filter(
-                user=self.request.user)
+                user=self.request.user).filter(type__in=events_for_users)
 
         return queryset
+
+    def get_user_events(self):
+        events_for_users = [
+            Event.Types.EV_USR_WELCOME,  # User welcomed
+            Event.Types.EV_USR_UPDATED,  # Your data updated by admin
+            Event.Types.EV_DID_CREATED,  # DID created
+            Event.Types.EV_DID_DELETED,  # DID deleted
+            Event.Types.EV_CREDENTIAL_DELETED,  # Credential deleted
+            Event.Types.EV_CREDENTIAL_ISSUED,  # Credential issued
+            Event.Types.EV_CREDENTIAL_PRESENTED,  # Credential presented
+            Event.Types.EV_CREDENTIAL_CAN_BE_REQUESTED,  # Credential available
+            Event.Types.EV_CREDENTIAL_REVOKED,  # Credential revoked
+        ]
+        return events_for_users
 
 
 class ProfileView(MyProfile, UpdateView, SingleTableView):
