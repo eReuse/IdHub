@@ -10,8 +10,8 @@ const Dpp = (props) => {
     var [componentsCHID, setComponentsCHID] = useState([])
     var [proofs, setProofs] = useState([])
 
-    var apiUrl = "http://192.168.0.211:3010"
-    var apiKey ="TpqnukOaIwnD34j.KEusZmX27esMhxyCZZg0D3PxPZFWB3t6VNvOzTywyzaJX8QzLHRbQcvOKxIsnv0P"
+    var apiUrl = "http://45.150.187.47:3020"
+    var apiKey ="Aw0nnxI8mJ81TiY.jDCsrUlUjh9w1T4O44HcEFGNOkZ3gWCjFGb7czaJliZqWXPaWJXyP0ADTwZ8M8gE"
     
 
     useEffect(() => {
