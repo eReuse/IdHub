@@ -8,6 +8,6 @@ COPY --chown=node:node .env ./
 USER root
 RUN npm install
 
-EXPOSE 3013
+EXPOSE 3000
 WORKDIR /home/node/searchEngine
 CMD ["npm", "start"]

@@ -4,7 +4,8 @@ services:
     build: ./
     container_name: fuzzySearchEngine # name of the built image
     ports:
-      - "3013:3013"
+      - "80:3000"
     restart: always
     volumes:
       - ./src:/home/node/searchEngine/src:ro
+      - ./public:/home/node/searchEngine/public:ro
