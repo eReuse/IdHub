@@ -81,7 +81,6 @@ class RequestCredentialForm(forms.Form):
         self.user = kwargs.pop('user', None)
         self.lang = kwargs.pop('lang', None)
         self._domain = kwargs.pop('domain', None)
-        self.password = kwargs.pop('password', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
@@ -109,8 +108,7 @@ class RequestCredentialForm(forms.Form):
         did = did[0]
         cred = cred[0]
         try:
-            if self.password:
-                cred.issue(did, self.password, domain=self._domain)
+            cred.issue(did, domain=self._domain)
         except Exception:
             return
 

@@ -18,7 +18,6 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 
 from idhub.models import DID, VerificableCredential
 from idhub.email.views import NotifyActivateUserByEmail
-from trustchain_idhub import settings
 
 
 logger = logging.getLogger(__name__)
@@ -46,30 +45,20 @@ class LoginView(auth_views.LoginView):
 
     def form_valid(self, form):
         user = form.get_user()
-        password = form.cleaned_data.get("password")
         auth_login(self.request, user)
 
-        sensitive_data_encryption_key = user.decrypt_sensitive_data(password)
+        if user.is_anonymous:
+            return redirect(reverse_lazy("idhub:login"))
 
-        if not user.is_anonymous and user.is_admin:
-            admin_dashboard = reverse_lazy('idhub:admin_dashboard')
-            self.extra_context['success_url'] = admin_dashboard
-            # encryption_key = user.encrypt_data(
-            #     sensitive_data_encryption_key,
-            #     settings.SECRET_KEY
-            # )
-            # cache.set("KEY_DIDS", encryption_key, None)
-            cache.set("KEY_DIDS", sensitive_data_encryption_key, None)
+        if user.is_admin:
             if settings.ENABLE_2FACTOR_AUTH:
                 self.request.session["2fauth"] = str(uuid.uuid4())
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
-        self.request.session["key_did"] = user.encrypt_data(
-            sensitive_data_encryption_key,
-            user.password+self.request.session._session_key
-        )
+            admin_dashboard = reverse_lazy('idhub:admin_dashboard')
+            self.extra_context['success_url'] = admin_dashboard
 
-        return HttpResponseRedirect(self.extra_context['success_url'])
+        return redirect(self.extra_context['success_url'])
 
 
 class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
