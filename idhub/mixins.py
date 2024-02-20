@@ -75,7 +75,8 @@ class UserView(LoginRequiredMixin):
             'path': resolve(self.request.path).url_name,
             'user': self.request.user,
             'wallet': self.wallet,
-            'admin_validated': True if self.admin_validated else False
+            'admin_validated': True if self.admin_validated else False,
+            'commit_id': settings.COMMIT, 
         })
         return context
 
