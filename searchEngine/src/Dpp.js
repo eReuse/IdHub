@@ -10,8 +10,8 @@ const Dpp = (props) => {
     var [componentsCHID, setComponentsCHID] = useState([])
     var [proofs, setProofs] = useState([])
 
-    var apiUrl = "http://45.150.187.47:3020"
-    var apiKey ="Aw0nnxI8mJ81TiY.jDCsrUlUjh9w1T4O44HcEFGNOkZ3gWCjFGb7czaJliZqWXPaWJXyP0ADTwZ8M8gE"
+    var apiUrl = process.env.REACT_APP_CONNECTOR_API
+    var apiKey = process.env.REACT_APP_CONNECTOR_API_TOKEN
     
 
     useEffect(() => {
@@ -38,7 +38,8 @@ const Dpp = (props) => {
         }).then((data)=>{
             console.log(data)
             data.data.data.forEach((element) =>{
-                proofsArray.push(element)
+                if(element.phid == props.dpp || element.Type == "Device_creation")
+                    proofsArray.push(element)
             })
             console.log(proofsArray)
             setProofs(proofsArray)
@@ -94,7 +95,7 @@ const Dpp = (props) => {
                         <ListGroup.Item>
                             {/* <div>Document hash: {proof.doc_hash}<button style={{float:'right'}}>Verify</button></div>
                             Hash algorithm: {proof.hash_algorithm} */}
-                            <Proof proof={proof} apiUrl={apiUrl}></Proof>
+                            <Proof proof={proof} apiUrl={apiUrl} dpp={props.dpp}></Proof>
                         </ListGroup.Item>
                     ))
                     }</ListGroup>

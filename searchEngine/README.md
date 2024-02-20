@@ -4,21 +4,17 @@ Web app that provides a simple DPP search engine.
 ## Deployment
 
 ### Configuration parameters
-Edit source files:
-- [Dpp.js](src/Dpp.js)
+Edit [.env](./.env) file:
+```javascript
+REACT_APP_CONNECTOR_API= // Connector API endpoint
+REACT_APP_DPP_INDEXER= // DPP Indexer endpoint
+REACT_APP_IOTA_API= // IOTA DPP Registry API endpoint
+REACT_APP_IOTA_TOKEN= // IOTA token for the DPP Registry API
+REACT_APP_CONNECTOR_API_TOKEN= // Token for the Connector API. Should have a "verifier" credential.
+REACT_APP_EREUSE_DID_RESOLVER= // ereuse method DID resolver endpoint.
+REACT_APP_ID_INDEX_API= // ID index API endpoint.
 ```
-Line 13: endpoint of the connector API
-Line 14: token of a connector API user. Should have Verifier credential.
-```
-- [SearchResultsPage.js](src/SearchResultsPage.js)
-```
-Line 13: endpoint of the DPP indexer
-```
-- [SearchResultsPageDeep.js](src/SearchResultsPageDeep.js)
-```
-Line 12: endpoint of the DID resolver
-Line 13: endpoint of the ID index API
-```
+
 
 ### Manual deployment
 ```javascript

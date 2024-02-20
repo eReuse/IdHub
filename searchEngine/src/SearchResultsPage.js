@@ -13,10 +13,10 @@ const SearchResultsPage = ({ location }) => {
     var [temp2_dpps, setTemp2] = useState([])
     var [dpps, setDpps] = useState([])
     const history = useHistory();
-    var ERC20Url = "http://45.150.187.47:3020/balanceOf?chid="
-    var searchUrl = `http://45.150.187.47:3024/search?query=`
-    var iotaEndpoint = 'https://api.stable.iota-ec.net/api/dpp-registry/v1/'
-    var iotaToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpb3RhIiwic3ViIjoiaW90YSIsImF1ZCI6WyJpb3RhIl0sIm5iZiI6MTY4ODU1MjY2MCwiaWF0IjoxNjg4NTUyNjYwLCJqdGkiOiIxNjg4NTUyNjYwIn0.F3FRT_Nn-s7rZqQHJc5Bk8T7fKhGB0ifpEOEnj3TysQ'
+    var ERC20Url = process.env.REACT_APP_CONNECTOR_API+"/balanceOf?chid="
+    var searchUrl = process.env.REACT_APP_DPP_INDEXER+`/search?query=`
+    var iotaEndpoint = process.env.REACT_APP_IOTA_API+'/api/dpp-registry/v1/'
+    var iotaToken = process.env.REACT_APP_IOTA_TOKEN
 
     useEffect(() => {
         console.log("FIRST EFFECT")

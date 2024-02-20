@@ -22,22 +22,9 @@ const TrustActor = (props) => {
                     }
                 }).then((data) => {
                     console.log(data)
-                    if(data.data.data[0]==root){
-                        setParentCredential(
-                            <ListGroup>
-                <TrustActor type="Root" address={data.data.data[0]} key_for_event={props.key_for_event+props.address+data.data.data[0]} apiUrl={props.apiUrl}></TrustActor>
-            </ListGroup>
-                        )
-                    }
-                    else if(data.data.data[1]){
-                        setParentCredential(
-                        <TrustActor type="Issuer" address={data.data.data[0]} key_for_event={props.key_for_event+props.address+data.data.data[0]} apiUrl={props.apiUrl}></TrustActor>
-                        )
-                    }
-                    else{
-
-                    }
                     press(2)
+                }).catch((error) => {
+                    press(3)
                 })
         }
         else if (turn == 2) setVerifyPressed(2)

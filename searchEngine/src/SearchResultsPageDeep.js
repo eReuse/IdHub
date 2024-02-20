@@ -9,8 +9,8 @@ const SearchResultsPageDeep = ({ location }) => {
     var [notFoundText, setNotFoundText] = useState('')
     var [invUrl, setInvUrl] = useState('')
     var [dpps, setDpps] = useState([])
-    var resolverUrl = `http://45.150.187.47:3021/did:ereuse:`
-    var idIndexUrl = `http://45.150.187.47:3012/getURL?id=`
+    var resolverUrl = `${process.env.REACT_APP_EREUSE_DID_RESOLVER}/did:ereuse:`
+    var idIndexUrl = `${process.env.REACT_APP_ID_INDEX_API}/getURL?id=`
     var chid = searchQuery.split(":")[0]
 
     useEffect(() => {
