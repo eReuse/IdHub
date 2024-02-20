@@ -38,7 +38,7 @@ const Dpp = (props) => {
         }).then((data)=>{
             console.log(data)
             data.data.data.forEach((element) =>{
-                if(element.phid == props.dpp || element.Type == "Device_creation")
+                if(element.phid == props.dpp)
                     proofsArray.push(element)
             })
             console.log(proofsArray)

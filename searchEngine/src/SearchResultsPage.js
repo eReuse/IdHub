@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Tabs, Tab, Spinner, Accordion, ListG
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import reward from './reward.png'
+import reward_spent from './reward_spent.png'
 
 
 const SearchResultsPage = ({ location }) => {
@@ -17,6 +18,7 @@ const SearchResultsPage = ({ location }) => {
     var searchUrl = process.env.REACT_APP_DPP_INDEXER+`/search?query=`
     var iotaEndpoint = process.env.REACT_APP_IOTA_API+'/api/dpp-registry/v1/'
     var iotaToken = process.env.REACT_APP_IOTA_TOKEN
+    var iotaExplorer = process.env.REACT_APP_IOTA_EXPLORER+"/custom/output/"
 
     useEffect(() => {
         console.log("FIRST EFFECT")
@@ -66,6 +68,7 @@ const SearchResultsPage = ({ location }) => {
                         }
                     })
                     dppsArray[i].item.iotaStatus = "YES"
+                    dppsArray[i].item.iotaOutput = outputId
                 } catch (error) {
                     dppsArray[i].item.iotaStatus = "NO"
                 }
@@ -101,7 +104,7 @@ const SearchResultsPage = ({ location }) => {
         history.push(`/deepSearch?q=${query}`);
     };
 
-    const spinnerDraw = (spin, thing, which) => {
+    const spinnerDraw = (spin, thing, which, output) => {
         if (spin) {
             if (which == "iota") return <div style={{
                 height: "50px",
@@ -147,7 +150,9 @@ const SearchResultsPage = ({ location }) => {
             </div>
             return <Spinner style={{marginRight:"15px", marginTop:"100px"}} animation="border" />
         }
-        if (which == "erc" && thing > 0) return <img style={{marginRight:"15px", marginTop:"80px"}} src={reward} width={60} />
+        // if (which == "erc" && thing > 0) return <img style={{marginRight:"15px", marginTop:"80px"}} src={reward} width={60} />
+        if (which == "erc" && thing > 0) return <div style={{marginRight:"15px", marginTop:"60px"}}><img src={reward} width={60} /><br></br><div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
+        else if (which == "erc" && thing == 0) return <div style={{marginRight:"15px", marginTop:"60px"}}><img src={reward_spent} width={60} /><br></br><div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
         if (which == "iota") {
             if (thing == "YES") return <div style={{
                 height: "50px",
@@ -168,7 +173,7 @@ const SearchResultsPage = ({ location }) => {
                     top: "15px",
                     fontSize: "15px"
                 }}>
-                    Registered DPP
+                    <a href={iotaExplorer+output}>Registered DPP</a>
                 </span>
                 <div style={{
                     position: "absolute",
@@ -241,7 +246,7 @@ const SearchResultsPage = ({ location }) => {
                         <Card>
                             <Card.Title>
                                 <a style={{ display: "inline-block", marginRight: "20px" }} onClick={(e) => handleSearch(e, elem.item.chid)} href="#">{elem.item.manufacturer + " "}{elem.item.model}</a>
-                                <span style={{ display: "inline-block", float: "right" }}>{spinnerDraw(iotaspin, elem.item.iotaStatus, "iota")}</span>
+                                <span style={{ display: "inline-block", float: "right" }}>{spinnerDraw(iotaspin, elem.item.iotaStatus, "iota", elem.item.iotaOutput)}</span>
                             </Card.Title>
                             <Card.Text>
                                 <span style={{ display: "inline-block", marginRight: "20px" , marginTop:"-20px"}}>
@@ -254,7 +259,7 @@ const SearchResultsPage = ({ location }) => {
                                     PHID: {elem.item.phid}<br></br>
                                 </span>
                                 <span style={{ display: "inline-block", float: "right" }}>
-                                    {spinnerDraw(ercspin, elem.item.balance, "erc")}<br></br>
+                                    {spinnerDraw(ercspin, elem.item.balance, "erc","")}<br></br>
                                 </span>
                             </Card.Text>
                         </Card>
