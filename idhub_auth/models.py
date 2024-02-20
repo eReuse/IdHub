@@ -1,7 +1,7 @@
 import nacl
 import base64
 
-from nacl import pwhash
+from nacl import pwhash, secret
 from django.db import models
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
@@ -95,21 +95,24 @@ class User(AbstractBaseUser):
                 roles.append(r.name)
         return ", ".join(set(roles))
 
-    def derive_key_from_password(self, password):
+    def derive_key_from_password(self, password=None):
+        if not password:
+            password = cache.get("KEY_DIDS").encode('utf-8')
+
         kdf = pwhash.argon2i.kdf
         ops = pwhash.argon2i.OPSLIMIT_INTERACTIVE
         mem = pwhash.argon2i.MEMLIMIT_INTERACTIVE
         return kdf(
-            nacl.secret.SecretBox.KEY_SIZE,
+            secret.SecretBox.KEY_SIZE,
             password,
             self.get_salt(),
             opslimit=ops,
             memlimit=mem
         )
 
-    def decrypt_sensitive_data(self, password, data=None):
-        sb_key = self.derive_key_from_password(password.encode('utf-8'))
-        sb = nacl.secret.SecretBox(sb_key)
+    def decrypt_sensitive_data(self, data=None):
+        sb_key = self.derive_key_from_password()
+        sb = secret.SecretBox(sb_key)
         if not data:
             data = self.get_encrypted_sensitive_data()
         if not isinstance(data, bytes):
@@ -117,9 +120,9 @@ class User(AbstractBaseUser):
 
         return sb.decrypt(data).decode('utf-8')
 
-    def encrypt_sensitive_data(self, password, data):
-        sb_key = self.derive_key_from_password(password.encode('utf-8'))
-        sb = nacl.secret.SecretBox(sb_key)
+    def encrypt_sensitive_data(self, data):
+        sb_key = self.derive_key_from_password()
+        sb = secret.SecretBox(sb_key)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         
@@ -134,32 +137,33 @@ class User(AbstractBaseUser):
     def get_encrypted_sensitive_data(self):
         return base64.b64decode(self.encrypted_sensitive_data.encode('utf-8'))
 
-    def set_encrypted_sensitive_data(self, password):
+    def set_encrypted_sensitive_data(self):
         key = base64.b64encode(nacl.utils.random(64))
         self.set_salt()
 
-        key_crypted = self.encrypt_sensitive_data(password, key)
+        key_crypted = self.encrypt_sensitive_data(key)
         self.encrypted_sensitive_data = key_crypted
 
-    def encrypt_data(self, data, password):
-        sb = self.get_secret_box(password)
+    def encrypt_data(self, data):
+        sb = self.get_secret_box()
         value_enc = sb.encrypt(data.encode('utf-8'))
         return base64.b64encode(value_enc).decode('utf-8')
 
-    def decrypt_data(self, data, password):
-        sb = self.get_secret_box(password)
+    def decrypt_data(self, data):
+        sb = self.get_secret_box()
         value = base64.b64decode(data.encode('utf-8'))
         return sb.decrypt(value).decode('utf-8')
 
-    def get_secret_box(self, password):
-        pw = base64.b64decode(password.encode('utf-8')*4)
-        sb_key = self.derive_key_from_password(pw)
-        return nacl.secret.SecretBox(sb_key)
+    def get_secret_box(self):
+        sb_key = self.derive_key_from_password()
+        return secret.SecretBox(sb_key)
 
-    def change_password(self, old_password, new_password):
-        sensitive_data = self.decrypt_sensitive_data(old_password)
-        self.encrypted_sensitive_data = self.encrypt_sensitive_data(
-            new_password,
-            sensitive_data
-        )
-        self.set_password(new_password)
+    def change_password_key(self, new_password):
+        data = self.decrypt_sensitive_data()
+        sb_key = self.derive_key_from_password(new_password)
+        sb = secret.SecretBox(sb_key)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        
+        encrypted_data = base64.b64encode(sb.encrypt(data)).decode('utf-8')
+        self.encrypted_sensitive_data = encrypted_data
