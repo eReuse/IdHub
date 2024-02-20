@@ -13,6 +13,7 @@ REACT_APP_IOTA_TOKEN= // IOTA token for the DPP Registry API
 REACT_APP_CONNECTOR_API_TOKEN= // Token for the Connector API. Should have a "verifier" credential.
 REACT_APP_EREUSE_DID_RESOLVER= // ereuse method DID resolver endpoint.
 REACT_APP_ID_INDEX_API= // ID index API endpoint.
+REACT_APP_IOTA_EXPLORER= // IOTA Tangle Explorer endpoint
 ```
 
 
