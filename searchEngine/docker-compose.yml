@@ -1,6 +1,6 @@
 version: '3'
 services:
-  api: 
+  search: 
     build: ./
     container_name: fuzzySearchEngine # name of the built image
     ports:
