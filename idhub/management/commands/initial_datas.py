@@ -78,8 +78,6 @@ class Command(BaseCommand):
 
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        schemas = [x for x  in schemas_files 
-            if not Schemas.objects.filter(file_schema=x).exists()]
         for x in schemas_files:
             if Schemas.objects.filter(file_schema=x).exists():
                 continue
