@@ -645,8 +645,9 @@ class VerificableCredential(models.Model):
         return self.Status(self.status).label
 
     def get_datas(self):
-        data = json.loads(self.csv_data).items()
-        return data
+        data = self.render()
+        credential_subject = ujson.loads(data).get("credentialSubject", {})
+        return credential_subject.items()
 
     def issue(self, did, domain=settings.DOMAIN.strip("/")):
         if self.status == self.Status.ISSUED:
@@ -702,7 +703,7 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
-    def render(self, domain):
+    def render(self, domain=""):
         context = self.get_context(domain)
         template_name = 'credentials/{}'.format(
             self.schema.file_schema
