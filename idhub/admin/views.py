@@ -701,15 +701,10 @@ class DeleteCredentialsView(Credentials):
             VerificableCredential,
             pk=pk,
         )
-        status = [
-            VerificableCredential.Status.REVOKED,
-            VerificableCredential.Status.ISSUED
-        ]
-        if self.object.status in status:
-            self.object.delete()
-            messages.success(self.request, _('Credential deleted successfully'))
-            Event.set_EV_CREDENTIAL_DELETED(self.object)
-            Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
+        self.object.delete()
+        messages.success(self.request, _('Credential deleted successfully'))
+        Event.set_EV_CREDENTIAL_DELETED(self.object)
+        Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
 
         return redirect(self.success_url)
 

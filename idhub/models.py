@@ -6,7 +6,6 @@ import datetime
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
-from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 

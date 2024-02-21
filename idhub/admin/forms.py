@@ -68,6 +68,7 @@ class EncryptionKeyForm(forms.Form):
             txt = _("Key no valid!")
             raise ValidationError(txt)
 
+        cache.set("KEY_DIDS", None)
         return data
 
     def save(self, commit=True):
@@ -426,8 +427,7 @@ class ImportCertificateForm(forms.Form):
             type=DID.Types.KEY
         )
 
-        pw = cache.get("KEY_DIDS")
-        self._did.set_key_material(key_material, pw)
+        self._did.set_key_material(key_material)
 
     def save(self, commit=True):
 
