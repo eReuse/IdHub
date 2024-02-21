@@ -6,7 +6,6 @@ import zlib
 
 import pyroaring
 from django.conf import settings
-from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views

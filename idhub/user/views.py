@@ -1,8 +1,6 @@
-import os
 import json
 import base64
 import qrcode
-import logging
 import datetime
 import weasyprint
 import qrcode.image.svg
@@ -34,7 +32,6 @@ from idhub.user.tables import (
         DIDTable,
         CredentialsTable
 )
-from django.core.cache import cache
 from idhub.user.forms import (
     RequestCredentialForm,
     DemandAuthorizationForm,
@@ -172,7 +169,7 @@ class WaitingView(UserView, TemplateView):
     success_url = reverse_lazy('idhub:user_dashboard')
 
     def get(self, request, *args, **kwargs):
-        if cache.get("KEY_DIDS"):
+        if self.admin_validated:
             return redirect(self.success_url)
         return super().get(request, *args, **kwargs)
 

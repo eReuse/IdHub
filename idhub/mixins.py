@@ -1,6 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import views as auth_views
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy, resolve
 from django.shortcuts import redirect
