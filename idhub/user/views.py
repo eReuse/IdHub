@@ -35,9 +35,7 @@ from idhub.user.tables import (
         CredentialsTable
 )
 from django.core.cache import cache
-from django.conf import settings
 from idhub.user.forms import (
-    ProfileForm,
     RequestCredentialForm,
     DemandAuthorizationForm,
     TermsConditionsForm
@@ -367,7 +365,7 @@ class PublicCredentialJsonView(View):
             hash=pk,
             eidas1_did__isnull=False,
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        response = HttpResponse(self.object.get_data(), content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
