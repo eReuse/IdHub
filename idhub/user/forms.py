@@ -116,7 +116,6 @@ class RequestCredentialForm(forms.Form):
         try:
             if self.password:
                 cred.issue(did, self.password, domain=self._domain)
-            assert 1==2
         except Exception as err:
             logger.debug(err)
             return
