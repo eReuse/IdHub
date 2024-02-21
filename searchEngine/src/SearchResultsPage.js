@@ -19,6 +19,7 @@ const SearchResultsPage = ({ location }) => {
     var iotaEndpoint = process.env.REACT_APP_IOTA_API+'/api/dpp-registry/v1/'
     var iotaToken = process.env.REACT_APP_IOTA_TOKEN
     var iotaExplorer = process.env.REACT_APP_IOTA_EXPLORER+"/custom/output/"
+    var iotaEvmExplorer = process.env.REACT_APP_IOTA_EVM_EXPLORER+"/address/"
 
     useEffect(() => {
         console.log("FIRST EFFECT")
@@ -91,6 +92,7 @@ const SearchResultsPage = ({ location }) => {
             for (let i = 0; i < dppsArray.length; i++) {
                 let result2 = await axios.get(encodeURI(ERC20Url + dppsArray[i].item.chid))
                 dppsArray[i].item.balance = result2.data.balance
+                dppsArray[i].item.address = result2.data.address
             }
             setDpps(dppsArray)
         }
@@ -151,8 +153,12 @@ const SearchResultsPage = ({ location }) => {
             return <Spinner style={{marginRight:"15px", marginTop:"100px"}} animation="border" />
         }
         // if (which == "erc" && thing > 0) return <img style={{marginRight:"15px", marginTop:"80px"}} src={reward} width={60} />
-        if (which == "erc" && thing > 0) return <div style={{marginRight:"15px", marginTop:"60px"}}><img src={reward} width={60} /><br></br><div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
-        else if (which == "erc" && thing == 0) return <div style={{marginRight:"15px", marginTop:"60px"}}><img src={reward_spent} width={60} /><br></br><div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
+        if (which == "erc" && thing > 0) return <div style={{marginRight:"15px", marginTop:"60px"}}>
+        <a href={iotaEvmExplorer+output} style={{cursor: "pointer"}}><img src={reward} width={60} /><br></br></a>
+        <div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
+        else if (which == "erc" && thing == 0) return <div style={{marginRight:"15px", marginTop:"60px"}}>
+        <a href={iotaEvmExplorer+output} style={{cursor: "pointer"}}><img src={reward_spent} width={60} /><br></br></a>
+        <div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
         if (which == "iota") {
             if (thing == "YES") return <div style={{
                 height: "50px",
@@ -259,7 +265,7 @@ const SearchResultsPage = ({ location }) => {
                                     PHID: {elem.item.phid}<br></br>
                                 </span>
                                 <span style={{ display: "inline-block", float: "right" }}>
-                                    {spinnerDraw(ercspin, elem.item.balance, "erc","")}<br></br>
+                                    {spinnerDraw(ercspin, elem.item.balance, "erc",elem.item.address)}<br></br>
                                 </span>
                             </Card.Text>
                         </Card>

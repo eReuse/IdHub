@@ -614,7 +614,8 @@ router
 
     res.status(200);
     res.json({
-      balance: parseInt(balance, 10)
+      balance: parseInt(balance, 10),
+      address: deviceAddress
     })
   }
   catch (e) {
