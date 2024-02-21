@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django.core.cache import cache
 from utils import credtools
 from idhub_auth.models import User
 from idhub_auth.forms import ProfileForm
@@ -90,7 +91,7 @@ class EncryptionKeyView(AdminView, FormView):
     success_url = reverse_lazy('idhub:admin_dashboard')
 
     def get(self, request, *args, **kwargs):
-        if self.admin_validated:
+        if cache.get("KEY_DIDS"):
             return redirect(self.success_url)
 
         return super().get(request, *args, **kwargs)
