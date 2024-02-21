@@ -1,14 +1,11 @@
 import json
-import requests
 
 from django import forms
-from django.conf import settings
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 from utils.idhub_ssikit import create_verifiable_presentation
-from oidc4vp.models import Organization
 from idhub.models import VerificableCredential
 
 
@@ -19,7 +16,6 @@ class AuthorizeForm(forms.Form):
         self.user = kwargs.pop('user', None)
         self.org = kwargs.pop('org', None)
         self.code = kwargs.pop('code', None)
-        self.pw = kwargs.pop('pw', None)
         self.presentation_definition = kwargs.pop('presentation_definition', [])
         self.subject_did = None
 
@@ -53,7 +49,6 @@ class AuthorizeForm(forms.Form):
 
                 cred = self.user.decrypt_data(
                     c.data,
-                    self.pw
                 )
                 self.subject_did = c.subject_did
                 self.list_credentials.append(cred)
@@ -85,5 +80,5 @@ class AuthorizeForm(forms.Form):
             "verifiable_credential_list": vc_list
         }
         unsigned_vp = vp_template.render(context)
-        key_material = did.get_key_material(self.pw)
+        key_material = did.get_key_material()
         self.vp = create_verifiable_presentation(key_material, unsigned_vp)
