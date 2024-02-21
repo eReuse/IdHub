@@ -21,6 +21,7 @@ from django.views.generic.edit import (
 )
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
+from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
@@ -169,7 +170,7 @@ class WaitingView(UserView, TemplateView):
     success_url = reverse_lazy('idhub:user_dashboard')
 
     def get(self, request, *args, **kwargs):
-        if self.admin_validated:
+        if cache.get("KEY_DIDS"):
             return redirect(self.success_url)
         return super().get(request, *args, **kwargs)
 
@@ -204,7 +205,7 @@ class CredentialPdfView(MyWallet, TemplateView):
     file_name = "certificate.pdf"
 
     def get(self, request, *args, **kwargs):
-        if not self.admin_validated:
+        if not cache.get("KEY_DIDS"):
             return redirect(reverse_lazy('idhub:user_dashboard'))
         pk = kwargs['pk']
         self.user = self.request.user
@@ -231,7 +232,7 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        this_folder = str(Path.cwd())
+        # this_folder = str(Path.cwd())
         path_img_sig = "idhub/static/images/4_Model_Certificat_html_58d7f7eeb828cf29.jpg"
         img_signature = next(Path.cwd().glob(path_img_sig))
         with open(img_signature, 'rb') as _f:
@@ -376,8 +377,8 @@ class CredentialsRequestView(MyWallet, FormView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
-        if not self.admin_validated:
-            return redirect(reverse_lazy('idhub:user_dashboard'))
+        if not cache.get("KEY_DIDS"):
+            return redirect(reverse_lazy('idhub:user_waiting'))
         return response
 
     def get_form_kwargs(self):
