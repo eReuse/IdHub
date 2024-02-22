@@ -63,6 +63,8 @@ class AdminDashboardViewTest(TestCase):
     def test_admin_event_filtering(self):
         # Create a test admin user
         admin_user = User.objects.create_superuser(email='admin@example.org', password='test')
+        admin_user.accept_gdpr = True
+        admin_user.save()
         self.client.login(email='admin@example.org', password='test')
 
         # Create test events, including some that should not be visible to admins
@@ -71,21 +73,25 @@ class AdminDashboardViewTest(TestCase):
 
         # Fetch the dashboard view
         response = self.client.get('/admin/dashboard/')
+        #import pdb; pdb.set_trace()
         events = response.context['events']
 
         # Check that only admin-visible events are included
         self.assertIn(Event.Types.EV_USR_REGISTERED, [event.type for event in events])
         self.assertNotIn(Event.Types.EV_USR_WELCOME, [event.type for event in events])
 
-    def test_access_control(self):
+    def test_access_control_redirects_when_normal_user(self):
         # Attempt to access the dashboard as a non-admin user
         regular_user = User.objects.create_user(email='user', password='test')
         self.client.login(email='user@example.org', password='test')
         response = self.client.get('/admin/dashboard/')
         self.assertEqual(response.status_code, 302)  # Or 403 if not redirected
 
+    def test_access_control_accepted_when_admin(self):
         # Access as an admin
         admin_user = User.objects.create_superuser(email='admin@example.org', password='test')
+        admin_user.accept_gdpr=True
+        admin_user.save()
         self.client.login(email='admin@example.org', password='test')
         response = self.client.get('/admin/dashboard/')
         self.assertEqual(response.status_code, 200)
@@ -168,7 +174,7 @@ class UserDashboardViewTests(TestCase):
         Event.objects.create(type=Event.Types.EV_USR_REGISTERED, message="Admin only event", user=self.regular_user)
 
     def test_events_visibility_for_regular_user(self):
-        self.client.login(email='regularuser@example.org', password='password')
+        self.client.login(email='regular@example.org', password='password')
         response = self.client.get(reverse('idhub:user_dashboard'))
         # Ensure the response contains only the events that should be visible
         for event in Event.objects.filter(user=self.regular_user, type__in=self.visible_events_types):
@@ -179,7 +185,7 @@ class UserDashboardViewTests(TestCase):
     def test_no_events_for_regular_user(self):
         # Delete all events for the setup user
         Event.objects.filter(user=self.regular_user).delete()
-        self.client.login(email='regularuser@example.org', password='password')
+        self.client.login(email='regular@example.org', password='password')
         response = self.client.get(reverse('idhub:user_dashboard'))
         # Verify that the response indicates no events are available
         self.assertContains(response, "No events available")  # Adjust based on your actual no-events message
@@ -187,7 +193,9 @@ class UserDashboardViewTests(TestCase):
     def test_events_visibility_for_new_user(self):
         # Create a new user who has no events
         new_user = User.objects.create_user('new@example.org', 'password')
-        self.client.login(email='newuser@example.org', password='password')
+        new_user.accept_gdpr = True
+        new_user.save()
+        self.client.login(email='new@example.org', password='password')
         response = self.client.get(reverse('idhub:user_dashboard'))
         # Verify that the response correctly indicates no events for the new user
         self.assertContains(response, "No events available")  # Adjust based on your actual no-events message
