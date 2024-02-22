@@ -127,6 +127,36 @@ class DashboardView(AdminView, SingleTableView):
     section = "Home"
     model = Event
 
+    def get_queryset(self):
+        """
+        Override the get_queryset method to filter events based on the user type.
+        """
+        events_for_admins = self.get_admin_events()
+        return Event.objects.filter(type__in=events_for_admins)
+
+    def get_admin_events(self):
+        return [
+            Event.Types.EV_USR_REGISTERED,  # User registered
+            Event.Types.EV_USR_UPDATED_BY_ADMIN,  # User's data updated by admin
+            Event.Types.EV_USR_DELETED_BY_ADMIN,  # User deactivated by admin
+            Event.Types.EV_DID_CREATED_BY_USER,  # DID created by user
+            Event.Types.EV_CREDENTIAL_DELETED_BY_USER,  # Credential deleted by user
+            Event.Types.EV_CREDENTIAL_ISSUED_FOR_USER,  # Credential issued for user
+            Event.Types.EV_CREDENTIAL_PRESENTED_BY_USER,  # Credential presented by user
+            Event.Types.EV_CREDENTIAL_ENABLED,  # Credential enabled
+            Event.Types.EV_CREDENTIAL_REVOKED_BY_ADMIN,  # Credential revoked by admin
+            Event.Types.EV_ROLE_CREATED_BY_ADMIN,  # Role created by admin
+            Event.Types.EV_ROLE_MODIFIED_BY_ADMIN,  # Role modified by admin
+            Event.Types.EV_ROLE_DELETED_BY_ADMIN,  # Role deleted by admin
+            Event.Types.EV_SERVICE_CREATED_BY_ADMIN,  # Service created by admin
+            Event.Types.EV_SERVICE_MODIFIED_BY_ADMIN,  # Service modified by admin
+            Event.Types.EV_SERVICE_DELETED_BY_ADMIN,  # Service deleted by admin
+            Event.Types.EV_ORG_DID_CREATED_BY_ADMIN,  # Organisational DID created by admin
+            Event.Types.EV_ORG_DID_DELETED_BY_ADMIN,  # Organisational DID deleted by admin
+            Event.Types.EV_USR_DEACTIVATED_BY_ADMIN,  # User deactivated
+            Event.Types.EV_DATA_UPDATE_REQUESTED,  # Data update requested. Pending approval by administrator
+        ]
+
 
 class People(AdminView):
     title = _("User management")
