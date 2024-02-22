@@ -5,13 +5,12 @@ import json
 from pathlib import Path
 from utils import credtools
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from decouple import config
 from idhub.models import DID, Schemas
 from oidc4vp.models import Organization
-from promotion.models import Promotion
 
 
 User = get_user_model()
@@ -23,6 +22,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
         ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
+        KEY_DIDS = config('KEY_DIDS')
+        cache.set("KEY_DIDS", KEY_DIDS, None)
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
         if settings.CREATE_TEST_USERS:
@@ -43,21 +44,17 @@ class Command(BaseCommand):
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
-        su.set_encrypted_sensitive_data(password)
+        su.set_encrypted_sensitive_data()
         su.save()
-        key = su.decrypt_sensitive_data(password)
-        key_dids = {su.id: key}
-        cache.set("KEY_DIDS", key_dids, None)
-        self.create_defaults_dids(su, key)
+        self.create_defaults_dids(su)
 
 
     def create_users(self, email, password):
         u = User.objects.create(email=email, password=password)
         u.set_password(password)
-        u.set_encrypted_sensitive_data(password)
+        u.set_encrypted_sensitive_data()
         u.save()
-        key = u.decrypt_sensitive_data(password)
-        self.create_defaults_dids(u, key)
+        self.create_defaults_dids(u)
 
 
     def create_organizations(self, name, url):
@@ -72,15 +69,14 @@ class Command(BaseCommand):
         org1.my_client_secret = org2.client_secret
         org1.save()
         org2.save()
-    def create_defaults_dids(self, u, password):
+
+    def create_defaults_dids(self, u):
         did = DID(label="Default", user=u, type=DID.Types.WEB)
-        did.set_did(password)
+        did.set_did()
         did.save()
 
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        schemas = [x for x  in schemas_files 
-            if not Schemas.objects.filter(file_schema=x).exists()]
         for x in schemas_files:
             if Schemas.objects.filter(file_schema=x).exists():
                 continue

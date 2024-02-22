@@ -1,4 +1,5 @@
 from django.test import TestCase, RequestFactory
+from django.core.cache import cache
 from django.urls import reverse
 
 from idhub_auth.models import User
@@ -9,6 +10,7 @@ from idhub.admin.views import PeopleListView
 class AdminDashboardViewTest(TestCase):
 
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         self.user = User.objects.create_user(
             email='normaluser@example.org',
             password='testpass12',
@@ -99,6 +101,7 @@ class AdminDashboardViewTest(TestCase):
 class PeopleListViewTest(TestCase):
 
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         # Set up a RequestFactory to create mock requests
         self.factory = RequestFactory()
 
@@ -144,6 +147,7 @@ class PeopleListViewTest(TestCase):
 
 class UserDashboardViewTests(TestCase):
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         # Create test users
         self.admin_user = User.objects.create_superuser('admin@example.org', 'password')
         self.admin_user.accept_gdpr=True

@@ -16,7 +16,6 @@ from idhub.mixins import UserView
 from idhub.models import Event
 
 from oidc4vp.forms import AuthorizeForm
-from utils.idhub_ssikit import verify_presentation
 
 
 class AuthorizeView(UserView, FormView):
@@ -39,16 +38,11 @@ class AuthorizeView(UserView, FormView):
         kwargs['user'] = self.request.user
         try:
             vps = json.loads(self.request.GET.get('presentation_definition'))
-        except:
+        except Exception:
             vps = []
         kwargs['presentation_definition'] = vps
         kwargs["org"] = self.get_org()
         kwargs["code"] = self.request.GET.get('code')
-        enc_pw = self.request.session["key_did"]
-        kwargs['pw'] = self.request.user.decrypt_data(
-            enc_pw,
-            self.request.user.password+self.request.session._session_key
-        )
         return kwargs
 
     def get_form(self, form_class=None):
@@ -64,7 +58,7 @@ class AuthorizeView(UserView, FormView):
             return redirect(self.success_url)
         try:
             authorization = authorization.json()
-        except:
+        except Exception:
             messages.error(self.request, _("Error sending credential!"))
             return redirect(self.success_url)
 
@@ -148,7 +142,6 @@ class VerifyView(View):
         if len(auth_data) == 2 and auth_data[0].lower() == 'basic':
             decoded_auth = base64.b64decode(auth_data[1]).decode('utf-8')
             client_id, client_secret = decoded_auth.split(':', 1)
-            org_url = request.GET.get('demand_uri')
             org = get_object_or_404(
                     Organization,
                     client_id=client_id,
