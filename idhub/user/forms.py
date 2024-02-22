@@ -1,9 +1,14 @@
+import logging
+
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
 from idhub_auth.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileForm(forms.ModelForm):
@@ -109,7 +114,8 @@ class RequestCredentialForm(forms.Form):
         cred = cred[0]
         try:
             cred.issue(did, domain=self._domain)
-        except Exception:
+        except Exception as err:
+            logger.error(err)
             return
 
         if commit:
