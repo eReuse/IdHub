@@ -73,8 +73,7 @@ class AdminDashboardViewTest(TestCase):
 
         # Fetch the dashboard view
         response = self.client.get('/admin/dashboard/')
-        #import pdb; pdb.set_trace()
-        events = response.context['events']
+        events = response.context['event_list']
 
         # Check that only admin-visible events are included
         self.assertIn(Event.Types.EV_USR_REGISTERED, [event.type for event in events])
