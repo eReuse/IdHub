@@ -159,6 +159,10 @@ h3 {
   background-color: #f3f3f3;
 }
 
+.btn-grey-selected {
+  background-color: #b0b0b0;
+}
+
 .btn-green-user {
   background-color: #c7e3a3;
 }
