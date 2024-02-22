@@ -1,9 +1,6 @@
 import os
 import json
-import logging
-import pandas as pd
 from pathlib import Path
-from jsonschema import validate
 from smtplib import SMTPException
 from django_tables2 import SingleTableView
 
@@ -18,22 +15,23 @@ from django.views.generic.edit import (
     UpdateView,
 )
 from django.shortcuts import get_object_or_404, redirect
-from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
+from django.core.cache import cache
 from utils import credtools
 from idhub_auth.models import User
 from idhub_auth.forms import ProfileForm
 from idhub.mixins import AdminView, Http403
 from idhub.email.views import NotifyActivateUserByEmail
 from idhub.admin.forms import (
+    EncryptionKeyForm,
+    ImportCertificateForm,
     ImportForm,
     MembershipForm,
     TermsConditionsForm,
     SchemaForm,
-    UserRolForm,
-    ImportCertificateForm,
+    UserRolForm
 )
 from idhub.admin.tables import (
         DashboardTable,
@@ -79,7 +77,27 @@ class TermsAndConditionsView(AdminView, FormView):
         return kwargs
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
+        return super().form_valid(form)
+
+
+class EncryptionKeyView(AdminView, FormView):
+    template_name = "idhub/admin/encryption_key.html"
+    title = _('Encryption Key')
+    section = ""
+    subtitle = _('Encryption Key')
+    icon = 'bi bi-key'
+    form_class = EncryptionKeyForm
+    success_url = reverse_lazy('idhub:admin_dashboard')
+
+    def get(self, request, *args, **kwargs):
+        if cache.get("KEY_DIDS"):
+            return redirect(self.success_url)
+
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
         return super().form_valid(form)
 
 
@@ -295,7 +313,11 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
         return self.success_url
 
     def form_valid(self, form):
-        user = form.save()
+        super().form_valid(form)
+        user = form.instance
+        user.set_encrypted_sensitive_data()
+        user.save()
+        self.create_defaults_dids(user)
         messages.success(self.request, _('The account was created successfully'))
         Event.set_EV_USR_REGISTERED(user)
         Event.set_EV_USR_WELCOME(user)
@@ -306,6 +328,11 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
             except SMTPException as e:
                 messages.error(self.request, e)
         return super().form_valid(form)
+
+    def create_defaults_dids(self, user):
+        did = DID(label="Default", user=user, type=DID.Types.WEB)
+        did.set_did()
+        did.save()
 
 
 class PeopleMembershipRegisterView(People, FormView):
@@ -679,7 +706,7 @@ class CredentialJsonView(Credentials):
             VerificableCredential,
             pk=pk,
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        response = HttpResponse(self.object.get_data(), content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
@@ -714,15 +741,10 @@ class DeleteCredentialsView(Credentials):
             VerificableCredential,
             pk=pk,
         )
-        status = [
-            VerificableCredential.Status.REVOKED,
-            VerificableCredential.Status.ISSUED
-        ]
-        if self.object.status in status:
-            self.object.delete()
-            messages.success(self.request, _('Credential deleted successfully'))
-            Event.set_EV_CREDENTIAL_DELETED(self.object)
-            Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
+        self.object.delete()
+        messages.success(self.request, _('Credential deleted successfully'))
+        Event.set_EV_CREDENTIAL_DELETED(self.object)
+        Event.set_EV_CREDENTIAL_DELETED_BY_ADMIN(self.object)
 
         return redirect(self.success_url)
 
@@ -760,7 +782,7 @@ class DidRegisterView(Credentials, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.set_did(cache.get("KEY_DIDS"))
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
@@ -782,7 +804,7 @@ class DidEditView(Credentials, UpdateView):
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
         messages.success(self.request, _('DID updated successfully'))
         return super().form_valid(form)
 

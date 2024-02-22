@@ -88,6 +88,9 @@ urlpatterns = [
     path('user/terms/', views_user.TermsAndConditionsView.as_view(),
         name='user_terms_and_conditions'),
 
+    path('waiting/', views_user.WaitingView.as_view(),
+        name='user_waiting'),
+
     # Admin
     path('admin/dashboard/', views_admin.DashboardView.as_view(),
         name='admin_dashboard'),
@@ -173,6 +176,7 @@ urlpatterns = [
         name='admin_terms_and_conditions'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+    path('admin/enc/',  views_admin.EncryptionKeyView.as_view(), name='encryption_key'),
     path('admin/auth/<uuid:admin2fauth>', views_admin.DobleFactorAuthView.as_view(),
         name='admin_2fauth'),
     path('admin/auth/2f/', DobleFactorSendView.as_view(), name='confirm_send_2f'),

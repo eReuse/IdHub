@@ -1,8 +1,6 @@
-import os
 import json
 import base64
 import qrcode
-import logging
 import datetime
 import weasyprint
 import qrcode.image.svg
@@ -23,6 +21,7 @@ from django.views.generic.edit import (
 )
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
+from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib import messages
@@ -34,10 +33,7 @@ from idhub.user.tables import (
         DIDTable,
         CredentialsTable
 )
-from django.core.cache import cache
-from django.conf import settings
 from idhub.user.forms import (
-    ProfileForm,
     RequestCredentialForm,
     DemandAuthorizationForm,
     TermsConditionsForm
@@ -176,8 +172,23 @@ class TermsAndConditionsView(UserView, FormView):
         return kwargs
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
         return super().form_valid(form)
+
+
+class WaitingView(UserView, TemplateView):
+    template_name = "idhub/user/waiting.html"
+    title = _("Comunication with admin")
+    subtitle = _('Service temporary close')
+    section = ""
+    icon = 'bi bi-file-earmark-medical'
+    success_url = reverse_lazy('idhub:user_dashboard')
+
+    def get(self, request, *args, **kwargs):
+        if cache.get("KEY_DIDS"):
+            return redirect(self.success_url)
+        return super().get(request, *args, **kwargs)
+
 
 
 class CredentialView(MyWallet, TemplateView):
@@ -209,7 +220,8 @@ class CredentialPdfView(MyWallet, TemplateView):
     file_name = "certificate.pdf"
 
     def get(self, request, *args, **kwargs):
-        self.admin_validated = cache.get("KEY_DIDS")
+        if not cache.get("KEY_DIDS"):
+            return redirect(reverse_lazy('idhub:user_dashboard'))
         pk = kwargs['pk']
         self.user = self.request.user
         self.object = get_object_or_404(
@@ -235,7 +247,7 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        this_folder = str(Path.cwd())
+        # this_folder = str(Path.cwd())
         path_img_sig = "idhub/static/images/4_Model_Certificat_html_58d7f7eeb828cf29.jpg"
         img_signature = next(Path.cwd().glob(path_img_sig))
         with open(img_signature, 'rb') as _f:
@@ -297,10 +309,9 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_pfx_data(self):
         did = self.object.eidas1_did
-        pw = self.admin_validated
-        if not did or not pw:
+        if not did:
             return None, None
-        key_material = json.loads(did.get_key_material(pw))
+        key_material = json.loads(did.get_key_material())
         cert = key_material.get("cert")
         passphrase = key_material.get("passphrase")
         if cert and passphrase:
@@ -352,14 +363,7 @@ class CredentialJsonView(MyWallet, TemplateView):
             pk=pk,
             user=self.request.user
         )
-        pass_enc = self.request.session.get("key_did")
-        data = ""
-        if pass_enc:
-            user_pass = self.request.user.decrypt_data(
-                pass_enc,
-                self.request.user.password+self.request.session._session_key
-            )
-            data = self.object.get_data(user_pass)
+        data = self.object.get_data()
         response = HttpResponse(data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
@@ -374,7 +378,7 @@ class PublicCredentialJsonView(View):
             hash=pk,
             eidas1_did__isnull=False,
         )
-        response = HttpResponse(self.object.data, content_type="application/json")
+        response = HttpResponse(self.object.get_data(), content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
 
@@ -388,8 +392,8 @@ class CredentialsRequestView(MyWallet, FormView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
-        if not self.admin_validated:
-            return redirect(reverse_lazy('idhub:user_dashboard'))
+        if not cache.get("KEY_DIDS"):
+            return redirect(reverse_lazy('idhub:user_waiting'))
         return response
 
     def get_form_kwargs(self):
@@ -398,15 +402,6 @@ class CredentialsRequestView(MyWallet, FormView):
         kwargs['lang'] = self.request.LANGUAGE_CODE
         domain = "{}://{}".format(self.request.scheme, self.request.get_host())
         kwargs['domain'] = domain
-        pass_enc = self.request.session.get("key_did")
-        if pass_enc:
-            user_pass = self.request.user.decrypt_data(
-                pass_enc,
-                self.request.user.password+self.request.session._session_key
-            )
-        else:
-            pass_enc = None
-        kwargs['password'] = user_pass
         return kwargs
     
     def form_valid(self, form):
@@ -483,11 +478,7 @@ class DidRegisterView(MyWallet, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        pw = self.request.user.decrypt_data(
-            self.request.session.get("key_did"),
-            self.request.user.password+self.request.session._session_key
-        )
-        form.instance.set_did(pw)
+        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
 
@@ -511,7 +502,7 @@ class DidEditView(MyWallet, UpdateView):
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
         messages.success(self.request, _('DID updated successfully'))
         return super().form_valid(form)
 

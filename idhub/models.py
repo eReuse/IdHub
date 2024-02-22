@@ -6,10 +6,8 @@ import datetime
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
-from django.core.cache import cache
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
-from nacl import secret
 
 from utils.idhub_ssikit import (
     generate_did_controller_key,
@@ -34,26 +32,27 @@ class Event(models.Model):
         EV_DID_CREATED = 9, "DID created"
         EV_DID_DELETED = 10, "DID deleted"
         EV_CREDENTIAL_DELETED_BY_USER = 11, "Credential deleted by user"
-        EV_CREDENTIAL_DELETED = 12, "Credential deleted"
-        EV_CREDENTIAL_ISSUED_FOR_USER = 13, "Credential issued for user"
-        EV_CREDENTIAL_ISSUED = 14, "Credential issued"
-        EV_CREDENTIAL_PRESENTED_BY_USER = 15, "Credential presented by user"
-        EV_CREDENTIAL_PRESENTED = 16, "Credential presented"
-        EV_CREDENTIAL_ENABLED = 17, "Credential enabled"
-        EV_CREDENTIAL_CAN_BE_REQUESTED = 18, "Credential available"
-        EV_CREDENTIAL_REVOKED_BY_ADMIN = 19, "Credential revoked by admin"
-        EV_CREDENTIAL_REVOKED = 20, "Credential revoked"
-        EV_ROLE_CREATED_BY_ADMIN = 21, "Role created by admin"
-        EV_ROLE_MODIFIED_BY_ADMIN = 22, "Role modified by admin"
-        EV_ROLE_DELETED_BY_ADMIN = 23, "Role deleted by admin"
-        EV_SERVICE_CREATED_BY_ADMIN = 24, "Service created by admin"
-        EV_SERVICE_MODIFIED_BY_ADMIN = 25, "Service modified by admin"
-        EV_SERVICE_DELETED_BY_ADMIN = 26, "Service deleted by admin"
-        EV_ORG_DID_CREATED_BY_ADMIN = 27, "Organisational DID created by admin"
-        EV_ORG_DID_DELETED_BY_ADMIN = 28, "Organisational DID deleted by admin"
-        EV_USR_DEACTIVATED_BY_ADMIN = 29, "User deactivated"
-        EV_USR_ACTIVATED_BY_ADMIN = 30, "User activated"
-        EV_USR_SEND_VP = 31, "User send Verificable Presentation"
+        EV_CREDENTIAL_DELETED_BY_ADMIN = 12, "Credential deleted by admin"
+        EV_CREDENTIAL_DELETED = 13, "Credential deleted"
+        EV_CREDENTIAL_ISSUED_FOR_USER = 14, "Credential issued for user"
+        EV_CREDENTIAL_ISSUED = 15, "Credential issued"
+        EV_CREDENTIAL_PRESENTED_BY_USER = 16, "Credential presented by user"
+        EV_CREDENTIAL_PRESENTED = 17, "Credential presented"
+        EV_CREDENTIAL_ENABLED = 18, "Credential enabled"
+        EV_CREDENTIAL_CAN_BE_REQUESTED = 19, "Credential available"
+        EV_CREDENTIAL_REVOKED_BY_ADMIN = 20, "Credential revoked by admin"
+        EV_CREDENTIAL_REVOKED = 21, "Credential revoked"
+        EV_ROLE_CREATED_BY_ADMIN = 22, "Role created by admin"
+        EV_ROLE_MODIFIED_BY_ADMIN = 23, "Role modified by admin"
+        EV_ROLE_DELETED_BY_ADMIN = 24, "Role deleted by admin"
+        EV_SERVICE_CREATED_BY_ADMIN = 25, "Service created by admin"
+        EV_SERVICE_MODIFIED_BY_ADMIN = 26, "Service modified by admin"
+        EV_SERVICE_DELETED_BY_ADMIN = 27, "Service deleted by admin"
+        EV_ORG_DID_CREATED_BY_ADMIN = 28, "Organisational DID created by admin"
+        EV_ORG_DID_DELETED_BY_ADMIN = 29, "Organisational DID deleted by admin"
+        EV_USR_DEACTIVATED_BY_ADMIN = 30, "User deactivated"
+        EV_USR_ACTIVATED_BY_ADMIN = 31, "User activated"
+        EV_USR_SEND_VP = 32, "User send Verificable Presentation"
 
     created = models.DateTimeField(_("Date"), auto_now=True)
     message = models.CharField(_("Description"), max_length=350)
@@ -99,9 +98,8 @@ class Event(models.Model):
     @classmethod
     def set_EV_DATA_UPDATE_REQUESTED_BY_USER(cls, user):
         msg = _("The user '{username}' has request the update of the following information: ")
-        msg += "['field1':'value1', 'field2':'value2'>,...]".format(
-            username=user.username,
-        )
+        msg += "['field1':'value1', 'field2':'value2'>,...]"
+        msg = msg.format(username=user.username)
         cls.objects.create(
             type=cls.Types.EV_DATA_UPDATE_REQUESTED_BY_USER,
             message=msg,
@@ -444,11 +442,11 @@ class DID(models.Model):
     # JSON-serialized DID document
     didweb_document = models.TextField()
 
-    def get_key_material(self, password):
-        return self.user.decrypt_data(self.key_material, password)
+    def get_key_material(self):
+        return self.user.decrypt_data(self.key_material)
 
-    def set_key_material(self, value, password):
-        self.key_material = self.user.encrypt_data(value, password)
+    def set_key_material(self, value):
+        self.key_material = self.user.encrypt_data(value)
         
     @property
     def is_organization_did(self):
@@ -456,9 +454,9 @@ class DID(models.Model):
             return True
         return False
 
-    def set_did(self, password):
+    def set_did(self):
         new_key_material = generate_did_controller_key()
-        self.set_key_material(new_key_material, password)
+        self.set_key_material(new_key_material)
 
         if self.type == self.Types.KEY:
             self.did = keydid_from_controller_key(new_key_material)
@@ -621,17 +619,14 @@ class VerificableCredential(models.Model):
             return True
         return False
 
-    def get_data(self, password):
+    def get_data(self):
         if not self.data:
             return ""
 
-        if self.eidas1_did:
-            return self.data
-            
-        return self.user.decrypt_data(self.data, password)
+        return self.user.decrypt_data(self.data)
 
-    def set_data(self, value, password):
-        self.data = self.user.encrypt_data(value, password)
+    def set_data(self, value):
+        self.data = self.user.encrypt_data(value)
 
     def get_description(self):
         return self.schema._description or ''
@@ -649,35 +644,28 @@ class VerificableCredential(models.Model):
         return self.Status(self.status).label
 
     def get_datas(self):
-        data = json.loads(self.csv_data).items()
-        return data
+        data = self.render()
+        credential_subject = ujson.loads(data).get("credentialSubject", {})
+        return credential_subject.items()
 
-    def issue(self, did, password, domain=settings.DOMAIN.strip("/")):
+    def issue(self, did, domain=settings.DOMAIN.strip("/")):
         if self.status == self.Status.ISSUED:
             return
 
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-        issuer_pass = cache.get("KEY_DIDS")
-        # issuer_pass = self.user.decrypt_data(
-        #     cache.get("KEY_DIDS"),
-        #     settings.SECRET_KEY,
-        # )
 
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
         data = sign_credential(
             self.render(domain),
-            self.issuer_did.get_key_material(issuer_pass)
+            self.issuer_did.get_key_material()
         )
         valid, reason = verify_credential(data)
         if not valid:
             return
 
-        if self.eidas1_did:
-            self.data = data
-        else:
-            self.data = self.user.encrypt_data(data, password)
+        self.data = self.user.encrypt_data(data)
 
         self.status = self.Status.ISSUED
 
@@ -714,7 +702,7 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
-    def render(self, domain):
+    def render(self, domain=""):
         context = self.get_context(domain)
         template_name = 'credentials/{}'.format(
             self.schema.file_schema

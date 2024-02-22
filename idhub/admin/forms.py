@@ -1,23 +1,19 @@
-import csv
 import json
-import copy
 import base64
 import jsonschema
 import pandas as pd
 
-from pyhanko.sign import signers
-
+from nacl.exceptions import CryptoError
 from django import forms
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from utils import credtools, certs
+from utils import certs
 from idhub.models import (
     DID,
     File_datas,
     Membership,
     Schemas,
-    Service,
     UserRol,
     VerificableCredential,
 )
@@ -47,6 +43,38 @@ class TermsConditionsForm2(forms.Form):
         if commit:
             self.user.save()
             return self.user
+        
+        return 
+
+
+class EncryptionKeyForm(forms.Form):
+    key = forms.CharField(
+        label=_("Key for encrypt the secrets of all system"),
+        required=True
+    )
+
+    def clean(self):
+        data = self.cleaned_data
+        self._key = data["key"]
+        if not DID.objects.exists():
+            return data
+
+        did = DID.objects.first()
+        cache.set("KEY_DIDS", self._key, None)
+        try:
+            did.get_key_material()
+        except CryptoError:
+            cache.set("KEY_DIDS", None)
+            txt = _("Key no valid!")
+            raise ValidationError(txt)
+
+        cache.set("KEY_DIDS", None)
+        return data
+
+    def save(self, commit=True):
+
+        if commit:
+            cache.set("KEY_DIDS", self._key, None)
         
         return 
 
@@ -133,7 +161,7 @@ class ImportForm(forms.Form):
         self.fields['did'].choices = [
             (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
-        self.fields['schema'].choices = [
+        self.fields['schema'].choices = [(0, _('Select one'))] + [
             (x.id, x.name) for x in Schemas.objects.filter()
         ]
         if dids.filter(eidas1=True).exists():
@@ -197,6 +225,9 @@ class ImportForm(forms.Form):
         if not data_pd:
             self.exception("This file is empty!")
 
+        if not self._schema:
+            return data
+
         for n in range(df.last_valid_index()+1):
             row = {}
             for k in data_pd.keys():
@@ -226,17 +257,20 @@ class ImportForm(forms.Form):
         except jsonschema.exceptions.ValidationError as err:
             msg = "line {}: {}".format(line+1, err)
             return self.exception(msg)
-        # try:
-        #     check = credtools.validate_json(row, self.json_schema)
-        #     if check is not True:
-        #         raise ValidationError("Not valid row")
-        # except Exception as e:
 
         user, new = User.objects.get_or_create(email=row.get('email'))
         if new:
             self.users.append(user)
+            user.set_encrypted_sensitive_data()
+            user.save()
+            self.create_defaults_dids(user)
 
         return user
+
+    def create_defaults_dids(self, user):
+        did = DID(label="Default", user=user, type=DID.Types.WEB)
+        did.set_did()
+        did.save()
 
     def create_credential(self, user, row):
         bcred = VerificableCredential.objects.filter(
@@ -382,7 +416,6 @@ class ImportCertificateForm(forms.Form):
         return data
 
     def new_did(self):
-        cert = self.pfx_file
         keys = {
             "cert": base64.b64encode(self.pfx_file).decode('utf-8'),
             "passphrase": self._pss
@@ -397,8 +430,7 @@ class ImportCertificateForm(forms.Form):
             type=DID.Types.KEY
         )
 
-        pw = cache.get("KEY_DIDS")
-        self._did.set_key_material(key_material, pw)
+        self._did.set_key_material(key_material)
 
     def save(self, commit=True):
 
