@@ -283,7 +283,11 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
         return self.success_url
 
     def form_valid(self, form):
-        user = form.save()
+        super().form_valid(form)
+        user = form.instance
+        user.set_encrypted_sensitive_data()
+        user.save()
+        self.create_defaults_dids(user)
         messages.success(self.request, _('The account was created successfully'))
         Event.set_EV_USR_REGISTERED(user)
         Event.set_EV_USR_WELCOME(user)
@@ -294,6 +298,11 @@ class PeopleRegisterView(NotifyActivateUserByEmail, People, CreateView):
             except SMTPException as e:
                 messages.error(self.request, e)
         return super().form_valid(form)
+
+    def create_defaults_dids(self, user):
+        did = DID(label="Default", user=user, type=DID.Types.WEB)
+        did.set_did()
+        did.save()
 
 
 class PeopleMembershipRegisterView(People, FormView):
