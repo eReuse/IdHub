@@ -5,13 +5,12 @@ import json
 from pathlib import Path
 from utils import credtools
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from decouple import config
 from idhub.models import DID, Schemas
 from oidc4vp.models import Organization
-from promotion.models import Promotion
 
 
 User = get_user_model()
@@ -23,7 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
         ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
-        KEY_DIDS = config('KEY_DIDS', '1234')
+        KEY_DIDS = config('KEY_DIDS')
         cache.set("KEY_DIDS", KEY_DIDS, None)
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
