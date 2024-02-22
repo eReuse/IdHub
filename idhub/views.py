@@ -68,7 +68,6 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
         password = form.cleaned_data.get("new_password1")
         user = form.user
         user.set_password(password)
-        user.set_encrypted_sensitive_data(password)
         user.save()
         return HttpResponseRedirect(self.success_url)
 
