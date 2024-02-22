@@ -257,17 +257,20 @@ class ImportForm(forms.Form):
         except jsonschema.exceptions.ValidationError as err:
             msg = "line {}: {}".format(line+1, err)
             return self.exception(msg)
-        # try:
-        #     check = credtools.validate_json(row, self.json_schema)
-        #     if check is not True:
-        #         raise ValidationError("Not valid row")
-        # except Exception as e:
 
         user, new = User.objects.get_or_create(email=row.get('email'))
         if new:
             self.users.append(user)
+            user.set_encrypted_sensitive_data()
+            user.save()
+            self.create_defaults_dids(user)
 
         return user
+
+    def create_defaults_dids(self, user):
+        did = DID(label="Default", user=user, type=DID.Types.WEB)
+        did.set_did()
+        did.save()
 
     def create_credential(self, user, row):
         bcred = VerificableCredential.objects.filter(
