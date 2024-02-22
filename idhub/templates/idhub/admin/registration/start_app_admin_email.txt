@@ -1,0 +1,7 @@
+Hola, se ha reiniciado el servicio de Idhub: {{ domain }}
+no será plenamente funcional hasta que no introduzcas la contraseña de encriptacion del sistema.
+
+Por favor entra en la aplicacion como administrador y añade esta contraseña.
+
+Muchas gracias
+ 
