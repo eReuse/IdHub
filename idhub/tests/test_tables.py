@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.core.cache import cache
 from django.core.exceptions import FieldError
 
 from idhub_auth.models import User
@@ -15,6 +16,7 @@ from idhub.models import Event, Membership, Rol, UserRol, Service, Schemas
 
 class AdminDashboardTableTest(TestCase):
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         self.admin_user = User.objects.create_superuser(
                 email='adminuser@example.org',
                 password='adminpass12')
@@ -75,6 +77,7 @@ class AdminDashboardTableTest(TestCase):
 class UserTableTest(TestCase):
 
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         self.user1 = User.objects.create(email="user1@example.com")
         self.user2 = User.objects.create(email="user2@example.com")
         Membership.objects.create(user=self.user1,
@@ -106,6 +109,7 @@ class UserTableTest(TestCase):
 class TemplateTableTest(TestCase):
 
     def setUp(self):
+        cache.set("KEY_DIDS", '1234', None)
         self.table = TemplateTable(Schemas.objects.all())
         self.create_schemas(amount=3)
 
