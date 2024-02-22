@@ -27,6 +27,7 @@ class DashboardTable(tables.Table):
         model = Event
         template_name = "idhub/custom_table.html"
         fields = ("type", "message", "created")
+        empty_text="No events available"
 
 
 class PersonalInfoTable(tables.Table):
