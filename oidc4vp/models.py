@@ -69,8 +69,8 @@ class Organization(models.Model):
         help_text=_("Url where to send the verificable presentation"),
         max_length=250
     )
-    encrypted_sensitive_data = models.CharField(max_length=255)
-    salt = models.CharField(max_length=255)
+    encrypted_sensitive_data = models.CharField(max_length=255, default=None, null=True)
+    salt = models.CharField(max_length=255, default=None, null=True)
 
     def send(self, vp, code):
         """
@@ -131,6 +131,8 @@ class Organization(models.Model):
         return base64.b64encode(sb.encrypt(data)).decode('utf-8')
 
     def get_salt(self):
+        if not self.salt:
+            return ''
         return base64.b64decode(self.salt.encode('utf-8'))
 
     def set_salt(self):
@@ -145,6 +147,22 @@ class Organization(models.Model):
 
         key_crypted = self.encrypt_sensitive_data(key)
         self.encrypted_sensitive_data = key_crypted
+
+    def encrypt_data(self, data):
+        pw = self.decrypt_sensitive_data()
+        sb = self.get_secret_box(pw)
+        value_enc = sb.encrypt(data.encode('utf-8'))
+        return base64.b64encode(value_enc).decode('utf-8')
+
+    def decrypt_data(self, data):
+        pw = self.decrypt_sensitive_data()
+        sb = self.get_secret_box(pw)
+        value = base64.b64decode(data.encode('utf-8'))
+        return sb.decrypt(value).decode('utf-8')
+
+    def get_secret_box(self, password):
+        sb_key = self.derive_key_from_password(password)
+        return secret.SecretBox(sb_key)
 
     def change_password_key(self, new_password):
         data = self.decrypt_sensitive_data()
