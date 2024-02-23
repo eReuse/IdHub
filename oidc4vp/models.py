@@ -1,6 +1,11 @@
 import json
 import requests
 import secrets
+import nacl
+import base64
+
+from nacl import pwhash, secret
+from django.core.cache import cache
 
 from django.conf import settings
 from django.http import QueryDict
@@ -64,6 +69,8 @@ class Organization(models.Model):
         help_text=_("Url where to send the verificable presentation"),
         max_length=250
     )
+    encrypted_sensitive_data = models.CharField(max_length=255)
+    salt = models.CharField(max_length=255)
 
     def send(self, vp, code):
         """
@@ -89,6 +96,65 @@ class Organization(models.Model):
         )
         auth = (self.my_client_id, self.my_client_secret)
         return requests.get(url, auth=auth)
+
+    def derive_key_from_password(self, password=None):
+        if not password:
+            password = cache.get("KEY_DIDS").encode('utf-8')
+
+        kdf = pwhash.argon2i.kdf
+        ops = pwhash.argon2i.OPSLIMIT_INTERACTIVE
+        mem = pwhash.argon2i.MEMLIMIT_INTERACTIVE
+        return kdf(
+            secret.SecretBox.KEY_SIZE,
+            password,
+            self.get_salt(),
+            opslimit=ops,
+            memlimit=mem
+        )
+
+    def decrypt_sensitive_data(self, data=None):
+        sb_key = self.derive_key_from_password()
+        sb = secret.SecretBox(sb_key)
+        if not data:
+            data = self.get_encrypted_sensitive_data()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+
+        return sb.decrypt(data).decode('utf-8')
+
+    def encrypt_sensitive_data(self, data):
+        sb_key = self.derive_key_from_password()
+        sb = secret.SecretBox(sb_key)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        
+        return base64.b64encode(sb.encrypt(data)).decode('utf-8')
+
+    def get_salt(self):
+        return base64.b64decode(self.salt.encode('utf-8'))
+
+    def set_salt(self):
+        self.salt = base64.b64encode(nacl.utils.random(16)).decode('utf-8')
+
+    def get_encrypted_sensitive_data(self):
+        return base64.b64decode(self.encrypted_sensitive_data.encode('utf-8'))
+
+    def set_encrypted_sensitive_data(self):
+        key = base64.b64encode(nacl.utils.random(64))
+        self.set_salt()
+
+        key_crypted = self.encrypt_sensitive_data(key)
+        self.encrypted_sensitive_data = key_crypted
+
+    def change_password_key(self, new_password):
+        data = self.decrypt_sensitive_data()
+        sb_key = self.derive_key_from_password(new_password)
+        sb = secret.SecretBox(sb_key)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        
+        encrypted_data = base64.b64encode(sb.encrypt(data)).decode('utf-8')
+        self.encrypted_sensitive_data = encrypted_data
 
     def __str__(self):
         return self.name
