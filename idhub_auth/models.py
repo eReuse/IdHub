@@ -145,13 +145,13 @@ class User(AbstractBaseUser):
         self.encrypted_sensitive_data = key_crypted
 
     def encrypt_data(self, data):
-        pw = self.decrypt_sensitive_data()
+        pw = self.decrypt_sensitive_data().encode('utf-8')
         sb = self.get_secret_box(pw)
         value_enc = sb.encrypt(data.encode('utf-8'))
         return base64.b64encode(value_enc).decode('utf-8')
 
     def decrypt_data(self, data):
-        pw = self.decrypt_sensitive_data()
+        pw = self.decrypt_sensitive_data().encode('utf-8')
         sb = self.get_secret_box(pw)
         value = base64.b64decode(data.encode('utf-8'))
         return sb.decrypt(value).decode('utf-8')
