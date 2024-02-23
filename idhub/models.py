@@ -420,8 +420,8 @@ class Event(models.Model):
 
 class DID(models.Model):
     class Types(models.IntegerChoices):
-        KEY = 1, "Key"
-        WEB = 2, "Web"
+        WEB = 1, "Web"
+        KEY = 2, "Key"
     type = models.PositiveSmallIntegerField(
         _("Type"),
         choices=Types.choices,
@@ -454,7 +454,6 @@ class DID(models.Model):
         return user.decrypt_data(self.key_material)
 
     def set_key_material(self, value):
-        # import pdb; pdb.set_trace()
         user = self.user or self.get_organization()
         if not user.encrypted_sensitive_data:
             user.set_encrypted_sensitive_data()

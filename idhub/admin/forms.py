@@ -75,6 +75,10 @@ class EncryptionKeyForm(forms.Form):
 
         if commit:
             cache.set("KEY_DIDS", self._key, None)
+            if not DID.objects.exists():
+                did = DID.objects.create(label='Default', type=DID.Types.WEB)
+                did.set_did()
+                did.save()
         
         return 
 
@@ -155,9 +159,8 @@ class ImportForm(forms.Form):
         self.rows = {}
         self.properties = {}
         self.users = []
-        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        dids = DID.objects.filter(user=self.user)
+        dids = DID.objects.filter(user__isnull=True)
         self.fields['did'].choices = [
             (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
@@ -176,7 +179,7 @@ class ImportForm(forms.Form):
     def clean(self):
         data = self.cleaned_data["did"]
         did = DID.objects.filter(
-            user=self.user,
+            user__isnull=True,
             did=data
         )
 
@@ -188,7 +191,7 @@ class ImportForm(forms.Form):
         eidas1 = self.cleaned_data.get('eidas1')
         if eidas1:
             self._eidas1 = DID.objects.filter(
-                user=self.user,
+                user__isnull=True,
                 eidas1=True,
                 did=eidas1
             ).first()
