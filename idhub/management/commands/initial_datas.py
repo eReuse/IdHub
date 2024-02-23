@@ -7,9 +7,8 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from decouple import config
-from idhub.models import DID, Schemas
+from idhub.models import Schemas
 from oidc4vp.models import Organization
 
 
@@ -35,6 +34,9 @@ class Command(BaseCommand):
             f = csv.reader(csvfile, delimiter=';', quotechar='"')
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
+
+        # You need to confirm than your Organization is created
+        assert Organization.objects.filter(name=settings.ORGANIZATION).exists()
 
         if settings.SYNC_ORG_DEV == 'y':
             self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
