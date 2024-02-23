@@ -22,7 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
         ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
-        KEY_DIDS = config('KEY_DIDS')
+        KEY_DIDS = config('KEY_DIDS', '1234')
         cache.set("KEY_DIDS", KEY_DIDS, None)
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
