@@ -759,7 +759,7 @@ class DidsView(Credentials, SingleTableView):
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
-        dids = DID.objects.filter(user=self.request.user)
+        dids = DID.objects.filter(user__isnull=True)
         if queryset is None:
             self.object_list = dids.all()
 
@@ -1061,11 +1061,6 @@ class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
     icon = ''
     form_class = ImportForm
     success_url = reverse_lazy('idhub:admin_import')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
 
     def form_valid(self, form):
         creds = form.save()
