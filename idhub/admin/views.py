@@ -781,7 +781,6 @@ class DidRegisterView(Credentials, CreateView):
     object = None
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
         form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
