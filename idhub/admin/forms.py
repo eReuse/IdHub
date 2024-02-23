@@ -195,7 +195,10 @@ class ImportForm(forms.Form):
         data_pd = df.fillna('').to_dict()
 
         if not data_pd:
-            self.exception("This file is empty!")
+            self.exception(_("This file is empty!"))
+
+        if not df.last_valid_index():
+            self.exception(_("This file is badly formatted!"))
 
         for n in range(df.last_valid_index()+1):
             row = {}
