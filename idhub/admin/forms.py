@@ -256,7 +256,11 @@ class ImportForm(forms.Form):
 
     def validate_jsonld(self, line, row):
         try:
-            jsonschema.validate(instance=row, schema=self.json_schema)
+            jsonschema.validate(
+                instance=row,
+                schema=self.json_schema,
+                format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
+            )
         except jsonschema.exceptions.ValidationError as err:
             msg = "line {}: {}".format(line+1, err)
             return self.exception(msg)
