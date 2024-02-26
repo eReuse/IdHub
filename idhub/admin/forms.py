@@ -225,7 +225,7 @@ class ImportForm(forms.Form):
 
         data_pd = df.fillna('').to_dict()
 
-        if not data_pd or not df.last_valid_index():
+        if not data_pd or df.last_valid_index() is None:
             self.exception("The file you try to import is empty!")
 
         if not self._schema:
