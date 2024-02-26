@@ -225,7 +225,7 @@ class ImportForm(forms.Form):
 
         data_pd = df.fillna('').to_dict()
 
-        if not data_pd or not df.last_valid_index():
+        if not data_pd or df.last_valid_index() is None:
             self.exception("The file you try to import is empty!")
 
         if not self._schema:
@@ -234,7 +234,8 @@ class ImportForm(forms.Form):
         for n in range(df.last_valid_index()+1):
             row = {}
             for k in data_pd.keys():
-                row[k] = data_pd[k][n] or ''
+                if data_pd[k][n]:
+                    row[k] = data_pd[k][n]
 
             user = self.validate_jsonld(n, row)
             self.rows[user] = row
@@ -400,7 +401,6 @@ class ImportCertificateForm(forms.Form):
         self._did = None
         self._s = None
         self._label = None
-        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -433,7 +433,6 @@ class ImportCertificateForm(forms.Form):
             did=self.file_name,
             label=self._label,
             eidas1=True,
-            user=self.user,
             type=DID.Types.KEY
         )
 
