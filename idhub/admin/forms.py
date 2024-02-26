@@ -401,7 +401,6 @@ class ImportCertificateForm(forms.Form):
         self._did = None
         self._s = None
         self._label = None
-        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -434,7 +433,6 @@ class ImportCertificateForm(forms.Form):
             did=self.file_name,
             label=self._label,
             eidas1=True,
-            user=self.user,
             type=DID.Types.KEY
         )
 
