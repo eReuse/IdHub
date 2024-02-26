@@ -234,7 +234,7 @@ class ImportForm(forms.Form):
         for n in range(df.last_valid_index()+1):
             row = {}
             for k in data_pd.keys():
-                if data_pd[k][n]:
+                if data_pd[k][n] or data_pd[k][n] == 0:
                     row[k] = data_pd[k][n]
 
             user = self.validate_jsonld(n, row)
