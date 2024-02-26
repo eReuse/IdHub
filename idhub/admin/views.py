@@ -840,11 +840,6 @@ class WalletConfigIssuesView(Credentials, FormView):
     form_class = ImportCertificateForm
     success_url = reverse_lazy('idhub:admin_dids')
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
     def form_valid(self, form):
         cred = form.save()
         if cred:
