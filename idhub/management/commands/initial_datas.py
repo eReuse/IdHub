@@ -7,9 +7,8 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from decouple import config
-from idhub.models import DID, Schemas
+from idhub.models import Schemas
 from oidc4vp.models import Organization
 
 
@@ -22,8 +21,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
         ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
-        KEY_DIDS = config('KEY_DIDS', '1234')
-        cache.set("KEY_DIDS", KEY_DIDS, None)
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
         if settings.CREATE_TEST_USERS:
@@ -37,6 +34,10 @@ class Command(BaseCommand):
             f = csv.reader(csvfile, delimiter=';', quotechar='"')
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
+
+        # You need to confirm than your Organization is created
+        assert Organization.objects.filter(name=settings.ORGANIZATION).exists()
+
         if settings.SYNC_ORG_DEV == 'y':
             self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
             self.sync_credentials_organizations("local 8000", "local 9000")
@@ -44,17 +45,13 @@ class Command(BaseCommand):
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
-        su.set_encrypted_sensitive_data()
         su.save()
-        self.create_defaults_dids(su)
 
 
     def create_users(self, email, password):
         u = User.objects.create(email=email, password=password)
         u.set_password(password)
-        u.set_encrypted_sensitive_data()
         u.save()
-        self.create_defaults_dids(u)
 
 
     def create_organizations(self, name, url):
@@ -69,11 +66,6 @@ class Command(BaseCommand):
         org1.my_client_secret = org2.client_secret
         org1.save()
         org2.save()
-
-    def create_defaults_dids(self, u):
-        did = DID(label="Default", user=u, type=DID.Types.WEB)
-        did.set_did()
-        did.save()
 
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)

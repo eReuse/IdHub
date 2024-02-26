@@ -11,7 +11,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email']
+        fields = ['first_name', 'last_name', 'email', 'is_admin']
 
     def clean_first_name(self):
         first_name = super().clean()['first_name']

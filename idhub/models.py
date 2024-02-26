@@ -16,6 +16,7 @@ from utils.idhub_ssikit import (
     webdid_from_controller_key,
     verify_credential,
 )
+from oidc4vp.models import Organization
 from idhub_auth.models import User
 
 
@@ -419,8 +420,8 @@ class Event(models.Model):
 
 class DID(models.Model):
     class Types(models.IntegerChoices):
-        KEY = 1, "Key"
-        WEB = 2, "Web"
+        WEB = 1, "Web"
+        KEY = 2, "Key"
     type = models.PositiveSmallIntegerField(
         _("Type"),
         choices=Types.choices,
@@ -442,18 +443,23 @@ class DID(models.Model):
     # JSON-serialized DID document
     didweb_document = models.TextField()
 
-    def get_key_material(self):
-        return self.user.decrypt_data(self.key_material)
-
-    def set_key_material(self, value):
-        self.key_material = self.user.encrypt_data(value)
-        
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
 
+    def get_key_material(self):
+        user = self.user or self.get_organization()
+        return user.decrypt_data(self.key_material)
+
+    def set_key_material(self, value):
+        user = self.user or self.get_organization()
+        if not user.encrypted_sensitive_data:
+            user.set_encrypted_sensitive_data()
+            user.save()
+        self.key_material = user.encrypt_data(value)
+        
     def set_did(self):
         new_key_material = generate_did_controller_key()
         self.set_key_material(new_key_material)
@@ -467,6 +473,9 @@ class DID(models.Model):
 
     def get_key(self):
         return json.loads(self.key_material)
+
+    def get_organization(self):
+        return Organization.objects.get(name=settings.ORGANIZATION)
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
