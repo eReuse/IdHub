@@ -80,6 +80,7 @@ class DashboardView(UserView, SingleTableView):
             Event.Types.EV_CREDENTIAL_PRESENTED,  # Credential presented
             Event.Types.EV_CREDENTIAL_CAN_BE_REQUESTED,  # Credential available
             Event.Types.EV_CREDENTIAL_REVOKED,  # Credential revoked
+            Event.Types.EV_USR_SEND_VP,  # User send verificable presentation
         ]
         return events_for_users
 

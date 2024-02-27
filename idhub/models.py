@@ -54,6 +54,7 @@ class Event(models.Model):
         EV_USR_DEACTIVATED_BY_ADMIN = 30, "User deactivated"
         EV_USR_ACTIVATED_BY_ADMIN = 31, "User activated"
         EV_USR_SEND_VP = 32, "User send Verificable Presentation"
+        EV_USR_SEND_CREDENTIAL = 33, "User send credential"
 
     created = models.DateTimeField(_("Date"), auto_now=True)
     message = models.CharField(_("Description"), max_length=350)
@@ -417,6 +418,13 @@ class Event(models.Model):
             user=user
         )
         
+    @classmethod
+    def set_EV_USR_SEND_CREDENTIAL(cls, msg):
+        cls.objects.create(
+            type=cls.Types.EV_USR_SEND_CREDENTIAL,
+            message=msg,
+        )
+
 
 class DID(models.Model):
     class Types(models.IntegerChoices):

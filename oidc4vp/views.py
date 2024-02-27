@@ -79,6 +79,7 @@ class AuthorizeView(UserView, FormView):
         elif authorization.get('response'):
             txt = authorization.get('response')
             messages.success(self.request, txt)
+            Event.set_EV_USR_SEND_CREDENTIAL(txt)
             txt2 = f"Verifier {verifier} send: " + txt
             Event.set_EV_USR_SEND_VP(txt2, self.request.user)
             url = reverse_lazy('idhub:user_dashboard')
