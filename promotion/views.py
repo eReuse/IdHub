@@ -104,20 +104,6 @@ class SelectWalletView(FormView):
     template_name = "select_wallet.html"
     form_class = WalletForm
     success_url = reverse_lazy('promotion:select_wallet')
-    def get(self, request, *args, **kwargs):
-        if settings.ORGANIZATION == 'Setem':
-            self.template_name = "select_wallet_setem.html"
-        return super().get(request, *args, **kwargs)
-
-    #     self.context = {'form': fo}
-    #     template = get_template(
-    #         self.template_name,
-    #         # context
-    #     ).render()
-    #     return HttpResponse(template)
-
-    # def post(self, request, *args, **kwargs):
-    #     super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

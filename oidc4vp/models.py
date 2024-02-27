@@ -47,9 +47,11 @@ class Organization(models.Model):
       want to connect to this organization. (send a request)
       For use the packages requests we need use my_client_id
       For use in the get or post method of a View, then we need use client_id
-      and secret_id
+      and secret_id.
+      main is a field which indicates the organization of this idhub 
     """
     name = models.CharField(max_length=250)
+    main = models.BooleanField(default=False)
     client_id = models.CharField(
         max_length=24,
         default=set_client_id,
