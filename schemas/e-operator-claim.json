@@ -30,19 +30,23 @@
                     "properties": {
                         "id": {
                             "description": "Defines a unique identifier of the credential subject",
-                            "type": "string"
+                            "type": "string",
+                            "minLength":  1
                         },
                         "legalName": {
                             "description": "Legal name of the operator",
-                            "type": "string"
+                            "type": "string",
+                            "minLength":  1
                         },
                         "role": {
                             "description": "Role, either operator, witness, auditor",
-                            "type": "string"
+                            "type": "string",
+                            "minLength":  1
                         },
                         "email": {
                             "type": "string",
-                            "format": "email"
+                            "format": "email",
+                            "pattern": "^\\S+@\\S+\\.\\S+$"
                         },
                         "accreditedBy": {
                             "description": "Legal name of the accrediting entity",
@@ -50,11 +54,11 @@
                         },
                         "operatorNumber": {
                             "description": "Operator number awarded by accrediting entity",
-                            "type": ["number", "string"]
+                            "type": "string"
                         },
                         "limitJurisdiction": {
                             "description": "Regional scope",
-                            "type": ["number", "string"]
+                            "type": "string"
                         },
                         "accreditedFor": {
                             "description": "Operation type: e.g. manufacture, repair, refurbishment, remanufacture, transport, dismantle, recycle, verification, audit",
