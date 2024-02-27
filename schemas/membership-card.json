@@ -52,7 +52,7 @@
               "minLength":  1
             },
             "affiliatedUntil": {
-              "type": "string",
+              "type": ["string", "null"],
               "format": "date"
             },
             "typeOfPerson": {
