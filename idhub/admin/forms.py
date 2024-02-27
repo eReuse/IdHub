@@ -218,18 +218,21 @@ class ImportForm(forms.Form):
         data = self.cleaned_data["file_import"]
         self.file_name = data.name
 
+        if not self._schema:
+            return data
+
         df = pd.read_excel(data)
         # convert dates to iso 8601
         for col in df.select_dtypes(include='datetime').columns:
             df[col] = df[col].dt.strftime("%Y-%m-%d")
 
+        for col in df.select_dtypes(include=['number']).columns:
+            df[col] = df[col].astype(str)
+
         data_pd = df.fillna('').to_dict()
 
         if not data_pd or df.last_valid_index() is None:
             self.exception("The file you try to import is empty!")
-
-        if not self._schema:
-            return data
 
         for n in range(df.last_valid_index()+1):
             row = {}
