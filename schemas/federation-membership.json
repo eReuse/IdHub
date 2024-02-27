@@ -30,15 +30,18 @@
           "properties": {
             "id": {
               "description": "Defines a unique identifier of the credential subject",
-              "type": "string"
+              "type": "string",
+              "minLength":  1
             },
             "federation": {
               "description": "Federation the credential subject is affiliated with",
-              "type": "string"
+              "type": "string",
+              "minLength":  1
             },
             "legalName": {
               "description": "Legal name of the affiliated organisation",
-              "type": "string"
+              "type": "string",
+              "minLength":  1
             },
             "shortName": {
               "description": "Short name of the organisation of the affiliated organisation",
@@ -46,7 +49,7 @@
             },
             "registrationIdentifier": {
               "description": "Registration identifier of the affiliated organisation",
-              "type": ["number", "string"]
+              "type": "string"
             },
             "publicRegistry": {
               "description": "Registry where the affiliated organisation is registered: 'Generalitat de Catalunya', 'Ministerio del interior de España'",
@@ -58,19 +61,22 @@
             },
             "postCode": {
               "description": "Postal code of the member organisation",
-              "type": ["number", "string"]
+              "type": "string",
+              "minLength":  1
             },
             "city": {
               "description": "City of the member organisation",
-              "type": "string"
+              "type": "string",
+              "minLength":  1
             },
             "taxReference": {
               "description": "Tax reference as VAT registration of the member organisation",
-              "type": ["number", "string"]
+              "type": "string"
             },
             "membershipType": {
               "description": "Type of membership: full / observer",
-              "type": "string"
+              "type": "string",
+              "minLength":  1
             },
             "membershipStatus": {
               "description": "Type of membership: active / suspended, etc.",
@@ -78,18 +84,20 @@
             },
             "membershipId": {
               "description": "Membership identifier: an internal unique number or code",
-              "type": ["number", "string"]
+              "type": "string"
             },
             "membershipSince": {
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "minLength":  1
             },
             "email": {
               "type": "string",
-              "format": "email"
+              "format": "email",
+              "pattern": "^\\S+@\\S+\\.\\S+$"
             },
             "phone": {
-              "type": ["number", "string"]
+              "type": "string"
             },
             "website": {
               "type": "string",
@@ -101,7 +109,8 @@
             },
             "certificationDate": {
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "minLength":  1
             }
           },
           "required": [
