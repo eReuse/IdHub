@@ -35,9 +35,6 @@ class Command(BaseCommand):
             for r in f:
                 self.create_organizations(r[0].strip(), r[1].strip())
 
-        # You need to confirm than your Organization is created
-        assert Organization.objects.filter(name=settings.ORGANIZATION).exists()
-
         if settings.SYNC_ORG_DEV == 'y':
             self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
             self.sync_credentials_organizations("local 8000", "local 9000")
@@ -55,7 +52,10 @@ class Command(BaseCommand):
 
 
     def create_organizations(self, name, url):
-        Organization.objects.create(name=name, response_uri=url)
+        if url == settings.RESPONSE_URI:
+            Organization.objects.create(name=name, response_uri=url, main=True)
+        else:
+            Organization.objects.create(name=name, response_uri=url)
 
     def sync_credentials_organizations(self, test1, test2):
         org1 = Organization.objects.get(name=test1)

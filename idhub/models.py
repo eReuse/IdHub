@@ -475,7 +475,7 @@ class DID(models.Model):
         return json.loads(self.key_material)
 
     def get_organization(self):
-        return Organization.objects.get(name=settings.ORGANIZATION)
+        return Organization.objects.get(main=True)
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
@@ -697,6 +697,8 @@ class VerificableCredential(models.Model):
             sid
         )
 
+        org = Organization.objects.get(main=True)
+
         context = {
             'id_credential': str(self.id),
             'vc_id': url_id,
@@ -706,7 +708,7 @@ class VerificableCredential(models.Model):
             'firstName': self.user.first_name or "",
             'lastName': self.user.last_name or "",
             'email': self.user.email,
-            'organisation': settings.ORGANIZATION or '',
+            'organisation': org.name or '',
         }
         context.update(d)
         return context
