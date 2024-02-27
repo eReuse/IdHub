@@ -227,7 +227,9 @@ class ImportForm(forms.Form):
             df[col] = df[col].dt.strftime("%Y-%m-%d")
 
         for col in df.select_dtypes(include=['number']).columns:
-            df[col] = df[col].astype(str)
+            sc_col = self.json_schema.get("properties", {}).get(col, {})
+            if sc_col.get("type") == "string":
+                df[col] = df[col].astype(str)
 
         data_pd = df.fillna('').to_dict()
 
