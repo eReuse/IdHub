@@ -699,6 +699,10 @@ class VerificableCredential(models.Model):
 
         org = Organization.objects.get(main=True)
 
+        credential_status_id = 'https://revocation.not.supported/'
+        if self.issuer_did.type == DID.Types.WEB:
+            credential_status_id = self.issuer_did.did
+
         context = {
             'id_credential': str(self.id),
             'vc_id': url_id,
@@ -709,6 +713,7 @@ class VerificableCredential(models.Model):
             'lastName': self.user.last_name or "",
             'email': self.user.email,
             'organisation': org.name or '',
+            'credential_status_id': credential_status_id,
         }
         context.update(d)
         return context
