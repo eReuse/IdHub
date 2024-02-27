@@ -222,16 +222,21 @@ class ImportForm(forms.Form):
             return data
 
         df = pd.read_excel(data)
+        df.fillna('', inplace=True)
+
         # convert dates to iso 8601
         for col in df.select_dtypes(include='datetime').columns:
             df[col] = df[col].dt.strftime("%Y-%m-%d")
 
+        # convert numbers to strings if this is indicate in schema
+        props = self.json_schema.get("properties", {})
         for col in df.select_dtypes(include=['number']).columns:
-            sc_col = self.json_schema.get("properties", {}).get(col, {})
-            if sc_col.get("type") == "string":
+            type_col = props.get(col, {}).get("type")
+
+            if "string" in type_col:
                 df[col] = df[col].astype(str)
 
-        data_pd = df.fillna('').to_dict()
+        data_pd = df.to_dict()
 
         if not data_pd or df.last_valid_index() is None:
             self.exception("The file you try to import is empty!")
