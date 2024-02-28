@@ -65,7 +65,8 @@ class DashboardView(UserView, SingleTableView):
     def get_queryset(self, **kwargs):
         events_for_users = self.get_user_events()
         queryset = Event.objects.select_related('user').filter(
-                user=self.request.user).filter(type__in=events_for_users)
+                user=self.request.user).filter(
+                    type__in=events_for_users).order_by("-created")
 
         return queryset
 
