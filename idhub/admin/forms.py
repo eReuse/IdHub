@@ -150,7 +150,7 @@ class ImportForm(forms.Form):
         required=False
     )
     schema = forms.ChoiceField(label=_("Schema"), choices=[])
-    file_import = forms.FileField(label=_("File import"))
+    file_import = forms.FileField(label=_("File to import"))
 
     def __init__(self, *args, **kwargs):
         self._schema = None
