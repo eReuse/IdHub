@@ -165,7 +165,8 @@ class ImportForm(forms.Form):
         self.fields['did'].choices = [
             (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
-        self.fields['schema'].choices = [(0, _('Select one'))] + [
+        txt_select_one = _("Please choose a data schema ...")
+        self.fields['schema'].choices = [(0,txt_select_one)] + [
             (x.id, x.name) for x in Schemas.objects.filter()
         ]
         if dids.filter(eidas1=True).exists():
@@ -185,7 +186,7 @@ class ImportForm(forms.Form):
         )
 
         if not did.exists():
-            raise ValidationError("Did is not valid!")
+            raise ValidationError(_("Did not valid!"))
 
         self._did = did.first()
 
@@ -205,13 +206,13 @@ class ImportForm(forms.Form):
             id=data
         )
         if not schema.exists():
-            raise ValidationError("Schema is not valid!")
+            raise ValidationError(_("Schema is not valid!"))
 
         self._schema = schema.first()
         try:
             self.json_schema = self._schema.get_credential_subject_schema()
         except Exception:
-            raise ValidationError("Schema is not valid!")
+            raise ValidationError(_("Schema not valid!"))
 
         return data
 
@@ -230,9 +231,9 @@ class ImportForm(forms.Form):
             # if no there are schema meen than is a excel costum and you
             # don't have control abour that
             if 'Schema' in workbook.custom_doc_props.names:
-                excel_schema = workbook.custom_doc_props['Schema'].value.split("/")
-                file_schema = self._schema.file_schema.split('.json')
-                assert file_schema[0] == excel_schema[-1]
+                excel_schema = workbook.custom_doc_props['Schema'].value
+                file_schema = self._schema.file_schema.split('.json')[0]
+                assert file_schema in excel_schema
         except Exception:
             txt = _("This File does not correspond to this scheme!")
             raise ValidationError(txt)
@@ -250,19 +251,22 @@ class ImportForm(forms.Form):
             if type_col and "string" in type_col:
                 df[col] = df[col].astype(str)
 
-        data_pd = df.to_dict()
+        data_pd = df.to_dict(orient='index')
 
         if not data_pd or df.last_valid_index() is None:
-            self.exception("The file you try to import is empty!")
+            self.exception(_("The file you try to import is empty!"))
 
-        for n in range(df.last_valid_index()+1):
+        for n in data_pd.keys():
             row = {}
-            for k in data_pd.keys():
-                if data_pd[k][n] or data_pd[k][n] == 0:
-                    row[k] = data_pd[k][n]
+            d = data_pd[n]
+            for k, v in d.items():
+                if d[k] or d[k] == 0:
+                    row[k] = d[k]
 
-            user = self.validate_jsonld(n, row)
-            self.rows[user] = row
+            if row:
+                user = self.validate_jsonld(n+2, row)
+                if user:
+                    self.rows[user] = row
 
         return data
 
@@ -287,7 +291,7 @@ class ImportForm(forms.Form):
                 format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
             )
         except jsonschema.exceptions.ValidationError as err:
-            msg = "line {}: {}".format(line+1, err.message)
+            msg = "line {}: {}".format(line, err.message)
             return self.exception(msg)
 
         user, new = User.objects.get_or_create(email=row.get('email'))
