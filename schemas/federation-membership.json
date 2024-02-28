@@ -100,7 +100,7 @@
               "type": "string"
             },
             "website": {
-              "type": ["string", "null"],
+              "type": "string",
               "format": "uri"
             },
             "evidence": {
