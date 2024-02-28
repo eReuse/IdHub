@@ -1071,6 +1071,6 @@ class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
             try:
                 self.send_email(user)
             except SMTPException as e:
-                messages.error(self.request, e)
+                messages.error(self.request, e.message)
 
         return super().form_valid(form)
