@@ -132,7 +132,7 @@ class DashboardView(AdminView, SingleTableView):
         Override the get_queryset method to filter events based on the user type.
         """
         events_for_admins = self.get_admin_events()
-        return Event.objects.filter(type__in=events_for_admins)
+        return Event.objects.filter(type__in=events_for_admins).order_by("-created")
 
     def get_admin_events(self):
         return [
