@@ -217,6 +217,7 @@ class ImportForm(forms.Form):
         return data
 
     def clean_file_import(self):
+        props = self.json_schema.get("properties", {})
         data = self.cleaned_data["file_import"]
         self.file_name = data.name
 
@@ -243,13 +244,20 @@ class ImportForm(forms.Form):
             df[col] = df[col].dt.strftime("%Y-%m-%d")
 
         # convert numbers to strings if this is indicate in schema
-        props = self.json_schema.get("properties", {})
+        for col in props.keys():
+            if col not in df.columns:
+                continue
 
-        for col in df.select_dtypes(include=['number']).columns:
-            type_col = props.get(col, {}).get("type")
-
-            if type_col and "string" in type_col:
+            if "string" in props[col]["type"]:
                 df[col] = df[col].astype(str)
+
+            # TODO @cayop if there are a cel with nan then now is ''
+            # for this raison crash with df[col].astype(int)
+            # elif "integer" in props[col]["type"]:
+            #     df[col] = df[col].astype(int)
+
+            # elif "number" in props[col]["type"]:
+            #     df[col] = df[col].astype(float)
 
         data_pd = df.to_dict(orient='index')
 
