@@ -4,6 +4,7 @@ import jsonschema
 import pandas as pd
 
 from nacl.exceptions import CryptoError
+from openpyxl import load_workbook
 from django import forms
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
@@ -224,16 +225,29 @@ class ImportForm(forms.Form):
         df = pd.read_excel(data)
         df.fillna('', inplace=True)
 
+        try:
+            workbook = load_workbook(data)
+            # if no there are schema meen than is a excel costum and you
+            # don't have control abour that
+            if 'Schema' in workbook.custom_doc_props.names:
+                excel_schema = workbook.custom_doc_props['Schema'].value.split("/")
+                file_schema = self._schema.file_schema.split('.json')
+                assert file_schema[0] == excel_schema[-1]
+        except Exception:
+            txt = _("This File does not correspond to this scheme!")
+            raise ValidationError(txt)
+
         # convert dates to iso 8601
         for col in df.select_dtypes(include='datetime').columns:
             df[col] = df[col].dt.strftime("%Y-%m-%d")
 
         # convert numbers to strings if this is indicate in schema
         props = self.json_schema.get("properties", {})
+
         for col in df.select_dtypes(include=['number']).columns:
             type_col = props.get(col, {}).get("type")
 
-            if "string" in type_col:
+            if type_col and "string" in type_col:
                 df[col] = df[col].astype(str)
 
         data_pd = df.to_dict()
@@ -273,7 +287,7 @@ class ImportForm(forms.Form):
                 format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
             )
         except jsonschema.exceptions.ValidationError as err:
-            msg = "line {}: {}".format(line+1, err)
+            msg = "line {}: {}".format(line+1, err.message)
             return self.exception(msg)
 
         user, new = User.objects.get_or_create(email=row.get('email'))
