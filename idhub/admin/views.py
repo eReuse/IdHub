@@ -870,7 +870,12 @@ class SchemasDeleteView(SchemasMix):
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(Schemas, pk=self.pk)
+        schema.vcredentials.filter(status=VerificableCredential.Status.ISSUED).count()
+        self.object = get_object_or_404(
+            Schemas,
+            pk=self.pk,
+            vcredentials__status=VerificableCredential.Status.ISSUED
+        )
         self.object.delete()
 
         return redirect('idhub:admin_schemas')
