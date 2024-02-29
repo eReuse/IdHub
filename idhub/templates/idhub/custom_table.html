@@ -71,13 +71,15 @@
             {% block pagination.range %}
                 {% for p in table.page|table_page_range:table.paginator %}
                     <li {% if p == table.page.number %}class="active"{% endif %}>
+                        <a type="button" class="btn btn-grey{% if p == table.page.number %}-selected{% endif %}
+                            border border-dark"
                         {% if p == '...' %}
-                            <a type="button" class="btn btn-grey border border-dark" href="#">{{ p }}</a>
+                             href="#">
                         {% else %}
-                            <a type="button" class="btn btn-grey border border-dark" href="{% querystring table.prefixed_page_field=p %}">
+                            href="{% querystring table.prefixed_page_field=p %}">
+                        {% endif %}
                                 {{ p }}
                             </a>
-                        {% endif %}
                     </li>
                 {% endfor %}
             {% endblock pagination.range %}
