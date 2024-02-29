@@ -77,7 +77,7 @@ jobs:
       - name: Checkout SSIKit repo
         uses: actions/checkout@v4
         with:
-          repository: trustchain-oc1-orchestral
+          repository: trustchain-oc1-orchestral/ssikit_trustchain
           submodules: true
 
       - name: Install python3-venv (if not already installed)
