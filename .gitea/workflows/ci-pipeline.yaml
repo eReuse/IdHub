@@ -69,6 +69,38 @@ jobs:
         source venv/bin/activate
         python manage.py test
 
+  ssikit-tests:
+    needs: test
+    runs-on: self-hosted
+    steps:
+
+      - name: Checkout SSIKit repo
+        uses: actions/checkout@v4
+        with:
+          repository: trustchain-oc1-orchestral
+          submodules: true
+
+      - name: Install python3-venv (if not already installed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3 python3-venv python3-pip -y
+
+      - name: Setup Python environment
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install --upgrade pip
+          # Install any additional dependencies required for SSIKit tests here
+          pip install -r requirements.txt (if you have a requirements file)
+
+      - name: Execute SSIKit tests
+        run: |
+          source venv/bin/activate
+          python main.py
 
   deploy:
     needs: test
