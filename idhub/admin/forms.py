@@ -224,7 +224,9 @@ class ImportForm(forms.Form):
         if not self._schema:
             return data
 
-        df = pd.read_excel(data)
+        # Forze than pandas read one column as string
+        dtype_dict = {"phoneNumber": str}
+        df = pd.read_excel(data, dtype=dtype_dict)
         df.fillna('', inplace=True)
 
         try:
