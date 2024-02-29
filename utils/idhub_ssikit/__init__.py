@@ -30,7 +30,7 @@ def resolve_did(keydid):
     return asyncio.run(inner())
 
 
-def webdid_from_controller_key(key):
+def webdid_from_controller_key(key, domain):
     """
     Se siguen los pasos para generar un webdid a partir de un keydid.
     Documentado en la docu de spruceid.
@@ -38,7 +38,7 @@ def webdid_from_controller_key(key):
     keydid = keydid_from_controller_key(key)  # "did:key:<...>"
     pubkeyid = keydid.rsplit(":")[-1]  # <...>
     document = json.loads(resolve_did(keydid))  # Documento DID en terminos "key"
-    domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
+    # domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
     webdid_url = f"did:web:{domain}:did-registry:{pubkeyid}"  # nueva URL: "did:web:idhub.pangea.org:<...>"
     webdid_url_owner = webdid_url + "#owner"
     # Reemplazamos los campos del documento DID necesarios:

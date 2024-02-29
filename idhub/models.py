@@ -475,7 +475,7 @@ class DID(models.Model):
         if self.type == self.Types.KEY:
             self.did = keydid_from_controller_key(new_key_material)
         elif self.type == self.Types.WEB:
-            didurl, document = webdid_from_controller_key(new_key_material)
+            didurl, document = webdid_from_controller_key(new_key_material, settings.DOMAIN)
             self.did = didurl
             self.didweb_document = document
 

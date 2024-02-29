@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy, resolve
 from django.shortcuts import redirect
 from django.core.cache import cache
+from django.conf import settings
 
 
 class Http403(PermissionDenied):
@@ -32,6 +33,10 @@ class UserView(LoginRequiredMixin):
     ]
 
     def get(self, request, *args, **kwargs):
+        err_txt = "User domain is {} which does not match server domain {}".format(
+            request.get_host(), settings.DOMAIN
+        )
+        assert request.get_host() == settings.DOMAIN, err_txt
         self.admin_validated = cache.get("KEY_DIDS")
         response = super().get(request, *args, **kwargs)
 
@@ -50,6 +55,10 @@ class UserView(LoginRequiredMixin):
         return url or response
         
     def post(self, request, *args, **kwargs):
+        err_txt = "User domain is {} which does not match server domain {}".format(
+            request.get_host(), settings.DOMAIN
+        )
+        assert request.get_host() == settings.DOMAIN, err_txt
         self.admin_validated = cache.get("KEY_DIDS")
         response = super().post(request, *args, **kwargs)
         url = self.check_gdpr()
