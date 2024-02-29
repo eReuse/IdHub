@@ -25,10 +25,10 @@ class Command(BaseCommand):
         ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
-        if settings.CREATE_TEST_USERS:
-            for u in range(1, 6):
-                user = 'user{}@example.org'.format(u)
-                self.create_users(user, '1234')
+        # if settings.CREATE_TEST_USERS:
+        for u in range(1, 6):
+            user = 'user{}@example.org'.format(u)
+            self.create_users(user, '1234')
 
         BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
         ORGANIZATION = os.path.join(BASE_DIR, settings.ORG_FILE)
