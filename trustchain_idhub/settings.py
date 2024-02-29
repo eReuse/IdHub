@@ -35,7 +35,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
-DOMAIN = config("DOMAIN", "http://localhost")
+DOMAIN = config("DOMAIN")
+assert DOMAIN not in [None, ''], "DOMAIN var is MANDATORY"
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
