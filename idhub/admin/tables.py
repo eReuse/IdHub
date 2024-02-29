@@ -253,6 +253,12 @@ class TemplateTable(tables.Table):
 
         return (queryset, True)
 
+    def render_delete_schema(self, value, record):
+        if record.has_credentials():
+            return value
+        else:
+            return ""
+
     class Meta:
         model = Schemas
         template_name = "idhub/custom_table.html"
