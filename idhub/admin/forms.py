@@ -197,7 +197,7 @@ class ImportForm(forms.Form):
         if not data_pd:
             self.exception(_("This file is empty!"))
 
-        if not df.last_valid_index():
+        if df.last_valid_index() is None:
             self.exception(_("This file is badly formatted!"))
 
         for n in range(df.last_valid_index()+1):
