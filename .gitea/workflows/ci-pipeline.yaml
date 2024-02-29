@@ -79,7 +79,7 @@ jobs:
         with:
           repository: trustchain-oc1-orchestral/ssikit_trustchain
           submodules: true
-          refs: master
+          ref: master
           # might not be needed
           token: ${{ secrets.SSIKIT_TOKEN }}
 
