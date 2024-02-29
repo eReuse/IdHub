@@ -13,6 +13,7 @@
 </div>
 <!-- Modal -->
 {% for schema in object_list %}
+{% if not schema.has_credentials %}
 <div class="modal" id="confirm-delete-{{ schema.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -30,5 +31,6 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endfor %}
 {% endblock %}

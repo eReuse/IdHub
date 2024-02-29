@@ -527,6 +527,11 @@ class Schemas(models.Model):
 
         return name
 
+    @property
+    def has_credentials(self, request=None):
+        return self.vcredentials.filter(
+            status=VerificableCredential.Status.ISSUED).exists()
+
     def _get_language_code(self, request=None):
         language_code = settings.LANGUAGE_CODE
         if request:
