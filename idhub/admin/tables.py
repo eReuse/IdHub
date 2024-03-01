@@ -229,7 +229,7 @@ class TemplateTable(tables.Table):
     delete_template_code = """<a class="text-danger"
                             href="javascript:void()"
                             data-bs-toggle="modal"
-                            data-bs-target="#confirm-delete-{{ record.id }}"
+                            data-bs-target="#confirm-delete-{}"
                             title="Remove"
                             ><i class="bi bi-trash"></i></a>"""
     delete_schema = tables.TemplateColumn(template_code=delete_template_code,
@@ -252,6 +252,13 @@ class TemplateTable(tables.Table):
         )
 
         return (queryset, True)
+
+    def render_delete_schema(self, value, record):
+        if not record.has_credentials:
+            tmpl = self.delete_template_code.format(record.id)
+            return format_html(tmpl)
+        else:
+            return ""
 
     class Meta:
         model = Schemas
