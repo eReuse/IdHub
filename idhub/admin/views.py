@@ -870,10 +870,10 @@ class SchemasDeleteView(SchemasMix):
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
         self.pk = kwargs['pk']
+        issued = VerificableCredential.Status.ISSUED
         self.object = get_object_or_404(
-            Schemas,
+            Schemas.objects.exclude(vcredentials__status=issued),
             pk=self.pk,
-            vcredentials__status=VerificableCredential.Status.ISSUED
         )
         self.object.delete()
 
