@@ -528,7 +528,7 @@ class Schemas(models.Model):
         return name
 
     @property
-    def has_credentials(self, request=None):
+    def has_credentials(self):
         return self.vcredentials.filter(
             status=VerificableCredential.Status.ISSUED).exists()
 
