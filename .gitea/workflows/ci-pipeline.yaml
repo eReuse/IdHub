@@ -65,9 +65,14 @@ jobs:
         pip install -r requirements.txt
       if: steps.didkit.outcome == 'success'
 
+    - name: Check correct env vars
+      run: |
+        echo $DOMAIN
+
     - name: Run tests
       run: |
         source venv/bin/activate
+        echo $DOMAIN
         python manage.py test
 
   ssikit-tests:
