@@ -20,6 +20,7 @@ jobs:
       SECRET_KEY: "t3st-dummy-s3cr3t-k3y"
       STATIC_ROOT: "tmp/static/"
       MEDIA_ROOT: "tmp/media/"
+      DOMAIN: "localhost"
 
     steps:
     - uses: actions/checkout@v4
