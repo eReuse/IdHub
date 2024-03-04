@@ -51,6 +51,7 @@ class Organization(models.Model):
       main is a field which indicates the organization of this idhub 
     """
     name = models.CharField(max_length=250)
+    domain = models.CharField(max_length=250, null=True, default=None)
     main = models.BooleanField(default=False)
     client_id = models.CharField(
         max_length=24,
@@ -94,7 +95,7 @@ class Organization(models.Model):
         """
         url = "{url}/verify?demand_uri={redirect_uri}".format(
             url=self.response_uri.strip("/"),
-            redirect_uri=settings.RESPONSE_URI
+            redirect_uri=self.response_uri
         )
         auth = (self.my_client_id, self.my_client_secret)
         return requests.get(url, auth=auth)
