@@ -204,7 +204,8 @@ USE_L10N = True
 
 AUTH_USER_MODEL = 'idhub_auth.User'
 
-ALLOW_CODE_URI= config(
+OIDC_REDIRECT = config('OIDC_REDIRECT', default=False, cast=bool)
+ALLOW_CODE_URI = config(
     'ALLOW_CODE_URI',
     default=f"https://{DOMAIN}/allow_code"
 )

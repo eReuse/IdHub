@@ -285,7 +285,7 @@ class OAuth2VPToken(models.Model):
         return response
 
     def get_redirect_url(self):
-        if not settings.ALLOW_CODE_URI:
+        if not settings.OIDC_REDIRECT:
             return
 
         data = {
