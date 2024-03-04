@@ -1,9 +1,11 @@
 from django.test import TestCase, RequestFactory
 from django.core.cache import cache
 from django.urls import reverse
+from django.conf import settings
 
 from idhub_auth.models import User
 from idhub.models import Event
+from oidc4vp.models import Organization
 from idhub.admin.views import PeopleListView
 
 
@@ -23,6 +25,10 @@ class AdminDashboardViewTest(TestCase):
                 password='adminpass12')
         self.admin_user.accept_gdpr=True
         self.admin_user.save()
+        self.org = Organization.objects.create(name="testserver", main=True)
+
+        settings.DOMAIN = self.org.name
+        settings.ENABLE_EMAIL = False
 
     def test_view_url_exists_at_desired_location(self):
         response = self.client.get('/admin/dashboard/', follow=True)

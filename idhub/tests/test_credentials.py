@@ -2,7 +2,7 @@ import os
 import json
 
 from pathlib import Path
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.urls import reverse
@@ -11,7 +11,6 @@ from django.conf import settings
 from idhub_auth.models import User
 from idhub.models import DID, Schemas
 from oidc4vp.models import Organization
-from idhub.admin.views import PeopleListView
 
 
 class AdminDashboardViewTest(TestCase):
