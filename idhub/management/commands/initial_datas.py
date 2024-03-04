@@ -17,6 +17,8 @@ User = get_user_model()
 
 class Command(BaseCommand):
     help = "Insert minimum datas for the project"
+    DOMAIN = settings.DOMAIN
+    OIDC_ORGS = settings.OIDC_ORGS
 
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
@@ -28,16 +30,15 @@ class Command(BaseCommand):
                 user = 'user{}@example.org'.format(u)
                 self.create_users(user, '1234')
 
-        BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-        ORGANIZATION = os.path.join(BASE_DIR, settings.ORG_FILE)
-        with open(ORGANIZATION, newline='\n') as csvfile:
-            f = csv.reader(csvfile, delimiter=';', quotechar='"')
-            for r in f:
-                self.create_organizations(r[0].strip(), r[1].strip())
+        self.org = Organization.objects.create(
+            name=self.DOMAIN, 
+            domain=self.DOMAIN, 
+            main=True
+        )
 
-        if settings.SYNC_ORG_DEV == 'y':
-            self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
-            self.sync_credentials_organizations("local 8000", "local 9000")
+        if self.OIDC_ORGS:
+            self.create_organizations()
+
         self.create_schemas()
 
     def create_admin_users(self, email, password):
@@ -50,12 +51,32 @@ class Command(BaseCommand):
         u.set_password(password)
         u.save()
 
+    def create_organizations(self):
+        BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+        ORGANIZATION = os.path.join(BASE_DIR, self.OIDC_ORGS)
+        DOMAIN = self.DOMAIN
 
-    def create_organizations(self, name, url):
-        if url == settings.RESPONSE_URI:
-            Organization.objects.create(name=name, response_uri=url, main=True)
+        with open(ORGANIZATION, newline='\n') as csvfile:
+            f = csv.reader(csvfile, delimiter=';', quotechar='"')
+            exist_main_domain = False
+            for r in f:
+                if DOMAIN == r[2].strip():
+                    exist_main_domain = True
+                self.create_one_organization(r[0].strip(), r[1].strip(), r[2].strip())
+
+            assert exist_main_domain, f"{DOMAIN} is not in {ORGANIZATION}"
+
+        if settings.SYNC_ORG_DEV == 'y':
+            self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
+            self.sync_credentials_organizations("local 8000", "local 9000")
+
+    def create_one_organization(self, name, url, domain):
+        if self.DOMAIN == domain:
+            self.org.name = name
+            self.org.response_uri = url
+            self.org.save()
         else:
-            Organization.objects.create(name=name, response_uri=url)
+            Organization.objects.create(name=name, response_uri=url, domain=domain)
 
     def sync_credentials_organizations(self, test1, test2):
         org1 = Organization.objects.get(name=test1)

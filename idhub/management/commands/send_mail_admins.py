@@ -27,10 +27,9 @@ class Command(BaseCommand):
         """
         Send a email when a user is activated.
         """
-        parsed_url = urlparse(settings.RESPONSE_URI)
-        domain = f"{parsed_url.scheme}://{parsed_url.netloc}/"
+        url_domain = f"https://{}/".format(settings.DOMAIN)
         context = {
-            "domain": domain,
+            "domain": url_domain,
         }
         subject = loader.render_to_string(self.subject_template_name, context)
         # Email subject *must not* contain newlines

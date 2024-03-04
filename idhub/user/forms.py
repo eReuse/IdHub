@@ -132,8 +132,9 @@ class DemandAuthorizationForm(forms.Form):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['organization'].choices = [
-            (x.id, x.name) for x in Organization.objects.filter() 
-                if x.response_uri != settings.RESPONSE_URI
+            (x.id, x.name) for x in Organization.objects.exclude(
+                domain=settings.DOMAIN
+            ) 
         ]
 
     def save(self, commit=True):
