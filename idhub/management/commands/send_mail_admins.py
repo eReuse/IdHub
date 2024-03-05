@@ -27,7 +27,7 @@ class Command(BaseCommand):
         """
         Send a email when a user is activated.
         """
-        url_domain = f"https://{}/".format(settings.DOMAIN)
+        url_domain = "https://{}/".format(settings.DOMAIN)
         context = {
             "domain": url_domain,
         }
