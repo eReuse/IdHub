@@ -2,24 +2,32 @@ import os
 import json
 
 from pathlib import Path
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.urls import reverse
 from django.conf import settings
 
 from idhub_auth.models import User
-from idhub.models import DID, Schemas
+from idhub.models import DID, Schemas, VerificableCredential
 from oidc4vp.models import Organization
-from idhub.admin.views import PeopleListView
 
+
+
+PILOTS = [
+    "course-credential",
+    "federation-membership",
+    "membership-card",
+    "financial-vulnerability",
+    "e-operator-claim",
+]
 
 class AdminDashboardViewTest(TestCase):
 
     def setUp(self):
         cache.set("KEY_DIDS", '1234', None)
         self.user = User.objects.create_user(
-            email='normaluser@example.org',
+            email='user1@example.org',
             password='testpass12',
         )
         self.user.accept_gdpr=True
@@ -32,12 +40,19 @@ class AdminDashboardViewTest(TestCase):
         self.admin_user.save()
         self.org = Organization.objects.create(name="testserver", main=True)
 
-        self.client.login(email='adminuser@example.org',
-                          password='adminpass12')
         settings.DOMAIN = self.org.name
         settings.ENABLE_EMAIL = False
+
+        self.admin_login()
         self.create_schemas()
 
+    def user_login(self):
+        self.client.login(email='user1@example.org',
+                          password='testpass12')
+    def admin_login(self):
+        self.client.login(email='adminuser@example.org',
+                          password='adminpass12')
+        
     def create_did(self, label="Default"):
         did = DID.objects.create(label=label, type=DID.Types.WEB.value)
         did.set_did()
@@ -51,18 +66,15 @@ class AdminDashboardViewTest(TestCase):
                 continue
             self._create_schemas(x)
 
+        s = Schemas.objects
+        for p in PILOTS:
+            f = "{}.json".format(p)
+            assert s.filter(file_schema = f).exists()
+
     def _create_schemas(self, file_name):
         data = self.open_file(file_name)
-        try:
-            ldata = json.loads(data)
-            assert credtools.validate_schema(ldata)
-            dname = ldata.get('name')
-            title = ldata.get('title')
-            assert dname
-            assert title
-        except Exception:
-            title = ''
-            _name = ''
+        ldata = json.loads(data)
+        title = ldata.get('title')
 
         _name = json.dumps(ldata.get('name', ''))
         _description = json.dumps(ldata.get('description', ''))
@@ -94,8 +106,7 @@ class AdminDashboardViewTest(TestCase):
         response = self.client.get(response.url)
         assert "DID created successfully" in response.content.decode('utf-8')
 
-    def test_upload_data_membership(self):
-        fileschema = "membership-card"
+    def _upload_data_membership(self, fileschema):
         did = self.create_did()
         schema = Schemas.objects.get(file_schema__contains=fileschema)
         url = reverse('idhub:admin_import_add')
@@ -120,5 +131,38 @@ class AdminDashboardViewTest(TestCase):
 
         assert response.status_code == 302
         assert response.url == reverse('idhub:admin_import')
+        response = self.client.get(response.url)
+        assert "successfully" in response.content.decode('utf-8')
+
+    def test_upload_data(self):
+        for p in PILOTS:
+            self._upload_data_membership(p)
+
+    def test_user_require_credentail(self):
+        p = PILOTS[0]
+        self._upload_data_membership(p)
+        schema = Schemas.objects.get(file_schema__contains=p)
+        cred = VerificableCredential.objects.get(schema=schema)
+        url = reverse('idhub:user_credentials_request')
+        did = DID.objects.create(
+            label="Default",
+            type=DID.Types.WEB.value,
+            user=self.user
+        )
+
+        self.user_login()
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+        data = {
+            "did": did.did,
+            "credential": cred.id,
+        }
+        
+        response = self.client.post(url, data=data)
+        import pdb; pdb.set_trace()
+
+        assert response.status_code == 302
+        assert response.url == reverse('idhub:user_credentials')
         response = self.client.get(response.url)
         assert "successfully" in response.content.decode('utf-8')
