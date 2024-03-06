@@ -22,7 +22,59 @@ PILOTS = [
     "e-operator-claim",
 ]
 
-class AdminDashboardViewTest(TestCase):
+class KeyFirstTimeTest(TestCase):
+    def setUp(self):
+        cache.set("KEY_DIDS", '')
+        self.user = User.objects.create_user(
+            email='user1@example.org',
+            password='testpass12',
+        )
+        self.admin_user = User.objects.create_superuser(
+                email='adminuser@example.org',
+                password='adminpass12')
+        self.org = Organization.objects.create(name="testserver", main=True)
+
+        settings.DOMAIN = self.org.name
+        settings.ENABLE_EMAIL = False
+
+    def set_cache(self):
+        cache.set("KEY_DIDS", '1234', None)
+
+    def user_login(self):
+        self.client.login(email='user1@example.org',
+                          password='testpass12')
+    def admin_login(self):
+        self.client.login(email='adminuser@example.org',
+                          password='adminpass12')
+
+    def test_user_without_key(self):
+        cache.set("KEY_DIDS", '')
+        self.user_login()
+        response = self.client.get(reverse('idhub:user_dashboard'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:user_waiting'))
+
+    def test_admin_without_key(self):
+        cache.set("KEY_DIDS", '')
+        self.admin_login()
+        response = self.client.get(reverse('idhub:admin_dashboard'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:encryption_key'))
+
+    def test_admin_addfirst_key(self):
+        self.admin_login()
+        response = self.client.get(reverse('idhub:encryption_key'))
+        self.assertEqual(response.status_code, 200)
+
+        data = {
+            "key": 1
+        }
+        response = self.client.post(reverse('idhub:encryption_key'), data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:admin_dashboard'))
+        cache.set("KEY_DIDS", '')
+
+class CredentialsViewTest(TestCase):
 
     def setUp(self):
         cache.set("KEY_DIDS", '1234', None)
@@ -99,7 +151,8 @@ class AdminDashboardViewTest(TestCase):
 
         return data
 
-    def test_create_did_web(self):
+    def test_admin_create_did_key(self):
+        self.admin_login()
         url = reverse('idhub:admin_dids_new')
         data = {"label": "Default", "type": DID.Types.KEY.value}
         response = self.client.get(url)
@@ -108,6 +161,20 @@ class AdminDashboardViewTest(TestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('idhub:admin_dids'))
+
+        response = self.client.get(response.url)
+        self.assertIn("DID created successfully", response.content.decode('utf-8'))
+
+    def test_user_create_did_key(self):
+        self.user_login()
+        url = reverse('idhub:user_dids_new')
+        data = {"label": "Default", "type": DID.Types.KEY.value}
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:user_dids'))
 
         response = self.client.get(response.url)
         self.assertIn("DID created successfully", response.content.decode('utf-8'))
@@ -141,6 +208,7 @@ class AdminDashboardViewTest(TestCase):
         self.assertIn("successfully", response.content.decode('utf-8'))
 
     def test_upload_data(self):
+        self.admin_login()
         for p in PILOTS:
             self._upload_data_membership(p)
 
