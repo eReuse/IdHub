@@ -68,7 +68,9 @@ jobs:
     - name: Run tests
       run: |
         source venv/bin/activate
-        python manage.py test
+        coverage run manage.py test
+        coverage report
+        # python manage.py test
 
   ssikit-tests:
     needs: test
