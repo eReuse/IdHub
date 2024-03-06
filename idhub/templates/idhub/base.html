@@ -33,6 +33,22 @@
           font-size: 3.5rem;
         }
       }
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .main-content {
+        flex-grow: 1;
+      }
+
+      footer {
+        width: 100%;
+      }
     </style>
 
   
@@ -149,6 +165,13 @@
         </main>
       </div>
     </div>
+
+    <!-- Footer -->
+  <footer class="footer text-center mt-auto py-3">
+    <div class="container">
+      <span class="text-muted">{{ commit_id }}</span>
+    </div>
+  </footer>
 
     {% block script %}
     <script src="{% static "js/jquery-3.3.1.slim.min.js" %}"></script>

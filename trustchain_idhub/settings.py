@@ -34,6 +34,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 DOMAIN = config("DOMAIN")
 assert DOMAIN not in [None, ''], "DOMAIN var is MANDATORY"
+# this var is very important, we print it
+print("DOMAIN: " + DOMAIN)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=DOMAIN, cast=Csv())
 assert DOMAIN in ALLOWED_HOSTS, "DOMAIN is not ALLOWED_HOST"
@@ -207,7 +209,7 @@ AUTH_USER_MODEL = 'idhub_auth.User'
 OIDC_REDIRECT = config('OIDC_REDIRECT', default=False, cast=bool)
 ALLOW_CODE_URI = config(
     'ALLOW_CODE_URI',
-    default=f"https://{DOMAIN}/allow_code"
+    default=f"https://{DOMAIN}/oidc4vp/allow_code"
 )
 
 SUPPORTED_CREDENTIALS = config(
@@ -233,4 +235,5 @@ OIDC_ORGS = config('OIDC_ORGS', '')
 ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
 CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
+COMMIT = config('COMMIT', default='')
 
