@@ -53,8 +53,12 @@ class AdminDashboardViewTest(TestCase):
         self.client.login(email='adminuser@example.org',
                           password='adminpass12')
         
-    def create_did(self, label="Default"):
-        did = DID.objects.create(label=label, type=DID.Types.WEB.value)
+    def create_did(self, label="Default", user=None):
+        did = DID.objects.create(
+            label="Default",
+            type=DID.Types.KEY.value,
+            user=user
+        )
         did.set_did()
         did.save()
         return did
@@ -69,7 +73,7 @@ class AdminDashboardViewTest(TestCase):
         s = Schemas.objects
         for p in PILOTS:
             f = "{}.json".format(p)
-            assert s.filter(file_schema = f).exists()
+            self.assertTrue(s.filter(file_schema = f).exists())
 
     def _create_schemas(self, file_name):
         data = self.open_file(file_name)
@@ -97,14 +101,16 @@ class AdminDashboardViewTest(TestCase):
 
     def test_create_did_web(self):
         url = reverse('idhub:admin_dids_new')
-        data = {"label": "Default", "type": DID.Types.WEB.value}
+        data = {"label": "Default", "type": DID.Types.KEY.value}
         response = self.client.get(url)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.post(url, data=data)
-        assert response.status_code == 302
-        assert response.url == reverse('idhub:admin_dids')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:admin_dids'))
+
         response = self.client.get(response.url)
-        assert "DID created successfully" in response.content.decode('utf-8')
+        self.assertIn("DID created successfully", response.content.decode('utf-8'))
 
     def _upload_data_membership(self, fileschema):
         did = self.create_did()
@@ -112,7 +118,7 @@ class AdminDashboardViewTest(TestCase):
         url = reverse('idhub:admin_import_add')
         
         response = self.client.get(url)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
         examples = 'examples/excel_examples/'
         name_file = '{}.xlsx'.format(fileschema)
         with Path(__file__).parent.parent.parent.joinpath(examples).joinpath(
@@ -129,10 +135,10 @@ class AdminDashboardViewTest(TestCase):
         
         response = self.client.post(url, data=data)
 
-        assert response.status_code == 302
-        assert response.url == reverse('idhub:admin_import')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:admin_import'))
         response = self.client.get(response.url)
-        assert "successfully" in response.content.decode('utf-8')
+        self.assertIn("successfully", response.content.decode('utf-8'))
 
     def test_upload_data(self):
         for p in PILOTS:
@@ -144,15 +150,11 @@ class AdminDashboardViewTest(TestCase):
         schema = Schemas.objects.get(file_schema__contains=p)
         cred = VerificableCredential.objects.get(schema=schema)
         url = reverse('idhub:user_credentials_request')
-        did = DID.objects.create(
-            label="Default",
-            type=DID.Types.WEB.value,
-            user=self.user
-        )
+        did = self.create_did(user=self.user)
 
         self.user_login()
         response = self.client.get(url)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
 
         data = {
             "did": did.did,
@@ -160,9 +162,8 @@ class AdminDashboardViewTest(TestCase):
         }
         
         response = self.client.post(url, data=data)
-        import pdb; pdb.set_trace()
 
-        assert response.status_code == 302
-        assert response.url == reverse('idhub:user_credentials')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:user_credentials'))
         response = self.client.get(response.url)
-        assert "successfully" in response.content.decode('utf-8')
+        self.assertIn("successfully", response.content.decode('utf-8'))
