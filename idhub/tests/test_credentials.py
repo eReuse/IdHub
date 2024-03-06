@@ -144,10 +144,10 @@ class AdminDashboardViewTest(TestCase):
         for p in PILOTS:
             self._upload_data_membership(p)
 
-    def test_user_require_credentail(self):
-        p = PILOTS[0]
-        self._upload_data_membership(p)
-        schema = Schemas.objects.get(file_schema__contains=p)
+    def _user_require_credentail(self, fileschema):
+        self.admin_login()
+        self._upload_data_membership(fileschema)
+        schema = Schemas.objects.get(file_schema__contains=fileschema)
         cred = VerificableCredential.objects.get(schema=schema)
         url = reverse('idhub:user_credentials_request')
         did = self.create_did(user=self.user)
@@ -167,3 +167,7 @@ class AdminDashboardViewTest(TestCase):
         self.assertEqual(response.url, reverse('idhub:user_credentials'))
         response = self.client.get(response.url)
         self.assertIn("successfully", response.content.decode('utf-8'))
+
+    def test_user_require_credential(self):
+        for p in PILOTS:
+            self._user_require_credentail(p)
