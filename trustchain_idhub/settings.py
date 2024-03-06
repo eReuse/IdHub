@@ -207,7 +207,7 @@ AUTH_USER_MODEL = 'idhub_auth.User'
 OIDC_REDIRECT = config('OIDC_REDIRECT', default=False, cast=bool)
 ALLOW_CODE_URI = config(
     'ALLOW_CODE_URI',
-    default=f"https://{DOMAIN}/allow_code"
+    default=f"https://{DOMAIN}/oidc4vp/allow_code"
 )
 
 SUPPORTED_CREDENTIALS = config(
