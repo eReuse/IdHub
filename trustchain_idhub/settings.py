@@ -32,11 +32,13 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
-
 DOMAIN = config("DOMAIN")
 assert DOMAIN not in [None, ''], "DOMAIN var is MANDATORY"
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=DOMAIN, cast=Csv())
+assert DOMAIN in ALLOWED_HOSTS, "DOMAIN is not ALLOWED_HOST"
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=f'https://{DOMAIN}', cast=Csv())
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
@@ -201,8 +203,13 @@ USE_I18N = True
 USE_L10N = True
 
 AUTH_USER_MODEL = 'idhub_auth.User'
-RESPONSE_URI = config('RESPONSE_URI', default="")
-ALLOW_CODE_URI= config('ALLOW_CODE_URI', default="")
+
+OIDC_REDIRECT = config('OIDC_REDIRECT', default=False, cast=bool)
+ALLOW_CODE_URI = config(
+    'ALLOW_CODE_URI',
+    default=f"https://{DOMAIN}/allow_code"
+)
+
 SUPPORTED_CREDENTIALS = config(
     'SUPPORTED_CREDENTIALS',
     default='[]',
@@ -222,7 +229,7 @@ LOGGING = {
 }
 
 SYNC_ORG_DEV = config('SYNC_ORG_DEV', 'y')
-ORG_FILE = config('ORG_FILE', 'examples/organizations.csv')
+OIDC_ORGS = config('OIDC_ORGS', '')
 ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
 CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)

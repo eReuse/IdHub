@@ -670,7 +670,7 @@ class VerificableCredential(models.Model):
         credential_subject = ujson.loads(data).get("credentialSubject", {})
         return credential_subject.items()
 
-    def issue(self, did, domain=settings.DOMAIN.strip("/")):
+    def issue(self, did, domain):
         if self.status == self.Status.ISSUED:
             return
 
@@ -704,7 +704,7 @@ class VerificableCredential(models.Model):
             cred_path = 'public/credentials'
             sid = self.hash
 
-        url_id = "{}/{}/{}".format(
+        url_id = "https://{}/{}/{}".format(
             domain,
             cred_path,
             sid
