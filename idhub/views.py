@@ -27,6 +27,7 @@ class LoginView(auth_views.LoginView):
     extra_context = {
         'title': _('Login'),
         'success_url': reverse_lazy('idhub:user_dashboard'),
+        'commit_id': settings.COMMIT, 
     }
 
     def get(self, request, *args, **kwargs):
