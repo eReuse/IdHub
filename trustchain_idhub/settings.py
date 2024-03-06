@@ -34,6 +34,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 DOMAIN = config("DOMAIN")
 assert DOMAIN not in [None, ''], "DOMAIN var is MANDATORY"
+# this var is very important, we print it
+print("DOMAIN: " + DOMAIN)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=DOMAIN, cast=Csv())
 assert DOMAIN in ALLOWED_HOSTS, "DOMAIN is not ALLOWED_HOST"
