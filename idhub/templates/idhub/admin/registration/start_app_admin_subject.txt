@@ -1,1 +1,1 @@
-Reinicio de IdHub
+Reestablecer {{ domain }}

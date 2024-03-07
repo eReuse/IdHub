@@ -29,7 +29,8 @@ class Command(BaseCommand):
         """
         url_domain = "https://{}/".format(settings.DOMAIN)
         context = {
-            "domain": url_domain,
+            "domain": settings.DOMAIN,
+            "url_domain": url_domain,
         }
         subject = loader.render_to_string(self.subject_template_name, context)
         # Email subject *must not* contain newlines
