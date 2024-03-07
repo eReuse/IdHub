@@ -42,6 +42,9 @@ assert DOMAIN in ALLOWED_HOSTS, "DOMAIN is not ALLOWED_HOST"
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=f'https://{DOMAIN}', cast=Csv())
 
+INITIAL_ADMIN_EMAIL = config("INITIAL_ADMIN_EMAIL", default='admin@example.org')
+INITIAL_ADMIN_PASSWORD = config("INITIAL_ADMIN_PASSWORD", default='1234')
+
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 

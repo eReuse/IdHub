@@ -84,8 +84,8 @@ MEDIA_ROOT=/tmp/media/
 # DATABASE_URL=postgres://link:to@database:port/idhub
 
 # Defines the admin user after running the initial_datas command
-# Defaults to "admin@example.org" if no ADMIN_EMAIL is provided
-# ADMIN_EMAIL="idhub_admin@pangea.org"
+# Defaults to "admin@example.org" if no INITIAL_ADMIN_EMAIL is provided
+# INITIAL_ADMIN_EMAIL="idhub_admin@pangea.org"
 
 # Configures a list of tuples containing names and email addresses of site administrators who should receive error notifications.
 ADMINS=[('Admin', 'admin@example.org')]
