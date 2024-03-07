@@ -21,8 +21,8 @@ class Command(BaseCommand):
     OIDC_ORGS = settings.OIDC_ORGS
 
     def handle(self, *args, **kwargs):
-        ADMIN_EMAIL = config('ADMIN_EMAIL', 'admin@example.org')
-        ADMIN_PASSWORD = config('ADMIN_PASSWORD', '1234')
+        ADMIN_EMAIL = settings.INITIAL_ADMIN_EMAIL
+        ADMIN_PASSWORD = settings.INITIAL_ADMIN_PASSWORD
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
         if settings.CREATE_TEST_USERS:
