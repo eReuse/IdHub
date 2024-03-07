@@ -1,6 +1,9 @@
 import json
 import base64
+import logging
 
+from django.template import loader
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.views.generic.edit import View, FormView
 from django.http import HttpResponse, Http404, JsonResponse
@@ -16,6 +19,9 @@ from idhub.mixins import UserView
 from idhub.models import Event
 
 from oidc4vp.forms import AuthorizeForm
+
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorizeView(UserView, FormView):
@@ -101,6 +107,10 @@ class AuthorizeView(UserView, FormView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyView(View):
+    subject_template_name = 'idhub/admin/registration/start_app_admin_subject.txt'
+    email_template_name = 'idhub/admin/registration/start_app_admin_email.txt'
+    html_email_template_name = 'idhub/admin/registration/start_app_admin_email.html'
+
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
         presentation_definition = json.dumps(settings.SUPPORTED_CREDENTIALS)
@@ -115,6 +125,7 @@ class VerifyView(View):
     def post(self, request, *args, **kwargs):
         code = self.request.POST.get("code")
         vp_tk = self.request.POST.get("vp_token")
+        self.verification = {}
 
         if not vp_tk or not code:
             raise Http404("Page not Found!")
@@ -131,9 +142,11 @@ class VerifyView(View):
 
         vp_token.verifing()
         response = vp_token.get_response_verify()
-        vp_token.save()
+        for user in User.objects.filter(is_admin=True):
+            vp_token.save(user)
+        self.verification = json.loads(vp_token.result_verify)
+        self.send_email()
         response["response"] = "Validation Code {}".format(code)
-
         return JsonResponse(response)
 
     def validate(self, request):
@@ -151,6 +164,56 @@ class VerifyView(View):
             return org
 
         raise Http404("Page not Found!")
+
+    def send_email(self, user):
+        """
+        Send a email when a user is activated.
+        """
+        if not self.verification:
+            return
+
+        if self.verification.get('errors') or self.verification.get('warnings'):
+            return
+
+        email = self.get_email(user)
+        try:
+            if settings.ENABLE_EMAIL:
+                email.send()
+                return
+
+            logger.warning(user.email)
+            logger.warning(email.body)
+
+        except Exception as err:
+            logger.error(err)
+            return
+
+    def get_verification(self):
+        return json.dumps(self.verification)
+
+    def get_context(self):
+        url_domain = "https://{}/".format(settings.DOMAIN)
+        context = {
+            "domain": settings.DOMAIN,
+            "url_domain": url_domain,
+            "verification": self.get_verification(),
+        }
+        return context
+
+    def get_email(self, user):
+        context = self.get_context()
+        subject = loader.render_to_string(self.subject_template_name, context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        body = loader.render_to_string(self.email_template_name, context)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = user.email
+
+        email_message = EmailMultiAlternatives(
+            subject, body, from_email, [to_email])
+        html_email = loader.render_to_string(self.html_email_template_name, context)
+        email_message.attach_alternative(html_email, 'text/html')
+        return email_message
 
         
 class AllowCodeView(View):
