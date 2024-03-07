@@ -110,9 +110,9 @@ class AuthorizeView(UserView, FormView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyView(View):
-    subject_template_name = 'verify_subject.txt'
-    email_template_name = 'verify_email.txt'
-    html_email_template_name = 'verify_email.html'
+    subject_template_name = 'email/verify_subject.txt'
+    email_template_name = 'email/verify_email.txt'
+    html_email_template_name = 'email/verify_email.html'
 
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
@@ -128,7 +128,6 @@ class VerifyView(View):
     def post(self, request, *args, **kwargs):
         code = self.request.POST.get("code")
         vp_tk = self.request.POST.get("vp_token")
-        self.verification = {}
 
         if not vp_tk or not code:
             raise Http404("Page not Found!")
@@ -200,6 +199,7 @@ class VerifyView(View):
             "domain": settings.DOMAIN,
             "url_domain": url_domain,
             "verification": self.get_verification(),
+            "code": self.vp_token.code,
         }
         return context
 
@@ -218,6 +218,8 @@ class VerifyView(View):
         email_message.attach_alternative(html_email, 'text/html')
         return email_message
 
+    def get_verification(self):
+        return self.vp_token.get_user_info()
         
 class AllowCodeView(View):
     def get(self, request, *args, **kwargs):
