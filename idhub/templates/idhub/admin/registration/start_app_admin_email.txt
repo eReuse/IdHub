@@ -1,7 +1,7 @@
-Hola, se ha reiniciado el servicio de Idhub: {{ domain }}
-no será plenamente funcional hasta que no introduzcas la contraseña de encriptacion del sistema.
+Hola, se ha reiniciado el servicio de Idhub: {{ url_domain }}
+no será plenamente funcional hasta que no introduzcas la contraseña de cifrado del sistema.
 
-Por favor entra en la aplicacion como administrador y añade esta contraseña.
+Por favor entra en la aplicación como administrador y reintroduce esta contraseña.
 
 Muchas gracias
- 
+
