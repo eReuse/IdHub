@@ -91,8 +91,7 @@ class PasswordResetView(auth_views.PasswordResetView):
 
 
 def serve_did(request, did_id):
-    import urllib.parse
-    domain = urllib.parse.urlencode({"domain": settings.DOMAIN})[7:]
+    domain = settings.DOMAIN
     id_did = f'did:web:{domain}:did-registry:{did_id}'
     did = get_object_or_404(DID, did=id_did)
     # Deserialize the base DID from JSON storage
