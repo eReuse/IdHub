@@ -267,7 +267,7 @@ class OAuth2VPToken(models.Model):
     def verifing(self):
         self.result_verify = verify_presentation(self.vp_token)
 
-    def get_verifing(self):
+    def get_result_verify(self):
         if not self.result_verify:
             return {}
         return json.loads(self.result_verify)
