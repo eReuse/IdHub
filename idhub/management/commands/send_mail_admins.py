@@ -1,7 +1,5 @@
 import logging
 
-from urllib.parse import urlparse
-
 from django.conf import settings
 from django.template import loader
 from django.core.mail import EmailMultiAlternatives

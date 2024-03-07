@@ -264,8 +264,19 @@ class OAuth2VPToken(models.Model):
         
         self.authorization = Authorization.objects.filter(code=code).first()
 
+    @property
+    def code(self):
+        if not self.authorization:
+            return ''
+        return self.authorization.code
+
     def verifing(self):
         self.result_verify = verify_presentation(self.vp_token)
+
+    def get_result_verify(self):
+        if not self.result_verify:
+            return {}
+        return json.loads(self.result_verify)
 
     def get_response_verify(self):
         response = {
@@ -307,3 +318,4 @@ class OAuth2VPToken(models.Model):
         self.user_info = tk.get(
             "verifiableCredential", [{}]
         )[-1].get("credentialSubject")
+        return json.dumps(self.user_info, indent=2)

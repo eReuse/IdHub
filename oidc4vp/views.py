@@ -1,6 +1,9 @@
 import json
 import base64
+import logging
 
+from django.template import loader
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.views.generic.edit import View, FormView
 from django.http import HttpResponse, Http404, JsonResponse
@@ -10,12 +13,18 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 
 from oidc4vp.models import Authorization, Organization, OAuth2VPToken
 from idhub.mixins import UserView
 from idhub.models import Event
 
 from oidc4vp.forms import AuthorizeForm
+
+
+
+User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class AuthorizeView(UserView, FormView):
@@ -101,6 +110,10 @@ class AuthorizeView(UserView, FormView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyView(View):
+    subject_template_name = 'email/verify_subject.txt'
+    email_template_name = 'email/verify_email.txt'
+    html_email_template_name = 'email/verify_email.html'
+
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
         presentation_definition = json.dumps(settings.SUPPORTED_CREDENTIALS)
@@ -121,19 +134,23 @@ class VerifyView(View):
 
         org = self.validate(request)
 
-        vp_token = OAuth2VPToken(
+        self.vp_token = OAuth2VPToken(
             vp_token = vp_tk,
             organization=org,
             code=code
         )
-        if not vp_token.authorization:
+
+        if not self.vp_token.authorization:
             raise Http404("Page not Found!")
 
-        vp_token.verifing()
-        response = vp_token.get_response_verify()
-        vp_token.save()
-        response["response"] = "Validation Code {}".format(code)
+        self.vp_token.verifing()
+        response = self.vp_token.get_response_verify()
+        self.vp_token.save()
 
+        for user in User.objects.filter(is_admin=True):
+            self.send_email(user)
+
+        response["response"] = "Validation Code {}".format(code)
         return JsonResponse(response)
 
     def validate(self, request):
@@ -152,6 +169,57 @@ class VerifyView(View):
 
         raise Http404("Page not Found!")
 
+    def send_email(self, user):
+        """
+        Send a email when a user is activated.
+        """
+        verification = self.vp_token.get_result_verify()
+        if not verification:
+            return
+
+        if verification.get('errors') or verification.get('warnings'):
+            return
+
+        email = self.get_email(user)
+        try:
+            if settings.ENABLE_EMAIL:
+                email.send()
+                return
+
+            logger.warning(user.email)
+            logger.warning(email.body)
+
+        except Exception as err:
+            logger.error(err)
+            return
+
+    def get_context(self):
+        url_domain = "https://{}/".format(settings.DOMAIN)
+        context = {
+            "domain": settings.DOMAIN,
+            "url_domain": url_domain,
+            "verification": self.get_verification(),
+            "code": self.vp_token.code,
+        }
+        return context
+
+    def get_email(self, user):
+        context = self.get_context()
+        subject = loader.render_to_string(self.subject_template_name, context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        body = loader.render_to_string(self.email_template_name, context)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = user.email
+
+        email_message = EmailMultiAlternatives(
+            subject, body, from_email, [to_email])
+        html_email = loader.render_to_string(self.html_email_template_name, context)
+        email_message.attach_alternative(html_email, 'text/html')
+        return email_message
+
+    def get_verification(self):
+        return self.vp_token.get_user_info()
         
 class AllowCodeView(View):
     def get(self, request, *args, **kwargs):
