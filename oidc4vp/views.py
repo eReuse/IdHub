@@ -141,7 +141,7 @@ class VerifyView(View):
             code=code
         )
 
-        if not vp_token.authorization:
+        if not self.vp_token.authorization:
             raise Http404("Page not Found!")
 
         self.vp_token.verifing()
