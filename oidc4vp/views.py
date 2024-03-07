@@ -13,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 
 from oidc4vp.models import Authorization, Organization, OAuth2VPToken
 from idhub.mixins import UserView
@@ -21,6 +22,8 @@ from idhub.models import Event
 from oidc4vp.forms import AuthorizeForm
 
 
+
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
@@ -107,9 +110,9 @@ class AuthorizeView(UserView, FormView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyView(View):
-    subject_template_name = 'idhub/admin/registration/start_app_admin_subject.txt'
-    email_template_name = 'idhub/admin/registration/start_app_admin_email.txt'
-    html_email_template_name = 'idhub/admin/registration/start_app_admin_email.html'
+    subject_template_name = 'verify_subject.txt'
+    email_template_name = 'verify_email.txt'
+    html_email_template_name = 'verify_email.html'
 
     def get(self, request, *args, **kwargs):
         org = self.validate(request)
@@ -132,20 +135,22 @@ class VerifyView(View):
 
         org = self.validate(request)
 
-        vp_token = OAuth2VPToken(
+        self.vp_token = OAuth2VPToken(
             vp_token = vp_tk,
             organization=org,
             code=code
         )
+
         if not vp_token.authorization:
             raise Http404("Page not Found!")
 
-        vp_token.verifing()
-        response = vp_token.get_response_verify()
+        self.vp_token.verifing()
+        response = self.vp_token.get_response_verify()
+        self.vp_token.save()
+
         for user in User.objects.filter(is_admin=True):
-            vp_token.save(user)
-        self.verification = json.loads(vp_token.result_verify)
-        self.send_email()
+            self.send_email(user)
+
         response["response"] = "Validation Code {}".format(code)
         return JsonResponse(response)
 
@@ -169,10 +174,11 @@ class VerifyView(View):
         """
         Send a email when a user is activated.
         """
-        if not self.verification:
+        verification = self.vp_token.get_result_verify()
+        if not verification:
             return
 
-        if self.verification.get('errors') or self.verification.get('warnings'):
+        if verification.get('errors') or verification.get('warnings'):
             return
 
         email = self.get_email(user)
@@ -187,9 +193,6 @@ class VerifyView(View):
         except Exception as err:
             logger.error(err)
             return
-
-    def get_verification(self):
-        return json.dumps(self.verification)
 
     def get_context(self):
         url_domain = "https://{}/".format(settings.DOMAIN)
