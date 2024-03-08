@@ -57,25 +57,20 @@ jobs:
     - name: Install dependencies
       run: |
         source venv/bin/activate
-        which python
-        pip -V
         pip install --upgrade pip
-        pip -V
-        python -V
         pip install -r requirements.txt
       if: steps.didkit.outcome == 'success'
-
-    - name: Check correct env vars
-      run: |
-        echo $DOMAIN
 
     - name: Run tests
       run: |
         source venv/bin/activate
-        echo $DOMAIN
         coverage run manage.py test
-        coverage report
         # python manage.py test
+        #
+    - name: Coverage report
+      run: |
+        source venv/bin/activate
+        coverage report
 
   ssikit-tests:
     needs: test
@@ -113,7 +108,7 @@ jobs:
           source venv/bin/activate
           python main.py
 
-  deploy:
+  deploy-testing-instances:
     needs: test
     runs-on: self-hosted
     steps:
@@ -130,3 +125,27 @@ jobs:
           exit 0
           fi
         if: success() && github.ref == 'refs/heads/release'
+
+  end2end-tests:
+    needs: deploy-testing-instances
+    runs-on: self-hosted
+    steps:
+
+      - name: Checkout E2E tests repo
+        uses: actions/checkout@v4
+        with:
+          repository: trustchain-oc1-orchestral/IdHub_E2E_testing
+          ref: master
+          token: ${{ secrets.SSIKIT_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: |
+          npx playwright test
