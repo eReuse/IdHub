@@ -704,7 +704,7 @@ class VerificableCredential(models.Model):
             cred_path = 'public/credentials'
             sid = self.hash
 
-        url_id = "https://{}/{}/{}".format(
+        url_id = "{}/{}/{}".format(
             domain,
             cred_path,
             sid
