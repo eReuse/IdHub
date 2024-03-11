@@ -392,18 +392,26 @@ class CredentialsRequestView(MyWallet, FormView):
     form_class = RequestCredentialForm
     success_url = reverse_lazy('idhub:user_credentials')
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        if not cache.get("KEY_DIDS"):
-            return redirect(reverse_lazy('idhub:user_waiting'))
+    def get(self, *args, **kwargs):
+        response = super().get(*args, **kwargs)
+        if not DID.objects.filter(user=self.request.user).exists():
+            return redirect(reverse_lazy('idhub:user_dids_new'))
+
         return response
+    
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        self.if_credentials = VerificableCredential.objects.filter(
+            user=self.request.user,
+            status=VerificableCredential.Status.ENABLED.value,
+        ).exists()
+
         kwargs['user'] = self.request.user
         kwargs['lang'] = self.request.LANGUAGE_CODE
         domain = "{}://{}".format(self.request.scheme, self.request.get_host())
         kwargs['domain'] = domain
+        kwargs['if_credentials'] = self.if_credentials
         return kwargs
     
     def form_valid(self, form):
@@ -433,17 +441,19 @@ class DemandAuthorizationView(MyWallet, FormView):
             user=self.request.user,
             status=VerificableCredential.Status.ENABLED.value,
         ).exists()
+        
         if not self.if_credentials and creds_enable:
             return redirect(reverse_lazy('idhub:user_credentials_request'))
         return response
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
         self.if_credentials = VerificableCredential.objects.filter(
             user=self.request.user,
             status=VerificableCredential.Status.ISSUED.value,
         ).exists()
+        
+        kwargs['user'] = self.request.user
         kwargs['if_credentials'] = self.if_credentials
         return kwargs
     
