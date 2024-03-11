@@ -1,0 +1,72 @@
+
+{% load i18n static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Pangea">
+    <title>{% block title %}{% if title %}{{ title }} – {% endif %}Pangea{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="{% static "/css/bootstrap.min.css" %}" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+  
+    <!-- Custom styles for this template -->
+    <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
+  </head>
+<body id="body-login">
+    <header class="navbar navbar-dark sticky-top bg-grey flex-md-nowrap p-0 shadow" style="background-color: #712547;">
+      <div class="navbar-nav navbar-sub-brand">
+      </div>
+      <div class="navbar-nav">
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <main class="col-md-12 bt-5">
+
+          <div class="jumbotron vertical-center">
+              <div id="login-wrapper" class="container" style="width: 430px;">
+                  <div id="login-content" class="rounded">
+                      <div id="login-branding">
+                      </div><!-- /login-branding -->
+                      <div class="mt-5">
+                        <div class="row">
+                          <div class="col">
+                            {% trans 'Thank you, we are received your presentation correctly.' %}
+                          </div>
+                        </div>
+                      </div><!-- /.row-fluid -->
+                  </div>
+                  <!--/#login-content-->
+              </div><!-- /#login-wrapper -->
+          </div><!-- /.jumbotron -->
+
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
