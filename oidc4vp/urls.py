@@ -13,4 +13,6 @@ urlpatterns = [
          name="authorize"),
     path('allow_code', views.AllowCodeView.as_view(),
          name="allow_code"),
+    path('received_code', views.ReceivedCodeView.as_view(),
+         name="received_code"),
 ]

@@ -235,7 +235,17 @@ class AllowCodeView(View):
 
         promotion = self.authorization.promotions.first()
         if not promotion:
-            raise Http404("Page not Found!")
+            return redirect(reverse_lazy('oidc4vp:received_code'))
 
         return redirect(promotion.get_url(code))
 
+
+class ReceivedCodeView(View):
+    template_name = "received_code.html"
+
+    def get(self, request, *args, **kwargs):
+        self.context = {}
+        template = loader.get_template(
+            self.template_name,
+        ).render()
+        return HttpResponse(template)
