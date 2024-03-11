@@ -427,9 +427,24 @@ class DemandAuthorizationView(MyWallet, FormView):
     form_class = DemandAuthorizationForm
     success_url = reverse_lazy('idhub:user_demand_authorization')
 
+    def get(self, *args, **kwargs):
+        response = super().get(*args, **kwargs)
+        creds_enable = VerificableCredential.objects.filter(
+            user=self.request.user,
+            status=VerificableCredential.Status.ENABLED.value,
+        ).exists()
+        if not self.if_credentials and creds_enable:
+            return redirect(reverse_lazy('idhub:user_credentials_request'))
+        return response
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        self.if_credentials = VerificableCredential.objects.filter(
+            user=self.request.user,
+            status=VerificableCredential.Status.ISSUED.value,
+        ).exists()
+        kwargs['if_credentials'] = self.if_credentials
         return kwargs
     
     def form_valid(self, form):
