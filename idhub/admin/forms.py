@@ -217,12 +217,12 @@ class ImportForm(forms.Form):
         return data
 
     def clean_file_import(self):
-        props = self.json_schema.get("properties", {})
         data = self.cleaned_data["file_import"]
-        self.file_name = data.name
-
         if not self._schema:
             return data
+
+        self.file_name = data.name
+        props = self.json_schema.get("properties", {})
 
         # Forze than pandas read one column as string
         dtype_dict = {"phoneNumber": str}

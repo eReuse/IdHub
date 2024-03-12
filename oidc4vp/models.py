@@ -286,10 +286,10 @@ class OAuth2VPToken(models.Model):
         }
         verification = json.loads(self.result_verify)
         if verification.get('errors') or verification.get('warnings'):
-            response["verify"] = "Error, Verification Failed"
+            response["verify"] = "Error, {}".format(_("Failed verification"))
             return response
         
-        response["verify"] = "Ok, Verification correct"
+        response["verify"] = "Ok, {}".format(_("Correct verification"))
         url = self.get_redirect_url()
         if url:
             response["redirect_uri"] = url

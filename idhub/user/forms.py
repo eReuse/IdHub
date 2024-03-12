@@ -86,6 +86,7 @@ class RequestCredentialForm(forms.Form):
         self.user = kwargs.pop('user', None)
         self.lang = kwargs.pop('lang', None)
         self._domain = kwargs.pop('domain', None)
+        self.if_credentials = kwargs.pop('if_credentials', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
             (x.did, x.label) for x in DID.objects.filter(user=self.user)
@@ -130,6 +131,7 @@ class DemandAuthorizationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.if_credentials = kwargs.pop('if_credentials', None)
         super().__init__(*args, **kwargs)
         self.fields['organization'].choices = [
             (x.id, x.name) for x in Organization.objects.exclude(
