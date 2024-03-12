@@ -176,6 +176,8 @@ urlpatterns = [
         name='admin_terms_and_conditions'),
     path('admin/import/new', views_admin.ImportAddView.as_view(),
         name='admin_import_add'),
+    path('admin/import/<int:pk>/del', views_admin.ImportDeleteView.as_view(),
+        name='admin_import_del'),
     path('admin/enc/',  views_admin.EncryptionKeyView.as_view(), name='encryption_key'),
     path('admin/auth/<uuid:admin2fauth>', views_admin.DobleFactorAuthView.as_view(),
         name='admin_2fauth'),
