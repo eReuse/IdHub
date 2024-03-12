@@ -1080,8 +1080,8 @@ class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
         return super().form_valid(form)
 
 
-class ImportDeleteView(AdminView):
-    model = PeopleView
+class ImportDeleteView(AdminView, DeleteView):
+    model = File_datas
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
