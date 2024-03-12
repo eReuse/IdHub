@@ -1,0 +1,6 @@
+Hola, hay una nueva verificación en el servicio de verificación Idhub {{ domain }}
+El código asociado a esta verificación es: {{ code }}
+estos son los datos de la verificación:
+{{ verification|safe }}
+
+Muchas gracias
