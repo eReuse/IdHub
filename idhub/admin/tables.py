@@ -211,11 +211,18 @@ class DIDTable(tables.Table):
 class DataTable(tables.Table):
     created_at = tables.Column(verbose_name="Date")
     file_name = tables.Column(verbose_name="File")
+    delete_template_code = """<a class="text-danger"
+                            href="{% url 'idhub:admin_import_del' record.id %}"
+                            title="Remove"
+                            ><i class="bi bi-trash"></i></a>"""
+    delete_data = tables.TemplateColumn(template_code=delete_template_code,
+                                       orderable=False,
+                                       verbose_name="Delete")
 
     class Meta:
         model = File_datas
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "file_name", "success")
+        fields = ("created_at", "file_name", "success", "delete_data")
 
 
 class TemplateTable(tables.Table):

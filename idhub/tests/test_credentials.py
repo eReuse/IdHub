@@ -239,3 +239,13 @@ class CredentialsViewTest(TestCase):
     def test_user_require_credential(self):
         for p in PILOTS:
             self._user_require_credentail(p)
+
+    def test_remove_file_data(self):
+        p = PILOTS[0]
+        self.admin_login()
+        self._upload_data_membership(p)
+        url = reverse('idhub:admin_import_del', args=[1])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('idhub:admin_import'))
+
