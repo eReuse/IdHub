@@ -1078,3 +1078,16 @@ class ImportAddView(NotifyActivateUserByEmail, ImportExport, FormView):
                 messages.error(self.request, e.message)
 
         return super().form_valid(form)
+
+
+class ImportDeleteView(AdminView, DeleteView):
+    model = File_datas
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object.delete()
+
+        return redirect('idhub:admin_import')
+            
