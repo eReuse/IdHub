@@ -73,7 +73,7 @@ urlpatterns = [
         name='user_credentials'),
     path('user/credentials/<int:pk>', views_user.CredentialView.as_view(),
         name='user_credential'),
-    path('user/credentials/<int:pk>/pdf', views_user.CredentialPdfView.as_view(),
+    path('user/credentials/<int:pk>/pdf/<str:lang>', views_user.CredentialPdfView.as_view(),
         name='user_credential_pdf'),
     path('credentials/<int:pk>/', views_user.CredentialJsonView.as_view(),
         name='user_credential_json'),
