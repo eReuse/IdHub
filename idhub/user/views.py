@@ -286,6 +286,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         img_foot = self.get_img_footer()
         qr = self.generate_qr_code(self.url_id)
         issue_date_now = datetime.datetime.now()
+        issue_date = context.get('issuedDate', issue_date_now)
 
         context.update(dict(self.object.get_datas()))
         context.update({
@@ -294,6 +295,7 @@ class CredentialPdfView(MyWallet, TemplateView):
             "image_header": img_head,
             "image_footer": img_foot,
             "issue_date_now": issue_date_now.strftime("%d/%m/%Y"),
+            "issue_date": issue_date.strftime("%d/%m/%Y"),
             "qr": qr,
         })
         return context
