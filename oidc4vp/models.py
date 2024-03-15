@@ -319,3 +319,7 @@ class OAuth2VPToken(models.Model):
             "verifiableCredential", [{}]
         )[-1].get("credentialSubject")
         return json.dumps(self.user_info, indent=2)
+
+    def get_user_info_all(self):
+        tk = json.loads(self.vp_token)
+        return json.dumps(tk, indent=2)
