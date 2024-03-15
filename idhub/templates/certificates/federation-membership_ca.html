@@ -1,0 +1,122 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Certificat</title>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="{% static "/css/bootstrap.min.css" %}" rel="stylesheet">
+<style type="text/css" media="all">
+  @page {
+    size: A4 portrait; /* can use also 'landscape' for orientation */
+    margin: 1.0cm 1.5cm 3.5cm 1.5cm;
+    font-family: "Source Sans Pro", Calibri, Candra, Sans serif;
+
+    @top {
+      content: element(header);
+    }
+
+    @bottom {
+      content: element(footer);
+    }
+
+  }
+  body {
+    width: 100% !important;
+    height: 100%;
+    background: #fff;
+    color: black;
+    font-size: 100%;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: none; 
+  }
+
+  header {
+    position: running(header);
+    /*height: 100px;*/
+    font-size: 12px;
+    /* color: #000; */
+    font-family: Arial;
+    width: 100%;
+    /* position: relative;*/
+  }
+
+  footer {
+    position: running(footer);
+    /*height: 150px;*/
+  }
+  
+  .body_content {
+     position: relative;
+     page-break-inside: auto;
+     width: 100%;
+     /*overflow: hidden;*/
+  }
+
+  img {max-height: 150px; width: auto;}
+  .company-logo {float: left;}
+  .customer-logo {float: right;}
+  .page-break:not(section:first-of-type) {
+    page-break-before: always
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container body-content">
+  <div class="row">
+    <div class="col">
+		  <img style="width: 100%; height: auto;" src="data:image/jpeg;base64,{{ image_header }}" />
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12">
+      <p>A qui correspongui,</p>
+      </p>
+        Pepa Martínez Peyrats, com a directora de Lafede.cat - <strong>Federació d'Organitzacions per a la Justícia Global</strong>,
+      </p>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12 text-center">
+  		<strong>CERTIFICA</strong><br />
+      <ul>
+        <li class="text-justify">
+          Que l’entitat <b>{{ legalName }}</b>, amb NIF <b>{{ taxReference }}</b> i domicili a {{ streetAddress }} {{ postCode }} {{ city }} forma part com a entitat membre de {{ federation }} (ple dret/observadora) de <b>Lafede.cat - Federació d'Organitzacions per a la Justícia Global</b>, des de l’Assemblea General Ordinària celebrada el {{ issue_date }}
+        </li>
+      </ul>
+      <br />
+      <br />
+      <br />
+      I per deixar-ne constància als efectes oportuns, signo el present certificat en data de {{ issue_date }}
+    </div>
+  </div>
+
+  <div class="row" style="padding-top: 20px;">
+    <div class="col-12">
+		  <img style="width: 129px; height: 88px;" src="data:image/jpeg;base64,{{ image_signature }}" />
+    </div>
+  </div>
+
+  <div class="row" style="padding-top: 20px;">
+    <div class="col-12">
+  		Pepa Martínez Peyrats<br />
+      Directora<br />
+      Lafede.cat - Federació d'Organitzacions per a la Justícia Global
+    </div>
+  </div>
+  {% if qr %}
+  <div class="row" style="padding-top: 20px;">
+    <div class="col-12">
+		  <img style="width: 129px; height: 129px;" src="data:image/jpeg;base64,{{ qr }}" />
+    </div>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>

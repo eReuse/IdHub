@@ -219,7 +219,7 @@ class VerifyView(View):
         return email_message
 
     def get_verification(self):
-        return self.vp_token.get_user_info()
+        return self.vp_token.get_user_info_all()
         
 class AllowCodeView(View):
     def get(self, request, *args, **kwargs):
