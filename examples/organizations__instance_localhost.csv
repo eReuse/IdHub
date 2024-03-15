@@ -1,2 +1,3 @@
 "localhost idhub1";"http://localhost/oidc4vp/";"localhost"
 "localhost idhub2";"http://idhub2/oidc4vp/";"idhub2"
+"localhost idhub3";"http://idhub3/oidc4vp/";"idhub3"
