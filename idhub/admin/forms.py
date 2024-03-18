@@ -248,6 +248,7 @@ class ImportForm(forms.Form):
         # convert dates to iso 8601
         for col in df.select_dtypes(include='datetime').columns:
             df[col] = df[col].dt.strftime("%Y-%m-%d")
+        df.fillna('', inplace=True)
 
         # convert numbers to strings if this is indicate in schema
         for col in props.keys():
