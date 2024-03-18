@@ -225,7 +225,7 @@ class ImportForm(forms.Form):
         props = self.json_schema.get("properties", {})
 
         # Forze than pandas read one column as string
-        dtype_dict = {"phoneNumber": str}
+        dtype_dict = {"phoneNumber": str, 'postCode': str}
         df = pd.read_excel(data, dtype=dtype_dict)
         df.fillna('', inplace=True)
 
