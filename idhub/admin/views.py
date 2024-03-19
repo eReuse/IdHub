@@ -680,13 +680,14 @@ class CredentialsView(Credentials, SingleTableView):
 
 class CredentialView(Credentials):
     template_name = "idhub/admin/issue_credentials.html"
-    subtitle = _('Change credential status')
+    subtitle = _('Credential')
     icon = ''
     model = VerificableCredential
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
+        self.subtitle += ": {}".format(self.object.type)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
