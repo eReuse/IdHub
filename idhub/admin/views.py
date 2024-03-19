@@ -1021,7 +1021,10 @@ class SchemasImportAddView(SchemasMix):
 
     def get_description(self):
         for des in json.loads(self.get_template_description()).get('description', []):
-            if settings.LANGUAGE_CODE == des.get('lang'):
+            lang = settings.LANGUAGE_CODE
+            if lang == 'ca':
+                lang = 'ca_ES'
+            if lang == des.get('lang'):
                 return des.get('value', '')
         return ''
 

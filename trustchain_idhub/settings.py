@@ -197,12 +197,13 @@ LOCALE_PATHS = [
 ]
 # LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
-LANGUAGE_CODE="en"
+LANGUAGE_CODE = config('LANGUAGE_CODE', "ca")
 gettext = lambda s: s
 LANGUAGES = (
     ('de', gettext('German')),
     ('en', gettext('English')),
     ('ca', gettext('Catalan')),
+    ('es', gettext('Spanish')),
 )
 USE_I18N = True
 USE_L10N = True
