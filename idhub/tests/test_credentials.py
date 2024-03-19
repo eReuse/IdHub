@@ -36,6 +36,7 @@ class KeyFirstTimeTest(TestCase):
 
         settings.DOMAIN = self.org.name
         settings.ENABLE_EMAIL = False
+        settings.LANGUAGE_CODE = 'en'
 
     def set_cache(self):
         cache.set("KEY_DIDS", '1234', None)
@@ -94,6 +95,7 @@ class CredentialsViewTest(TestCase):
 
         settings.DOMAIN = self.org.name
         settings.ENABLE_EMAIL = False
+        settings.LANGUAGE_CODE = 'en'
 
         self.admin_login()
         self.create_schemas()
