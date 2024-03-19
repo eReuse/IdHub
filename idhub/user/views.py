@@ -205,6 +205,7 @@ class CredentialView(MyWallet, TemplateView):
             pk=self.pk,
             user=self.request.user
         )
+        self.subtitle += ": {}".format(self.object.type)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
