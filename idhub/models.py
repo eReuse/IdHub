@@ -537,7 +537,7 @@ class Schemas(models.Model):
         if request:
             language_code = request.LANGUAGE_CODE
         if self._is_catalan_code(language_code):
-            language_code = 'ca'
+            language_code = 'ca_ES'
 
         return language_code
 
@@ -549,7 +549,7 @@ class Schemas(models.Model):
         return None
 
     def _is_catalan_code(self, language_code):
-        return language_code == 'ca_ES'
+        return language_code == 'ca'
 
     @name.setter
     def name(self, value):

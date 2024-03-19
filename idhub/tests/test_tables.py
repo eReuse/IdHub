@@ -12,6 +12,7 @@ from django.core.exceptions import FieldError
 from idhub_auth.models import User
 from idhub.admin.tables import DashboardTable, UserTable, TemplateTable
 from idhub.models import Event, Membership, Rol, UserRol, Service, Schemas
+from oidc4vp.models import Organization
 
 
 class AdminDashboardTableTest(TestCase):
@@ -22,6 +23,10 @@ class AdminDashboardTableTest(TestCase):
                 password='adminpass12')
         self.admin_user.accept_gdpr=True
         self.admin_user.save()
+        self.org = Organization.objects.create(name="testserver", main=True)
+        settings.LANGUAGE_CODE = 'en'
+        settings.DOMAIN = self.org.name
+        settings.ENABLE_EMAIL = False
 
     @classmethod
     def setUpTestData(cls):
