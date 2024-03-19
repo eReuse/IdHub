@@ -195,9 +195,9 @@ MESSAGE_TAGS = {
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
-# LANGUAGE_CODE="en"
+LANGUAGE_CODE="en"
 # LANGUAGE_CODE="es"
-LANGUAGE_CODE="ca"
+# LANGUAGE_CODE="ca"
 gettext = lambda s: s
 LANGUAGES = (
     ('de', gettext('German')),
