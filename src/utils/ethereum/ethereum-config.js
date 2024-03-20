@@ -22,8 +22,10 @@ const idIndexURL = process.env.ID_INDEX
 const chainId = process.env.CHAIN_ID.toString()
 
 const DEVICEFACTORY_ADDRESS = DeviceFactory.networks[chainId].address;
-const ACCESSLIST_ADDRESS = DeviceFactory.networks[chainId].address; //this is wrong to circumvent abac implementation TODO
+const ACCESSLIST_ADDRESS = AccessList.networks[chainId].address; //this is wrong to circumvent abac implementation TODO
 const TOKEN_CONTRACT_ADDRESS = TokenContract.networks[chainId].address;
+
+const veramoURL = process.env.VERAMO_URL
 
 
 
@@ -74,6 +76,6 @@ module.exports = {
   nodeIP: nodeIP,
   idIndexURL: idIndexURL,
   TOKEN_CONTRACT_ADDRESS: TOKEN_CONTRACT_ADDRESS,
-  tokenContractIface: tokenContractIface
-
+  tokenContractIface: tokenContractIface,
+  veramoURL: veramoURL
 }

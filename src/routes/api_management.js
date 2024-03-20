@@ -4,7 +4,6 @@ router = express.Router();
 const ApiError = require('../utils/apiError')
 const storage = require('node-persist');
 const ethers = require("ethers")
-const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
@@ -32,27 +31,8 @@ router
         }
         wallet = new ethers.Wallet(privateKey, ethereum.provider)
       }
-      
-      const send_eth_tx={
-      	from: ethereum.signer.address,
-      	to: wallet.address,
-      	value: ethers.utils.parseEther("0.1"),
-      	nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
-      	gasLimit: ethers.utils.hexlify(50000),
-      	gasPrice: 0
-      }
-      
-      let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
-      var txReceipt = await res_eth.wait()
 
-      //Creation of IOTA identity.
-      //TODO: check if it's provided in request.
-      
-      //IOTA DOWN atm, placeholder
-      var iota_id = "iota_placeholder"
-      //var iota_id = await iota.create_identity()
-
-      await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota: {credentials:{}}})
+      await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey})
       res.status(201);
       res.json({
         status: "Success.",

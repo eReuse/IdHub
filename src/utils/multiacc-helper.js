@@ -1,7 +1,7 @@
 const CryptoJS = require('crypto-js');
 const storage = require('node-persist');
 // const generate = require('generate-api-key');
-const adminIdentity = require('./iota/adminIdentity.json')
+//const adminIdentity = require('./iota/adminIdentity.json')
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const ethers = require("ethers")
 const ethereum = require("../utils/ethereum/ethereum-config.js");
@@ -99,22 +99,8 @@ async function set_admin() {
     const token_object = generate_token()
     const wallet = new ethers.Wallet(privateKey, ethereum.provider)
 
-    // const send_eth_tx={
-    //   from: ethereum.signer.address,
-    //   to: "0x2851e010738422CE8786D9F86e166Fc6E1030a1a",
-    //   value: ethers.utils.parseEther("1"),
-    //   nonce: ethereum.provider.getTransactionCount(ethereum.signer.address, "latest"),
-    //   gasLimit: ethers.utils.hexlify(50000),
-    //   gasPrice: 0
-    // }
-    
-    // let res_eth = await ethereum.signer.sendTransaction(send_eth_tx)
-
-    // const iota_id = adminIdentity.doc.id
-    // const iota_key = adminIdentity.key.secret
-
     await storage.init()
-    await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: adminIdentity, iota: { credentials: {} } })
+    await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey})
     console.log("Admin token " + token_object.token)
     await storage.setItem("admin", token_object.prefix)
   }

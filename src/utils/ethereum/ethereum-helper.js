@@ -59,7 +59,7 @@ async function makeReceiptCall(hash) {
         "params": [
             hash
         ],
-        "id": "1074"
+        "id": "457"
     });
     var config = {
         method: 'POST',

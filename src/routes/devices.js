@@ -4,7 +4,7 @@ router = express.Router();
 //const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
 const ApiError = require('../utils/apiError')
 
-const iota = require("../utils/iota/iota-helper.js")
+
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
@@ -82,6 +82,7 @@ class Parameters {
     this.timestamp = req.body.Timestamp ?? "";
     this.amount = req.body.Amount ?? "";
     this.address = req.body.Address ?? "";
+    this.credential = req.body.Credential ?? "";
   }
 }
 

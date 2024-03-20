@@ -1,0 +1,8 @@
+api: 
+    build: ./
+    container_name: veramoApi # name of the built image
+    ports:
+      - "3016:3016"
+    restart: always
+    volumes:
+      - ./src:/home/node/veramoApi/src:ro

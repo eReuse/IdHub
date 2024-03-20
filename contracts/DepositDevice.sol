@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "./DeviceFactory.sol";
 import "./Ownable.sol";
-import "./IAbacContract.sol";
+import "./AccessList.sol";
 import "./TokenContract.sol";
 
 /**
@@ -14,7 +14,7 @@ import "./TokenContract.sol";
 contract DepositDevice is Ownable {
     // parameters -----------------------------------------------------------
     DeviceFactory factory;
-    IAbacContract roles;
+    AccessList roles;
     TokenContract token_contract;
     // types ----------------------------------------------------------------
     //Struct that mantains the basic values of the device
@@ -112,7 +112,7 @@ contract DepositDevice is Ownable {
         address _tokenContract
     ) {
         factory = DeviceFactory(_factory);
-        roles = IAbacContract(_roles);
+        roles = AccessList(_roles);
         token_contract = TokenContract(_tokenContract);
         data.deregistered = false;
         data.owner = _sender;
@@ -129,62 +129,29 @@ contract DepositDevice is Ownable {
         _generateGenericProof(_sender, _documentHashAlgorithm, _documentHash, "Device_creation", _inventoryID);
     }
 
-    function checkIfOperator(address _address) internal view returns(bool){
-        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
-        for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator'))){
-                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    function checkIfWitness(address _address) internal view returns(bool){
-        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
-        for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('witness'))){
-                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    function checkIfVerifier(address _address) internal view returns(bool){
-        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
-        for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('verifier'))){
-                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     modifier onlyOpWitVer() {
         require((owner == msg.sender || 
-        checkIfOperator(msg.sender) == true || 
-        checkIfWitness(msg.sender) == true || 
-        checkIfVerifier(msg.sender) == true), "The message sender is not an owner, operator, verifier or witness");
+        roles.checkIfOperator(msg.sender) == true || 
+        roles.checkIfWitness(msg.sender) == true || 
+        roles.checkIfVerifier(msg.sender) == true), "The message sender is not an owner, operator, verifier or witness");
         _;
     }
 
     modifier onlyOpWit() {
         require((owner == msg.sender || 
-        checkIfOperator(msg.sender) == true || 
-        checkIfWitness(msg.sender) == true), "The message sender is not an owner, operator or witness");
+        roles.checkIfOperator(msg.sender) == true || 
+        roles.checkIfWitness(msg.sender) == true), "The message sender is not an owner, operator or witness");
         _;
     }
 
     modifier onlyOp() {
         require((owner == msg.sender || 
-        checkIfOperator(msg.sender) == true), "The message sender is not an owner or operator");
+        roles.checkIfOperator(msg.sender) == true), "The message sender is not an owner or operator");
         _;
     }
 
     modifier onlyVer() {
-        require((checkIfVerifier(msg.sender) == true), "The message sender is not a verifier");
+        require((roles.checkIfVerifier(msg.sender) == true), "The message sender is not a verifier");
         _;
     }
 
