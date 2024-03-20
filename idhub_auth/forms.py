@@ -6,8 +6,8 @@ from idhub_auth.models import User
 
 
 class ProfileForm(forms.ModelForm):
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    first_name = forms.CharField(label=_("First name"), required=True)
+    last_name = forms.CharField(label=_("Last name"), required=True)
 
     class Meta:
         model = User

@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from idhub.models import (
         Rol,
@@ -33,6 +34,7 @@ class ButtonColumn(tables.Column):
 
 class UserTable(tables.Table):
     view_user = ButtonColumn(
+            verbose_name=_("View"),
             linkify={
                 "viewname": "idhub:admin_people",
                 "args": [tables.A("pk")]
@@ -40,8 +42,8 @@ class UserTable(tables.Table):
             orderable=False
     )
 
-    membership = tables.Column(empty_values=())
-    role = tables.Column(empty_values=())
+    membership = tables.Column(verbose_name=_("Membership"), empty_values=())
+    role = tables.Column(verbose_name=_("Role"), empty_values=())
 
     def render_view_user(self):
         return format_html('<i class="bi bi-eye"></i>')
@@ -76,6 +78,7 @@ class UserTable(tables.Table):
 
 class RolesTable(tables.Table):
     view_role = ButtonColumn(
+            verbose_name=_("View"),
             linkify={
                 "viewname": "idhub:admin_rol_edit",
                 "args": [tables.A("pk")]
@@ -84,6 +87,7 @@ class RolesTable(tables.Table):
     )
 
     delete_role = ButtonColumn(
+            verbose_name=_("Delete"),
             linkify={
                 "viewname": "idhub:admin_rol_del",
                 "args": [tables.A("pk")]
@@ -107,6 +111,7 @@ class ServicesTable(tables.Table):
     domain = tables.Column(verbose_name="Service")
     role = tables.Column(empty_values=())
     edit_service = ButtonColumn(
+            verbose_name=_("Edit"),
             linkify={
                 "viewname": "idhub:admin_service_edit",
                 "args": [tables.A("pk")]
@@ -115,6 +120,7 @@ class ServicesTable(tables.Table):
             )
 
     delete_service = ButtonColumn(
+            verbose_name=_("Delete"),
             linkify={
                 "viewname": "idhub:admin_service_del",
                 "args": [tables.A("pk")]
@@ -154,11 +160,12 @@ class DashboardTable(tables.Table):
 
 
 class CredentialTable(tables.Table):
-    type = tables.Column(empty_values=())
+    type = tables.Column(verbose_name=_("Type"), empty_values=())
     # Pending VerificableCredential description fix
-    details = tables.Column(empty_values=(), orderable=False)
-    issued_on = tables.Column(verbose_name="Issued")
+    details = tables.Column(_("Details"), empty_values=(), orderable=False)
+    issued_on = tables.Column(verbose_name=_("Issued"))
     view_credential = ButtonColumn(
+            verbose_name=_("View"),
             linkify={
                 "viewname": "idhub:admin_credential",
                 "args": [tables.A("pk")]
@@ -187,7 +194,7 @@ class DIDTable(tables.Table):
                 "args": [tables.A("pk")]
                 },
             orderable=False,
-            verbose_name="Edit DID"
+            verbose_name="Edit"
             )
     delete_template_code = """<a class="text-danger"
                             href="javascript:void()"
@@ -197,7 +204,7 @@ class DIDTable(tables.Table):
                             ><i class="bi bi-trash"></i></a>"""
     delete_did = tables.TemplateColumn(template_code=delete_template_code,
                                        orderable=False,
-                                       verbose_name="Delete DID")
+                                       verbose_name="Delete")
 
     def render_edit_did(self):
         return format_html('<i class="bi bi-pencil-square"></i>')
@@ -209,15 +216,15 @@ class DIDTable(tables.Table):
 
 
 class DataTable(tables.Table):
-    created_at = tables.Column(verbose_name="Date")
-    file_name = tables.Column(verbose_name="File")
+    created_at = tables.Column(verbose_name=_("Date"))
+    file_name = tables.Column(verbose_name=_("File"))
     delete_template_code = """<a class="text-danger"
                             href="{% url 'idhub:admin_import_del' record.id %}"
                             title="Remove"
                             ><i class="bi bi-trash"></i></a>"""
     delete_data = tables.TemplateColumn(template_code=delete_template_code,
                                        orderable=False,
-                                       verbose_name="Delete")
+                                       verbose_name=_("Delete"))
 
     class Meta:
         model = File_datas
@@ -227,6 +234,7 @@ class DataTable(tables.Table):
 
 class TemplateTable(tables.Table):
     view_schema = ButtonColumn(
+            verbose_name=_("View"),
             linkify={
                 "viewname": "idhub:admin_schemas_download",
                 "args": [tables.A("pk")]
@@ -241,10 +249,10 @@ class TemplateTable(tables.Table):
                             ><i class="bi bi-trash"></i></a>"""
     delete_schema = tables.TemplateColumn(template_code=delete_template_code,
                                           orderable=False,
-                                          verbose_name="Delete schema")
+                                          verbose_name=_("Delete"))
 
-    name = tables.Column()
-    description = tables.Column()
+    name = tables.Column(verbose_name=_("Name"))
+    description = tables.Column(verbose_name=_("Description"))
 
     def order_name(self, queryset, is_descending):
         queryset = Schemas.objects.order_by(

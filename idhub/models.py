@@ -489,9 +489,9 @@ class Schemas(models.Model):
     type = models.CharField(max_length=250)
     file_schema = models.CharField(_('Schema'), max_length=250)
     data = models.TextField()
-    created_at = models.DateTimeField(_("Created at"), auto_now=True)
+    created_at = models.DateTimeField(_("Date"), auto_now=True)
     _name = models.TextField(_("Name"), null=True, db_column='name')
-    _description = models.CharField(_("Descriptions"), max_length=250, null=True, db_column='description')
+    _description = models.CharField(_("Description"), max_length=250, null=True, db_column='description')
     template_description = models.TextField(null=True)
 
     @property
@@ -595,15 +595,16 @@ class VerificableCredential(models.Model):
         REVOKED = 3, _("Revoked")
         EXPIRED = 4, _("Expired")
 
-    type = models.CharField(max_length=250)
+    type = models.CharField(_("Type"), max_length=250)
     id_string = models.CharField(max_length=250)
     verified = models.BooleanField()
     created_on = models.DateTimeField(auto_now=True)
-    issued_on = models.DateTimeField(null=True)
+    issued_on = models.DateTimeField(_("Issued on"), null=True)
     data = models.TextField()
     csv_data = models.TextField()
     hash = models.CharField(max_length=260)
     status = models.PositiveSmallIntegerField(
+        _("Status"),
         choices=Status.choices,
         default=Status.ENABLED
     )
@@ -611,6 +612,7 @@ class VerificableCredential(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='vcredentials',
+        verbose_name=_("User")
     )
     subject_did = models.ForeignKey(
         DID,
@@ -779,9 +781,9 @@ class VCTemplate(models.Model):
 
 
 class File_datas(models.Model):
-    file_name = models.CharField(max_length=250)
-    success = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now=True)
+    file_name = models.CharField(_("File"), max_length=250)
+    success = models.BooleanField(_("Success"), default=True)
+    created_at = models.DateTimeField(_("Date"), auto_now=True)
 
 
 class Membership(models.Model):
