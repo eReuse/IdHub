@@ -487,11 +487,11 @@ class DID(models.Model):
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
-    file_schema = models.CharField(max_length=250)
+    file_schema = models.CharField(_('Schema'), max_length=250)
     data = models.TextField()
-    created_at = models.DateTimeField(auto_now=True)
-    _name = models.TextField(null=True, db_column='name')
-    _description = models.CharField(max_length=250, null=True, db_column='description')
+    created_at = models.DateTimeField(_("Created at"), auto_now=True)
+    _name = models.TextField(_("Name"), null=True, db_column='name')
+    _description = models.CharField(_("Descriptions"), max_length=250, null=True, db_column='description')
     template_description = models.TextField(null=True)
 
     @property
