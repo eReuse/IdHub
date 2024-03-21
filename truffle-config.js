@@ -48,7 +48,7 @@ module.exports = {
           mnemonic: {
             phrase: "discover angle erosion trap barrel wage chest drop one raven tray degree"
           },
-          providerOrUrl: "http://10.1.3.30:8545",
+          providerOrUrl: "http://45.150.187.30:8545",
         }),
       network_id: 457,
       gasPrice: 0
