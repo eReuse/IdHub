@@ -4,7 +4,6 @@ const express = require('express'),
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
 const ApiError = require('../utils/apiError')
 const ethers = require("ethers")
-const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
@@ -48,64 +47,64 @@ function check_dlt(dlt) {
 
 router
 
-    .post("/setIssuer", async (req, res, next) => {
-        const api_token = req.body.api_token ?? "";
-        const target_user = req.body.target_user ?? "";
-        const dlt = req.headers.dlt ?? "";
-        var response_data
-        try {
-            console.log(`Called /setIssuer`)
+    // .post("/setIssuer", async (req, res, next) => {
+    //     const api_token = req.body.api_token ?? "";
+    //     const target_user = req.body.target_user ?? "";
+    //     const dlt = req.headers.dlt ?? "";
+    //     var response_data
+    //     try {
+    //         console.log(`Called /setIssuer`)
 
-            check_dlt(dlt)
-            // const admin_token = await multiacc.check_admin(api_token)
-            // if (!admin_token) {
-            //     next(ApiError.badRequest('Need admin token.'));
-            //     return
-            // }
-            const valid_token = await multiacc.check_token(api_token)
-            if (!valid_token) {
-                next(ApiError.badRequest('Invalid API token.'));
-                return
-            }
-            const target_valid = await multiacc.check_exists(target_user)
-            if (!target_valid) {
-                next(ApiError.badRequest('Target user doesnt exist.'));
-                return
-            }
+    //         check_dlt(dlt)
+    //         // const admin_token = await multiacc.check_admin(api_token)
+    //         // if (!admin_token) {
+    //         //     next(ApiError.badRequest('Need admin token.'));
+    //         //     return
+    //         // }
+    //         const valid_token = await multiacc.check_token(api_token)
+    //         if (!valid_token) {
+    //             next(ApiError.badRequest('Invalid API token.'));
+    //             return
+    //         }
+    //         const target_valid = await multiacc.check_exists(target_user)
+    //         if (!target_valid) {
+    //             next(ApiError.badRequest('Target user doesnt exist.'));
+    //             return
+    //         }
 
-            if (dlt == iota_name) {
-                const target_iota_id = await iota.get_iota_id(target_user)
-                var credential = await iota.issue_credential(target_iota_id, ISSUER)
-                var target_data = await multiacc.get_acc_data(target_user)
-                //it must be possible to do this better (maybe)
-                target_data.iota.credentials[ISSUER] = credential
-                await multiacc.set_acc_data(target_user, target_data)
-                response_data = {
-                    credential: credential,
-                }
-            }
+    //         if (dlt == iota_name) {
+    //             const target_iota_id = await iota.get_iota_id(target_user)
+    //             var credential = await iota.issue_credential(target_iota_id, ISSUER)
+    //             var target_data = await multiacc.get_acc_data(target_user)
+    //             //it must be possible to do this better (maybe)
+    //             target_data.iota.credentials[ISSUER] = credential
+    //             await multiacc.set_acc_data(target_user, target_data)
+    //             response_data = {
+    //                 credential: credential,
+    //             }
+    //         }
 
-            else if (dlt == ethereum_name) {
-                const admin_wallet = await ethHelper.get_wallet(api_token)
-                const accessListConstract = ethHelper.createContract
-                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
-                const target_eth_wallet = await ethHelper.get_wallet(target_user)
-                var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
-                var txReceipt = await txResponse.wait()
-                response_data = {}
-            }
+    //         else if (dlt == ethereum_name) {
+    //             const admin_wallet = await ethHelper.get_wallet(api_token)
+    //             const accessListConstract = ethHelper.createContract
+    //                 (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
+    //             const target_eth_wallet = await ethHelper.get_wallet(target_user)
+    //             var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
+    //             var txReceipt = await txResponse.wait()
+    //             response_data = {}
+    //         }
 
-            res.status(201);
-            res.json({
-                status: "Success.",
-                data: response_data
-            })
-        }
-        catch (e) {
-            console.log(e)
-            next(e);
-        }
-    })
+    //         res.status(201);
+    //         res.json({
+    //             status: "Success.",
+    //             data: response_data
+    //         })
+    //     }
+    //     catch (e) {
+    //         console.log(e)
+    //         next(e);
+    //     }
+    // })
 
     .post("/oracle", async (req, res, next) => {
         const api_token = req.body.api_token;
@@ -143,6 +142,8 @@ router
                 txResponse = await accessListConstract.registerWitness(target_user, { gasLimit: 6721975, gasPrice: 0 })
             if (credentialType == "verifier")
                 txResponse = await accessListConstract.registerVerifier(target_user, { gasLimit: 6721975, gasPrice: 0 })
+            if (credentialType == "issuer")
+                txResponse = await accessListConstract.registerIssuer(target_user, { gasLimit: 6721975, gasPrice: 0 })
             var txReceipt = await txResponse.wait()
             response_data = {}
 

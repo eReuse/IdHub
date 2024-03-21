@@ -7,7 +7,7 @@ async function main() {
     credential: {
       issuer: { id: identifier.did },
       credentialSubject: {
-        id: 'did:ethr:0x7b0D35490f5245b93b5bd832F71e6a32055cFaaC',
+        id: 'did:ethr:0xf1051D79fA59B580b916418bA699F996edbb25C8',
         role: 'operator',
       },
     },

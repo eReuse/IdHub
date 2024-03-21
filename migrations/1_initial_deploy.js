@@ -16,7 +16,7 @@ module.exports = async function (deployer, network, accounts) {
         .then(async function (instance) {
           roles = instance;
           console.log("role address: " + roles.address)
-          await deployer.deploy(DeviceFactory, roles.address)
+          await deployer.deploy(DeviceFactory, roles.address, tokens.address)
         })
     })
   // await deployer.deploy(AccessList, adminAccesList)

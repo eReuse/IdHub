@@ -19,7 +19,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 )
 
 const depositDeviceIface = new ethers.utils.Interface(
-    require('../../build/contracts/DepositDevice.json').abi
+    require('./DepositDevice.json').abi
 )
 
 const dataDir = '../data';

@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@veramo/core": "^5.5.3",
+    "@veramo/credential-eip712": "^5.6.0",
     "@veramo/credential-w3c": "^5.5.3",
     "@veramo/data-store": "^5.5.3",
     "@veramo/did-manager": "^5.5.3",
