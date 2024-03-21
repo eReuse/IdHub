@@ -32,3 +32,4 @@ jsonpath_ng==1.6.1
 ./didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl
 pyroaring==0.4.5
 coverage==7.4.3
+gunicorn==21.2.0
