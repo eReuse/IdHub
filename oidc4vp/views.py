@@ -1,6 +1,7 @@
 import json
 import base64
 import logging
+import requests
 
 from django.template import loader
 from django.core.mail import EmailMultiAlternatives
@@ -149,9 +150,15 @@ class VerifyView(View):
 
         for user in User.objects.filter(is_admin=True):
             self.send_email(user)
+        self.send_api()
 
         response["response"] = "Validation Code {}".format(code)
         return JsonResponse(response)
+
+    def send_api(self):
+        data = {"vp": self.vp_token.vp_token, "code": self.vp_token.code}
+        url = self.vp_token.org.response_uri
+        requests.post(url, data=data)
 
     def validate(self, request):
         auth_header = request.headers.get('Authorization', b'')
