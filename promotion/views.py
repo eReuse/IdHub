@@ -39,7 +39,6 @@ class ContractView(FormView):
     success_url = reverse_lazy('promotion:thanks')
 
     def get_context_data(self, **kwargs):
-        import pdb; pdb.set_trace()
         self.context = super().get_context_data(**kwargs)
         code = self.request.GET.get("code")
         self.get_discount(code)
