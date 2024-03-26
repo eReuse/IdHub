@@ -39,6 +39,7 @@ class ContractView(FormView):
     success_url = reverse_lazy('promotion:thanks')
 
     def get_context_data(self, **kwargs):
+        import pdb; pdb.set_trace()
         self.context = super().get_context_data(**kwargs)
         code = self.request.GET.get("code")
         self.get_discount(code)
@@ -106,9 +107,13 @@ class SelectWalletView(FormView):
     success_url = reverse_lazy('promotion:select_wallet')
 
     def get_form_kwargs(self):
-        self.get_response_uri()
+        presentation = self.get_response_uri()
+        if not presentation:
+            presentation = json.dumps(
+            settings.SUPPORTED_CREDENTIALS
+        )
         kwargs = super().get_form_kwargs()
-        kwargs['presentation_definition'] = json.dumps(settings.SUPPORTED_CREDENTIALS)
+        kwargs['presentation_definition'] = presentation
         return kwargs
 
     def form_valid(self, form):
@@ -120,9 +125,14 @@ class SelectWalletView(FormView):
         if len(path) < 2:
             return
 
-        args = path[1]
-        response_uri = dict(
-            [x.split("=") for x in args.split("&")]
-        ).get('response_uri')
+        args = dict(
+            [x.split("=") for x in path[1].split("&")]
+        )
+        response_uri = args.get('response_uri')
 
         self.request.session["response_uri"] = response_uri
+        presentation = args.get('presentation_definition')
+
+        for x in settings.SUPPORTED_CREDENTIALS:
+            if x in presentation:
+                return json.dumps([x])
