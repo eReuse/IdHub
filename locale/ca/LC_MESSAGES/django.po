@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-21 14:37+0100\n"
-"PO-Revision-Date: 2023-11-27 20:37+0100\n"
+"POT-Creation-Date: 2024-03-26 17:44+0100\n"
+"PO-Revision-Date: 2024-03-26 18:46+0100\n"
 "Last-Translator: Leandro Navarro <leandro@ac.upc.edu>\n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -16,14 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
-
-#: env/lib/python3.11/site-packages/bootstrap4/components.py:17
-#: env/lib/python3.11/site-packages/bootstrap4/templates/bootstrap4/form_errors.html:3
-#: env/lib/python3.11/site-packages/bootstrap4/templates/bootstrap4/messages.html:4
-#: env/lib/python3.11/site-packages/django_bootstrap5/components.py:26
-msgid "close"
-msgstr "tanca"
+"X-Generator: Poedit 3.4.1\n"
 
 #: env/lib/python3.11/site-packages/click/_termui_impl.py:518
 #, python-brace-format
@@ -639,6 +632,7 @@ msgid "Duration"
 msgstr "Durada"
 
 #: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1845
+#: idhub/templates/idhub/admin/user.html:40 idhub_auth/models.py:44
 msgid "Email address"
 msgstr "Adreça de correu electrònic"
 
@@ -751,7 +745,7 @@ msgid "Universally unique identifier"
 msgstr "Identificador únic universal"
 
 #: env/lib/python3.11/site-packages/django/db/models/fields/files.py:232
-#: idhub/templates/idhub/admin/import.html:16
+#: idhub/admin/tables.py:220 idhub/models.py:784
 msgid "File"
 msgstr "Fitxer"
 
@@ -935,22 +929,16 @@ msgid "Order"
 msgstr "Ordre"
 
 #: env/lib/python3.11/site-packages/django/forms/formsets.py:499
-#: idhub/templates/idhub/admin/dids.html:54
-#: idhub/templates/idhub/admin/issue_credentials.html:15
+#: idhub/admin/tables.py:90 idhub/admin/tables.py:123 idhub/admin/tables.py:227
+#: idhub/admin/tables.py:252 idhub/templates/idhub/admin/dids.html:59
 #: idhub/templates/idhub/admin/issue_credentials.html:18
-#: idhub/templates/idhub/admin/issue_credentials.html:90
-#: idhub/templates/idhub/admin/roles.html:27
-#: idhub/templates/idhub/admin/schemas.html:56
-#: idhub/templates/idhub/admin/services.html:29
+#: idhub/templates/idhub/admin/issue_credentials.html:85
+#: idhub/templates/idhub/admin/schemas.html:29
 #: idhub/templates/idhub/admin/user.html:15
-#: idhub/templates/idhub/admin/user.html:120
+#: idhub/templates/idhub/admin/user.html:129
 #: idhub/templates/idhub/admin/user_edit.html:55
 #: idhub/templates/idhub/admin/user_edit.html:87
-#: idhub/templates/idhub/user/dids.html:54
-#: idhub/templates/templates/musician/address_check_delete.html:9
-#: idhub/templates/templates/musician/address_form.html:15
-#: idhub/templates/templates/musician/mailbox_check_delete.html:12
-#: idhub/templates/templates/musician/mailbox_form.html:25
+#: idhub/templates/idhub/user/dids.html:28 idhub/user/tables.py:111
 msgid "Delete"
 msgstr "Esborrar"
 
@@ -1018,10 +1006,14 @@ msgid "Unknown"
 msgstr "Desconeguda"
 
 #: env/lib/python3.11/site-packages/django/forms/widgets.py:795
+#: idhub/templates/idhub/admin/terms_conditions.html:63
+#: idhub/templates/idhub/user/terms_conditions.html:63
 msgid "Yes"
 msgstr "Yes"
 
 #: env/lib/python3.11/site-packages/django/forms/widgets.py:796
+#: idhub/templates/idhub/admin/terms_conditions.html:62
+#: idhub/templates/idhub/user/terms_conditions.html:62
 msgid "No"
 msgstr "No"
 
@@ -1209,7 +1201,7 @@ msgstr "apr"
 
 #: env/lib/python3.11/site-packages/django/utils/dates.py:43
 msgid "may"
-msgstr "maig"
+msgstr "mai"
 
 #: env/lib/python3.11/site-packages/django/utils/dates.py:44
 msgid "jun"
@@ -1617,252 +1609,420 @@ msgstr "Comunitat Django"
 msgid "Connect, get help, or contribute"
 msgstr "Connecteu-vos, obteniu ajuda o contribuïu"
 
-#: env/lib/python3.11/site-packages/isort/main.py:158
-msgid "show this help message and exit"
-msgstr "mostra aquest missatge d'ajuda i surt"
+#: env/lib/python3.11/site-packages/django_bootstrap5/components.py:26
+msgid "close"
+msgstr "tanca"
 
-#: idhub/admin/forms.py:112
-msgid "The user does not exist!"
-msgstr "L'usuari no existeix!"
+#: idhub/admin/forms.py:26
+msgid "Accept terms and conditions of the service"
+msgstr "Acceptar els termes i condicions del servei"
 
-#: idhub/admin/forms.py:154 idhub/admin/forms.py:168 idhub/admin/forms.py:177
+#: idhub/admin/forms.py:53
+msgid "Key for encrypt the secrets of all system"
+msgstr "Clau per xifrar els secrets de tot el sistema"
+
+#: idhub/admin/forms.py:69
+msgid "Key no valid!"
+msgstr "Clau no vàlida!"
+
+#: idhub/admin/forms.py:106 idhub/user/forms.py:41
+msgid "I read and accepted the"
+msgstr "Vaig llegir i acceptar el"
+
+#: idhub/admin/forms.py:113 idhub/user/forms.py:48
+msgid "Privacy policy"
+msgstr "Política de privadesa"
+
+#: idhub/admin/forms.py:118 idhub/user/forms.py:53
+msgid "Legal policy"
+msgstr "Política legal"
+
+#: idhub/admin/forms.py:123 idhub/user/forms.py:58
+msgid "Cookies policy"
+msgstr "Política de galetes"
+
+#: idhub/admin/forms.py:147 idhub/user/forms.py:82
+msgid "Did"
+msgstr "DID"
+
+#: idhub/admin/forms.py:149
+msgid "Signature with Eidas1"
+msgstr "Signatura amb Eidas1"
+
+#: idhub/admin/forms.py:153 idhub/models.py:490
+msgid "Schema"
+msgstr "Esquema"
+
+#: idhub/admin/forms.py:154
+msgid "File to import"
+msgstr "Fitxer a importar"
+
+#: idhub/admin/forms.py:168
+msgid "Please choose a data schema ..."
+msgstr "Trieu un esquema de dades …"
+
+#: idhub/admin/forms.py:189
+msgid "Did not valid!"
+msgstr "DID no vàlid!"
+
+#: idhub/admin/forms.py:209
+msgid "Schema is not valid!"
+msgstr "L'esquema no és vàlid!"
+
+#: idhub/admin/forms.py:215
+msgid "Schema not valid!"
+msgstr "L'esquema no és vàlid!"
+
+#: idhub/admin/forms.py:245
+msgid "This File does not correspond to this scheme!"
+msgstr "Aquest fitxer no correspon a aquest esquema!"
+
+#: idhub/admin/forms.py:272
+msgid "The file you try to import is empty!"
+msgstr "El fitxer que intenteu importar està buit!"
+
+#: idhub/admin/forms.py:356
+msgid "File template"
+msgstr "Plantilla d'arxiu"
+
+#: idhub/admin/forms.py:377 idhub/admin/forms.py:391 idhub/admin/forms.py:400
 msgid "This membership already exists!"
 msgstr "Aquesta subscripció ja existeix!"
 
-#: idhub/admin/forms.py:159
+#: idhub/admin/forms.py:382
 msgid "The end date is less than the start date"
 msgstr "La data de finalització és inferior a la data d'inici"
 
-#: idhub/admin/forms.py:206
+#: idhub/admin/forms.py:429
 msgid "Is not possible to have a duplicate role"
 msgstr "No és possible tenir una funció duplicada"
 
-#: idhub/admin/views.py:48 idhub/templates/idhub/base.html:69
-#: idhub/templates/idhub/base_admin.html:69 idhub/user/views.py:32
+#: idhub/admin/forms.py:436 idhub/models.py:438
+msgid "Label"
+msgstr "Etiqueta"
+
+#: idhub/admin/forms.py:438
+msgid "Password of certificate"
+msgstr "Contrasenya del certificat"
+
+#: idhub/admin/forms.py:441
+msgid "File import"
+msgstr "Importa fitxer"
+
+#: idhub/admin/forms.py:457 idhub/admin/forms.py:462
+msgid "Is not a valid certificate"
+msgstr "No és un certificat vàlid"
+
+#: idhub/admin/tables.py:37 idhub/admin/tables.py:81 idhub/admin/tables.py:168
+#: idhub/admin/tables.py:237 idhub/user/tables.py:128
+#: oidc4vp/templates/credentials_presentation.html:52
+msgid "View"
+msgstr "Vista"
+
+#: idhub/admin/tables.py:45 idhub/templates/idhub/admin/user.html:71
+#: idhub/templates/idhub/admin/user_edit.html:41 idhub/user/tables.py:35
+msgid "Membership"
+msgstr "Afiliació"
+
+#: idhub/admin/tables.py:46 idhub/templates/idhub/admin/user.html:96
+#: idhub/templates/idhub/admin/user_edit.html:73 idhub/user/tables.py:53
+msgid "Role"
+msgstr "Càrrec"
+
+#: idhub/admin/tables.py:114 idhub/templates/idhub/admin/user_edit.html:54
+#: idhub/templates/idhub/admin/user_edit.html:86 idhub/user/tables.py:97
+msgid "Edit"
+msgstr "Editar"
+
+#: idhub/admin/tables.py:163 idhub/models.py:434 idhub/models.py:598
+#: oidc4vp/templates/credentials_presentation.html:38
+msgid "Type"
+msgstr "Tipus"
+
+#: idhub/admin/tables.py:165 idhub/user/tables.py:126
+#: oidc4vp/templates/credentials_presentation.html:39
+msgid "Details"
+msgstr "Detalls"
+
+#: idhub/admin/tables.py:166 idhub/models.py:594
+#: oidc4vp/templates/credentials_presentation.html:40
+msgid "Issued"
+msgstr "Emès"
+
+#: idhub/admin/tables.py:219 idhub/models.py:59 idhub/models.py:492
+#: idhub/models.py:786 idhub/user/tables.py:25 idhub/user/tables.py:94
+msgid "Date"
+msgstr "Data"
+
+#: idhub/admin/tables.py:254 idhub/models.py:493
+msgid "Name"
+msgstr "Name"
+
+#: idhub/admin/tables.py:255 idhub/models.py:60 idhub/models.py:494
+#: idhub/models.py:824 idhub/models.py:832
+#: idhub/templates/idhub/admin/user.html:97
+#: idhub/templates/idhub/admin/user_edit.html:74 idhub/user/tables.py:24
+#: idhub/user/tables.py:54
+msgid "Description"
+msgstr "Descripción"
+
+#: idhub/admin/views.py:61 idhub/templates/idhub/admin/terms_conditions.html:51
+#: idhub/templates/idhub/base.html:107
+#: idhub/templates/idhub/user/terms_conditions.html:50 idhub/user/views.py:139
+msgid "Data protection"
+msgstr "Protecció de dades"
+
+#: idhub/admin/views.py:63 idhub/user/views.py:160
+msgid "Terms and Conditions"
+msgstr "Termes i condicions"
+
+#: idhub/admin/views.py:86 idhub/admin/views.py:88
+msgid "Encryption Key"
+msgstr "Clau de xifratge"
+
+#: idhub/admin/views.py:124 idhub/templates/idhub/base.html:85
+#: idhub/templates/idhub/base_admin.html:85 idhub/user/views.py:60
 msgid "Dashboard"
 msgstr "Panell de control"
 
-#: idhub/admin/views.py:49 idhub/user/views.py:33
+#: idhub/admin/views.py:125 idhub/user/views.py:61
 msgid "Events"
 msgstr "Esdeveniments"
 
-#: idhub/admin/views.py:61
+#: idhub/admin/views.py:162
 msgid "User management"
 msgstr "Configuració de gestió d'usuaris"
 
-#: idhub/admin/views.py:66
+#: idhub/admin/views.py:167
 msgid "Access control management"
 msgstr "Gestió del control d'accés"
 
-#: idhub/admin/views.py:71 idhub/user/views.py:74
+#: idhub/admin/views.py:172 idhub/user/views.py:146 idhub/user/views.py:226
 msgid "Credential management"
 msgstr "Gestió de credencials"
 
-#: idhub/admin/views.py:76
+#: idhub/admin/views.py:177
 msgid "Template management"
 msgstr "Gestió de plantilles"
 
-#: idhub/admin/views.py:81
+#: idhub/admin/views.py:182
 msgid "Data file management"
 msgstr "Gestió de fitxers de dades"
 
-#: idhub/admin/views.py:87 idhub/templates/idhub/base_admin.html:81
+#: idhub/admin/views.py:188 idhub/templates/idhub/base_admin.html:97
 msgid "View users"
 msgstr "Veure usuaris"
 
-#: idhub/admin/views.py:100
+#: idhub/admin/views.py:208
 msgid "User personal information"
 msgstr "Informació personal de l'usuari"
 
-#: idhub/admin/views.py:124
+#: idhub/admin/views.py:233
 msgid "It is not possible deactivate your account!"
 msgstr "No és possible desactivar el teu compte!"
 
-#: idhub/admin/views.py:148
+#: idhub/admin/views.py:258
 msgid "It is not possible delete your account!"
 msgstr "No és possible esborrar el teu compte!"
 
-#: idhub/admin/views.py:155
+#: idhub/admin/views.py:265
 msgid "Update user"
 msgstr "Actualitza l'usuari"
 
-#: idhub/admin/views.py:184
+#: idhub/admin/views.py:294
 msgid "The account was updated successfully"
 msgstr "El compte s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:193 idhub/templates/idhub/base_admin.html:86
+#: idhub/admin/views.py:303 idhub/templates/idhub/base_admin.html:102
 msgid "Add user"
 msgstr "Afegeix usuari"
 
-#: idhub/admin/views.py:207
+#: idhub/admin/views.py:321
 msgid "The account was created successfully"
 msgstr "El compte s'ha creat correctament"
 
-#: idhub/admin/views.py:221 idhub/admin/views.py:265
+#: idhub/admin/views.py:340 idhub/admin/views.py:384
 msgid "Associate a membership to the user"
 msgstr "Associar una pertinença a l'usuari"
 
-#: idhub/admin/views.py:252 idhub/admin/views.py:342
+#: idhub/admin/views.py:371 idhub/admin/views.py:462
 msgid "Membership created successfully"
 msgstr "Membre creat amb èxit"
 
-#: idhub/admin/views.py:297 idhub/admin/views.py:377
+#: idhub/admin/views.py:416 idhub/admin/views.py:497
 msgid "Membership updated successfully"
 msgstr "Membre s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:312
+#: idhub/admin/views.py:432
 msgid "Is not possible delete your account!"
 msgstr "No és possible eliminar el teu compte!"
 
-#: idhub/admin/views.py:319
+#: idhub/admin/views.py:439
 msgid "Add a user role to access a service"
 msgstr "Afegiu un rol d'usuari per accedir a un servei"
 
-#: idhub/admin/views.py:355
+#: idhub/admin/views.py:475
 msgid "Modify a user role to access a service"
 msgstr "Modificar un rol d'usuari per accedir a un servei"
 
-#: idhub/admin/views.py:403 idhub/templates/idhub/base_admin.html:99
+#: idhub/admin/views.py:524 idhub/templates/idhub/base_admin.html:115
 msgid "Manage roles"
 msgstr "Administrar rols"
 
-#: idhub/admin/views.py:415
+#: idhub/admin/views.py:539
 msgid "Add role"
 msgstr "Afegeix un rol"
 
-#: idhub/admin/views.py:424
+#: idhub/admin/views.py:548
 msgid "Role created successfully"
 msgstr "Rol creat correctament"
 
-#: idhub/admin/views.py:431
+#: idhub/admin/views.py:555
 msgid "Edit role"
 msgstr "Edita rol"
 
-#: idhub/admin/views.py:446
+#: idhub/admin/views.py:570
 msgid "Role updated successfully"
 msgstr "El rol s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:459
+#: idhub/admin/views.py:584
 msgid "Role deleted successfully"
 msgstr "El rol s'ha suprimit correctament"
 
-#: idhub/admin/views.py:466 idhub/templates/idhub/base_admin.html:104
+#: idhub/admin/views.py:592 idhub/templates/idhub/base_admin.html:120
 msgid "Manage services"
 msgstr "Gestionar els serveis"
 
-#: idhub/admin/views.py:478 idhub/templates/idhub/admin/services.html:35
+#: idhub/admin/views.py:606 idhub/templates/idhub/admin/services.html:14
 msgid "Add service"
 msgstr "Afegeix un servei"
 
-#: idhub/admin/views.py:492
+#: idhub/admin/views.py:620
 msgid "Service created successfully"
 msgstr "Servei creat correctament"
 
-#: idhub/admin/views.py:499
+#: idhub/admin/views.py:627
 msgid "Modify service"
 msgstr "Modificar servei"
 
-#: idhub/admin/views.py:519
+#: idhub/admin/views.py:647
 msgid "Service updated successfully"
 msgstr "Servei actualitzat correctament"
 
-#: idhub/admin/views.py:532
+#: idhub/admin/views.py:661
 msgid "Service deleted successfully"
 msgstr "El servei s'ha suprimit correctament"
 
-#: idhub/admin/views.py:539 idhub/templates/idhub/base_admin.html:117
+#: idhub/admin/views.py:669 idhub/templates/idhub/base_admin.html:133
 msgid "View credentials"
 msgstr "Veure credencials"
 
-#: idhub/admin/views.py:552
-msgid "Change credential status"
-msgstr "Canvia l'estat de la credencial"
+#: idhub/admin/views.py:683 idhub/user/forms.py:83 idhub/user/tables.py:37
+#: idhub/user/views.py:198
+msgid "Credential"
+msgstr "Credencial"
 
-#: idhub/admin/views.py:594
+#: idhub/admin/views.py:728
 msgid "Credential revoked successfully"
 msgstr "La credencial s'ha revocat correctament"
 
-#: idhub/admin/views.py:616
+#: idhub/admin/views.py:746
 msgid "Credential deleted successfully"
 msgstr "La credencial s'ha suprimit correctament"
 
-#: idhub/admin/views.py:625
+#: idhub/admin/views.py:756
 msgid "Manage identities (DID)"
 msgstr "Gestiona les identitats (DID)"
 
-#: idhub/admin/views.py:638
+#: idhub/admin/views.py:776
 msgid "Add a new organizational identity (DID)"
 msgstr "Afegeix una identitat organitzativa nova (DID)"
 
-#: idhub/admin/views.py:650 idhub/user/views.py:194
+#: idhub/admin/views.py:787 idhub/user/views.py:527
 msgid "DID created successfully"
 msgstr "DID creat correctament"
 
-#: idhub/admin/views.py:657 idhub/admin/views.py:676
+#: idhub/admin/views.py:794 idhub/admin/views.py:813
 msgid "Organization Identities (DID)"
 msgstr "Identitats de l'organització (DID)"
 
-#: idhub/admin/views.py:671 idhub/user/views.py:217
+#: idhub/admin/views.py:808 idhub/user/views.py:550
 msgid "DID updated successfully"
 msgstr "DID s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:687 idhub/user/views.py:233
+#: idhub/admin/views.py:825 idhub/user/views.py:566
 msgid "DID delete successfully"
 msgstr "DID s’ha suprimit correctament"
 
-#: idhub/admin/views.py:693 idhub/templates/idhub/base_admin.html:132
+#: idhub/admin/views.py:831 idhub/templates/idhub/base_admin.html:148
 msgid "View org. credentials"
 msgstr "Veure org. credencials"
 
-#: idhub/admin/views.py:700 idhub/templates/idhub/base_admin.html:137
+#: idhub/admin/views.py:838 idhub/templates/idhub/base_admin.html:153
 msgid "Configure credential issuance"
 msgstr "Configura l'emissió de credencials"
 
-#: idhub/admin/views.py:707
+#: idhub/admin/views.py:847
+msgid "The credential was imported successfully!"
+msgstr "La credencial s'ha importat correctament!"
+
+#: idhub/admin/views.py:850
+msgid "Error importing the credential!"
+msgstr "S'ha produït un error en importar la credencial."
+
+#: idhub/admin/views.py:857
 msgid "View credential templates"
 msgstr "Veure plantilles de credencials"
 
-#: idhub/admin/views.py:741
+#: idhub/admin/views.py:898
 msgid "Upload template"
 msgstr "Carrega la plantilla"
 
-#: idhub/admin/views.py:757
+#: idhub/admin/views.py:914
 msgid "There are some errors in the file"
 msgstr "Hi ha alguns errors al fitxer"
 
-#: idhub/admin/views.py:771
+#: idhub/admin/views.py:928
 msgid "This template already exists!"
 msgstr "Aquesta plantilla ja existeix!"
 
-#: idhub/admin/views.py:777 idhub/admin/views.py:822
+#: idhub/admin/views.py:937 idhub/admin/views.py:989
 msgid "This is not a valid schema!"
 msgstr "Aquest no és un esquema vàlid!"
 
-#: idhub/admin/views.py:786
+#: idhub/admin/views.py:946
 msgid "Import template"
 msgstr "Importa plantilla"
 
-#: idhub/admin/views.py:814
+#: idhub/admin/views.py:976
 msgid "The schema was added sucessfully"
 msgstr "L'esquema s'ha afegit correctament"
 
-#: idhub/admin/views.py:839 idhub/templates/idhub/admin/import.html:31
-msgid "Import data"
-msgstr "Importa les dades"
+#: idhub/admin/views.py:1036
+msgid "Imported data"
+msgstr "Dades importades"
 
-#: idhub/admin/views.py:852 idhub/admin/views.py:865
+#: idhub/admin/views.py:1050 idhub/admin/views.py:1063
 msgid "Import"
 msgstr "Importa"
 
-#: idhub/admin/views.py:878
+#: idhub/admin/views.py:1071
 msgid "The file was imported successfully!"
 msgstr "El fitxer s'ha importat correctament!"
 
-#: idhub/admin/views.py:883
+#: idhub/admin/views.py:1076
 msgid "Error importing the file!"
 msgstr "S'ha produït un error en importar el fitxer!"
 
-#: idhub/models.py:67
+#: idhub/mixins.py:12
+msgid "Permission denied. User is not authenticated"
+msgstr "Permís denegat. L'usuari no està autenticat"
+
+#: idhub/models.py:62 idhub/user/tables.py:23
+msgid "Event"
+msgstr "Esdeveniment"
+
+#: idhub/models.py:77
 #, python-brace-format
 msgid ""
 "The user {username} was registered: name: {first_name}, last name: "
@@ -1870,13 +2030,13 @@ msgid ""
 msgstr ""
 "L'usuari {username} estava registrat: nom: {first_name}, cognom: {last_name}"
 
-#: idhub/models.py:79
+#: idhub/models.py:89
 #, python-brace-format
 msgid ""
 "Welcome. You has been registered: name: {first_name}, last name: {last_name}"
 msgstr "Benvingut. Has estat registrat: nom: {first_name}, cognom: {last_name}"
 
-#: idhub/models.py:92
+#: idhub/models.py:102
 #, python-brace-format
 msgid ""
 "The user '{username}' has request the update of the following information: "
@@ -1884,26 +2044,26 @@ msgstr ""
 "L'usuari '{username}' ha sol·licitat l'actualització de la informació "
 "següent: "
 
-#: idhub/models.py:104
+#: idhub/models.py:113
 msgid "You have requested the update of the following information: "
 msgstr "Heu sol·licitat l'actualització de la informació següent: "
 
-#: idhub/models.py:141
+#: idhub/models.py:150
 #, python-brace-format
 msgid "The admin has deleted the user: username: {username}"
 msgstr "L'administrador ha suprimit l'usuari: nom d'usuari: {username}"
 
-#: idhub/models.py:151
+#: idhub/models.py:160
 #, python-brace-format
 msgid "New DID with DID-ID: '{did}' created by user '{username}'"
 msgstr "DID nou amb DID-ID: '{did}' creat per l'usuari '{username}'"
 
-#: idhub/models.py:162
+#: idhub/models.py:171
 #, python-brace-format
 msgid "New DID with label: '{label}' and DID-ID: '{did}' was created'"
 msgstr "S'ha creat un DID nou amb l'etiqueta: '{label}' i l'ID-DID: '{did}''"
 
-#: idhub/models.py:174
+#: idhub/models.py:183
 #, python-brace-format
 msgid ""
 "The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet"
@@ -1911,12 +2071,12 @@ msgstr ""
 "El DID amb l'etiqueta \"{label}\" i el DID-ID: \"{did}\" s'ha suprimit de la "
 "vostra cartera"
 
-#: idhub/models.py:186
+#: idhub/models.py:195
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was deleted"
 msgstr "S'ha suprimit la credencial del tipus \"{type}\" i ID: \"{id}\""
 
-#: idhub/models.py:197
+#: idhub/models.py:206
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was deleted from your wallet"
@@ -1924,7 +2084,7 @@ msgstr ""
 "La credencial del tipus \"{type}\" i ID: \"{id}\" s'han suprimit de la "
 "vostra cartera"
 
-#: idhub/models.py:209
+#: idhub/models.py:218
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued for user {username}"
@@ -1932,7 +2092,7 @@ msgstr ""
 "S'ha emès la credencial del tipus \"{type}\" i ID: \"{id}\" per a l'usuari "
 "{username}"
 
-#: idhub/models.py:221
+#: idhub/models.py:230
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued and stored in your "
@@ -1941,53 +2101,53 @@ msgstr ""
 "La credencial del tipus \"{type}\" i ID: \"{id}\" s'ha emès i s'ha "
 "emmagatzemat a la vostra cartera"
 
-#: idhub/models.py:263
+#: idhub/models.py:272
 #, python-brace-format
 msgid "The credential of type '{type}' was enabled for user {username}"
 msgstr ""
 "La credencial del tipus \"{type}\" s'ha habilitat per a l'usuari {username}"
 
-#: idhub/models.py:274
+#: idhub/models.py:283
 #, python-brace-format
 msgid "You can request the '{type}' credential"
 msgstr "Podeu sol·licitar la credencial '{type}'"
 
-#: idhub/models.py:285
+#: idhub/models.py:294
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked for "
 msgstr "S'ha revocat la credencial del tipus \"{type}\" i ID: \"{id}\" per "
 
-#: idhub/models.py:296
+#: idhub/models.py:305
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked by admin"
 msgstr ""
 "L'administrador ha revocat la credencial del tipus \"{type}\" i ID: \"{id}\""
 
-#: idhub/models.py:308
+#: idhub/models.py:317
 msgid "A new role was created by admin"
 msgstr "Un nou rol va ser creat per l'administrador"
 
-#: idhub/models.py:316
+#: idhub/models.py:325
 msgid "The role was modified by admin"
 msgstr "El rol va ser modificat per l'administrador"
 
-#: idhub/models.py:324
+#: idhub/models.py:333
 msgid "The role was removed by admin"
 msgstr "L'administrador ha eliminat el rol"
 
-#: idhub/models.py:332
+#: idhub/models.py:341
 msgid "A new service was created by admin"
 msgstr "Un nou servei ha estat creat per l'administrador"
 
-#: idhub/models.py:340
+#: idhub/models.py:349
 msgid "The service was modified by admin"
 msgstr "El servei ha estat modificat per l'administrador"
 
-#: idhub/models.py:348
+#: idhub/models.py:357
 msgid "The service was removed by admin"
 msgstr "El servei va ser eliminat per l'administrador"
 
-#: idhub/models.py:356
+#: idhub/models.py:365
 #, python-brace-format
 msgid ""
 "New Organisational DID with label: '{label}' and DID-ID: '{did}' was created"
@@ -1995,7 +2155,7 @@ msgstr ""
 "S'ha creat un DID organitzatiu nou amb l'etiqueta: '{label}' i l'ID-DID: "
 "'{did}'"
 
-#: idhub/models.py:367
+#: idhub/models.py:376
 #, python-brace-format
 msgid ""
 "Organisational DID with label: '{label}' and DID-ID: '{did}' was removed"
@@ -2003,96 +2163,148 @@ msgstr ""
 "S'ha eliminat el DID de l'organització amb l'etiqueta \"{label}\" i l'ID-"
 "DID: \"{did}\""
 
-#: idhub/models.py:457
+#: idhub/models.py:593
 msgid "Enabled"
 msgstr "Habilitat"
 
-#: idhub/models.py:458 idhub/templates/idhub/admin/credentials.html:17
-#: idhub/templates/idhub/user/credentials.html:17
-msgid "Issued"
-msgstr "Emès"
-
-#: idhub/models.py:459
+#: idhub/models.py:595
 msgid "Revoked"
 msgstr "Revocat"
 
-#: idhub/models.py:460
+#: idhub/models.py:596
 msgid "Expired"
 msgstr "Caducat"
 
-#: idhub/models.py:576
+#: idhub/models.py:602
+msgid "Issued on"
+msgstr "Emès a"
+
+#: idhub/models.py:607 idhub/templates/idhub/admin/issue_credentials.html:46
+#: idhub/templates/idhub/user/credential.html:57
+msgid "Status"
+msgstr "Status"
+
+#: idhub/models.py:615
+msgid "User"
+msgstr "Usuaris"
+
+#: idhub/models.py:785
+msgid "Success"
+msgstr "Ha tingut èxit"
+
+#: idhub/models.py:794
 msgid "Beneficiary"
 msgstr "Beneficiari"
 
-#: idhub/models.py:577
+#: idhub/models.py:795
 msgid "Employee"
 msgstr "Empleat"
 
-#: idhub/models.py:578
+#: idhub/models.py:796
 msgid "Member"
 msgstr "Membre"
 
-#: idhub/models.py:580
+#: idhub/models.py:798
 msgid "Type of membership"
 msgstr "Tipus de pertinença"
 
-#: idhub/models.py:582
+#: idhub/models.py:800
 msgid "Start date"
 msgstr "Data d'inici"
 
-#: idhub/models.py:583
+#: idhub/models.py:801
 msgid "What date did the membership start?"
 msgstr "Quina data va començar la subscripció?"
 
-#: idhub/models.py:588
+#: idhub/models.py:806
 msgid "End date"
 msgstr "Data final"
 
-#: idhub/models.py:589
+#: idhub/models.py:807
 msgid "What date will the membership end?"
 msgstr "Quina data finalitzarà la subscripció?"
 
-#: idhub/models.py:605
+#: idhub/models.py:823
 msgid "name"
 msgstr "nom"
 
-#: idhub/models.py:606 idhub/models.py:614
-#: idhub/templates/idhub/admin/dashboard.html:14
-#: idhub/templates/idhub/admin/roles.html:16
-#: idhub/templates/idhub/admin/schemas.html:18
-#: idhub/templates/idhub/admin/services.html:16
-#: idhub/templates/idhub/admin/user.html:88
-#: idhub/templates/idhub/admin/user_edit.html:74
-#: idhub/templates/idhub/user/dashboard.html:14
-#: idhub/templates/idhub/user/roles.html:16
-msgid "Description"
-msgstr "Descripción"
-
-#: idhub/models.py:613 idhub/templates/templates/musician/addresses.html:16
+#: idhub/models.py:831
 msgid "Domain"
 msgstr "Domini"
 
-#: idhub/models.py:622
+#: idhub/models.py:840
 msgid "None"
 msgstr "Sense"
 
-#: idhub/models.py:647
-msgid "Url where to send the presentation"
-msgstr "URL on enviar la presentació"
+#: idhub/models.py:854 idhub/templates/idhub/admin/user.html:98
+#: idhub/templates/idhub/admin/user_edit.html:75 idhub/user/tables.py:55
+msgid "Service"
+msgstr "Servei"
 
-#: idhub/templates/auth/login.html:47
+#: idhub/templates/auth/2fadmin.html:8
+msgid "Two-factor Authentication"
+msgstr "Autenticació de dos factors"
+
+#: idhub/templates/auth/2fadmin.html:15
+msgid "We have sent you an email with a link that you have to click to log in."
+msgstr ""
+"T'hem enviat un correu electrònic amb un enllaç que has de fer clic per "
+"iniciar sessió."
+
+#: idhub/templates/auth/2fadmin_email.html:3
+#: idhub/templates/auth/2fadmin_email.txt:2
+#, python-format
+msgid "You're receiving this email because you tried to access %(site_name)s."
+msgstr ""
+"Heu rebut aquest correu electrònic perquè heu provat d'accedir a "
+"%(site_name)s."
+
+#: idhub/templates/auth/2fadmin_email.html:7
+#: idhub/templates/auth/2fadmin_email.txt:4
+msgid "Please go to the following page"
+msgstr "Si us plau, aneu a la pàgina següent"
+
+#: idhub/templates/auth/2fadmin_email.html:19
+#: idhub/templates/auth/2fadmin_email.txt:10
+#: idhub/templates/auth/password_reset_email.html:23
+#: idhub/templates/auth/password_reset_email.txt:10
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:24
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:15
+msgid "Thanks for using our site!"
+msgstr "Gràcies per utilitzar el nostre lloc!"
+
+#: idhub/templates/auth/2fadmin_email.html:23
+#: idhub/templates/auth/2fadmin_email.txt:12
+#: idhub/templates/auth/password_reset_email.html:27
+#: idhub/templates/auth/password_reset_email.txt:12
+#, python-format
+msgid "The %(site_name)s team"
+msgstr "L'equip de %(site_name)s"
+
+#: idhub/templates/auth/2fadmin_email.txt:8
+#: idhub/templates/auth/password_reset_email.html:19
+#: idhub/templates/auth/password_reset_email.txt:8
+msgid "Your username, in case you've forgotten:"
+msgstr "El vostre nom d'usuari, en cas que l'heu oblidat:"
+
+#: idhub/templates/auth/2fadmin_email_subject.txt:2
+#, python-format
+msgid "Authentication in %(site_name)s"
+msgstr "Autenticació a %(site_name)s"
+
+#: idhub/templates/auth/login.html:45
 msgid "Log in"
 msgstr "Entra"
 
-#: idhub/templates/auth/login.html:52
+#: idhub/templates/auth/login.html:50
 msgid "Forgot your password? Click here to recover"
 msgstr "Has oblidat la teva contrasenya? Feu clic aquí per recuperar-la"
 
-#: idhub/templates/auth/login_base.html:91
+#: idhub/templates/auth/login_base.html:101
 msgid "Forgot your password?"
 msgstr "Heu oblidat la contrasenya?"
 
-#: idhub/templates/auth/login_base.html:97
+#: idhub/templates/auth/login_base.html:107
 #, python-format
 msgid ""
 "Send an email to <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
@@ -2127,7 +2339,7 @@ msgstr "S'ha completat la reinicialització de la contrasenya"
 msgid "Your password has been set. You may go ahead and log in now."
 msgstr "S'ha establert la vostra contrasenya. Ara podeu entrar."
 
-#: idhub/templates/auth/password_reset_complete.html:11 idhub/views.py:9
+#: idhub/templates/auth/password_reset_complete.html:11 idhub/views.py:28
 msgid "Login"
 msgstr "Inicia la sessió"
 
@@ -2199,90 +2411,39 @@ msgstr ""
 msgid "Please go to the following page and choose a new password:"
 msgstr "Aneu a la pàgina següent i trieu una nova contrasenya:"
 
-#: idhub/templates/auth/password_reset_email.html:19
-#: idhub/templates/auth/password_reset_email.txt:8
-msgid "Your username, in case you've forgotten:"
-msgstr "El vostre nom d'usuari, en cas que l'heu oblidat:"
-
-#: idhub/templates/auth/password_reset_email.html:23
-#: idhub/templates/auth/password_reset_email.txt:10
-#: idhub/templates/idhub/admin/registration/activate_user_email.html:24
-#: idhub/templates/idhub/admin/registration/activate_user_email.txt:15
-msgid "Thanks for using our site!"
-msgstr "Gràcies per utilitzar el nostre lloc!"
-
-#: idhub/templates/auth/password_reset_email.html:27
-#: idhub/templates/auth/password_reset_email.txt:12
-#, python-format
-msgid "The %(site_name)s team"
-msgstr "L'equip de %(site_name)s"
-
 #: idhub/templates/auth/password_reset_subject.txt:2
 #, python-format
 msgid "Password reset on %(site_name)s"
 msgstr "Restabliment de la contrasenya a %(site_name)s"
 
-#: idhub/templates/idhub/admin/credentials.html:15
-#: idhub/templates/idhub/user/credentials.html:15
-#: idhub/templates/idhub/user/dashboard.html:13
-#: idhub/templates/templates/musician/billing.html:21
-#: idhub/templates/templates/musician/databases.html:17
-#: idhub/templates/templates/musician/domain_detail.html:17
-msgid "Type"
-msgstr "Tipus"
-
-#: idhub/templates/idhub/admin/credentials.html:16
-#: idhub/templates/idhub/user/credentials.html:16
-msgid "Details"
-msgstr "Detalls"
-
-#: idhub/templates/idhub/admin/credentials.html:18
-#: idhub/templates/idhub/user/credentials.html:18
-msgid "Status"
-msgstr "Status"
-
-#: idhub/templates/idhub/admin/credentials.html:19
-msgid "User"
-msgstr "Usuaris"
-
-#: idhub/templates/idhub/admin/credentials.html:31
-#: idhub/templates/idhub/admin/people.html:33
-#: idhub/templates/idhub/admin/schemas.html:30
-msgid "View"
-msgstr "Vista"
-
-#: idhub/templates/idhub/admin/dashboard.html:13
-msgid "Event"
-msgstr "Esdeveniment"
-
-#: idhub/templates/idhub/admin/dashboard.html:15
-#: idhub/templates/idhub/admin/dids.html:15
-#: idhub/templates/idhub/user/dashboard.html:15
-#: idhub/templates/idhub/user/dids.html:15
-msgid "Date"
-msgstr "Data"
-
 #: idhub/templates/idhub/admin/did_register.html:29
+#: idhub/templates/idhub/admin/dids.html:58
 #: idhub/templates/idhub/admin/import_add.html:27
+#: idhub/templates/idhub/admin/issue_credentials.html:66
+#: idhub/templates/idhub/admin/issue_credentials.html:84
 #: idhub/templates/idhub/admin/people_membership_register.html:29
 #: idhub/templates/idhub/admin/people_register.html:25
 #: idhub/templates/idhub/admin/people_rol_register.html:29
 #: idhub/templates/idhub/admin/rol_register.html:29
+#: idhub/templates/idhub/admin/schemas.html:28
 #: idhub/templates/idhub/admin/schemas_new.html:27
 #: idhub/templates/idhub/admin/service_register.html:29
+#: idhub/templates/idhub/admin/user.html:128
 #: idhub/templates/idhub/admin/user_edit.html:27
-#: idhub/templates/idhub/user/credentials_presentation.html:29
-#: idhub/templates/idhub/user/credentials_request.html:29
+#: idhub/templates/idhub/admin/wallet_issues.html:27
+#: idhub/templates/idhub/user/credentials_presentation.html:30
+#: idhub/templates/idhub/user/credentials_request.html:30
 #: idhub/templates/idhub/user/did_register.html:29
-#: idhub/templates/templates/musician/address_check_delete.html:10
-#: idhub/templates/templates/musician/address_form.html:11
-#: idhub/templates/templates/musician/mailbox_change_password.html:11
-#: idhub/templates/templates/musician/mailbox_check_delete.html:13
-#: idhub/templates/templates/musician/mailbox_form.html:20
+#: idhub/templates/idhub/user/dids.html:27
+#: oidc4vp/templates/credentials_presentation.html:68
+#: promotion/templates/select_wallet_somconnexio.html:552
+#: promotion/templates/somconnexio_contract-original.html:553
+#: promotion/templates/somconnexio_contract.html:68
 msgid "Cancel"
 msgstr "Cancel·lar"
 
 #: idhub/templates/idhub/admin/did_register.html:30
+#: idhub/templates/idhub/admin/encryption_key.html:29
 #: idhub/templates/idhub/admin/import_add.html:28
 #: idhub/templates/idhub/admin/people_membership_register.html:30
 #: idhub/templates/idhub/admin/people_register.html:26
@@ -2292,104 +2453,58 @@ msgstr "Cancel·lar"
 #: idhub/templates/idhub/admin/service_register.html:30
 #: idhub/templates/idhub/admin/user_edit.html:28
 #: idhub/templates/idhub/user/did_register.html:30
-#: idhub/templates/templates/musician/address_form.html:12
-#: idhub/templates/templates/musician/mailbox_change_password.html:12
-#: idhub/templates/templates/musician/mailbox_form.html:21
+#: promotion/templates/select_wallet_somconnexio.html:553
 msgid "Save"
 msgstr "Desar"
 
-#: idhub/templates/idhub/admin/dids.html:16
-#: idhub/templates/idhub/user/dids.html:16
-msgid "Label"
-msgstr "Etiqueta"
-
-#: idhub/templates/idhub/admin/dids.html:28
-#: idhub/templates/idhub/admin/roles.html:26
-#: idhub/templates/idhub/admin/services.html:28
-#: idhub/templates/idhub/admin/user_edit.html:54
-#: idhub/templates/idhub/admin/user_edit.html:86
-#: idhub/templates/idhub/user/dids.html:28
-msgid "Edit"
-msgstr "Editar"
-
-#: idhub/templates/idhub/admin/dids.html:29
-#: idhub/templates/idhub/admin/schemas.html:31
-#: idhub/templates/idhub/user/dids.html:29
-msgid "Remove"
-msgstr "Esborra"
-
-#: idhub/templates/idhub/admin/dids.html:35
+#: idhub/templates/idhub/admin/dids.html:40
 msgid "Add identity"
 msgstr "Afegeix identitat"
 
-#: idhub/templates/idhub/admin/dids.html:46
-#: idhub/templates/idhub/user/dids.html:46
+#: idhub/templates/idhub/admin/dids.html:51
+#: idhub/templates/idhub/user/dids.html:20
 msgid "Delete DID"
 msgstr "Suprimeix DID"
 
-#: idhub/templates/idhub/admin/dids.html:50
-#: idhub/templates/idhub/user/dids.html:50
+#: idhub/templates/idhub/admin/dids.html:55
+#: idhub/templates/idhub/user/dids.html:24
 msgid "Are you sure that you want delete this DID?"
 msgstr "Esteu segur que voleu suprimir aquest DID?"
 
-#: idhub/templates/idhub/admin/import.html:15
-#: idhub/templates/idhub/admin/schemas.html:15
-msgid "Created"
-msgstr "Creat"
-
-#: idhub/templates/idhub/admin/import.html:17
-msgid "Success"
-msgstr "Ha tingut èxit"
+#: idhub/templates/idhub/admin/import.html:12
+msgid "Import data"
+msgstr "Importa les dades"
 
 #: idhub/templates/idhub/admin/issue_credentials.html:14
-#: idhub/templates/idhub/admin/issue_credentials.html:72
+#: idhub/templates/idhub/user/credential.html:26
+msgid "Download as JSON"
+msgstr "Descarrega com a JSON"
+
+#: idhub/templates/idhub/admin/issue_credentials.html:15
+#: idhub/templates/idhub/admin/issue_credentials.html:67
 msgid "Revoke"
 msgstr "Revoca"
 
-#: idhub/templates/idhub/admin/issue_credentials.html:54
-#: idhub/templates/idhub/user/credential.html:41
-msgid "View in JSON format"
-msgstr "Visualitza en format JSON"
+#: idhub/templates/idhub/admin/issue_credentials.html:38
+#: idhub/templates/idhub/user/credential.html:49
+msgid "Issuance date"
+msgstr "Data d'emissió"
 
-#: idhub/templates/idhub/admin/issue_credentials.html:64
+#: idhub/templates/idhub/admin/issue_credentials.html:59
 msgid "Revoke credential"
 msgstr "Revoca la credencial"
 
-#: idhub/templates/idhub/admin/issue_credentials.html:68
+#: idhub/templates/idhub/admin/issue_credentials.html:63
 msgid "Are you sure that you want revoke this credential?"
 msgstr "Esteu segur que voleu revocar aquesta credencial?"
 
-#: idhub/templates/idhub/admin/issue_credentials.html:82
+#: idhub/templates/idhub/admin/issue_credentials.html:77
 msgid "Delete credential"
 msgstr "Suprimeix la credencial"
 
-#: idhub/templates/idhub/admin/issue_credentials.html:86
+#: idhub/templates/idhub/admin/issue_credentials.html:81
 msgid "Are you sure that you want delete this Credential?"
 msgstr "Esteu segur que voleu suprimir aquesta credencial?"
-
-#: idhub/templates/idhub/admin/people.html:13
-msgid "Last name"
-msgstr "Cognoms"
-
-#: idhub/templates/idhub/admin/people.html:14
-msgid "First name"
-msgstr "Nom"
-
-#: idhub/templates/idhub/admin/people.html:16
-#: idhub/templates/idhub/admin/user.html:62
-#: idhub/templates/idhub/admin/user_edit.html:41
-#: idhub/templates/idhub/user/profile.html:43
-msgid "Membership"
-msgstr "Afiliació"
-
-#: idhub/templates/idhub/admin/people.html:17
-#: idhub/templates/idhub/admin/roles.html:15
-#: idhub/templates/idhub/admin/services.html:17
-#: idhub/templates/idhub/admin/user.html:87
-#: idhub/templates/idhub/admin/user_edit.html:73
-#: idhub/templates/idhub/user/roles.html:15
-msgid "Role"
-msgstr "Càrrec"
 
 #: idhub/templates/idhub/admin/registration/activate_user_email.html:2
 #: idhub/templates/idhub/admin/registration/activate_user_subject.txt:2
@@ -2431,30 +2546,20 @@ msgstr "Idhub"
 msgid "User activation on %(site)s"
 msgstr "Activació d'usuari a %(site)s"
 
-#: idhub/templates/idhub/admin/roles.html:33
+#: idhub/templates/idhub/admin/roles.html:14
 #: idhub/templates/idhub/admin/user_edit.html:93
 msgid "Add Role"
 msgstr "Afegeix un rol"
 
-#: idhub/templates/idhub/admin/schemas.html:16
-msgid "Template file"
-msgstr "Fitxer de plantilla"
-
-#: idhub/templates/idhub/admin/schemas.html:17
-#: idhub/templates/templates/musician/mailboxes.html:14
-msgid "Name"
-msgstr "Name"
-
-#: idhub/templates/idhub/admin/schemas.html:37
-#: idhub/templates/idhub/admin/schemas_import.html:29
+#: idhub/templates/idhub/admin/schemas.html:12
 msgid "Add template"
 msgstr "Afegeix plantilla"
 
-#: idhub/templates/idhub/admin/schemas.html:48
+#: idhub/templates/idhub/admin/schemas.html:21
 msgid "Delete template"
 msgstr "Suprimeix la plantilla"
 
-#: idhub/templates/idhub/admin/schemas.html:52
+#: idhub/templates/idhub/admin/schemas.html:25
 msgid "Are you sure that you want delete this template?"
 msgstr "Segur que voleu suprimir aquesta plantilla?"
 
@@ -2466,12 +2571,30 @@ msgstr "Plantilles disponibles"
 msgid "Add"
 msgstr "Afegeix"
 
-#: idhub/templates/idhub/admin/services.html:15
-#: idhub/templates/idhub/admin/user.html:89
-#: idhub/templates/idhub/admin/user_edit.html:75
-#: idhub/templates/idhub/user/roles.html:17
-msgid "Service"
-msgstr "Servei"
+#: idhub/templates/idhub/admin/terms_conditions.html:43
+#: idhub/templates/idhub/user/terms_conditions.html:42
+msgid "Confirm"
+msgstr "Confirma"
+
+#: idhub/templates/idhub/admin/terms_conditions.html:55
+msgid ""
+"\n"
+"      <p>If you do not consent to all terms and conditons this service may "
+"not be available to\n"
+"anyone in your organization.<br /><br />\n"
+"      If you are sure to opt out of using this service please contact <a "
+"href=\"mailto:suport@pangea.org\">suport@pangea.org</a> to unsubscribe. If "
+"you wish to continue, you must consent to all terms and conditions.</p>\n"
+"      "
+msgstr ""
+"\n"
+"      <p>Si no accepteu tots els termes i condicions, és possible que aquest "
+"servei no estigui disponible per a ningú de la vostra organització.<br /"
+"><br /> Si esteu segur de desactivar l'ús d'aquest servei, poseu-vos en "
+"contacte amb <a href=\"mailto:suport@pangea.org\">suport@pangea.org</a> per "
+"cancel·lar la subscripció. Si voleu continuar, heu de consentir tots els "
+"termes i condicions.</p>\n"
+"      "
 
 #: idhub/templates/idhub/admin/user.html:13
 msgid "Modify"
@@ -2485,23 +2608,35 @@ msgstr "Desactiva"
 msgid "Activate"
 msgstr "Activa"
 
-#: idhub/templates/idhub/admin/user.html:63
+#: idhub/templates/idhub/admin/user.html:24 idhub_auth/forms.py:9
+#: idhub_auth/models.py:50
+msgid "First name"
+msgstr "Nom"
+
+#: idhub/templates/idhub/admin/user.html:32 idhub_auth/forms.py:10
+#: idhub_auth/models.py:51
+msgid "Last name"
+msgstr "Cognoms"
+
+#: idhub/templates/idhub/admin/user.html:49
+msgid "Is Admin"
+msgstr "És admin"
+
+#: idhub/templates/idhub/admin/user.html:72
 #: idhub/templates/idhub/admin/user_edit.html:42
-#: idhub/templates/idhub/user/profile.html:44
 msgid "From"
 msgstr "Remitent"
 
-#: idhub/templates/idhub/admin/user.html:64
+#: idhub/templates/idhub/admin/user.html:73
 #: idhub/templates/idhub/admin/user_edit.html:43
-#: idhub/templates/idhub/user/profile.html:45
 msgid "To"
 msgstr "Destinatari"
 
-#: idhub/templates/idhub/admin/user.html:112
+#: idhub/templates/idhub/admin/user.html:121
 msgid "Delete user"
 msgstr "Suprimeix l'usuari"
 
-#: idhub/templates/idhub/admin/user.html:116
+#: idhub/templates/idhub/admin/user.html:125
 msgid "Are you sure that you want delete this user?"
 msgstr "Esteu segur que voleu suprimir aquest usuari?"
 
@@ -2509,430 +2644,512 @@ msgstr "Esteu segur que voleu suprimir aquest usuari?"
 msgid "Add membership"
 msgstr "Afegeix membres"
 
-#: idhub/templates/idhub/base.html:76
+#: idhub/templates/idhub/admin/wallet_issues.html:28
+msgid "Upload"
+msgstr "Pujada"
+
+#: idhub/templates/idhub/base.html:92
 msgid "My information"
 msgstr "La meva informació"
 
-#: idhub/templates/idhub/base.html:81
+#: idhub/templates/idhub/base.html:97
 msgid "My personal information"
 msgstr "La meva informació personal"
 
-#: idhub/templates/idhub/base.html:86 idhub/user/views.py:62
+#: idhub/templates/idhub/base.html:102 idhub/user/views.py:128
 msgid "My roles"
 msgstr "Els meus rols"
 
-#: idhub/templates/idhub/base.html:91 idhub/user/views.py:68
-msgid "GDPR info"
-msgstr "Informació GDPR"
-
-#: idhub/templates/idhub/base.html:99 idhub/user/views.py:26
+#: idhub/templates/idhub/base.html:115 idhub/user/views.py:53
+#: oidc4vp/views.py:32
 msgid "My wallet"
 msgstr "La meva cartera"
 
-#: idhub/templates/idhub/base.html:104 idhub/user/views.py:169
-#: idhub/user/views.py:203 idhub/user/views.py:222
+#: idhub/templates/idhub/base.html:120 idhub/user/views.py:497
+#: idhub/user/views.py:536 idhub/user/views.py:555
 msgid "Identities (DIDs)"
 msgstr "Identitats (DID)"
 
-#: idhub/templates/idhub/base.html:109
+#: idhub/templates/idhub/base.html:125
 msgid "My credentials"
 msgstr "Les meves credencials"
 
-#: idhub/templates/idhub/base.html:114
+#: idhub/templates/idhub/base.html:131
 msgid "Request a credential"
 msgstr "Sol·licitar una credencial"
 
-#: idhub/templates/idhub/base.html:119
+#: idhub/templates/idhub/base.html:137
 msgid "Present a credential"
 msgstr "Presentar una credencial"
 
-#: idhub/templates/idhub/base_admin.html:76
+#: idhub/templates/idhub/base_admin.html:92
 msgid "Users"
 msgstr "Usuaris"
 
-#: idhub/templates/idhub/base_admin.html:94
+#: idhub/templates/idhub/base_admin.html:110
 msgid "Roles"
 msgstr "Rols"
 
-#: idhub/templates/idhub/base_admin.html:112
-#: idhub/templates/idhub/user/profile.html:46
+#: idhub/templates/idhub/base_admin.html:128
 msgid "Credentials"
 msgstr "Credencials"
 
-#: idhub/templates/idhub/base_admin.html:122
+#: idhub/templates/idhub/base_admin.html:138
 msgid "Organization's wallet"
 msgstr "Cartera de l'organització"
 
-#: idhub/templates/idhub/base_admin.html:127
+#: idhub/templates/idhub/base_admin.html:143
 msgid "Manage Identities (DIDs)"
 msgstr "Gestionar identitats (DID)"
 
-#: idhub/templates/idhub/base_admin.html:147
+#: idhub/templates/idhub/base_admin.html:163
 msgid "Templates"
 msgstr "Plantilles"
 
-#: idhub/templates/idhub/base_admin.html:153
+#: idhub/templates/idhub/base_admin.html:169
 msgid "Data"
 msgstr "Dades"
 
-#: idhub/templates/idhub/user/credentials_presentation.html:30
-msgid "Send"
-msgstr "Enviar"
-
-#: idhub/templates/idhub/user/credentials_request.html:30
-msgid "Request"
-msgstr "Sol·licitud"
-
-#: idhub/templates/idhub/user/dids.html:35
-msgid "Add Identity"
-msgstr "Afegeix identitat"
-
-#: idhub/templates/idhub/user/profile.html:13
-msgid "ARCO Forms"
-msgstr "Formularis ARCO"
-
-#: idhub/templates/idhub/user/profile.html:14
-msgid "Notice of Privacy"
-msgstr "Avís de Privacitat"
-
-#: idhub/templates/templates/musician/address_check_delete.html:7
-#, python-format
-msgid "Are you sure that you want remove the address: \"%(address_name)s\"?"
-msgstr "Esteu segur que voleu eliminar l'adreça: \"%(address_name)s\"?"
-
-#: idhub/templates/templates/musician/address_check_delete.html:8
-#: idhub/templates/templates/musician/mailbox_check_delete.html:11
-msgid "WARNING: This action cannot be undone."
-msgstr "ADVERTIMENT: Aquesta acció no es pot desfer."
-
-#: idhub/templates/templates/musician/addresses.html:15
-msgid "Email"
-msgstr "Adreça electrònica"
-
-#: idhub/templates/templates/musician/addresses.html:17
-#: idhub/templates/templates/musician/mail_base.html:22
-msgid "Mailboxes"
-msgstr "Bústies"
-
-#: idhub/templates/templates/musician/addresses.html:18
-msgid "Forward"
-msgstr "Reenvia"
-
-#: idhub/templates/templates/musician/addresses.html:38
-msgid "New mail address"
-msgstr "Nova adreça de correu"
-
-#: idhub/templates/templates/musician/billing.html:6
-msgid "Billing"
-msgstr "Facturació"
-
-#: idhub/templates/templates/musician/billing.html:7
-msgid "Billing page description."
-msgstr "Descripció de la pàgina de facturació."
-
-#: idhub/templates/templates/musician/billing.html:19
-msgid "Number"
-msgstr "Número"
-
-#: idhub/templates/templates/musician/billing.html:20
-msgid "Bill date"
-msgstr "Data de facturació"
-
-#: idhub/templates/templates/musician/billing.html:22
-msgid "Total"
-msgstr "Total"
-
-#: idhub/templates/templates/musician/billing.html:23
-msgid "Download PDF"
-msgstr "Descarregar PDF"
-
-#: idhub/templates/templates/musician/components/table_paginator.html:15
+#: idhub/templates/idhub/custom_table.html:65
 msgid "Previous"
 msgstr "Anterior"
 
-#: idhub/templates/templates/musician/components/table_paginator.html:29
+#: idhub/templates/idhub/custom_table.html:91
 msgid "Next"
 msgstr "Següent"
 
-#: idhub/templates/templates/musician/dashboard.html:6
-msgid "Welcome back"
-msgstr "Benvingut de nou"
+#: idhub/templates/idhub/user/credential.html:15
+msgid "Download as PDF (Catalan)"
+msgstr "Descarregar com a PDF (català)"
 
-#: idhub/templates/templates/musician/dashboard.html:8
-#, python-format
-msgid "Last time you logged in was: %(last_login)s"
-msgstr "La darrera vegada que vas iniciar sessió va ser: %(last_login)s"
+#: idhub/templates/idhub/user/credential.html:18
+msgid "Download as PDF (Spanish)"
+msgstr "Descarregar com a PDF (castellà)"
 
-#: idhub/templates/templates/musician/dashboard.html:10
-msgid "It's the first time you log into the system, welcome on board!"
-msgstr "És la primera vegada que inicieu sessió al sistema, benvingut a bord!"
+#: idhub/templates/idhub/user/credential.html:29
+msgid "Request credential"
+msgstr "Sol·licita credencial"
 
-#: idhub/templates/templates/musician/dashboard.html:29
-msgid "Notifications"
-msgstr "Notificacions"
+#: idhub/templates/idhub/user/credentials_presentation.html:31
+msgid "Send"
+msgstr "Enviar"
 
-#: idhub/templates/templates/musician/dashboard.html:33
-msgid "There is no notifications at this time."
-msgstr "No hi ha notificacions en aquest moment."
+#: idhub/templates/idhub/user/credentials_presentation.html:36
+msgid "Sorry no there are credentials to present"
+msgstr "Ho sento, no hi ha credencials per presentar"
 
-#: idhub/templates/templates/musician/dashboard.html:40
-msgid "Your domains and websites"
-msgstr "Els vostres dominis i llocs web"
+#: idhub/templates/idhub/user/credentials_request.html:31
+msgid "Request"
+msgstr "Sol·licitud"
 
-#: idhub/templates/templates/musician/dashboard.html:41
-msgid "Dashboard page description."
-msgstr "Descripció de la pàgina del tauler."
+#: idhub/templates/idhub/user/credentials_request.html:36
+msgid "Sorry no there are credentials enabled"
+msgstr "Ho sento, no hi ha credencials activades"
 
-#: idhub/templates/templates/musician/dashboard.html:56
-msgid "view configuration"
-msgstr "veure la configuració"
+#: idhub/templates/idhub/user/dids.html:12
+msgid "Add Identity"
+msgstr "Afegeix identitat"
 
-#: idhub/templates/templates/musician/dashboard.html:63
-msgid "Expiration date"
-msgstr "Data de caducitat"
+#: idhub/templates/idhub/user/profile.html:15
+#: idhub/templates/idhub/user/profile.html:17
+msgid "ARCO Forms"
+msgstr "Formularis ARCO"
 
-#: idhub/templates/templates/musician/dashboard.html:70
-msgid "Mail"
-msgstr "Correu"
+#: idhub/templates/idhub/user/profile.html:26
+msgid "Privacy Policy"
+msgstr "Política de privadesa"
 
-#: idhub/templates/templates/musician/dashboard.html:73
-msgid "mail addresses created"
-msgstr "adreces de correu creades"
-
-#: idhub/templates/templates/musician/dashboard.html:78
-msgid "Mail list"
-msgstr "Llista de correu"
-
-#: idhub/templates/templates/musician/dashboard.html:83
-msgid "Software as a Service"
-msgstr "Programari com a servei"
-
-#: idhub/templates/templates/musician/dashboard.html:85
-msgid "Nothing installed"
-msgstr "No hi ha res instal·lat"
-
-#: idhub/templates/templates/musician/dashboard.html:90
-msgid "Disk usage"
-msgstr "Ús del disc"
-
-#: idhub/templates/templates/musician/dashboard.html:107
-msgid "Configuration details"
-msgstr "Detalls de configuració"
-
-#: idhub/templates/templates/musician/dashboard.html:114
-msgid "FTP access:"
-msgstr "Accés FTP:"
-
-#. Translators: domain configuration detail modal
-#: idhub/templates/templates/musician/dashboard.html:116
-msgid "Contact with the support team to get details concerning FTP access."
-msgstr ""
-"Contacta amb l'equip d'assistència per obtenir detalls sobre l'accés FTP."
-
-#: idhub/templates/templates/musician/dashboard.html:125
-msgid "No website configured."
-msgstr "No s'ha configurat cap lloc web."
-
-#: idhub/templates/templates/musician/dashboard.html:127
-msgid "Root directory:"
-msgstr "Directori arrel:"
-
-#: idhub/templates/templates/musician/dashboard.html:128
-msgid "Type:"
-msgstr "Tipus:"
-
-#: idhub/templates/templates/musician/dashboard.html:133
-msgid "View DNS records"
-msgstr "Veure registres DNS"
-
-#: idhub/templates/templates/musician/databases.html:21
-msgid "associated to"
-msgstr "associada a"
-
-#: idhub/templates/templates/musician/databases.html:34
-msgid "No users for this database."
-msgstr "No hi ha usuaris per a aquesta base de dades."
-
-#: idhub/templates/templates/musician/databases.html:45
-msgid "Open database manager"
-msgstr "Obriu el gestor de bases de dades"
-
-#. Translators: database page when there isn't any database.
-#. Translators: saas page when there isn't any saas.
-#: idhub/templates/templates/musician/databases.html:58
-#: idhub/templates/templates/musician/saas.html:49
-msgid "Ooops! Looks like there is nothing here!"
-msgstr "Vaja! Sembla que aquí no hi ha res!"
-
-#: idhub/templates/templates/musician/domain_detail.html:5
-msgid "Go back"
-msgstr "Torna enrere"
-
-#: idhub/templates/templates/musician/domain_detail.html:7
-msgid "DNS settings for"
-msgstr "Configuració de DNS per a"
-
-#: idhub/templates/templates/musician/domain_detail.html:8
-msgid "DNS settings page description."
-msgstr "Descripció de la pàgina de configuració de DNS."
-
-#: idhub/templates/templates/musician/domain_detail.html:18
-msgid "Value"
-msgstr "Valor"
-
-#: idhub/templates/templates/musician/mail_base.html:6
-#: idhub/templates/templates/musician/mailinglists.html:6
-msgid "Go to global"
-msgstr "Anar a global"
-
-#: idhub/templates/templates/musician/mail_base.html:10
-#: idhub/templates/templates/musician/mailinglists.html:9
-msgid "for"
-msgstr "per"
-
-#: idhub/templates/templates/musician/mail_base.html:18
-#: idhub/templates/templates/musician/mailboxes.html:16
-msgid "Addresses"
-msgstr "Adreces"
-
-#: idhub/templates/templates/musician/mailbox_change_password.html:5
-#: idhub/templates/templates/musician/mailbox_form.html:24
-msgid "Change password"
-msgstr "Canviar la contrasenya"
-
-#: idhub/templates/templates/musician/mailbox_check_delete.html:7
-#, python-format
-msgid "Are you sure that you want remove the mailbox: \"%(name)s\"?"
-msgstr "Esteu segur que voleu eliminar la bústia de correu: \"%(name)s\"?"
-
-#: idhub/templates/templates/musician/mailbox_check_delete.html:9
+#: idhub/templates/idhub/user/terms_conditions.html:54
 msgid ""
-"All mailbox's messages will be <strong>deleted and cannot be recovered</"
-"strong>."
+"\n"
+"        <p>If you do not accept all the terms and conditions of this service "
+"you will not be able\n"
+"to continue.\n"
+"        <br /><br />\n"
+"        Are you sure to opt out of using this service?</p>\n"
+"      "
 msgstr ""
-"Tots els missatges de la bústia se <strong>suprimiran i no es podran "
-"recuperar</strong> ."
+"\n"
+"        <p>Si no acceptes tots els termes i condicions d'aquest servei no "
+"podràs continuar.<br /><br /> Esteu segur de desactivar l'ús d'aquest servei?"
+"</p>\n"
+"      "
 
-#: idhub/templates/templates/musician/mailbox_form.html:9
-msgid "Warning!"
-msgstr "Atenció!"
+#: idhub/templates/idhub/user/waiting.html:9
+msgid "Please contact the administrator to open the service."
+msgstr "Poseu-vos en contacte amb l'administrador per obrir el servei."
 
-#: idhub/templates/templates/musician/mailbox_form.html:9
-msgid ""
-"You have reached the limit of mailboxes of your subscription so "
-"<strong>extra fees</strong> may apply."
-msgstr ""
-"Heu arribat al límit de bústies de la vostra subscripció, de manera que es "
-"poden aplicar <strong>càrrecs addicionals</strong>."
+#: idhub/user/forms.py:130
+msgid "Organization"
+msgstr "Organització"
 
-#: idhub/templates/templates/musician/mailbox_form.html:10
-msgid "Close"
-msgstr "Tanca"
-
-#: idhub/templates/templates/musician/mailboxes.html:15
-msgid "Filtering"
-msgstr "Filtratge"
-
-#: idhub/templates/templates/musician/mailboxes.html:27
-msgid "Update password"
-msgstr "Actualitzar la contrasenya"
-
-#: idhub/templates/templates/musician/mailboxes.html:43
-msgid "New mailbox"
-msgstr "Nova bústia"
-
-#: idhub/templates/templates/musician/mailinglists.html:34
-msgid "Active"
-msgstr "Actiu"
-
-#: idhub/templates/templates/musician/mailinglists.html:36
-msgid "Inactive"
-msgstr "Inactiu"
-
-#: idhub/templates/templates/musician/profile.html:6
-msgid "Profile"
-msgstr "Perfil"
-
-#: idhub/templates/templates/musician/profile.html:7
-msgid "Little description on profile page."
-msgstr "Petita descripció a la pàgina de perfil."
-
-#: idhub/templates/templates/musician/profile.html:11
-msgid "User information"
-msgstr "Informació d'usuari"
-
-#: idhub/templates/templates/musician/profile.html:21
-msgid "Preferred language:"
-msgstr "Idioma preferit:"
-
-#: idhub/templates/templates/musician/profile.html:35
-msgid "Billing information"
-msgstr "Dades de facturació"
-
-#: idhub/templates/templates/musician/profile.html:49
-msgid "payment method:"
-msgstr "mètode de pagament:"
-
-#: idhub/templates/templates/musician/profile.html:60
-msgid "Check your last bills"
-msgstr "Comproveu les vostres últimes factures"
-
-#: idhub/templates/templates/musician/saas.html:18
-msgid "Installed on"
-msgstr "Instal·lat a"
-
-#: idhub/templates/templates/musician/saas.html:29
-msgid "Service info"
-msgstr "Informació del servei"
-
-#: idhub/templates/templates/musician/saas.html:30
-msgid "active"
-msgstr "actiu"
-
-#: idhub/templates/templates/musician/saas.html:37
-msgid "Open service admin panel"
-msgstr "Obriu el tauler d'administració del servei"
-
-#: idhub/user/views.py:21
+#: idhub/user/views.py:48
 msgid "My profile"
 msgstr "El meu perfil"
 
-#: idhub/user/views.py:40
+#: idhub/user/views.py:92
 msgid "My personal data"
 msgstr "Les meves dades personals"
 
-#: idhub/user/views.py:87
-msgid "Credential"
-msgstr "Credencial"
+#: idhub/user/views.py:158
+msgid "Data Protection"
+msgstr "Protecció de dades"
 
-#: idhub/user/views.py:123
+#: idhub/user/views.py:183
+msgid "Comunication with admin"
+msgstr "Comunicació amb l'admin"
+
+#: idhub/user/views.py:184
+msgid "Service temporary close"
+msgstr "Tancament temporal del servei"
+
+#: idhub/user/views.py:407
 msgid "Credential request"
 msgstr "Sol·licitar una credencial"
 
-#: idhub/user/views.py:136
+#: idhub/user/views.py:437
 msgid "The credential was issued successfully!"
 msgstr "La credencial s'ha emès correctament!"
 
-#: idhub/user/views.py:140
+#: idhub/user/views.py:444
 msgid "The credential does not exist!"
 msgstr "La credencial no existeix!"
 
-#: idhub/user/views.py:146
+#: idhub/user/views.py:450 oidc4vp/views.py:35
 msgid "Credential presentation"
 msgstr "Presentació de credencials"
 
-#: idhub/user/views.py:161
-msgid "The credential was presented successfully!"
-msgstr "La credencial s'ha presentat correctament!"
+#: idhub/user/views.py:481
+#, python-brace-format
+msgid "Problems connecting with {url}"
+msgstr "Problemes de connexió amb {url}"
 
-#: idhub/user/views.py:163
+#: idhub/user/views.py:490 oidc4vp/views.py:67 oidc4vp/views.py:72
 msgid "Error sending credential!"
 msgstr "S'ha produït un error en enviar la credencial!"
 
-#: idhub/user/views.py:182
+#: idhub/user/views.py:515
 msgid "Add a new Identity (DID)"
 msgstr "Afegeix una nova identitat (DID)"
 
-#: idhub_auth/forms.py:19 idhub_auth/forms.py:27
+#: idhub_auth/forms.py:20 idhub_auth/forms.py:29
 msgid "The string must contain only characters and spaces"
 msgstr "La cadena ha de contenir només caràcters i espais"
+
+#: idhub_auth/models.py:48
+msgid "is active"
+msgstr "està actiu"
+
+#: idhub_auth/models.py:49
+msgid "is admin"
+msgstr "És admin"
+
+#: oidc4vp/forms.py:47
+msgid "There are some problems with this credentials"
+msgstr "Hi ha alguns problemes amb aquestes credencials"
+
+#: oidc4vp/forms.py:57
+msgid "There isn't code in request"
+msgstr "No hi ha codi a la sol·licitud"
+
+#: oidc4vp/models.py:72
+msgid "Url where to send the verificable presentation"
+msgstr "URL on enviar la presentació verificable"
+
+#: oidc4vp/models.py:289
+msgid "Failed verification"
+msgstr "La verificació ha fallat"
+
+#: oidc4vp/models.py:292
+msgid "Correct verification"
+msgstr "Verificació correcta"
+
+#: oidc4vp/templates/credentials_presentation.html:64
+msgid "I read and understood the"
+msgstr "Vaig llegir i entendre el"
+
+#: oidc4vp/templates/credentials_presentation.html:65
+msgid "data sharing notice"
+msgstr "avís d'intercanvi de dades"
+
+#: oidc4vp/templates/credentials_presentation.html:69
+msgid "Present"
+msgstr "Presentació"
+
+#: oidc4vp/templates/credentials_presentation.html:75
+msgid "There are not credentials for present"
+msgstr "No hi ha credencials per presentar"
+
+#: oidc4vp/templates/credentials_presentation.html:86
+msgid "Data sharing notice"
+msgstr "Avís per compartir dades"
+
+#: oidc4vp/templates/credentials_presentation.html:90
+msgid "Are you sure that you want share the info of this credentials?"
+msgstr "Esteu segur que voleu compartir la informació d'aquestes credencials?"
+
+#: oidc4vp/templates/received_code.html:59
+msgid "Thank you, we are received your presentation correctly."
+msgstr "Gràcies, hem rebut la teva presentació correctament."
+
+#: promotion/models.py:9
+msgid "Financial vulnerability"
+msgstr "Vulnerabilitat financera"
+
+#: promotion/templates/select_wallet.html:74
+#: promotion/templates/select_wallet_setem.html:74
+msgid "Go"
+msgstr "Vés"
+
+#: promotion/templates/somconnexio_contract-original.html:554
+#: promotion/templates/somconnexio_contract.html:69
+msgid "Continue"
+msgstr "Continua"
+
+#: trustchain_idhub/settings.py:203
+msgid "German"
+msgstr "Alemany"
+
+#: trustchain_idhub/settings.py:204
+msgid "English"
+msgstr "Anglès"
+
+#: trustchain_idhub/settings.py:205
+msgid "Catalan"
+msgstr "Català"
+
+#: trustchain_idhub/settings.py:206
+msgid "Spanish"
+msgstr "Castellà"
+
+#~ msgid "show this help message and exit"
+#~ msgstr "mostra aquest missatge d'ajuda i surt"
+
+#~ msgid "The user does not exist!"
+#~ msgstr "L'usuari no existeix!"
+
+#~ msgid "Change credential status"
+#~ msgstr "Canvia l'estat de la credencial"
+
+#~ msgid "Remove"
+#~ msgstr "Esborra"
+
+#~ msgid "Created"
+#~ msgstr "Creat"
+
+#~ msgid "View in JSON format"
+#~ msgstr "Visualitza en format JSON"
+
+#~ msgid "Template file"
+#~ msgstr "Fitxer de plantilla"
+
+#~ msgid "GDPR info"
+#~ msgstr "Informació GDPR"
+
+#~ msgid "Notice of Privacy"
+#~ msgstr "Avís de Privacitat"
+
+#, python-format
+#~ msgid "Are you sure that you want remove the address: \"%(address_name)s\"?"
+#~ msgstr "Esteu segur que voleu eliminar l'adreça: \"%(address_name)s\"?"
+
+#~ msgid "WARNING: This action cannot be undone."
+#~ msgstr "ADVERTIMENT: Aquesta acció no es pot desfer."
+
+#~ msgid "Email"
+#~ msgstr "Adreça electrònica"
+
+#~ msgid "Mailboxes"
+#~ msgstr "Bústies"
+
+#~ msgid "Forward"
+#~ msgstr "Reenvia"
+
+#~ msgid "New mail address"
+#~ msgstr "Nova adreça de correu"
+
+#~ msgid "Billing"
+#~ msgstr "Facturació"
+
+#~ msgid "Billing page description."
+#~ msgstr "Descripció de la pàgina de facturació."
+
+#~ msgid "Number"
+#~ msgstr "Número"
+
+#~ msgid "Bill date"
+#~ msgstr "Data de facturació"
+
+#~ msgid "Total"
+#~ msgstr "Total"
+
+#~ msgid "Welcome back"
+#~ msgstr "Benvingut de nou"
+
+#, python-format
+#~ msgid "Last time you logged in was: %(last_login)s"
+#~ msgstr "La darrera vegada que vas iniciar sessió va ser: %(last_login)s"
+
+#~ msgid "It's the first time you log into the system, welcome on board!"
+#~ msgstr ""
+#~ "És la primera vegada que inicieu sessió al sistema, benvingut a bord!"
+
+#~ msgid "There is no notifications at this time."
+#~ msgstr "No hi ha notificacions en aquest moment."
+
+#~ msgid "Your domains and websites"
+#~ msgstr "Els vostres dominis i llocs web"
+
+#~ msgid "Dashboard page description."
+#~ msgstr "Descripció de la pàgina del tauler."
+
+#~ msgid "view configuration"
+#~ msgstr "veure la configuració"
+
+#~ msgid "Expiration date"
+#~ msgstr "Data de caducitat"
+
+#~ msgid "Mail"
+#~ msgstr "Correu"
+
+#~ msgid "mail addresses created"
+#~ msgstr "adreces de correu creades"
+
+#~ msgid "Mail list"
+#~ msgstr "Llista de correu"
+
+#~ msgid "Software as a Service"
+#~ msgstr "Programari com a servei"
+
+#~ msgid "Nothing installed"
+#~ msgstr "No hi ha res instal·lat"
+
+#~ msgid "Disk usage"
+#~ msgstr "Ús del disc"
+
+#~ msgid "Configuration details"
+#~ msgstr "Detalls de configuració"
+
+#~ msgid "FTP access:"
+#~ msgstr "Accés FTP:"
+
+#~ msgid "Contact with the support team to get details concerning FTP access."
+#~ msgstr ""
+#~ "Contacta amb l'equip d'assistència per obtenir detalls sobre l'accés FTP."
+
+#~ msgid "No website configured."
+#~ msgstr "No s'ha configurat cap lloc web."
+
+#~ msgid "Root directory:"
+#~ msgstr "Directori arrel:"
+
+#~ msgid "Type:"
+#~ msgstr "Tipus:"
+
+#~ msgid "View DNS records"
+#~ msgstr "Veure registres DNS"
+
+#~ msgid "associated to"
+#~ msgstr "associada a"
+
+#~ msgid "No users for this database."
+#~ msgstr "No hi ha usuaris per a aquesta base de dades."
+
+#~ msgid "Open database manager"
+#~ msgstr "Obriu el gestor de bases de dades"
+
+#~ msgid "Ooops! Looks like there is nothing here!"
+#~ msgstr "Vaja! Sembla que aquí no hi ha res!"
+
+#~ msgid "Go back"
+#~ msgstr "Torna enrere"
+
+#~ msgid "DNS settings for"
+#~ msgstr "Configuració de DNS per a"
+
+#~ msgid "DNS settings page description."
+#~ msgstr "Descripció de la pàgina de configuració de DNS."
+
+#~ msgid "Value"
+#~ msgstr "Valor"
+
+#~ msgid "Go to global"
+#~ msgstr "Anar a global"
+
+#~ msgid "for"
+#~ msgstr "per"
+
+#~ msgid "Addresses"
+#~ msgstr "Adreces"
+
+#~ msgid "Change password"
+#~ msgstr "Canviar la contrasenya"
+
+#, python-format
+#~ msgid "Are you sure that you want remove the mailbox: \"%(name)s\"?"
+#~ msgstr "Esteu segur que voleu eliminar la bústia de correu: \"%(name)s\"?"
+
+#~ msgid ""
+#~ "All mailbox's messages will be <strong>deleted and cannot be recovered</"
+#~ "strong>."
+#~ msgstr ""
+#~ "Tots els missatges de la bústia se <strong>suprimiran i no es podran "
+#~ "recuperar</strong> ."
+
+#~ msgid "Warning!"
+#~ msgstr "Atenció!"
+
+#~ msgid ""
+#~ "You have reached the limit of mailboxes of your subscription so "
+#~ "<strong>extra fees</strong> may apply."
+#~ msgstr ""
+#~ "Heu arribat al límit de bústies de la vostra subscripció, de manera que "
+#~ "es poden aplicar <strong>càrrecs addicionals</strong>."
+
+#~ msgid "Close"
+#~ msgstr "Tanca"
+
+#~ msgid "Filtering"
+#~ msgstr "Filtratge"
+
+#~ msgid "Update password"
+#~ msgstr "Actualitzar la contrasenya"
+
+#~ msgid "New mailbox"
+#~ msgstr "Nova bústia"
+
+#~ msgid "Active"
+#~ msgstr "Actiu"
+
+#~ msgid "Inactive"
+#~ msgstr "Inactiu"
+
+#~ msgid "Profile"
+#~ msgstr "Perfil"
+
+#~ msgid "Little description on profile page."
+#~ msgstr "Petita descripció a la pàgina de perfil."
+
+#~ msgid "User information"
+#~ msgstr "Informació d'usuari"
+
+#~ msgid "Preferred language:"
+#~ msgstr "Idioma preferit:"
+
+#~ msgid "Billing information"
+#~ msgstr "Dades de facturació"
+
+#~ msgid "payment method:"
+#~ msgstr "mètode de pagament:"
+
+#~ msgid "Check your last bills"
+#~ msgstr "Comproveu les vostres últimes factures"
+
+#~ msgid "Installed on"
+#~ msgstr "Instal·lat a"
+
+#~ msgid "Service info"
+#~ msgstr "Informació del servei"
+
+#~ msgid "Open service admin panel"
+#~ msgstr "Obriu el tauler d'administració del servei"
