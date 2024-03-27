@@ -236,7 +236,8 @@ class AllowCodeView(View):
         )
         if self.request.session.get("response_uri"):
             url = self.send_api()
-            return redirect(url)
+            if url:
+                return redirect(url)
 
         promotion = self.authorization.promotions.first()
         if not promotion:
