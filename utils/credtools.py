@@ -8,7 +8,7 @@ import jsonschema
 import requests
 from pyld import jsonld
 import jsonref
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng import parse
 from datetime import datetime
 
 
