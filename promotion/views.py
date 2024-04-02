@@ -106,11 +106,32 @@ class SelectWalletView(FormView):
     success_url = reverse_lazy('promotion:select_wallet')
 
     def get_form_kwargs(self):
+        presentation = self.get_response_uri()
+        if not presentation:
+            presentation = json.dumps(
+            settings.SUPPORTED_CREDENTIALS
+        )
         kwargs = super().get_form_kwargs()
-        kwargs['presentation_definition'] = json.dumps(settings.SUPPORTED_CREDENTIALS)
+        kwargs['presentation_definition'] = presentation
         return kwargs
 
     def form_valid(self, form):
         url = form.save()
         return redirect(url)
 
+    def get_response_uri(self):
+        path = self.request.get_full_path().split("?")
+        if len(path) < 2:
+            return
+
+        args = dict(
+            [x.split("=") for x in path[1].split("&")]
+        )
+        response_uri = args.get('response_uri')
+
+        self.request.session["response_uri"] = response_uri
+        presentation = args.get('presentation_definition')
+
+        for x in settings.SUPPORTED_CREDENTIALS:
+            if x in presentation:
+                return json.dumps([x])

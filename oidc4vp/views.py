@@ -1,12 +1,13 @@
 import json
 import base64
 import logging
+import requests
 
 from django.template import loader
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.views.generic.edit import View, FormView
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -221,6 +222,7 @@ class VerifyView(View):
     def get_verification(self):
         return self.vp_token.get_user_info_all()
         
+
 class AllowCodeView(View):
     def get(self, request, *args, **kwargs):
         code = self.request.GET.get("code")
@@ -232,12 +234,50 @@ class AllowCodeView(View):
                 code=code,
                 code_used=False
         )
+        if self.request.session.get("response_uri"):
+            url = self.send_api()
+            if url:
+                return redirect(url)
 
         promotion = self.authorization.promotions.first()
         if not promotion:
             return redirect(reverse_lazy('oidc4vp:received_code'))
 
         return redirect(promotion.get_url(code))
+
+    def send_api(self):
+        vp = self.get_vp_token()
+        if not vp:
+            return
+
+        data = {
+            "vp_token": vp,
+            "code": self.authorization.code
+        }
+        url = self.request.session.get("response_uri")
+        result = requests.post(url, data=data)
+        return result.json().get('redirect_uri')
+
+    def get_vp_token(self):
+        vp = self.authorization.vp_tokens.first()
+        if not vp:
+            return
+        return base64.b64encode(vp.vp_token.encode()).decode()
+
+    def get_response_uri(self):
+        data = {
+            "code": self.authorization.code,
+        }
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(data)
+
+        response_uri = self.request.session.get("response_uri")
+
+        url = '{response_uri}?{params}'.format(
+            response_uri=response_uri,
+            params=query_dict.urlencode()
+        )
+        return url
 
 
 class ReceivedCodeView(View):
