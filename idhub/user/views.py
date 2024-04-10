@@ -1,7 +1,6 @@
 import json
 import base64
 import qrcode
-import datetime
 import weasyprint
 import qrcode.image.svg
 
@@ -282,21 +281,23 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(dict(self.object.get_datas()))
         img_sig = self.get_img_sign()
         img_head = self.get_img_header()
         img_foot = self.get_img_footer()
         qr = self.generate_qr_code(self.url_id)
-        issue_date_now = datetime.datetime.now()
-        issue_date = context.get('issuedDate', issue_date_now)
+        issue_date = context.get('certificationDate', '')
+        membership_since = context.get('membershipSince', '')
+        membership_type = context.get('membershipType', '').lower()
 
-        context.update(dict(self.object.get_datas()))
         context.update({
             'object': self.object,
             "image_signature": img_sig,
             "image_header": img_head,
             "image_footer": img_foot,
-            "issue_date_now": issue_date_now.strftime("%d/%m/%Y"),
-            "issue_date": issue_date.strftime("%d/%m/%Y"),
+            "issue_date": issue_date,
+            "membership_since": membership_since,
+            "membership_type": membership_type,
             "qr": qr,
         })
         return context
