@@ -1,1 +1,1 @@
-npx ts-node --esm <script>
+npx tsx <script>

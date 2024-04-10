@@ -28,10 +28,10 @@ function randomWallet(){
     return wallet
 }
 
-function createContract(address, contractPath, wallet) {
+function createContract(address, contractJSON, wallet) {
     const contract = new ethers.Contract(
         address,
-        require(contractPath).abi,
+        contractJSON.abi,
         wallet
     )
     return contract
@@ -39,8 +39,8 @@ function createContract(address, contractPath, wallet) {
 
 function getEvents(txReceipt, event, interface) {
     var args;
-    txReceipt.events.forEach(log => {
-        if (log.event == event) {
+    txReceipt.logs.forEach(log => {
+        if (log.eventName != undefined && log.eventName == event) {
             args = interface.parseLog(log).args
         }
     })

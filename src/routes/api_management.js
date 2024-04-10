@@ -39,8 +39,7 @@ router
         data: {
           api_token: token_object.token,
           eth_pub_key: wallet.address,
-          eth_priv_key: wallet.privateKey,
-          iota_id: iota_id
+          eth_priv_key: wallet.privateKey
         }
       })
     }
@@ -79,7 +78,6 @@ router
     const api_token = req.body.api_token;
     console.log(`Called /checkUserRoles`)
     try {
-      //TODO: check IOTA roles. store output into iota_response_data
 
       const valid_token = await multiacc.check_token(api_token)
       if (!valid_token) {
@@ -90,7 +88,7 @@ router
       const wallet = await ethHelper.get_wallet(api_token)
       
       const accessListContract = ethHelper.createContract
-      (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", wallet)
+      (ethereum.ACCESSLIST_ADDRESS, ethereum.AccessList, wallet)
 
       const isIssuer = await accessListContract.checkIfIssuer(wallet.address);
       const isOperator = await accessListContract.checkIfOperator(wallet.address);

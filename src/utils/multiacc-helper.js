@@ -1,7 +1,6 @@
 const CryptoJS = require('crypto-js');
 const storage = require('node-persist');
 // const generate = require('generate-api-key');
-//const adminIdentity = require('./iota/adminIdentity.json')
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const ethers = require("ethers")
 const ethereum = require("../utils/ethereum/ethereum-config.js");
@@ -67,30 +66,6 @@ async function set_acc_data(token, data) {
 
 
 async function set_admin() {
-  // fs.readdir("../routes/.node-persist/storage", async function (err, files) {
-  //   if (err) {
-  //     // throw error?
-  //   } else {
-  //     if (!files.length) {
-  //       //dir empty
-  //       //ask for ETH privatekey on startup?
-  //       const privateKey = "0xdb7bbaee5f30c525a3854958231fe89f0cdbeec09479c769e3d3364f0e666d6a"
-  //       const token_object = generate_token()
-  //       wallet = new ethers.Wallet(privateKey, ethereum.provider)
-
-  //       const iota_id = adminIdentity.doc.id
-  //       const iota_key = adminIdentity.key.secret
-
-  //       await storage.init()
-  //       await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey, iota_id: iota_id, iota_key: iota_key, iota: { credentials: {} } })
-  //       console.log("Admin token " + token_object.token)
-  //     }
-  //     else {
-  //       //dir not empty
-  //       console.log("Admin user already set")
-  //     }
-  //   }
-  // });
 
   const admin_object = await storage.getItem("admin")
   if (admin_object == undefined) {

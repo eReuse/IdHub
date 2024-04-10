@@ -13,8 +13,6 @@ const axios = require("axios")
 const app = express()
 
 const ethereum_name = "ethereum"
-const iota_name = "iota"
-const cosmos_name = "cosmos"
 
 const credential_types = ["Operator", "Witness", "Verifier", "Issuer"]
 
@@ -40,7 +38,7 @@ function check_dlt(dlt) {
     // if (dlt.length != 1) {
     //   throw new BadRequest("Can only call one DLT at a time.")
     // }
-    if (!dlt == iota_name && !dlt == ethereum_name) {
+    if (!dlt == ethereum_name) {
         throw new BadRequest("Invalid DLT identifier")
     }
 }
@@ -134,7 +132,7 @@ router
             const issuer_eth_wallet = await ethHelper.get_wallet(api_token)
             // const target_eth_wallet = await ethHelper.get_wallet(target_user)
             const accessListConstract = ethHelper.createContract
-                (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", issuer_eth_wallet)
+                (ethereum.ACCESSLIST_ADDRESS, ethereum.AccessList, issuer_eth_wallet)
             var txResponse
             if (credentialType == "operator")
                 txResponse = await accessListConstract.registerOperator(target_user, { gasLimit: 6721975, gasPrice: 0 })
@@ -193,7 +191,7 @@ router
 
             if (dlt == ethereum_name) {
                 const accessListContract = ethHelper.createContract
-                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", ethHelper.randomWallet())
+                    (ethereum.ACCESSLIST_ADDRESS, ethereum.AccessList, ethHelper.randomWallet())
                 var txResponse
                 if (credentialType == "Operator")
                     txResponse = await accessListContract.get_operator_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })

@@ -32,15 +32,7 @@ const {OPERATOR, WITNESS, VERIFIER, OWNERSHIP} = require('../utils/constants')
 
 
 const ethereum_name = "ethereum"
-const iota_name = "iota"
-const cosmos_name = "cosmos"
 
-
-// async function initial_steps(){
-//   await iota.check_iota_index()
-//   await multiacc.set_admin()
-// }
-//initial_steps()
 
 function get_error_object(error) {
   switch (error) {
@@ -76,7 +68,6 @@ class Parameters {
     this.fragment = req.body.fragment ?? "";
     this.inventoryID=req.body.InventoryID ?? "";
     //this.dlt = req.headers.dlt.replace(/\s+/g, '').split(',')
-    // The ones below should be deleted later
     this.documentID = req.body.DocumentID ?? "";
     this.documentSignature = req.body.DocumentSignature ?? "";
     this.timestamp = req.body.Timestamp ?? "";
@@ -87,7 +78,7 @@ class Parameters {
 }
 
 function is_dlt_valid(dlt) {
-  if (dlt == iota_name || dlt == ethereum_name) {
+  if (dlt == ethereum_name) {
     return true
   }
   return false
@@ -126,56 +117,24 @@ router
       return
     }
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) != false)) {
-        next(ApiError.badRequest('Device already exists'));
-        return
-      }
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR, WITNESS])
-      if(credential == undefined) {
-        next(ApiError.badRequest('No valid credential found'));
-        return
-      }
-      var iota_creation_response = await iota.create_device_channel(iota_id, parameters.deviceCHID)
-      
-      var userData = await multiacc.get_acc_data(parameters.api_token)
-      //it must be possible to do this better (maybe)
-      if (userData.iota.credentials?.[OWNERSHIP] == undefined){
-        userData.iota.credentials[OWNERSHIP] = {[parameters.deviceCHID]: iota_creation_response.verifiableCredential}
-      }
-      else {
-        userData.iota.credentials[OWNERSHIP][parameters.deviceCHID] = iota_creation_response.verifiableCredential
-      }
-      await multiacc.set_acc_data(parameters.api_token, userData)
-
-      response_data = {
-        channelAddress: iota_creation_response.channelAddress,
-        credential: iota_creation_response.verifiableCredential,
-        timestamp: iota_creation_response.timestamp
-      }
+    const wallet = await ethHelper.get_wallet(parameters.api_token)
+    var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
+    if (ethHelper.is_device_address_valid(existingDeviceAddress)) {
+      next(ApiError.badRequest('Device already exists'));
+      return
     }
 
-    else if (parameters.dlt == ethereum_name) {
-      const wallet = await ethHelper.get_wallet(parameters.api_token)
-      var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
-      if (ethHelper.is_device_address_valid(existingDeviceAddress)) {
-        next(ApiError.badRequest('Device already exists'));
-        return
-      }
-
-      const deviceFactoryContract = ethHelper.createContract
-      (ethereum.DEVICEFACTORY_ADDRESS, "../../../build/contracts/DeviceFactory.json", wallet)
-      var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, parameters.documentHashAlgorithm, parameters.documentHash, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
-      var txReceipt = await txResponse.wait()
-      var args = ethHelper.getEvents
+    const deviceFactoryContract = ethHelper.createContract
+      (ethereum.DEVICEFACTORY_ADDRESS, ethereum.DeviceFactory, wallet)
+    var txResponse = await deviceFactoryContract.registerDevice(parameters.deviceCHID, parameters.documentHashAlgorithm, parameters.documentHash, parameters.inventoryID, { gasLimit: 6721975, gasPrice: 0 })
+    var txReceipt = await txResponse.wait()
+    var args = ethHelper.getEvents
       (txReceipt, 'DeviceRegistered', ethereum.deviceFactoryIface)
 
-      response_data = {
-        deviceAddress: args._deviceAddress,
-        timestamp: parseInt(Number(args.timestamp), 10)
-      }
+    response_data = {
+      deviceAddress: args._deviceAddress,
+      timestamp: parseInt(Number(args.timestamp), 10)
     }
 
     res.status(201);
@@ -229,28 +188,9 @@ router
       return
     }
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
+    
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
 
-      //TODO: catch error if not found
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-      var userData = await multiacc.get_acc_data(parameters.api_token)
-      console.log("USER DATA " + userData)
-
-      //empty payload?
-      var iota_timestamp = await iota.write_device_channel(iota_id, credential, parameters.deviceCHID, "proof_of_deregister", {})
-
-      response_data = {
-        timestamp: iota_timestamp
-      }
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var existingDeviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -261,7 +201,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-        (existingDeviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+        (existingDeviceAddress, ethereum.DepositDevice, wallet)
 
       var txResponse = await depositDeviceContract.deRegisterDevice(parameters.deviceCHID, { gasLimit: 6721975, gasPrice:0 })
       var txReceipt = await txResponse.wait()
@@ -271,7 +211,7 @@ router
       response_data = {
         timestamp: parseInt(Number(args.timestamp), 10)
       }
-    }
+
 
     res.status(201);
     res.json({
@@ -332,29 +272,9 @@ router
       return
     }
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
+    
 
-      if ((await iota.lookup_device_channel(deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
 
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_timestamp = await iota.write_device_channel(iota_id, credential, deviceCHID, "proof_of_issue", {
-        DeviceDPP: `${deviceCHID}:${devicePHID}`,
-        IssuerID: parameters.issuerID,
-        DocumentID: parameters.documentID,
-        DocumentSignature: parameters.documentSignature
-      })
-
-      response_data = {
-        timestamp: iota_timestamp
-      }
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(deviceCHID)
@@ -365,7 +285,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const txResponse = await depositDeviceContract.issuePassport(devicePHID, parameters.documentHashAlgorithm, parameters.documentHash, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
@@ -375,7 +295,6 @@ router
       response_data = {
         timestamp: parseInt(Number(args.timestamp), 10)
       }
-    }
 
     res.status(201);
     res.json({
@@ -429,7 +348,7 @@ router
     const wallet = await ethHelper.get_wallet(parameters.api_token)
 
     const tokenContract = ethHelper.createContract
-      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+      (ethereum.TOKEN_CONTRACT_ADDRESS, ethereum.TokenContract, wallet)
 
     const txResponse = await tokenContract.mint(parameters.address, { gasLimit: 6721975, gasPrice: 0 })
     await txResponse.wait()
@@ -486,7 +405,7 @@ router
     const wallet = await ethHelper.get_wallet(parameters.api_token)
 
     const tokenContract = ethHelper.createContract
-      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+      (ethereum.TOKEN_CONTRACT_ADDRESS, ethereum.TokenContract, wallet)
 
     const txResponse = await tokenContract.approve(ethereum.DEVICEFACTORY_ADDRESS, 1000000, { gasLimit: 6721975, gasPrice: 0 })
     await txResponse.wait()
@@ -552,7 +471,7 @@ router
     }
 
     const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
     const txResponse = await depositDeviceContract.releaseFunds(parameters.address, { gasLimit: 6721975, gasPrice: 0 })
     const txReceipt = await txResponse.wait()
@@ -608,7 +527,7 @@ router
     const wallet = ethHelper.randomWallet()
 
     const tokenContract = ethHelper.createContract
-      (ethereum.TOKEN_CONTRACT_ADDRESS, "../../../build/contracts/TokenContract.json", wallet)
+      (ethereum.TOKEN_CONTRACT_ADDRESS, ethereum.TokenContract, wallet)
 
     const balance = await tokenContract.balanceOf(deviceAddress);
 
@@ -648,29 +567,7 @@ router
       next(ApiError.badRequest('Invalid API token'));
       return
     }
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_timestamp = await iota.write_device_channel(iota_id, credential, parameters.deviceCHID, "generic_proof", {
-        IssuerID: parameters.issuerID,
-        DocumentID: parameters.documentID,
-        DocumentSignature: parameters.documentSignature,
-        DocumentType: parameters.type
-      })
-
-      response_data = {
-        timestamp: iota_timestamp
-      }
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -680,7 +577,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const txResponse = await depositDeviceContract.generateGenericProof(parameters.documentHashAlgorithm, parameters.documentHash, parameters.type, parameters.inventoryID, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
@@ -690,7 +587,6 @@ router
       response_data = {
         timestamp: parseInt(Number(args.timestamp), 10)
       }
-    }
 
     res.status(201);
     res.json({
@@ -747,38 +643,7 @@ router
       return
     }
 
-    if (parameters.dlt == iota_name) {
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-      const iota_id = await iota.get_iota_id(parameters.api_token)
-      const target_id = await iota.get_iota_id(parameters.newOwner)
-      const credential = await iota.get_credential(parameters.api_token, [], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-      const new_owner_credential = await iota.transfer_ownership(iota_id,credential,target_id,parameters.deviceCHID)
 
-      //current owner
-      var currentOwnerData = await multiacc.get_acc_data(parameters.api_token)
-      delete currentOwnerData.iota.credentials[OWNERSHIP][parameters.deviceCHID]
-      await multiacc.set_acc_data(parameters.api_token, currentOwnerData)
-
-      var targetUserData = await multiacc.get_acc_data(parameters.newOwner)
-      //it must be possible to do this better (maybe)
-      if (targetUserData.iota.credentials?.[OWNERSHIP] == undefined){
-        targetUserData.iota.credentials[OWNERSHIP] = {[parameters.deviceCHID]: new_owner_credential}
-      }
-      else {
-        targetUserData.iota.credentials[OWNERSHIP][parameters.deviceCHID] = new_owner_credential
-      }
-      await multiacc.set_acc_data(parameters.newOwner, targetUserData)
-
-      response_data = {
-        credential: new_owner_credential
-      }
-
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
       const new_owner_wallet = await ethHelper.get_wallet(parameters.newOwner)
 
@@ -790,7 +655,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const txResponse = await depositDeviceContract.transferDevice(new_owner_wallet.address, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
@@ -802,7 +667,6 @@ router
         newOwner: args.receiverAddress,
         timestamp: parseInt(Number(args.timestamp), 10)
       }
-    }
 
     res.status(200);
     res.json({
@@ -847,22 +711,7 @@ router
       return;
     }
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "generic_proof")
-
-      response_data = iota_proofs
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -872,7 +721,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const value = await depositDeviceContract.getGenericProofs();
       var data = []
@@ -893,7 +742,7 @@ router
         })
       }
       response_data = data
-    }
+
 
     res.status(200);
     res.json({
@@ -921,22 +770,7 @@ router
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_issue")
-      response_data = iota_proofs
-    }
-
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -945,7 +779,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const value = await depositDeviceContract.getDPPs();
       var data = []
@@ -955,7 +789,6 @@ router
         })
       }
       response_data = data
-    }
 
     res.status(200);
     res.json({
@@ -983,22 +816,7 @@ router
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_transfer")
-      response_data = iota_proofs
-    }
-
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1007,7 +825,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const value = await depositDeviceContract.getTrasferProofs();
       var data = []
@@ -1023,7 +841,7 @@ router
         })
       }
       response_data = data
-    }
+
 
     res.status(200);
     res.json({
@@ -1052,22 +870,8 @@ router
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
 
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_register")
-
-      response_data = iota_proofs
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1076,7 +880,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const value = await depositDeviceContract.getRegisterProofs();
       var data = []
@@ -1092,7 +896,6 @@ router
       }
 
       response_data = data
-    }
 
     res.status(200);
     res.json({
@@ -1120,22 +923,7 @@ router
     const valid_token = await multiacc.check_token(parameters.api_token)
     if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt == iota_name) {
-      const iota_id = await iota.get_iota_id(parameters.api_token)
 
-      if ((await iota.lookup_device_channel(parameters.deviceCHID) == false)) {
-        throw new BadRequest("CHID not registered.")
-      }
-
-      const credential = await iota.get_credential(parameters.api_token, [OPERATOR,WITNESS,VERIFIER], parameters.deviceCHID)
-      if(credential == undefined) throw new BadRequest("No valid credential found.")
-
-      var iota_proofs = await iota.read_specific_device_proofs(iota_id, credential, parameters.deviceCHID, "proof_of_deregister")
-
-      response_data = iota_proofs
-    }
-
-    else if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1144,7 +932,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-        (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+        (deviceAddress, ethereum.DepositDevice, wallet)
 
       const value = await depositDeviceContract.getDeRegisterProofs();
       var data = []
@@ -1159,7 +947,6 @@ router
         })
       }
       response_data = data
-    }
 
     res.status(200);
     res.json({
@@ -1187,7 +974,7 @@ router
     // const valid_token = await multiacc.check_token(parameters.api_token)
     // if (!valid_token) throw new BadRequest("Invalid API token.")
 
-    if (parameters.dlt == ethereum_name) {
+
       // const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1196,7 +983,7 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", ethHelper.randomWallet())
+      (deviceAddress, ethereum.DepositDevice, ethHelper.randomWallet())
 
       const value = await depositDeviceContract.getDidData();
       // var data = Object.assign({}, value)
@@ -1216,7 +1003,6 @@ router
       })
 
       response_data = data
-    }
 
     res.status(200);
     res.json({
@@ -1251,7 +1037,6 @@ router
       next(ApiError.badRequest('Invalid API token'));
       return
     }
-    if (parameters.dlt == ethereum_name) {
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1261,11 +1046,11 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const txResponse = await depositDeviceContract.addService(parameters.endpoint, parameters.type, parameters.description, parameters.fragment, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
-    }
+
 
     res.status(201);
     res.json({
@@ -1313,7 +1098,7 @@ router
       next(ApiError.badRequest('Invalid API token'));
       return
     }
-    if (parameters.dlt == ethereum_name) {
+
       const wallet = await ethHelper.get_wallet(parameters.api_token)
 
       var deviceAddress = await ethHelper.chid_to_deviceAdress(parameters.deviceCHID)
@@ -1323,11 +1108,10 @@ router
       }
 
       const depositDeviceContract = ethHelper.createContract
-      (deviceAddress, "../../../build/contracts/DepositDevice.json", wallet)
+      (deviceAddress, ethereum.DepositDevice, wallet)
 
       const txResponse = await depositDeviceContract.removeService(parameters.fragment, { gasLimit: 6721975, gasPrice:0 })
       const txReceipt = await txResponse.wait()
-    }
 
     res.status(201);
     res.json({
