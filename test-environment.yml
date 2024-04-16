@@ -1,0 +1,90 @@
+version: '3.9'
+
+services:
+  id_index_api: 
+      build: 
+        context: ./idIndexApi/
+        dockerfile: ./Dockerfile
+      container_name: id_index_api
+      ports:
+        - "3012:3012"
+      restart: always
+      volumes:
+        - ./idIndexApi/data:/home/node/idIndexApi/data:rw
+        - ./idIndexApi/src:/home/node/idIndexApi/src:ro
+      networks:
+        - ereuse
+
+  blockchain_test_node: 
+      build: 
+        context: ./
+        dockerfile: ./Dockerfile_blockchain_test_node
+      container_name: blockchain_test_node
+      ports:
+        - "8545:8545"
+      restart: always
+      networks:
+        - ereuse
+
+  api_connector: 
+      build: ./
+      depends_on:
+        - id_index_api
+        - blockchain_test_node
+        - veramo_api
+      container_name: api_connector
+      ports:
+        - "3010:3010"
+      restart: always
+      volumes:
+        - ./src:/home/node/app/src:rw
+        - ./shared:/home/node/app/shared:rw
+        - ./.env:/home/node/app/.env:ro
+      networks:
+        - ereuse
+
+  did_resolver: 
+      build: 
+        context: ./
+        dockerfile: ./didResolverApi/Dockerfile
+      container_name: did_resolver
+      ports:
+        - "3011:3011"
+      restart: always
+      volumes:
+        - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
+        - ./didResolverModule/src:/home/node/didResolverModule/src:rw
+        - ./.env:/home/node/didResolverModule/src/.env:ro
+      networks:
+        - ereuse
+
+  dpp_indexer: 
+      build: 
+        context: ./
+        dockerfile: ./observerModule/Dockerfile
+      depends_on:
+        - api_connector
+      container_name: dpp_indexer # name of the built image
+      ports:
+        - "3014:3014"
+      restart: always
+      volumes:
+        - ./observerModule/data:/home/node/observerModule/data:rw
+        - ./observerModule/src:/home/node/observerModule/src:ro
+        - ./shared:/home/node/observerModule/shared:rw
+        - ./.env:/home/node/observerModule/src/.env:ro
+  
+  veramo_api: 
+      build:
+        context: ./veramoApi
+        dockerfile: ./Dockerfile
+      container_name: veramo_api # name of the built image
+      ports:
+        - "3016:3016"
+      restart: always
+      volumes:
+        - ./veramoApi/src:/home/node/veramoApi/src:rw
+
+networks:
+    ereuse:
+      driver: bridge

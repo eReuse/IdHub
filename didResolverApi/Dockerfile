@@ -1,4 +1,4 @@
-FROM node:19-alpine3.15
+FROM node:20.10.0-alpine
 
 RUN mkdir -p /home/node/didResolverAPI/node_modules && chown -R node:node /home/node/didResolverAPI && mkdir -p /home/node/didResolverModule/node_modules && chown -R node:node /home/node/didResolverModule
 WORKDIR /home/node/didResolverAPI
@@ -15,4 +15,5 @@ RUN npm install
 
 EXPOSE 3011
 WORKDIR /home/node/didResolverAPI/src
+# COPY ../.env ./
 CMD ["node", "./index.js"]

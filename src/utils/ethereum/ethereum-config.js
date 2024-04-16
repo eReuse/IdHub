@@ -24,6 +24,7 @@ const ethClient = process.env.ETH_CLIENT
 const idIndexURL = process.env.ID_INDEX
 
 const chainId = process.env.CHAIN_ID.toString()
+console.log(chainId)
 
 const DEVICEFACTORY_ADDRESS = deployedContracts.DeviceFactory;
 const ACCESSLIST_ADDRESS = deployedContracts.AccessList;
