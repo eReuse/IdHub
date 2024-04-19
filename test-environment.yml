@@ -73,6 +73,8 @@ services:
         - ./observerModule/src:/home/node/observerModule/src:ro
         - ./shared:/home/node/observerModule/shared:rw
         - ./.env:/home/node/observerModule/src/.env:ro
+      networks:
+        - ereuse
   
   veramo_api: 
       build:
@@ -84,6 +86,8 @@ services:
       restart: always
       volumes:
         - ./veramoApi/src:/home/node/veramoApi/src:rw
+      networks:
+        - ereuse
 
 networks:
     ereuse:

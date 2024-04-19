@@ -2,16 +2,16 @@ const axios = require("axios")
 const api_url = "http://localhost:3010"
 const route = "oracle"
 const params= {
-    api_token: "jiNQMB6MYc4NUs0.cxyKF6Qd7qsGLATBWVMEkFGmguaDRXPuta0neJlIBgUw7UwZLMALmuW9Qhd3pE7d",
+    api_token: "ZxA4dzZBE2gKNpW.iE0PoareeotjWZN0RSAv6QoeGClhbNrfYwvdtbOsOcC3VYmdls8GgktkE8O8nJeQ",
     Credential: {
       "issuer": {
         "id": "did:ethr:0x2f67B1d86651aF2E37E39b30F2E689Aa7fbAc79F"
       },
       "credentialSubject": {
-        "id": "did:ethr:0x9689c31ddc9fD8F0Fcb98B7570E82893d9a7E593",
+        "id": "did:ethr:0xf1051D79fA59B580b916418bA699F996edbb25C8",
         "role": "operator"
       },
-      "issuanceDate": "2024-04-10T08:30:56.318Z",
+      "issuanceDate": "2024-04-19T08:04:54.723Z",
       "@context": [
         "https://www.w3.org/2018/credentials/v1"
       ],
@@ -20,10 +20,10 @@ const params= {
       ],
       "proof": {
         "verificationMethod": "did:ethr:0x2f67B1d86651aF2E37E39b30F2E689Aa7fbAc79F#controller",
-        "created": "2024-04-10T08:30:56.318Z",
+        "created": "2024-04-19T08:04:54.723Z",
         "proofPurpose": "assertionMethod",
         "type": "EthereumEip712Signature2021",
-        "proofValue": "0x0fcf812b818a1b6e4a25d4492e86bc76a3b664577962a3a5087f67c83bab627a290c4b1d5b158e126f294ca520ff3c0735a0e070d33e9d464569d6735a4f5c241c",
+        "proofValue": "0xe721e07e161d2f137918b3673dc1f925bcdd734b259fc1b7d2a9349c31a3f75c60b5b4472df00d9f8434db457ef26808b3c36993606185462af9f2a71cd5d1cf1b",
         "eip712": {
           "domain": {
             "chainId": 457,
@@ -110,8 +110,7 @@ const params= {
         }
       }
     }
-      
-}
+  }    
 const dlt = "ethereum"
 axios.post(`${api_url}/${route}`, params, {
     headers: {

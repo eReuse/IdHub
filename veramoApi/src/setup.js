@@ -67,6 +67,7 @@ export const agent = createAgent({
                     name:"ereuse",
                     defaultKms: 'local',
                     network: 457,
+                    //TODO CONFIGURE THIS BETTER
                     rpcUrl: "http://45.150.187.30:8545",
                     registry: "0x65CF661380b57c3a91b6e501D5c4c5a0652b33f0"
                 }),

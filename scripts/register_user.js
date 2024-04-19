@@ -8,7 +8,7 @@ const axios = require("axios")
 const api_url = "http://localhost:3010"
 const route = "registerUser"
 const params= {
-    privateKey:"b1a456156a846f256783b90af3da3317f05297909ba56be6faed916f1f281611"
+    privateKey:"1499c33a69d24593a3e1304852ea1749e8ffad8886c7641b14a7b5635967fb06"
 }
 
 const dlt = "ethereum"
