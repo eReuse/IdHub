@@ -65,6 +65,8 @@ services:
       depends_on:
         - api_connector
       container_name: dpp_indexer # name of the built image
+      environment:
+        - HTTP_PORT=3014
       ports:
         - "3014:3014"
       restart: always
