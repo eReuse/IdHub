@@ -1,0 +1,6 @@
+# in this file, data is crafted and share bewteen the services
+
+# Ignore everything in this directory -> thanks https://stackoverflow.com/questions/115983/how-do-i-add-an-empty-directory-to-a-git-repository
+*
+# Except this file
+!.gitignore
