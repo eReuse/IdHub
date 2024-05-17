@@ -1,8 +1,7 @@
-version: '3.9'
-
 services:
 
-  api: 
+  api:
+      init: true
       build: ./
       container_name: ereuse-dpp-api # name of the built image
       ports:
@@ -13,8 +12,9 @@ services:
       networks:
         - ereuse
 
-  resolver: 
-      build: 
+  resolver:
+      init: true
+      build:
         context: ./
         dockerfile: ./didResolverApi/Dockerfile
       container_name: didResolver # name of the built image

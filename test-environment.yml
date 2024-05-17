@@ -1,8 +1,7 @@
-version: '3.9'
-
 services:
-  id_index_api: 
-      build: 
+  id_index_api:
+      init: true
+      build:
         context: ./idIndexApi/
         dockerfile: ./Dockerfile
       container_name: id_index_api
@@ -15,8 +14,9 @@ services:
       networks:
         - ereuse
 
-  blockchain_test_node: 
-      build: 
+  blockchain_test_node:
+      init: true
+      build:
         context: ./
         dockerfile: ./Dockerfile_blockchain_test_node
       container_name: blockchain_test_node
@@ -26,7 +26,8 @@ services:
       networks:
         - ereuse
 
-  api_connector: 
+  api_connector:
+      init: true
       build: ./
       depends_on:
         - id_index_api
@@ -43,8 +44,9 @@ services:
       networks:
         - ereuse
 
-  did_resolver: 
-      build: 
+  did_resolver:
+      init: true
+      build:
         context: ./
         dockerfile: ./didResolverApi/Dockerfile
       container_name: did_resolver
@@ -58,8 +60,9 @@ services:
       networks:
         - ereuse
 
-  dpp_indexer: 
-      build: 
+  dpp_indexer:
+      init: true
+      build:
         context: ./
         dockerfile: ./observerModule/Dockerfile
       depends_on:
@@ -77,8 +80,9 @@ services:
         - ./.env:/home/node/observerModule/src/.env:ro
       networks:
         - ereuse
-  
-  veramo_api: 
+
+  veramo_api:
+      init: true
       build:
         context: ./veramoApi
         dockerfile: ./Dockerfile
