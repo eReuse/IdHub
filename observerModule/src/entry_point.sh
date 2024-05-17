@@ -1,13 +1,22 @@
 #!/bin/sh
-while true; do
-    if test -f "../shared/DepositDevice.json"
-    then
-        echo "Compiled contract available."
-        break
-    else
-        echo "Waiting for contract deployment..."
-        sleep 1
-    fi
-done
 
-node index.js
+set -e
+set -u
+# DEBUG
+set -x
+
+main() {
+        while true; do
+                if test -f "../shared/DepositDevice.json"; then
+                        echo "Compiled contract available."
+                        break
+                else
+                        echo "Waiting for api-connector contract deployment..."
+                        sleep 5
+                fi
+        done
+
+        node index.js
+}
+
+main "${@}"
