@@ -1,3 +1,8 @@
+# note: this config file is empty in the main repo, but visible inside
+# the container
+# didResolverApi/src/.env
+.env
+
 .node-persist
 build
 pythonPackage/dist

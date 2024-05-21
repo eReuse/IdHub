@@ -56,7 +56,7 @@ services:
       volumes:
         - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
         - ./didResolverModule/src:/home/node/didResolverModule/src:rw
-        - ./.env:/home/node/didResolverModule/src/.env:ro
+        - ./.env:/home/node/didResolverAPI/src/.env:ro
       networks:
         - ereuse
 
