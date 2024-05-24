@@ -96,7 +96,7 @@ app.use(
     })
 )
 
-const port = 3013
+const port = process.env.HTTP_PORT || 3013
 const host = "0.0.0.0"
 
 
