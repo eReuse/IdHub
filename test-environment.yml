@@ -40,7 +40,7 @@ services:
       volumes:
         - ${api_connector__vol__src:-api_connector__api_src}:/home/node/app/src:rw
         - ${api_connector__vol__shared:-api_connector__shared_src}:/home/node/app/shared:rw
-        - ${api_connector__vol__env:-api_connector__env_src}:/home/node/app/.env:ro
+        - ./.env:/home/node/app/.env:ro
       networks:
         - ereuse
 
@@ -56,7 +56,7 @@ services:
       volumes:
         - ${did_resolver__vol__api_src:-did_resolver__api_src}:/home/node/didResolverAPI/src:rw
         - ${did_resolver__vol__module_src:-did_resolver__module_src}:/home/node/didResolverModule/src:rw
-        - ${did_resolver__vol__env:-did_resolver__env_src}:/home/node/didResolverAPI/src/.env:ro
+        - ./.env:/home/node/didResolverAPI/src/.env:ro
       networks:
         - ereuse
 
@@ -77,7 +77,7 @@ services:
         - ${dpp_indexer__vol__data:-dpp_indexer__data}:/home/node/observerModule/data:rw
         - ${dpp_indexer__vol__src:-dpp_indexer__src}:/home/node/observerModule/src:ro
         - ${dpp_indexer__vol__shared:-dpp_indexer__shared}:/home/node/observerModule/shared:rw
-        - ${dpp_indexer__vol__env:-dpp_indexer__env}:/home/node/observerModule/src/.env:ro
+        - ./.env:/home/node/observerModule/src/.env:ro
       networks:
         - ereuse
 
@@ -104,12 +104,9 @@ volumes:
   id_index_api__src:
   api_connector__api_src:
   api_connector__shared_src:
-  api_connector__env_src:
   did_resolver__api_src:
   did_resolver__module_src:
-  did_resolver__env_src:
   dpp_indexer__data:
   dpp_indexer__src:
   dpp_indexer__shared:
-  dpp_indexer__env:
   veramo_api__src:
