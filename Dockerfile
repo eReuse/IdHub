@@ -10,6 +10,7 @@ USER node
 RUN npm install express ethers crypto-js node-persist body-parser fs cors hardhat '@nomicfoundation/hardhat-ethers' --save
 RUN npx hardhat vars set TEST_NODE_IP blockchain_test_node
 COPY --chown=node:node src ./src
+RUN mkdir -p /home/node/app/shared && chown -R node:node /home/node/app/shared
 
 EXPOSE 3010
 # WORKDIR /home/node/app/src/

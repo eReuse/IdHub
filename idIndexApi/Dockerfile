@@ -7,6 +7,8 @@ COPY --chown=node:node package*.json ./
 USER root
 RUN npm install
 
+COPY src ./src
+
 EXPOSE 3012
 WORKDIR /home/node/idIndexApi/src
 CMD ["node", "./index.js"]

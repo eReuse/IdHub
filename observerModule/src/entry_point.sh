@@ -7,7 +7,7 @@ set -x
 
 main() {
         while true; do
-                if test -f "../shared/DepositDevice.json"; then
+                if [ -f "../shared/DepositDevice.json" ]; then
                         echo "Compiled contract available."
                         break
                 else
