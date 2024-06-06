@@ -86,5 +86,6 @@ class AuthorizeForm(forms.Form):
         vp_str = json.dumps(vp)
 
         key_material = did.get_key_material()
-        self.vp = sign(vp_str, key_material, did.did)
+        vp = sign(vp_str, key_material, did.did)
+        self.vp = json.dumps(vp)
 
