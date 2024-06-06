@@ -21,7 +21,7 @@ from .views import (
     LoginView,
     PasswordResetView,
     PasswordResetConfirmView,
-    serve_did,
+    ServeDidView,
     DobleFactorSendView,
 )
 from .admin import views as views_admin
@@ -183,7 +183,7 @@ urlpatterns = [
         name='admin_2fauth'),
     path('admin/auth/2f/', DobleFactorSendView.as_view(), name='confirm_send_2f'),
 
-    path('did-registry/<str:did_id>/did.json', serve_did)
+    path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did")
 
     # path('verification_portal/verify/', views_verification_portal.verify,
     #      name="verification_portal_verify")
