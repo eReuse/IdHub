@@ -174,11 +174,7 @@ class VerifyView(View):
         """
         Send a email when a user is activated.
         """
-        verification = self.vp_token.get_result_verify()
-        if not verification:
-            return
-
-        if verification.get('errors') or verification.get('warnings'):
+        if not self.vp_token.result_verify:
             return
 
         email = self.get_email(user)
