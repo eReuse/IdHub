@@ -12,7 +12,7 @@ from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
 from django.db import models
-from pyvckit.verify_vp import verify_vp
+from pyvckit.verify import verify_vp
 
 
 SALT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
