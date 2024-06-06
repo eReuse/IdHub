@@ -78,11 +78,13 @@ class AuthorizeForm(forms.Form):
 
         context = {
             "holder_did": did.did,
-            "verificable_credentials": vc_list,
             "id": str(uuid.uuid4())
         }
         unsigned_vp = vp_template.render(context)
+        vp = json.loads(unsigned_vp)
+        vp["verifiableCredential"] = vc_list
+        vp_str = json.dumps(vp)
 
         key_material = did.get_key_material()
-        self.vp = sign(key_material, unsigned_vp, did.did)
+        self.vp = sign(vp_str, key_material, did.did)
 
