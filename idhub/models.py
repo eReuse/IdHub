@@ -13,9 +13,8 @@ from pyvckit.did import (
     generate_keys,
     generate_did,
     gen_did_document,
-    get_signing_key
 )
-from pyvckit.sign_vc import sign
+from pyvckit.sign import sign
 from pyvckit.verify import verify_vc
 
 from oidc4vp.models import Organization
@@ -692,10 +691,9 @@ class VerificableCredential(models.Model):
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
 
         key = self.issuer_did.get_key_material()
-        signing_key = get_signing_key(key)
         credential = self.render(domain)
 
-        vc = sign(credential, signing_key, self.issuer_did.did)
+        vc = sign(credential, key, self.issuer_did.did)
         vc_str = json.dumps(vc)
         valid = verify_vc(vc_str)
 
