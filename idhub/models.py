@@ -6,16 +6,18 @@ import datetime
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
-
-from utils.idhub_ssikit import (
-    generate_did_controller_key,
-    keydid_from_controller_key,
-    sign_credential,
-    webdid_from_controller_key,
-    verify_credential,
+from pyvckit.did import (
+    generate_keys,
+    generate_did,
+    gen_did_document,
+    get_signing_key
 )
+from pyvckit.sign_vc import sign
+from pyvckit.verify import verify_vc
+
 from oidc4vp.models import Organization
 from idhub_auth.models import User
 
@@ -469,15 +471,22 @@ class DID(models.Model):
         self.key_material = user.encrypt_data(value)
         
     def set_did(self):
-        new_key_material = generate_did_controller_key()
+        new_key_material = generate_keys()
         self.set_key_material(new_key_material)
 
         if self.type == self.Types.KEY:
-            self.did = keydid_from_controller_key(new_key_material)
+            self.did = generate_did(new_key_material)
         elif self.type == self.Types.WEB:
-            didurl, document = webdid_from_controller_key(new_key_material, settings.DOMAIN)
-            self.did = didurl
-            self.didweb_document = document
+            url = "https://{}".format(settings.DOMAIN)
+            path = reverse("idhub:serve_did", args=["a"])
+
+            if path:
+                path = path.split("/a/did.json")[0]
+                url = "https://{}/{}".format(settings.DOMAIN, path)
+
+            self.did = generate_did(new_key_material, url)
+            key = json.loads(new_key_material)
+            url, self.didweb_document = gen_did_document(self.did, key)
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -681,15 +690,19 @@ class VerificableCredential(models.Model):
 
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
-        data = sign_credential(
-            self.render(domain),
-            self.issuer_did.get_key_material()
-        )
-        valid, reason = verify_credential(data)
+
+        key = self.issuer_did.get_key_material()
+        signing_key = get_signing_key(key)
+        credential = self.render(domain)
+
+        vc = sign(credential, signing_key, self.issuer_did.did)
+        vc_str = json.dumps(vc)
+        valid = verify_vc(vc_str)
+
         if not valid:
             return
 
-        self.data = self.user.encrypt_data(data)
+        self.data = self.user.encrypt_data(vc_str)
 
         self.status = self.Status.ISSUED
 
