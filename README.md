@@ -31,23 +31,19 @@ The application's backend is responsible for issuing credentials upun user reque
    python -m venv venv
    source venv/bin/activate
    ```
-3. Install the DIDKit wheel
-   ```
-   wget https://gitea.pangea.org/trustchain-oc1-orchestral/ssikit_trustchain/raw/branch/master/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl  
-   ```
-4. Install the required packages:
+3. Install the required packages:
    ```
    pip install -r requirements.txt
    ```
-5. Run migrations:
+4. Run migrations:
    ```
    python manage.py migrate
    ```
-6. Optionally you can install a minumum data set:
+5. Optionally you can install a minumum data set:
    ```
    python manage.py initial_datas
    ```
-7. Start the development server:
+6. Start the development server:
    ```
    python manage.py runserver
    ```
