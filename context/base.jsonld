@@ -1,0 +1,9 @@
+{
+    "@context": {
+      "credentialSchema": "https://idhub.pangea.org/context/#credentialSchema",
+      "value": "https://idhub.pangea.org/context/#value",
+      "lang": "https://idhub.pangea.org/context/#lang",
+      "description": "https://idhub.pangea.org/context/#description",
+      "name": "https://idhub.pangea.org/context/#name"
+    }
+}

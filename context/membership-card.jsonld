@@ -1,0 +1,15 @@
+{
+    "@context": {
+      "firstName": "https://idhub.pangea.org/context/#firstName",
+      "lastName": "https://idhub.pangea.org/context/#lastName",
+      "email": "https://idhub.pangea.org/context/#email",
+      "organisation": "https://idhub.pangea.org/context/#organisation",
+      "membershipType": "https://idhub.pangea.org/context/#membershipType",
+      "membershipId": "https://idhub.pangea.org/context/#membershipId",
+      "affiliatedSince": "https://idhub.pangea.org/context/#iaffiliatedSince",
+      "affiliatedUntil": "https://idhub.pangea.org/context/#affiliatedUntil",
+      "typeOfPerson": "https://idhub.pangea.org/context/#typeOfPerson",
+      "identityDocType": "https://idhub.pangea.org/context/#identityDocType",
+      "identityNumber": "https://idhub.pangea.org/context/#identityNumber"
+    }
+}
