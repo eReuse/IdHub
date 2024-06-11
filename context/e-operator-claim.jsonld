@@ -1,0 +1,11 @@
+{
+    "@context": {
+        "legalName": "https://idhub.pangea.org/context/#legalName",
+        "accreditedBy": "https://idhub.pangea.org/context/#accreditedBy",
+        "operatorNumber": "https://idhub.pangea.org/context/#operatorNumber",
+        "limitJurisdiction": "https://idhub.pangea.org/context/#limitJurisdiction",
+        "accreditedFor": "https://idhub.pangea.org/context/#accreditedFor",
+        "role": "https://idhub.pangea.org/context/#role",
+        "email": "https://idhub.pangea.org/context/#email"
+    }
+}
