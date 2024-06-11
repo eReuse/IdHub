@@ -1,11 +1,12 @@
 import json
+import uuid
 
 from django import forms
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from utils.idhub_ssikit import create_verifiable_presentation
+from pyvckit.sign import sign
 from idhub.models import VerificableCredential
 
 
@@ -72,13 +73,19 @@ class AuthorizeForm(forms.Form):
 
     def get_verificable_presentation(self):
         did = self.subject_did
+        vc_list = [json.loads(x) for x in self.list_credentials]
         vp_template = get_template('credentials/verifiable_presentation.json')
-        vc_list = json.dumps([json.loads(x) for x in self.list_credentials])
 
         context = {
             "holder_did": did.did,
-            "verifiable_credential_list": vc_list
+            "id": str(uuid.uuid4())
         }
         unsigned_vp = vp_template.render(context)
+        vp = json.loads(unsigned_vp)
+        vp["verifiableCredential"] = vc_list
+        vp_str = json.dumps(vp)
+
         key_material = did.get_key_material()
-        self.vp = create_verifiable_presentation(key_material, unsigned_vp)
+        vp = sign(vp_str, key_material, did.did)
+        self.vp = json.dumps(vp)
+

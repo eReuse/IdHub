@@ -12,7 +12,7 @@ from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
 from django.db import models
-from utils.idhub_ssikit import verify_presentation
+from pyvckit.verify import verify_vp
 
 
 SALT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -22,7 +22,7 @@ def gen_salt(length: int) -> str:
     """Generate a random string of SALT_CHARS with specified ``length``."""
     if length <= 0:
         raise ValueError("Salt length must be positive")
-    
+
     return "".join(secrets.choice(SALT_CHARS) for _ in range(length))
 
 
@@ -48,7 +48,7 @@ class Organization(models.Model):
       For use the packages requests we need use my_client_id
       For use in the get or post method of a View, then we need use client_id
       and secret_id.
-      main is a field which indicates the organization of this idhub 
+      main is a field which indicates the organization of this idhub
     """
     name = models.CharField(max_length=250)
     domain = models.CharField(max_length=250, null=True, default=None)
@@ -130,7 +130,7 @@ class Organization(models.Model):
         sb = secret.SecretBox(sb_key)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        
+
         return base64.b64encode(sb.encrypt(data)).decode('utf-8')
 
     def get_salt(self):
@@ -173,7 +173,7 @@ class Organization(models.Model):
         sb = secret.SecretBox(sb_key)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        
+
         encrypted_data = base64.b64encode(sb.encrypt(data)).decode('utf-8')
         self.encrypted_sensitive_data = encrypted_data
 
@@ -261,7 +261,7 @@ class OAuth2VPToken(models.Model):
     def __init__(self, *args, **kwargs):
         code = kwargs.pop("code", None)
         super().__init__(*args, **kwargs)
-        
+
         self.authorization = Authorization.objects.filter(code=code).first()
 
     @property
@@ -271,7 +271,7 @@ class OAuth2VPToken(models.Model):
         return self.authorization.code
 
     def verifing(self):
-        self.result_verify = verify_presentation(self.vp_token)
+        self.result_verify = verify_vp(self.vp_token)
 
     def get_result_verify(self):
         if not self.result_verify:
@@ -284,11 +284,10 @@ class OAuth2VPToken(models.Model):
             "redirect_uri": "",
             "response": "",
         }
-        verification = json.loads(self.result_verify)
-        if verification.get('errors') or verification.get('warnings'):
+        if not self.result_verify:
             response["verify"] = "Error, {}".format(_("Failed verification"))
             return response
-        
+
         response["verify"] = "Ok, {}".format(_("Correct verification"))
         url = self.get_redirect_url()
         if url:

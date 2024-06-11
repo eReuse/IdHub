@@ -1,14 +1,6 @@
-
-import json
-import requests
-
 from django import forms
 from django.conf import settings
-from django.template.loader import get_template
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
 
-from utils.idhub_ssikit import create_verifiable_presentation
 from oidc4vp.models import Organization, Authorization
 from promotion.models import Promotion
 
@@ -25,7 +17,7 @@ class WalletForm(forms.Form):
         self.fields['organization'].choices = [
             (x.id, x.name) for x in Organization.objects.exclude(
                 domain=settings.DOMAIN
-            ) 
+            )
         ]
 
     def save(self, commit=True):
@@ -51,10 +43,10 @@ class WalletForm(forms.Form):
             self.promotion.save()
 
             return self.authorization.authorize()
-        
-        return 
 
-    
+        return
+
+
 class ContractForm(forms.Form):
     nif = forms.CharField()
     name = forms.CharField()
@@ -66,4 +58,3 @@ class ContractForm(forms.Form):
     birthday = forms.CharField()
     gen = forms.CharField()
     lang = forms.CharField()
-

@@ -6,16 +6,17 @@ import datetime
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
-
-from utils.idhub_ssikit import (
-    generate_did_controller_key,
-    keydid_from_controller_key,
-    sign_credential,
-    webdid_from_controller_key,
-    verify_credential,
+from pyvckit.did import (
+    generate_keys,
+    generate_did,
+    gen_did_document,
 )
+from pyvckit.sign import sign
+from pyvckit.verify import verify_vc
+
 from oidc4vp.models import Organization
 from idhub_auth.models import User
 
@@ -95,7 +96,7 @@ class Event(models.Model):
             message=msg,
             user=user
         )
-        
+
     # Is required?
     @classmethod
     def set_EV_DATA_UPDATE_REQUESTED_BY_USER(cls, user):
@@ -106,7 +107,7 @@ class Event(models.Model):
             type=cls.Types.EV_DATA_UPDATE_REQUESTED_BY_USER,
             message=msg,
         )
-        
+
     # Is required?
     @classmethod
     def set_EV_DATA_UPDATE_REQUESTED(cls, user):
@@ -117,7 +118,7 @@ class Event(models.Model):
             message=msg,
             user=user
         )
-        
+
     @classmethod
     def set_EV_USR_UPDATED_BY_ADMIN(cls, user):
         msg = "The admin has updated the following user 's information: "
@@ -144,7 +145,7 @@ class Event(models.Model):
             message=msg,
             user=user
         )
-        
+
     @classmethod
     def set_EV_USR_DELETED_BY_ADMIN(cls, user):
         msg = _("The admin has deleted the user: username: {username}").format(
@@ -154,7 +155,7 @@ class Event(models.Model):
             type=cls.Types.EV_USR_DELETED_BY_ADMIN,
             message=msg
         )
-        
+
     @classmethod
     def set_EV_DID_CREATED_BY_USER(cls, did):
         msg = _("New DID with DID-ID: '{did}' created by user '{username}'").format(
@@ -165,7 +166,7 @@ class Event(models.Model):
             type=cls.Types.EV_DID_CREATED_BY_USER,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_DID_CREATED(cls, did):
         msg = _("New DID with label: '{label}' and DID-ID: '{did}' was created'").format(
@@ -177,10 +178,10 @@ class Event(models.Model):
             message=msg,
             user=did.user
         )
-        
+
     @classmethod
     def set_EV_DID_DELETED(cls, did):
-        msg = _("The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet").format( 
+        msg = _("The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet").format(
             label=did.label,
             did=did.did
         )
@@ -189,7 +190,7 @@ class Event(models.Model):
             message=msg,
             user=did.user
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_DELETED_BY_ADMIN(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was deleted").format(
@@ -200,7 +201,7 @@ class Event(models.Model):
             type=cls.Types.EV_CREDENTIAL_DELETED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_DELETED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was deleted from your wallet").format(
@@ -212,7 +213,7 @@ class Event(models.Model):
             message=msg,
             user=cred.user
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_ISSUED_FOR_USER(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was issued for user {username}").format(
@@ -224,7 +225,7 @@ class Event(models.Model):
             type=cls.Types.EV_CREDENTIAL_ISSUED_FOR_USER,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_ISSUED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was issued and stored in your wallet").format(
@@ -236,7 +237,7 @@ class Event(models.Model):
             message=msg,
             user=cred.user
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_PRESENTED_BY_USER(cls, cred, verifier):
         msg = "The credential of type '{type}' and ID: '{id}' "
@@ -251,7 +252,7 @@ class Event(models.Model):
             type=cls.Types.EV_CREDENTIAL_PRESENTED_BY_USER,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_PRESENTED(cls, cred, verifier):
         msg = "The credential of type '{type}' and ID: '{id}' "
@@ -266,7 +267,7 @@ class Event(models.Model):
             message=msg,
             user=cred.user
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_ENABLED(cls, cred):
         msg = _("The credential of type '{type}' was enabled for user {username}").format(
@@ -277,7 +278,7 @@ class Event(models.Model):
             type=cls.Types.EV_CREDENTIAL_ENABLED,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_CAN_BE_REQUESTED(cls, cred):
         msg = _("You can request the '{type}' credential").format(
@@ -288,7 +289,7 @@ class Event(models.Model):
             message=msg,
             user=cred.user
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_REVOKED_BY_ADMIN(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was revoked for ").format(
@@ -299,7 +300,7 @@ class Event(models.Model):
             type=cls.Types.EV_CREDENTIAL_REVOKED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_CREDENTIAL_REVOKED(cls, cred):
         msg = _("The credential of type '{type}' and ID: '{id}' was revoked by admin").format(
@@ -311,7 +312,7 @@ class Event(models.Model):
             message=msg,
             user=cred.user
         )
-        
+
     @classmethod
     def set_EV_ROLE_CREATED_BY_ADMIN(cls):
         msg = _('A new role was created by admin')
@@ -319,7 +320,7 @@ class Event(models.Model):
             type=cls.Types.EV_ROLE_CREATED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_ROLE_MODIFIED_BY_ADMIN(cls):
         msg = _('The role was modified by admin')
@@ -327,7 +328,7 @@ class Event(models.Model):
             type=cls.Types.EV_ROLE_MODIFIED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_ROLE_DELETED_BY_ADMIN(cls):
         msg = _('The role was removed by admin')
@@ -335,7 +336,7 @@ class Event(models.Model):
             type=cls.Types.EV_ROLE_DELETED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_SERVICE_CREATED_BY_ADMIN(cls):
         msg = _('A new service was created by admin')
@@ -343,7 +344,7 @@ class Event(models.Model):
             type=cls.Types.EV_SERVICE_CREATED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_SERVICE_MODIFIED_BY_ADMIN(cls):
         msg = _('The service was modified by admin')
@@ -351,7 +352,7 @@ class Event(models.Model):
             type=cls.Types.EV_SERVICE_MODIFIED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_SERVICE_DELETED_BY_ADMIN(cls):
         msg = _('The service was removed by admin')
@@ -359,7 +360,7 @@ class Event(models.Model):
             type=cls.Types.EV_SERVICE_DELETED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_ORG_DID_CREATED_BY_ADMIN(cls, did):
         msg = _("New Organisational DID with label: '{label}' and DID-ID: '{did}' was created").format(
@@ -370,7 +371,7 @@ class Event(models.Model):
             type=cls.Types.EV_ORG_DID_CREATED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_ORG_DID_DELETED_BY_ADMIN(cls, did):
         msg = _("Organisational DID with label: '{label}' and DID-ID: '{did}' was removed").format(
@@ -381,7 +382,7 @@ class Event(models.Model):
             type=cls.Types.EV_ORG_DID_DELETED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_USR_DEACTIVATED_BY_ADMIN(cls, user):
         msg = "The user '{username}' was temporarily deactivated: "
@@ -395,7 +396,7 @@ class Event(models.Model):
             type=cls.Types.EV_USR_DEACTIVATED_BY_ADMIN,
             message=msg,
         )
-        
+
     @classmethod
     def set_EV_USR_ACTIVATED_BY_ADMIN(cls, user):
         msg = "The user '{username}' was activated: "
@@ -417,7 +418,7 @@ class Event(models.Model):
             message=msg,
             user=user
         )
-        
+
     @classmethod
     def set_EV_USR_SEND_CREDENTIAL(cls, msg):
         cls.objects.create(
@@ -467,17 +468,24 @@ class DID(models.Model):
             user.set_encrypted_sensitive_data()
             user.save()
         self.key_material = user.encrypt_data(value)
-        
+
     def set_did(self):
-        new_key_material = generate_did_controller_key()
+        new_key_material = generate_keys()
         self.set_key_material(new_key_material)
 
         if self.type == self.Types.KEY:
-            self.did = keydid_from_controller_key(new_key_material)
+            self.did = generate_did(new_key_material)
         elif self.type == self.Types.WEB:
-            didurl, document = webdid_from_controller_key(new_key_material, settings.DOMAIN)
-            self.did = didurl
-            self.didweb_document = document
+            url = "https://{}".format(settings.DOMAIN)
+            path = reverse("idhub:serve_did", args=["a"])
+
+            if path:
+                path = path.split("/a/did.json")[0]
+                url = "https://{}/{}".format(settings.DOMAIN, path)
+
+            self.did = generate_did(new_key_material, url)
+            key = json.loads(new_key_material)
+            url, self.didweb_document = gen_did_document(self.did, key)
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -681,15 +689,18 @@ class VerificableCredential(models.Model):
 
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
-        data = sign_credential(
-            self.render(domain),
-            self.issuer_did.get_key_material()
-        )
-        valid, reason = verify_credential(data)
+
+        key = self.issuer_did.get_key_material()
+        credential = self.render(domain)
+
+        vc = sign(credential, key, self.issuer_did.did)
+        vc_str = json.dumps(vc)
+        valid = verify_vc(vc_str)
+
         if not valid:
             return
 
-        self.data = self.user.encrypt_data(data)
+        self.data = self.user.encrypt_data(vc_str)
 
         self.status = self.Status.ISSUED
 
@@ -761,7 +772,7 @@ class VerificableCredential(models.Model):
         tmpl = get_template(template_name)
         d = json.loads(tmpl.render({}))
         self.type = d.get('type')[-1]
-        
+
 
     def filter_dict(self, dic):
         new_dict = OrderedDict()
@@ -788,7 +799,7 @@ class File_datas(models.Model):
 
 class Membership(models.Model):
     """
-      This model represent the relation of this user with the ecosystem.  
+      This model represent the relation of this user with the ecosystem.
     """
     class Types(models.IntegerChoices):
         BENEFICIARY = 1, _('Beneficiary')
@@ -838,7 +849,7 @@ class Service(models.Model):
         if self.rol.exists():
             return ", ".join([x.name for x in self.rol.order_by("name")])
         return _("None")
-    
+
     def __str__(self):
         return "{} -> {}".format(self.domain, self.get_roles())
 
