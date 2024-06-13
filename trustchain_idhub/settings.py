@@ -82,7 +82,8 @@ INSTALLED_APPS = [
     'idhub_auth',
     'oidc4vp',
     'idhub',
-    'promotion'
+    'promotion',
+    'webhook'
 ]
 
 MIDDLEWARE = [
