@@ -53,8 +53,8 @@ def webhook_verify(request):
 
 class WebHookTokenView(AdminView, SingleTableView):
     template_name = "token.html"
-    title = _('Token')
-    section = ""
+    title = _("Credential management")
+    section = "Credential"
     subtitle = _('Managament Tokens')
     icon = 'bi bi-key'
     model = Token
