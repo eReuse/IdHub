@@ -155,6 +155,11 @@
                       </li>
                     </ul>
                   </li>
+                  <li class="nav-item">
+                    <a id="wallet" class="nav-link{% if path == 'tokens' %} active2{% endif %}" href="{% url 'webhook:tokens' %}">
+                      {% trans "Webhook Tokens" %}
+                    </a>
+                  </li>
                 </ul>
               </li>
               <li class="nav-item">
