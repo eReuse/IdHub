@@ -181,7 +181,7 @@ For define one query here there are a python example:
    import requests
    import json
 
-   url = "https://api.example.com/users"
+   url = "https://api.example.com/webhook/verify/"
    data = {
       "type": "credential",
       "data": {
@@ -201,6 +201,7 @@ For define one query here there are a python example:
 ```
    The response of verification can be ```{'status': 'success'}``` or ```{'status': 'fail'}```
    If no there are *type* in data or this is not a *credential* then, the verification proccess hope a *presentation*
+   The field *data* have the credential or presentation.
 
 ## Documentation
 
