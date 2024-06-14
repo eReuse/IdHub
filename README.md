@@ -174,6 +174,35 @@ IdHub's repository is organized into several directories, each serving a specifi
 
 - **utils**: A utility folder containing various helper scripts and tools developed by us but that are independent of idHub. Even so, IdHub uses them and needs them (examples of this are the validation system for the data that is loades by excel, or the system that manages the sskit)
 
+## Webhook
+You need define a token un the admin section "/webhool/tokens"
+For define one query here there are a python example:
+```
+   import requests
+   import json
+
+   url = "https://api.example.com/webhook/verify/"
+   data = {
+      "type": "credential",
+      "data": {
+         '@context': ['https://www.....
+      }
+
+   headers = {
+      "Authorization": f"Bearer {token}",
+      "Content-Type": "application/json"
+   }
+
+   response = requests.post(url, headers=headers, data=json.dumps(data))
+
+   response.status_code == 200
+   response.json()
+   
+```
+   The response of verification can be ```{'status': 'success'}``` or ```{'status': 'fail'}```
+   If no there are *type* in data or this is not a *credential* then, the verification proccess hope a *presentation*
+   The field *data* have the credential or presentation.
+
 ## Documentation
 
 For detailed documentation, visit [Documentation Link](http://idhub.pangea.org/help/).
