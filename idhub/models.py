@@ -3,6 +3,7 @@ import ujson
 import pytz
 import hashlib
 import datetime
+import requests
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
@@ -493,6 +494,42 @@ class DID(models.Model):
     def get_organization(self):
         return Organization.objects.get(main=True)
 
+    def save_in_verificable_register(self):
+        if not settings.API_TOKEN:
+            return
+
+        if self.user:
+            return
+
+        hashes = self.get_verificable_register()
+        for schema in Schemas.objects.all():
+            schema_id = schema.get_id()
+            if not schema_id in settings.RESTRICTED_ISSUANCE_CREDENTIAL_TYPES:
+                continue
+
+            schema_hash = schema.get_hash_id()
+            if schema_hash in hashes:
+                continue
+
+            data = {
+                "api_token": settings.API_TOKEN,
+                "did": self.did,
+                "hash": schema_hash
+            }
+            requests.post(
+                settings.VERIFIABLE_REGISTER_URL + '/registerPair',
+                data=data
+            )
+
+    def get_verificable_register(self):
+        response = requests.get(
+            settings.VERIFIABLE_REGISTER_URL + '/readPairs',
+            params={'did': self.did}
+        )
+        response.raise_for_status()
+
+        return response.json()['hashes']
+
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
     file_schema = models.CharField(_('Schema'), max_length=250)
@@ -591,6 +628,13 @@ class Schemas(models.Model):
 
     def get_data(self):
         return json.loads(self.data)
+
+    def get_id(self):
+        return self.get_data().get("$id")
+
+    def get_hash_id(self):
+        id = self.get_data().get("$id")
+        return hashlib.sha3_256(id.encode("utf-8")).hexdigest()
 
 
 class VerificableCredential(models.Model):

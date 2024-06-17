@@ -241,4 +241,6 @@ ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
 CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
 COMMIT = config('COMMIT', default='')
-
+API_TOKEN = config("API_TOKEN", '')
+VERIFIABLE_REGISTER_URL = config("VERIFIABLE_REGISTER_URL")
+RESTRICTED_ISSUANCE_CREDENTIAL_TYPES = config('RESTRICTED_ISSUANCE_CREDENTIAL_TYPES', default=[], cast=literal_eval)
