@@ -115,7 +115,7 @@ def ServeDidView(request, did_id):
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
     }]
-    document["service"] = revocation_service
+    document["service"][0] = revocation_service
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
     retval = HttpResponse(document)

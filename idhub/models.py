@@ -16,6 +16,7 @@ from pyvckit.did import (
 )
 from pyvckit.sign import sign
 from pyvckit.verify import verify_vc
+from pyvckit.ether import generate_ether_address
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
@@ -442,6 +443,8 @@ class DID(models.Model):
     # Example key material:
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
     key_material = models.TextField()
+    ether_address = models.CharField(max_length=250, null=True)
+    ether_privkey = models.CharField(max_length=250, null=True)
     eidas1 = models.BooleanField(default=False)
     user = models.ForeignKey(
         User,
@@ -463,15 +466,12 @@ class DID(models.Model):
         return user.decrypt_data(self.key_material)
 
     def set_key_material(self, value):
-        user = self.user or self.get_organization()
-        if not user.encrypted_sensitive_data:
-            user.set_encrypted_sensitive_data()
-            user.save()
-        self.key_material = user.encrypt_data(value)
+        self.key_material = self.encrypt_data(value)
 
     def set_did(self):
         new_key_material = generate_keys()
         self.set_key_material(new_key_material)
+        self.set_ether_address()
 
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
@@ -485,13 +485,37 @@ class DID(models.Model):
 
             self.did = generate_did(new_key_material, url)
             key = json.loads(new_key_material)
-            url, self.didweb_document = gen_did_document(self.did, key)
+            url, didweb_document = gen_did_document(self.did, key)
+            if self.ether_address:
+                didweb_document = json.loads(didweb_document)
+                id_service = "{}#ethereum".format(self.did)
+                service = {
+                    "id": id_service,
+                    "type": "Ethereum",
+                    "address": self.ether_address
+                }
+                didweb_document['service'].append(service)
+                didweb_document = json.dumps(didweb_document)
+            self.didweb_document = didweb_document
 
     def get_key(self):
         return json.loads(self.key_material)
 
     def get_organization(self):
         return Organization.objects.get(main=True)
+
+    def set_ether_address(self):
+        priv, self.ether_address = generate_ether_address()
+        self.ether_privkey = self.encrypt_data(priv)
+
+    def encrypt_data(self, value):
+        user = self.user or self.get_organization()
+        if not user.encrypted_sensitive_data:
+            user.set_encrypted_sensitive_data()
+            user.save()
+        return user.encrypt_data(value)
+        
+        
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
