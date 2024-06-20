@@ -1,7 +1,7 @@
 {
-    "$id": "https://idhub.pangea.org/vc_schemas/e-operator-claim.json",
+    "$id": "https://idhub.pangea.org/vc_schemas/ereuse-role.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "EOperatorClaim",
+    "title": "EreuseRoles",
     "description": "Product and waste electronics operator claim, as proposed by eReuse.org",
     "name": [
         {
