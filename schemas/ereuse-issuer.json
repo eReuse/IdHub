@@ -1,0 +1,53 @@
+{
+    "$id": "https://idhub.pangea.org/vc_schemas/issuer.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EreuseIssuer",
+    "description": "This credential allow to holder to be issuer for a list of schemas",
+    "name": [
+        {
+            "value": "Allow to be issuer",
+            "lang": "en"
+        },
+    ],
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+        },
+        {
+            "properties": {
+                "credentialSubject": {
+                    "description": "Defines properties on credentialSubject",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "description": "Defines a unique identifier of the credential subject",
+                            "type": "string",
+                            "minLength":  1
+                        },
+                        "legalName": {
+                            "description": "Legal name of the issuer",
+                            "type": "string",
+                            "minLength":  1
+                        },
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^\\S+@\\S+\\.\\S+$"
+                        },
+                        "allowedSchemas": {
+                            "description": "List of schemas",
+                            "type": "@list"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "legalName",
+                        "allowedSchemas",
+                        "email"
+                    ]
+                }
+            }
+        }
+    ]
+}
