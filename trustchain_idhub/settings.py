@@ -242,3 +242,5 @@ CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
 COMMIT = config('COMMIT', default='')
 
+VERIFIABLE_REGISTER_URL = config('VERIFIABLE_REGISTER_URL', default='')
+TOKEN_TA_API = config('TOKEN_TA_API', default='')

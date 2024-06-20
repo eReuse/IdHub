@@ -3,6 +3,7 @@ import ujson
 import pytz
 import hashlib
 import datetime
+import requests
 from collections import OrderedDict
 from django.db import models
 from django.conf import settings
@@ -515,6 +516,51 @@ class DID(models.Model):
             user.set_encrypted_sensitive_data()
             user.save()
         return user.encrypt_data(value)
+
+    def send_credential_as_issuer_to_TA(self):
+        url = settings.VERIFIABLE_REGISTER_URL
+        token = settings.TOKEN_TA_API
+        if not url or not token:
+            return
+
+        headers = {"Bearer {}".format(token)}
+
+        credential = self._render_credential_issuer()
+        response = requests.post(url=url, data=credential, headers=headers)
+        if response.status_code >= 300:
+            return
+
+        self.credential_as_issuer = response.text
+        
+    def get_context(self):
+        format = "%Y-%m-%dT%H:%M:%SZ"
+        issuance_date = datetime.datetime.now().strftime(format)
+        credential_status_id = 'https://revocation.not.supported/'
+        org = Organization.objects.get(main=True)
+        allow_schemas = [x.url for x in Schemas.objects.all()]
+        context = {
+            "vc_id": "",
+            "id_credential": "",
+            "issuer_did": "",
+            "organization": "",
+            "validUntil": "",
+            "issuance_date": issuance_date,
+            "subject_did": self.did,
+            "legalName": org.name or "",
+            "allowedSchemas": allow_schemas,
+            "email": self.user.email,
+            "credential_status_id": credential_status_id,
+        }
+        return context
+
+    def _render_credential_issuer(self):
+        context = self.get_context()
+        template_name = "credentials/ereuse-issuer.json"
+        tmpl = get_template(template_name)
+        credential = ujson.loads(tmpl.render(context))
+        credential.pop("credentialStatus", None)
+
+        return ujson.dumps(credential)
         
         
 
