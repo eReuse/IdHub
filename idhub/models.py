@@ -454,6 +454,7 @@ class DID(models.Model):
     )
     # JSON-serialized DID document
     didweb_document = models.TextField()
+    credential_as_issuer = models.TextField(null=True)
 
     @property
     def is_organization_did(self):
