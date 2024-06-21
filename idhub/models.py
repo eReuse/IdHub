@@ -446,6 +446,7 @@ class DID(models.Model):
     key_material = models.TextField()
     ether_address = models.CharField(max_length=250, null=True)
     ether_privkey = models.CharField(max_length=250, null=True)
+    api_token = models.CharField(max_length=250, null=True)
     eidas1 = models.BooleanField(default=False)
     user = models.ForeignKey(
         User,
@@ -464,8 +465,7 @@ class DID(models.Model):
         return False
 
     def get_key_material(self):
-        user = self.user or self.get_organization()
-        return user.decrypt_data(self.key_material)
+        self.decrypt_data(self.key_material)
 
     def set_key_material(self, value):
         self.key_material = self.encrypt_data(value)
@@ -507,6 +507,9 @@ class DID(models.Model):
         return Organization.objects.get(main=True)
 
     def set_ether_address(self):
+        if self.ether_address:
+            return
+
         priv, self.ether_address = generate_ether_address()
         self.ether_privkey = self.encrypt_data(priv)
 
@@ -517,21 +520,28 @@ class DID(models.Model):
             user.save()
         return user.encrypt_data(value)
 
-    def send_credential_as_issuer_to_TA(self):
+    def decrypt_data(self, value):
+        user = self.user or self.get_organization()
+        return user.decrypt_data(value)
+
+    def send_api(self, data, token=settings.TOKEN_TA_API):
         url = settings.VERIFIABLE_REGISTER_URL
-        token = settings.TOKEN_TA_API
         if not url or not token:
             return
 
-        headers = {"Bearer {}".format(token)}
+        headers = {"Authenticate": "Bearer {}".format(token)}
 
-        credential = self._render_credential_issuer()
-        response = requests.post(url=url, data=credential, headers=headers)
+        response = requests.post(url=url, data=value, headers=headers)
         if response.status_code >= 300:
             return
 
-        self.credential_as_issuer = response.text
-        
+        return response.json()
+
+    def send_credential_as_issuer_to_TA(self):
+        credential = self._render_credential_issuer()
+        response = self.send_api(credential)
+        self.credential_as_issuer = json.dumps(response)
+
     def get_context(self):
         format = "%Y-%m-%dT%H:%M:%SZ"
         issuance_date = datetime.datetime.now().strftime(format)
@@ -548,7 +558,7 @@ class DID(models.Model):
             "subject_did": self.did,
             "legalName": org.name or "",
             "allowedSchemas": allow_schemas,
-            "email": self.user.email,
+            "domain": self.org.domain,
             "credential_status_id": credential_status_id,
         }
         return context
@@ -561,8 +571,18 @@ class DID(models.Model):
         credential.pop("credentialStatus", None)
 
         return ujson.dumps(credential)
-        
-        
+
+    def get_api_token(self):
+        if self.api_token:
+            return self.decrypt_data(self.api_token)
+
+        priv = self.decrypt_data(self.ether_privkey)
+        response = self.send_api(priv)
+        if not response:
+            return
+
+        self.api_token = self.encrypt_data(response)
+
 
 class Schemas(models.Model):
     type = models.CharField(max_length=250)

@@ -2,6 +2,6 @@
     "@context": {
         "legalName": "https://idhub.pangea.org/context/#legalName",
         "allowedSchemas": "https://idhub.pangea.org/context/#allowedSchemas",
-        "email": "https://idhub.pangea.org/context/#email"
+        "domain": "https://idhub.pangea.org/context/#domain"
     }
 }

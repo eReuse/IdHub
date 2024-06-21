@@ -30,10 +30,9 @@
                             "type": "string",
                             "minLength":  1
                         },
-                        "email": {
+                        "domain": {
                             "type": "string",
-                            "format": "email",
-                            "pattern": "^\\S+@\\S+\\.\\S+$"
+                            "minLength":  1
                         },
                         "allowedSchemas": {
                             "description": "List of schemas",
