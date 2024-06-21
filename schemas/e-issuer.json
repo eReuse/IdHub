@@ -7,7 +7,7 @@
         {
             "value": "Allow to be issuer",
             "lang": "en"
-        },
+        }
     ],
     "type": "object",
     "allOf": [
@@ -36,7 +36,7 @@
                         },
                         "allowedSchemas": {
                             "description": "List of schemas",
-                            "type": "@list"
+                            "type": "array"
                         }
                     },
                     "required": [
