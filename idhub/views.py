@@ -110,11 +110,11 @@ def ServeDidView(request, did_id):
             revocation_bitmap.serialize()
         )
     ).decode('utf-8')
-    revocation_service = [{  # This is an object within a list.
+    revocation_service = {  # This is an object within a list.
         "id": f"{id_did}#revocation",
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
-    }]
+    }
     document["service"][0] = revocation_service
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
