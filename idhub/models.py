@@ -465,7 +465,7 @@ class DID(models.Model):
         return False
 
     def get_key_material(self):
-        self.decrypt_data(self.key_material)
+        return self.decrypt_data(self.key_material)
 
     def set_key_material(self, value):
         self.key_material = self.encrypt_data(value)
@@ -531,7 +531,7 @@ class DID(models.Model):
 
         headers = {"Authenticate": "Bearer {}".format(token)}
 
-        response = requests.post(url=url, data=value, headers=headers)
+        response = requests.post(url=url, data=data, headers=headers)
         if response.status_code >= 300:
             return
 
@@ -582,6 +582,7 @@ class DID(models.Model):
             return
 
         self.api_token = self.encrypt_data(response)
+        return response
 
 
 class Schemas(models.Model):
@@ -875,6 +876,13 @@ class VerificableCredential(models.Model):
             elif value:
                 new_dict[key] = value
         return new_dict
+
+    def send_api(self):
+        token = self.issuer_did.get_api_token()
+        data = self.user.decrypt_data(self.data)
+        response = self.issuer_did.did.send_api(data, token=token)
+        if response:
+            self.subject_did.did.get_api_token()
 
 
 class VCTemplate(models.Model):
