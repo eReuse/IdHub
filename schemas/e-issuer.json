@@ -1,7 +1,7 @@
 {
     "$id": "https://idhub.pangea.org/vc_schemas/issuer.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "EreuseIssuer",
+    "title": "EIssuer",
     "description": "This credential allow to holder to be issuer for a list of schemas",
     "name": [
         {
