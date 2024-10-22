@@ -13,7 +13,7 @@ async function main() {
     },
     proofFormat: 'EthereumEip712Signature2021',
   })
-  console.log(`New credential created`)
+  console.error(`New credential created`)
   console.log(JSON.stringify(verifiableCredential, null, 2))
 }
 

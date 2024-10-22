@@ -6,6 +6,9 @@ const ethers = require("ethers")
 const ethereum = require("../utils/ethereum/ethereum-config.js");
 const { setMask } = require('readline-sync');
 
+const fs = require("fs")
+const SHARED = process.env.SHARED
+
 function generate(length) {
   let res = ""
   let char_length = characters.length
@@ -77,6 +80,10 @@ async function set_admin() {
     await storage.init()
     await storage.setItem(token_object.prefix, { salt: token_object.salt, hash: token_object.hash, eth_priv_key: wallet.privateKey})
     console.log("Admin token " + token_object.token)
+    if(SHARED) {
+	    const admin_token_file = SHARED + "/api-connector_admin-token.txt"
+	    fs.writeFileSync(admin_token_file, token_object.token)
+    }
     await storage.setItem("admin", token_object.prefix)
   }
   else{

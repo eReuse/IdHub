@@ -8,7 +8,7 @@ COPY tsconfig.json ./
 
 
 ENV PYTHONUNBUFFERED=1
-RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN apk add --update --no-cache python3 jq && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 RUN apk add --no-cache make
@@ -17,9 +17,10 @@ RUN npm config set prefix '~/.npm-global'
 RUN export PATH=~/.npm-global/bin:$PATH
 RUN npm install
 RUN npm install @veramo/credential-eip712
+RUN npm install tsx
 
 COPY src ./src
 
 EXPOSE 3016
 WORKDIR /home/node/veramoApi/src
-CMD ["node", "./index.js"]
+CMD ["./entrypoint.sh"]

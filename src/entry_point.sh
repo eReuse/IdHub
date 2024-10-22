@@ -14,7 +14,7 @@ main() {
         fi
 
         shared="./shared/"
-        cp ./artifacts/contracts/DepositDevice.sol/DepositDevice.json "${shared}"
+        cp ./artifacts/contracts/DepositDevice.sol/DepositDevice.json "${shared}" || ls -lah "${shared}"
         cp ./deployed-contracts.json "${shared}"
         node src/index.js
 }
