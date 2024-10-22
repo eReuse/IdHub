@@ -4,17 +4,15 @@ const express = require('express'),
 const { BadRequest, NotFound, Forbidden } = require("../utils/errors")
 const ApiError = require('../utils/apiError')
 const ethers = require("ethers")
-const iota = require("../utils/iota/iota-helper.js")
 const multiacc = require("../utils/multiacc-helper.js");
 const ethereum = require("../utils/ethereum/ethereum-config.js")
 const ethHelper = require("../utils/ethereum/ethereum-helper.js")
 const { OPERATOR, WITNESS, VERIFIER, OWNERSHIP, ISSUER } = require('../utils/constants')
+const axios = require("axios")
 
 const app = express()
 
 const ethereum_name = "ethereum"
-const iota_name = "iota"
-const cosmos_name = "cosmos"
 
 const credential_types = ["Operator", "Witness", "Verifier", "Issuer"]
 
@@ -40,80 +38,81 @@ function check_dlt(dlt) {
     // if (dlt.length != 1) {
     //   throw new BadRequest("Can only call one DLT at a time.")
     // }
-    if (!dlt == iota_name && !dlt == ethereum_name) {
+    if (!dlt == ethereum_name) {
         throw new BadRequest("Invalid DLT identifier")
     }
 }
 
 router
 
-    .post("/setIssuer", async (req, res, next) => {
-        const api_token = req.body.api_token ?? "";
-        const target_user = req.body.target_user ?? "";
-        const dlt = req.headers.dlt ?? "";
-        var response_data
-        try {
-            console.log(`Called /setIssuer`)
+    // .post("/setIssuer", async (req, res, next) => {
+    //     const api_token = req.body.api_token ?? "";
+    //     const target_user = req.body.target_user ?? "";
+    //     const dlt = req.headers.dlt ?? "";
+    //     var response_data
+    //     try {
+    //         console.log(`Called /setIssuer`)
 
-            check_dlt(dlt)
-            // const admin_token = await multiacc.check_admin(api_token)
-            // if (!admin_token) {
-            //     next(ApiError.badRequest('Need admin token.'));
-            //     return
-            // }
-            const valid_token = await multiacc.check_token(api_token)
-            if (!valid_token) {
-                next(ApiError.badRequest('Invalid API token.'));
-                return
-            }
-            const target_valid = await multiacc.check_exists(target_user)
-            if (!target_valid) {
-                next(ApiError.badRequest('Target user doesnt exist.'));
-                return
-            }
+    //         check_dlt(dlt)
+    //         // const admin_token = await multiacc.check_admin(api_token)
+    //         // if (!admin_token) {
+    //         //     next(ApiError.badRequest('Need admin token.'));
+    //         //     return
+    //         // }
+    //         const valid_token = await multiacc.check_token(api_token)
+    //         if (!valid_token) {
+    //             next(ApiError.badRequest('Invalid API token.'));
+    //             return
+    //         }
+    //         const target_valid = await multiacc.check_exists(target_user)
+    //         if (!target_valid) {
+    //             next(ApiError.badRequest('Target user doesnt exist.'));
+    //             return
+    //         }
 
-            if (dlt == iota_name) {
-                const target_iota_id = await iota.get_iota_id(target_user)
-                var credential = await iota.issue_credential(target_iota_id, ISSUER)
-                var target_data = await multiacc.get_acc_data(target_user)
-                //it must be possible to do this better (maybe)
-                target_data.iota.credentials[ISSUER] = credential
-                await multiacc.set_acc_data(target_user, target_data)
-                response_data = {
-                    credential: credential,
-                }
-            }
+    //         if (dlt == iota_name) {
+    //             const target_iota_id = await iota.get_iota_id(target_user)
+    //             var credential = await iota.issue_credential(target_iota_id, ISSUER)
+    //             var target_data = await multiacc.get_acc_data(target_user)
+    //             //it must be possible to do this better (maybe)
+    //             target_data.iota.credentials[ISSUER] = credential
+    //             await multiacc.set_acc_data(target_user, target_data)
+    //             response_data = {
+    //                 credential: credential,
+    //             }
+    //         }
 
-            else if (dlt == ethereum_name) {
-                const admin_wallet = await ethHelper.get_wallet(api_token)
-                const accessListConstract = ethHelper.createContract
-                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
-                const target_eth_wallet = await ethHelper.get_wallet(target_user)
-                var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
-                var txReceipt = await txResponse.wait()
-                response_data = {}
-            }
+    //         else if (dlt == ethereum_name) {
+    //             const admin_wallet = await ethHelper.get_wallet(api_token)
+    //             const accessListConstract = ethHelper.createContract
+    //                 (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", admin_wallet)
+    //             const target_eth_wallet = await ethHelper.get_wallet(target_user)
+    //             var txResponse = await accessListConstract.registerIssuer(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
+    //             var txReceipt = await txResponse.wait()
+    //             response_data = {}
+    //         }
 
-            res.status(201);
-            res.json({
-                status: "Success.",
-                data: response_data
-            })
-        }
-        catch (e) {
-            console.log(e)
-            next(e);
-        }
-    })
+    //         res.status(201);
+    //         res.json({
+    //             status: "Success.",
+    //             data: response_data
+    //         })
+    //     }
+    //     catch (e) {
+    //         console.log(e)
+    //         next(e);
+    //     }
+    // })
 
-    .post("/issueCredential", async (req, res, next) => {
+    .post("/oracle", async (req, res, next) => {
         const api_token = req.body.api_token;
-        const target_user = req.body.target_user;
-        const credentialType = req.body.CredentialType;
+        const verifiableCredential = req.body.Credential;
+        const credentialType = verifiableCredential.credentialSubject.role
+        const target_user = verifiableCredential.credentialSubject.id.slice(9)
         const dlt = req.headers.dlt ?? "";
         var response_data
         try {
-            console.log(`Called /issueCredential`)
+            console.log(`Called /oracle for target user ${target_user} and credential type ${credentialType}`)
 
             check_dlt(dlt)
             const valid_token = await multiacc.check_token(api_token)
@@ -121,45 +120,30 @@ router
                 next(ApiError.badRequest("Invalid API token."));
                 return
             }
-            if (!credential_types.includes(credentialType)) {
-                next(ApiError.badRequest("Invalid credential type."));
+
+            var verify_result = await axios.post(`${ethereum.veramoURL}/verify`,{
+                credential: verifiableCredential
+            })
+            
+            if(verify_result.data.data != true){
+                next(ApiError.badRequest("Verifiable credential is invalid."));
                 return
             }
-            const target_valid = await multiacc.check_exists(target_user)
-            if (!target_valid) {
-                next(ApiError.badRequest("Target user doesn't exist."));
-                return
-            }
-
-            if (dlt == iota_name) {
-                const issuer_credential = await iota.get_credential(api_token, [ISSUER])
-                if (issuer_credential == undefined) throw new BadRequest("User is not issuer.")
-                const target_iota_id = await iota.get_iota_id(target_user)
-                var credential = await iota.issue_credential(target_iota_id, credentialType)
-                var target_data = await multiacc.get_acc_data(target_user)
-                //it must be possible to do this better (maybe)
-                target_data.iota.credentials[credentialType] = credential
-                await multiacc.set_acc_data(target_user, target_data)
-                response_data = {
-                    credential: credential,
-                }
-            }
-
-            else if (dlt == ethereum_name) {
-                const issuer_eth_wallet = await ethHelper.get_wallet(api_token)
-                const target_eth_wallet = await ethHelper.get_wallet(target_user)
-                const accessListConstract = ethHelper.createContract
-                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", issuer_eth_wallet)
-                var txResponse
-                if (credentialType == "Operator")
-                    txResponse = await accessListConstract.registerOperator(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
-                if (credentialType == "Witness")
-                    txResponse = await accessListConstract.registerWitness(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
-                if (credentialType == "Verifier")
-                    txResponse = await accessListConstract.registerVerifier(target_eth_wallet.address, { gasLimit: 6721975, gasPrice:0 })
-                var txReceipt = await txResponse.wait()
-                response_data = {}
-            }
+            const issuer_eth_wallet = await ethHelper.get_wallet(api_token)
+            // const target_eth_wallet = await ethHelper.get_wallet(target_user)
+            const accessListConstract = ethHelper.createContract
+                (ethereum.ACCESSLIST_ADDRESS, ethereum.AccessList, issuer_eth_wallet)
+            var txResponse
+            if (credentialType == "operator")
+                txResponse = await accessListConstract.registerOperator(target_user, { gasLimit: 6721975, gasPrice: 0 })
+            if (credentialType == "witness")
+                txResponse = await accessListConstract.registerWitness(target_user, { gasLimit: 6721975, gasPrice: 0 })
+            if (credentialType == "verifier")
+                txResponse = await accessListConstract.registerVerifier(target_user, { gasLimit: 6721975, gasPrice: 0 })
+            if (credentialType == "issuer")
+                txResponse = await accessListConstract.registerIssuer(target_user, { gasLimit: 6721975, gasPrice: 0 })
+            var txReceipt = await txResponse.wait()
+            response_data = {}
 
             res.status(201);
             res.json({
@@ -207,7 +191,7 @@ router
 
             if (dlt == ethereum_name) {
                 const accessListContract = ethHelper.createContract
-                    (ethereum.ACCESSLIST_ADDRESS, "../../../build/contracts/AccessList.json", ethHelper.randomWallet())
+                    (ethereum.ACCESSLIST_ADDRESS, ethereum.AccessList, ethHelper.randomWallet())
                 var txResponse
                 if (credentialType == "Operator")
                     txResponse = await accessListContract.get_operator_credentials(target_user_eth_address, { gasLimit: 6721975, gasPrice:0 })

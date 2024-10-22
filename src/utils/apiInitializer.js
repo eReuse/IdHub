@@ -1,8 +1,8 @@
-const iota = require('./iota/iota-helper.js')
 const multiacc = require('./multiacc-helper.js');
+const storage = require('node-persist');
 
 async function initial_steps(){
-    await iota.check_iota_index()
+    await storage.init()
     await multiacc.set_admin()
   }
 

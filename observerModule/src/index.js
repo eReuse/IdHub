@@ -19,7 +19,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 )
 
 const depositDeviceIface = new ethers.utils.Interface(
-    require('../../build/contracts/DepositDevice.json').abi
+    require('../shared/DepositDevice.json').abi
 )
 
 const dataDir = '../data';
@@ -96,7 +96,7 @@ app.use(
     })
 )
 
-const port = 3013
+const port = process.env.HTTP_PORT || 3013
 const host = "0.0.0.0"
 
 

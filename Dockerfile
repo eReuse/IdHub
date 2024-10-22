@@ -1,18 +1,18 @@
-FROM node:16.13.0-alpine
-
+FROM node:20.10.0-alpine
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node contracts ./contracts
-COPY --chown=node:node migrations ./migrations
-COPY --chown=node:node truffle-config.js ./truffle-config.js
+COPY --chown=node:node scripts ./scripts
+COPY --chown=node:node hardhat.config.js ./hardhat.config.js
 
 USER node
-RUN npm install truffle @truffle/hdwallet-provider@1.5.1 express ethers crypto-js node-persist body-parser @iota/is-client fs cors --save --loglevel=error
-RUN ./node_modules/.bin/truffle migrate --network iota_stable --reset
+RUN npm install express ethers crypto-js node-persist body-parser fs cors hardhat '@nomicfoundation/hardhat-ethers' --save
+RUN npx hardhat vars set TEST_NODE_IP blockchain_test_node
 COPY --chown=node:node src ./src
+RUN mkdir -p /home/node/app/shared && chown -R node:node /home/node/app/shared
 
-USER root
 EXPOSE 3010
-WORKDIR /home/node/app/src/
-CMD ["node", "./index.js"]
+# WORKDIR /home/node/app/src/
+# COPY ./.env ./
+CMD ["./src/entry_point.sh"]

@@ -1,14 +1,16 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 pragma solidity ^0.8.6;
 
 //import "project:/contracts/DepositDevice.sol";
 //import "project:/contracts/Ownable.sol";
 import "./DepositDevice.sol";
 import "./Ownable.sol";
-import "./IAbacContract.sol";
+import "./AccessList.sol";
 import "./TokenContract.sol";
 
 contract DeviceFactory {
-    IAbacContract public roles;
+    AccessList public roles;
     TokenContract public token_contract;
 
     mapping(address => address[]) deployed_devices;
@@ -20,23 +22,12 @@ contract DeviceFactory {
     event DeviceRegistered(address indexed _deviceAddress, uint timestamp);
 
     constructor(address rolesAddress, address tokenContractAddress) {
-        roles = IAbacContract(rolesAddress);
+        roles = AccessList(rolesAddress);
         token_contract=TokenContract(tokenContractAddress);
     }
 
-    function checkIfOperator(address _address) internal view returns(bool){
-        AttributeValue[] memory attrs = roles.getAccountAttributes(_address);
-        for (uint i = 0; i < attrs.length; i++){
-            if(keccak256(abi.encodePacked(attrs[i].value))==keccak256(abi.encodePacked('operator'))){
-                if(roles.isAccountAttributeValid(attrs[i].attributeId, _address))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     modifier onlyOp() {
-        require(checkIfOperator(msg.sender) == true, "The message sender is not an operator");
+        require(roles.checkIfOperator(msg.sender) == true, "The message sender is not an operator");
         _;
     }
 

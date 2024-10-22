@@ -1,6 +1,4 @@
 const ETHEREUM_NAME = "ethereum"
-const IOTA_NAME = "iota"
-const OBADA_NAME = "obada"
 
 const OPERATOR = "Operator"
 const WITNESS = "Witness"
@@ -13,8 +11,6 @@ const CREDENTIAL_TYPES = [OPERATOR, WITNESS, VERIFIER]
 
 module.exports = {
     ETHEREUM_NAME,
-    IOTA_NAME,
-    OBADA_NAME,
     OPERATOR,
     WITNESS,
     VERIFIER,

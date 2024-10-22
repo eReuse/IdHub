@@ -22,6 +22,7 @@ node index.js
 ### Docker deployment
 Build and run the Docker image with:
 ```
+docker cp ereuse-dpp-api:/home/node/app/build/contracts/DepositDevice.json ./src
 docker-compose up
 ```
 The API is then exposed to port 3013 by default.

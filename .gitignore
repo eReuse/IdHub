@@ -1,3 +1,8 @@
+# note: this config file is empty in the main repo, but visible inside
+# the container
+# didResolverApi/src/.env
+.env
+
 .node-persist
 build
 pythonPackage/dist
@@ -9,6 +14,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+database.sqlite
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

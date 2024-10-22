@@ -6,12 +6,19 @@ const TokenContract = artifacts.require("TokenContract")
 
 
 module.exports = async function (deployer, network, accounts) {
-  const abacAddr = "0xb77fD3634e0a4BAc69cd223ad146FE45361b5762"
+  const adminAccesList = "0x2f67B1d86651aF2E37E39b30F2E689Aa7fbAc79F"
+  var tokens
+  var roles
   await deployer.deploy(TokenContract)
-        .then(async function (ins){
-          tokens=ins;
-          await deployer.deploy(DeviceFactory, abacAddr, tokens.address)
+    .then(async function (ins) {
+      tokens = ins;
+      await deployer.deploy(AccessList, adminAccesList)
+        .then(async function (instance) {
+          roles = instance;
+          console.log("role address: " + roles.address)
+          await deployer.deploy(DeviceFactory, roles.address, tokens.address)
         })
+    })
   // await deployer.deploy(AccessList, adminAccesList)
   //   .then(async function (instance) {
   //     roles = instance;

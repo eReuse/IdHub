@@ -1,9 +1,13 @@
 const ethers = require("ethers")
-const DeviceFactory = require('../../../build/contracts/DeviceFactory.json');
+const DeviceFactory = require('../../../artifacts/contracts/DeviceFactory.sol/DeviceFactory.json');
 //457
-const TokenContract = require('../../../build/contracts/TokenContract.json');
+const TokenContract = require('../../../artifacts/contracts/TokenContract.sol/TokenContract.json');
 
-const AccessList = require('../../../build/contracts/AccessList.json');
+const AccessList = require('../../../artifacts/contracts/AccessList.sol/AccessList.json');
+
+const DepositDevice = require('../../../artifacts/contracts/DepositDevice.sol/DepositDevice.json');
+
+const deployedContracts = require('../../../deployed-contracts.json')
 
 const process = require("process")
 
@@ -20,28 +24,31 @@ const ethClient = process.env.ETH_CLIENT
 const idIndexURL = process.env.ID_INDEX
 
 const chainId = process.env.CHAIN_ID.toString()
+console.log(chainId)
 
-const DEVICEFACTORY_ADDRESS = DeviceFactory.networks[chainId].address;
-const ACCESSLIST_ADDRESS = DeviceFactory.networks[chainId].address; //this is wrong to circumvent abac implementation TODO
-const TOKEN_CONTRACT_ADDRESS = TokenContract.networks[chainId].address;
+const DEVICEFACTORY_ADDRESS = deployedContracts.DeviceFactory;
+const ACCESSLIST_ADDRESS = deployedContracts.AccessList;
+const TOKEN_CONTRACT_ADDRESS = deployedContracts.TokenContract;
+
+const veramoURL = process.env.VERAMO_URL
 
 
 
-const deviceFactoryIface = new ethers.utils.Interface(
-  require('../../../build/contracts/DeviceFactory.json').abi
+const deviceFactoryIface = new ethers.Interface(
+  DeviceFactory.abi
 )
-const accessListIface = new ethers.utils.Interface(
-  require('../../../build/contracts/AccessList.json').abi
+const accessListIface = new ethers.Interface(
+  AccessList.abi
 )
-const depositDeviceIface = new ethers.utils.Interface(
-  require('../../../build/contracts/DepositDevice.json').abi
+const depositDeviceIface = new ethers.Interface(
+  DepositDevice.abi
 )
-const tokenContractIface = new ethers.utils.Interface(
-  require('../../../build/contracts/TokenContract.json').abi
+const tokenContractIface = new ethers.Interface(
+  TokenContract.abi
 )
 
 
-const provider = new ethers.providers.JsonRpcProvider(
+const provider = new ethers.JsonRpcProvider(
   nodeIP
   //"HTTP://127.0.0.1:7545"
 )
@@ -49,18 +56,22 @@ const provider = new ethers.providers.JsonRpcProvider(
 const signer = new ethers.Wallet(privateKey, provider)
 const defaultDeviceFactoryContract = new ethers.Contract(
   DEVICEFACTORY_ADDRESS,
-  require('../../../build/contracts/DeviceFactory.json').abi,
+  DeviceFactory.abi,
   signer
 )
 
 const defaultAccessListContract = new ethers.Contract(
   ACCESSLIST_ADDRESS,
-  require('../../../build/contracts/AccessList.json').abi,
+  AccessList.abi,
   signer
 )
 
 
 module.exports = {
+  DeviceFactory: DeviceFactory,
+  TokenContract: TokenContract,
+  AccessList: AccessList,
+  DepositDevice: DepositDevice,
   DEVICEFACTORY_ADDRESS: DEVICEFACTORY_ADDRESS,
   ACCESSLIST_ADDRESS: ACCESSLIST_ADDRESS,
   deviceFactoryIface: deviceFactoryIface,
@@ -74,6 +85,6 @@ module.exports = {
   nodeIP: nodeIP,
   idIndexURL: idIndexURL,
   TOKEN_CONTRACT_ADDRESS: TOKEN_CONTRACT_ADDRESS,
-  tokenContractIface: tokenContractIface
-
+  tokenContractIface: tokenContractIface,
+  veramoURL: veramoURL
 }
