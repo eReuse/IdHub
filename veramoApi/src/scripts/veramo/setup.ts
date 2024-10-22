@@ -38,7 +38,7 @@ import { DataSource } from 'typeorm'
 
 import {CredentialIssuerEIP712, ICredentialIssuerEIP712} from '@veramo/credential-eip712'
 
-
+const ETH_REGISTRY = process.env.ETH_REGISTRY
 
 // This will be the name for the local sqlite database for demo purposes
 const DATABASE_FILE = 'database.sqlite'
@@ -78,8 +78,10 @@ export const agent = createAgent<
                     name:"ereuse",
                     defaultKms: 'local',
                     network: 457,
-                    rpcUrl: "http://45.150.187.30:8545",
-                    registry: "0x65CF661380b57c3a91b6e501D5c4c5a0652b33f0"
+	            //TODO CONFIGURE THIS BETTER
+	            //TODO warning, hardcoded blockchain node (only for PoC)
+                    rpcUrl: "http://blockchain_test_node:8545",
+                    registry: ETH_REGISTRY
                 }),
             },
         }),
@@ -90,8 +92,10 @@ export const agent = createAgent<
                         {
                             name:"mainnet",
                             chainId: 457,
-                            rpcUrl: "http://45.150.187.30:8545",
-                            registry: "0x65CF661380b57c3a91b6e501D5c4c5a0652b33f0"
+	                    //TODO CONFIGURE THIS BETTER
+	                    //TODO warning, hardcoded blockchain node (only for PoC)
+                            rpcUrl: "http://blockchain_test_node:8545",
+                            registry: ETH_REGISTRY
                         }
                     ]
                 }),

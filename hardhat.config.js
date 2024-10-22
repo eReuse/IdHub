@@ -1,4 +1,6 @@
 require("@nomicfoundation/hardhat-ethers");
+const { vars } = require("hardhat/config");
+const TEST_NODE_IP=vars.get("TEST_NODE_IP", "blockchain_test_node")
 module.exports = {
   networks:{
     hardhat:{
@@ -8,7 +10,7 @@ module.exports = {
       initialBaseFeePerGas:0,
     },
     test: {
-      url: "http://localhost:8545",
+      url: "http://"+TEST_NODE_IP+":8545",
       accounts: {
         mnemonic: "discover angle erosion trap barrel wage chest drop one raven tray degree",
         path: "m/44'/60'/0'/0",

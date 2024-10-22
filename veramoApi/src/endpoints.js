@@ -6,6 +6,7 @@ router
 
 .post("/verify", async (req, res, next) => {
     var credential = req.body.credential
+    console.log("HELLO FROM VERAMO")
     var check = await verify(credential)
     res.header("Access-Control-Allow-Origin", "*");
     res.status(200);

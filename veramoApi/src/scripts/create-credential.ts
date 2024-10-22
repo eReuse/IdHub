@@ -7,13 +7,13 @@ async function main() {
     credential: {
       issuer: { id: identifier.did },
       credentialSubject: {
-        id: 'did:ethr:0x9689c31ddc9fD8F0Fcb98B7570E82893d9a7E593',
+        id: 'did:ethr:0xf1051D79fA59B580b916418bA699F996edbb25C8',
         role: 'operator',
       },
     },
     proofFormat: 'EthereumEip712Signature2021',
   })
-  console.log(`New credential created`)
+  console.error(`New credential created`)
   console.log(JSON.stringify(verifiableCredential, null, 2))
 }
 

@@ -1,32 +1,140 @@
-version: '3.9'
-
 services:
+  id_index_api:
+      init: true
+      build:
+        context: ./idIndexApi/
+        dockerfile: ./Dockerfile
+      container_name: id_index_api
+      ports:
+        - "3012:3012"
+      restart: always
+      volumes:
+        - ${id_index_api__vol__data:-id_index_api__data}:/home/node/idIndexApi/data:rw
+        - ${id_index_api__vol__src:-id_index_api__src}:/home/node/idIndexApi/src:ro
+      networks:
+        - ereuse
 
-  api: 
+  blockchain_test_node:
+      init: true
+      # TODO I hope this is fine
+      #   Allows 2 seconds for the container to gracefully shut down (by default is 10, and it always take 10)
+      stop_grace_period: 2s
+      build:
+        context: ./
+        dockerfile: ./Dockerfile_blockchain_test_node
+      container_name: blockchain_test_node
+      ports:
+        # we saw this is sometimes attacked, that's why it is not globally exposed
+        - "127.0.0.1:8545:8545"
+      restart: always
+      networks:
+        - ereuse
+
+  # ereuse-dpp-api
+  api_connector:
+      init: true
       build: ./
-      container_name: ereuse-dpp-api # name of the built image
+      depends_on:
+        - id_index_api
+        - blockchain_test_node
+        - veramo_api
+      container_name: api_connector
       ports:
         - "3010:3010"
       restart: always
       volumes:
-        - ./src:/home/node/app/src:rw
+        - ${api_connector__vol__src:-api_connector__api_src}:/home/node/app/src:rw
+        - ${api_connector__vol__shared:-./shared}:/home/node/app/shared:rw
+        - ./.env:/home/node/app/.env:ro
+        - ./hardhat-artifacts:/home/node/app/artifacts
+        - ./hardhat-cache:/home/node/app/cache
+      # TODO this is somehow redundant or not much consistent with shared volume
+      # if this exist, writes api-connector_admin-token.txt file to shared path
+      environment:
+        - SHARED=./shared
       networks:
         - ereuse
 
-  resolver: 
-      build: 
+  did_resolver:
+      init: true
+      build:
         context: ./
         dockerfile: ./didResolverApi/Dockerfile
-      container_name: didResolver # name of the built image
+      container_name: did_resolver
       ports:
         - "3011:3011"
       restart: always
       volumes:
-        - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
-        - ./didResolverModule/src:/home/node/didResolverModule/src:rw
+        - ${did_resolver__vol__api_src:-did_resolver__api_src}:/home/node/didResolverAPI/src:rw
+        - ${did_resolver__vol__module_src:-did_resolver__module_src}:/home/node/didResolverModule/src:rw
+        - ./.env:/home/node/didResolverAPI/src/.env:ro
+      networks:
+        - ereuse
+
+  dpp_indexer:
+      init: true
+      build:
+        context: ./
+        dockerfile: ./observerModule/Dockerfile
+      depends_on:
+        - api_connector
+      container_name: dpp_indexer # name of the built image
+      environment:
+        - HTTP_PORT=3014
+      ports:
+        - "3014:3014"
+      restart: always
+      volumes:
+        - ${dpp_indexer__vol__data:-dpp_indexer__data}:/home/node/observerModule/data:rw
+        - ${dpp_indexer__vol__src:-dpp_indexer__src}:/home/node/observerModule/src:ro
+        - ${dpp_indexer__vol__shared:-./shared}:/home/node/observerModule/shared:rw
+        - ./.env:/home/node/observerModule/src/.env:ro
+      networks:
+        - ereuse
+
+  veramo_api:
+      init: true
+      build:
+        context: ./veramoApi
+        dockerfile: ./Dockerfile
+      container_name: veramo_api # name of the built image
+      ports:
+        - "3016:3016"
+      restart: always
+      volumes:
+        - ${veramo_api__vol__src:-veramo_api__src}:/home/node/veramoApi/src:rw
+        - ${veramo_api__vol__shared:-./shared}:/home/node/veramoApi/shared:rw
+      networks:
+        - ereuse
+
+  create-operator-user:
+      init: true
+      build:
+        context: ./create-operator-user
+        dockerfile: ./Dockerfile
+      container_name: create-operator-user
+      volumes:
+        - ${create_operator_user__vol__src:-create_operator_user__src}:/home/node/app/scripts:rw
+        - ${create_operator_user__vol__shared:-./shared}:/home/node/app/shared:rw
       networks:
         - ereuse
 
 networks:
     ereuse:
       driver: bridge
+    #  internal: true
+    # TODO expose to internet services that we want
+    #internet:
+    #  driver: bridge
+
+volumes:
+  shared:
+  id_index_api__data:
+  id_index_api__src:
+  api_connector__api_src:
+  did_resolver__api_src:
+  did_resolver__module_src:
+  dpp_indexer__data:
+  dpp_indexer__src:
+  veramo_api__src:
+  create_operator_user__src:

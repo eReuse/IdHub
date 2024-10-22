@@ -1,0 +1,12 @@
+FROM node:20.10.0-alpine
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+COPY --chown=node:node hardhat.config.js ./hardhat.config.js
+
+USER node
+RUN npm init -y
+RUN npm install hardhat '@nomicfoundation/hardhat-ethers' ethers --loglevel=error
+
+EXPOSE 8545
+CMD ["npx","hardhat","node"]
