@@ -18,6 +18,8 @@ RUN export PATH=~/.npm-global/bin:$PATH
 RUN npm install
 RUN npm install @veramo/credential-eip712
 
+COPY src ./src
+
 EXPOSE 3016
 WORKDIR /home/node/veramoApi/src
 CMD ["node", "./index.js"]

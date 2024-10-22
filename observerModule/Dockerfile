@@ -7,7 +7,9 @@ COPY --chown=node:node observerModule/package*.json ./
 USER root
 RUN npm install
 
+COPY observerModule/src ./src
+RUN mkdir -p /home/node/app/shared && chown -R node:node /home/node/app/shared
+
 EXPOSE 3014
 WORKDIR /home/node/observerModule/src
-# COPY ./.env ./
 CMD ["./entry_point.sh"]

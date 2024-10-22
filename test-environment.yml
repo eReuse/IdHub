@@ -9,13 +9,16 @@ services:
         - "3012:3012"
       restart: always
       volumes:
-        - ./idIndexApi/data:/home/node/idIndexApi/data:rw
-        - ./idIndexApi/src:/home/node/idIndexApi/src:ro
+        - ${id_index_api__vol__data:-id_index_api__data}:/home/node/idIndexApi/data:rw
+        - ${id_index_api__vol__src:-id_index_api__src}:/home/node/idIndexApi/src:ro
       networks:
         - ereuse
 
   blockchain_test_node:
       init: true
+      # TODO I hope this is fine
+      #   Allows 2 seconds for the container to gracefully shut down (by default is 10, and it always take 10)
+      stop_grace_period: 2s
       build:
         context: ./
         dockerfile: ./Dockerfile_blockchain_test_node
@@ -38,8 +41,8 @@ services:
         - "3010:3010"
       restart: always
       volumes:
-        - ./src:/home/node/app/src:rw
-        - ./shared:/home/node/app/shared:rw
+        - ${api_connector__vol__src:-api_connector__api_src}:/home/node/app/src:rw
+        - ${api_connector__vol__shared:-shared}:/home/node/app/shared:rw
         - ./.env:/home/node/app/.env:ro
       networks:
         - ereuse
@@ -54,8 +57,8 @@ services:
         - "3011:3011"
       restart: always
       volumes:
-        - ./didResolverApi/src:/home/node/didResolverAPI/src:rw
-        - ./didResolverModule/src:/home/node/didResolverModule/src:rw
+        - ${did_resolver__vol__api_src:-did_resolver__api_src}:/home/node/didResolverAPI/src:rw
+        - ${did_resolver__vol__module_src:-did_resolver__module_src}:/home/node/didResolverModule/src:rw
         - ./.env:/home/node/didResolverAPI/src/.env:ro
       networks:
         - ereuse
@@ -74,9 +77,9 @@ services:
         - "3014:3014"
       restart: always
       volumes:
-        - ./observerModule/data:/home/node/observerModule/data:rw
-        - ./observerModule/src:/home/node/observerModule/src:ro
-        - ./shared:/home/node/observerModule/shared:rw
+        - ${dpp_indexer__vol__data:-dpp_indexer__data}:/home/node/observerModule/data:rw
+        - ${dpp_indexer__vol__src:-dpp_indexer__src}:/home/node/observerModule/src:ro
+        - ${dpp_indexer__vol__shared:-shared}:/home/node/observerModule/shared:rw
         - ./.env:/home/node/observerModule/src/.env:ro
       networks:
         - ereuse
@@ -91,10 +94,21 @@ services:
         - "3016:3016"
       restart: always
       volumes:
-        - ./veramoApi/src:/home/node/veramoApi/src:rw
+        - ${veramo_api__vol__src:-veramo_api__src}:/home/node/veramoApi/src:rw
       networks:
         - ereuse
 
 networks:
     ereuse:
       driver: bridge
+
+volumes:
+  shared:
+  id_index_api__data:
+  id_index_api__src:
+  api_connector__api_src:
+  did_resolver__api_src:
+  did_resolver__module_src:
+  dpp_indexer__data:
+  dpp_indexer__src:
+  veramo_api__src:
