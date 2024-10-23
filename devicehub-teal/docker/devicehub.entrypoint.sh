@@ -189,6 +189,10 @@ config_dpp_part1() {
 	# 12. Add a new server to the 'api resolver'
 	if [ "${ID_SERVICE:-}" ]; then
 		handle_federated_id
+	else
+		# TODO when this runs more than one time per service, this is a problem, but for the docker-reset.sh workflow, that's fine
+		# TODO put this in already_configured
+		flask dlt_insert_members "${DEVICEHUB_HOST}"
 	fi
 
 	# 13. Do a rsync api resolve
