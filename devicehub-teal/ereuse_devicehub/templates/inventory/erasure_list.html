@@ -1,0 +1,327 @@
+{% extends "ereuse_devicehub/base_site.html" %}
+{% block main %}
+
+<div class="pagetitle">
+  <h1>Inventory</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('inventory.devicelist')}}">Inventory</a></li>
+      <li class="breadcrumb-item active">Drive Sanitization</li>
+    </ol>
+  </nav>
+</div><!-- End Page Title -->
+
+<section class="section profile">
+  <div class="row">
+
+    <div class="col-xl-12">
+
+      <div class="card">
+        <div class="card-body pt-3" style="min-height: 650px;">
+          <ul class="nav nav-tabs nav-tabs-bordered">
+
+            <li class="nav-item">
+              <a href="{{ url_for('inventory.device_erasure_list') }}" class="nav-link{% if not orphans %} active{% endif %}">
+                All drives
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{{ url_for('inventory.device_erasure_list_orphans', orphans=1) }}" class="nav-link{% if orphans %} active{% endif %}">
+                Drives without device
+              </a>
+            </li>
+
+          </ul>
+          <div class="tab-content pt-2">
+            <div id="devices-list" class="tab-pane fade devices-list active show">
+              <label class="btn btn-primary " for="SelectAllBTN"><input type="checkbox" id="SelectAllBTN" autocomplete="off"></label>
+              {% if orphans %}
+              <div class="btn-group dropdown ml-1">
+                <button id="btnLots" type="button" onclick="processSelectedDevices()" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-folder2"></i>
+                  Lots
+                  <span class="caret"></span>
+                </button>
+                <span class="d-none" id="activeTradeModal" data-bs-toggle="modal" data-bs-target="#tradeLotModal"></span>
+
+                <ul class="dropdown-menu" aria-labelledby="btnLots" id="dropDownLotsSelector">
+                  <div class="row w-100">
+                    <div class="input-group mb-3 mx-2">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-search"></i></span>
+                      </div>
+                      <input type="text" class="form-control" id="lots-search" placeholder="search" aria-label="search" aria-describedby="basic-addon1">
+                    </div>
+                  </div>
+                  <h6 class="dropdown-header">Select lots where to store the selected devices</h6>
+                  <ul class="mx-3" id="LotsSelector"></ul>
+                  <li><hr /></li>
+                  <li>
+                    <a href="#" class="dropdown-item" id="ApplyDeviceLots">
+                      <i class="bi bi-check"></i>
+                      Apply
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              {% endif %}
+              <div class="btn-group dropdown m-1" uib-dropdown="">
+                <button id="btnExport" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-reply"></i>
+                    Exports
+                </button>
+                <span class="d-none" id="exportAlertModal" data-bs-toggle="modal" data-bs-target="#exportErrorModal"></span>
+                <ul class="dropdown-menu" aria-labelledby="btnExport">
+                  <li>
+                    <a href="javascript:export_actions_erasure('actions_erasures')" class="dropdown-item">
+                      <i class="bi bi-file-spreadsheet"></i>
+                      Data Storage Spreadsheet
+                    </a>
+                  </li>
+                  <li>
+                    <a href="javascript:export_file('certificates')" class="dropdown-item">
+                      <i class="bi bi-eraser-fill"></i>
+                      Device Sanitization
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              {% if orphans %}
+              <div class="btn-group dropdown m-1" uib-dropdown="">
+                <button id="btnTags" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-tag"></i>
+                    Labels
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnTags">
+                  <li>
+                    <form id="print_labels" method="post" action="{{ url_for('labels.print_labels') }}">
+                      {% for f in form_print_labels %}
+                        {{ f }}
+                      {% endfor %}
+                      <a href="javascript:$('#print_labels').submit()" class="dropdown-item">
+                        <i class="bi bi-printer"></i>
+                        Print labels
+                      </a>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+              {% endif %}
+
+              <div id="select-devices-info" class="alert alert-info mb-0 mt-3 d-none" role="alert">
+                If this text is showing is because there are an error
+              </div>
+
+              <div class="tab-content pt-2">
+                <div class="dataTable-top" style="float: left;">
+                  <div class="dataTable-dropdown">
+                    <label>
+                      <select class="dataTable-selector">
+                        <option value="5"{% if erasure.per_page == 5 %} selected="selected"{% endif %}>
+                          5
+                        </option>
+                        <option value="10"{% if erasure.per_page == 10 %} selected="selected"{% endif %}>
+                          10
+                        </option>
+                        <option value="15"{% if erasure.per_page == 15 %} selected="selected"{% endif %}>
+                          15
+                        </option>
+                        <option value="20"{% if erasure.per_page == 20 %} selected="selected"{% endif %}>
+                          20
+                        </option>
+                        <option value="25"{% if erasure.per_page == 25 %} selected="selected"{% endif %}>
+                          25
+                        </option>
+                        <option value="50"{% if erasure.per_page == 50 %} selected="selected"{% endif %}>
+                          50
+                        </option>
+                        <option value="100"{% if erasure.per_page == 100 %} selected="selected"{% endif %}>
+                          100
+                        </option>
+                      </select> entries per page
+                    </label>
+                  </div>
+                  <div class="dataTable-search">
+                  </div>
+                </div>
+                <div class="dataTable-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Select</th>
+                      <th scope="col">Data Storage Serial</th>
+                      <th scope="col">DHID</th>
+                      <th scope="col">Snapshot ID</th>
+                      <th scope="col">Type of Erasure</th>
+                      <th scope="col">PHID Erasure Host</th>
+                      <th scope="col">Result</th>
+                      <th scope="col" data-type="date" data-format="YYYY-MM-DD hh:mm:ss">Time</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for ac in erasure.items %}
+                    {% if not ac.device.is_mobile() %}
+                    <tr>
+                      <td>
+                          <input type="checkbox" class="deviceSelect" data="{{ ac.device.my_partner.id }}"
+                               data-device-type="{{ ac.device.type }}" data-device-manufacturer="{{ ac.device.manufacturer }}"
+                               data-device-dhid="{{ ac.device.dhid }}" data-device-vname="{{ ac.device.verbose_name }}"
+                               data-action-erasure="{{ ac.id }}"
+                               {% if form_new_allocate.type.data and ac.device.id in list_devices %}
+                                 checked="checked"
+                               {% endif %}
+                               />
+                      </td>
+                      <td>
+                        {% if ac.device.phid() %}
+                        <a href="{{ url_for('inventory.device_details', id=ac.device.dhid)}}">
+                          {% if ac.device.get_type_logo() %}
+                          <i class="{{ ac.device.get_type_logo() }}" title="{{ ac.device.type }}"></i>
+                          {% endif %}
+                          {{ ac.device.serial_number.upper() }}
+                        </a>
+                        {% else %}
+                        {% if ac.device.get_type_logo() %}
+                        <i class="{{ ac.device.get_type_logo() }}" title="{{ ac.device.type }}"></i>
+                        {% endif %}
+                        {{ ac.device.serial_number.upper() }}
+                        {% endif %}
+                        {% if ac.device.get_lots_for_template() | length > 0 %}
+                        <h6 class="d-inline">
+                          {% for lot in ac.device.get_lots_for_template() %}
+                            <span class="badge rounded-pill bg-light text-dark">{{ lot }}</span>
+                          {% endfor %}
+                        </h6>
+                        {% endif %}
+                      </td>                      
+                      <td>
+                        {% if ac.device.phid() %}
+                        <a href="{{ url_for('inventory.device_details', id=ac.device.dhid)}}">
+                          {{ ac.device.dhid }}
+                        </a>
+                        {% else %}
+                        {{ ac.device.dhid }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{{ url_for('inventory.export', export_id='snapshot') }}?id={{ ac.snapshot.uuid }}">
+                         {{ ac.snapshot.uuid }}
+                        </a>
+                      </td>
+                      <td>
+                          {{ ac.type  or '' }}
+                      </td>
+                      <td>
+                        <a href="{{ url_for('inventory.device_details', id=ac.device.parent.dhid) }}">
+                          {{ ac.get_phid() }}
+                        </a>
+                      </td>                     
+                      <td>
+                          {{ ac.severity }}
+                      </td>
+                      <td>{{ ac.created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                      <td>
+                        <a href="{{ url_for('inventory.export', export_id='snapshot') }}?id={{ ac.snapshot.uuid }}">
+                          <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+                <div class="dataTable-bottom">
+                  <div class="dataTable-info">
+                    Showing {{ erasure.first }} to {{ erasure.last }} of {{ erasure.total }} entries
+                  </div>
+                  <nav class="dataTable-pagination">
+                    <ul class="dataTable-pagination-list">
+                      {% if erasure.has_prev %}
+                        <li class="pager">
+                          {% if orphans %}
+                          <a href="{{ url_for('inventory.device_erasure_list_orphans', orphans=1, page=erasure.prev_num, per_page=erasure.per_page) }}">‹</a>
+                          {% else %}
+                          <a href="{{ url_for('inventory.device_erasure_list', page=erasure.prev_num, per_page=erasure.per_page) }}">‹</a>
+                          {% endif %}
+                        </li>
+                      {% endif %}
+                      {% for page in erasure.iter_pages() %}
+                        {% if page %}
+                          {% if page == erasure.page %}
+                            <li class="active"><a href="javascript:void()">{{ page }}</a></li>
+                          {% else %}
+                            <li class="">
+                              {% if orphans %}
+                              <a href="{{ url_for('inventory.device_erasure_list_orphans', orphans=1, page=page, per_page=erasure.per_page) }}">
+                                {{ page }}
+                              </a>
+                              {% else %}
+                              <a href="{{ url_for('inventory.device_erasure_list', page=page, per_page=erasure.per_page) }}">
+                                {{ page }}
+                              </a>
+                              {% endif %}
+                            </li>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if erasure.has_next %}
+                        <li class="pager">
+                          {% if orphans %}
+                          <a href="{{ url_for('inventory.device_erasure_list_orphans', orphans=1, page=erasure.next_num, per_page=erasure.per_page) }}">›</a>
+                          {% else %}
+                          <a href="{{ url_for('inventory.device_erasure_list', page=erasure.next_num, per_page=erasure.per_page) }}">›</a>
+                          {% endif %}
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+
+            </div><!-- End Bordered Tabs -->
+          </div>
+        </div>
+      </div>
+
+      <div id="NotificationsContainer" style="position: absolute; bottom: 0; right: 0; margin: 10px; margin-top: 70px; width: calc(100% - 310px);"></div>
+
+    </div>
+  </div>
+</section>
+{% include "inventory/alert_export_error.html" %}
+{% include "inventory/alert_lots_changes.html" %}
+
+<!-- Custom Code -->
+<script>
+  $(document).ready(() => {
+    $(".dataTable-selector").on("change", function() {
+        const per_page = $('.dataTable-selector').val();
+        {% if orphans %}
+        window.location.href = "{{ url_for('inventory.device_erasure_list_orphans', orphans=1, page=1) }}&per_page="+per_page;
+        {% else %}
+        window.location.href = "{{ url_for('inventory.device_erasure_list', page=1) }}&per_page="+per_page;
+        {% endif %}
+    });
+  });
+</script>
+<script>
+  let table = new simpleDatatables.DataTable("table", {
+    //perPageSelect: [5, 10, 15, 20, 25, 50, 100],
+    //perPage: 20,
+    footer: false,
+    paging: false,
+    
+  })
+</script>
+
+{% if config['DEBUG'] %}
+  <script src="{{ url_for('static', filename='js/main_inventory.js') }}"></script>
+{% else %}
+  <script src="{{ url_for('static', filename='js/main_inventory.build.js') }}"></script>
+{% endif %}
+
+
+{% endblock main %}
