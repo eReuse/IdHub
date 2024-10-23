@@ -12,8 +12,9 @@ axios.post(`${api_url}/${route}`, params, {
     headers: {
         dlt: dlt
     }
-}).then(data => {
-    console.log(data)
+}).then(response => {
+    // TODO less logs
+    console.error(response)
 }
 
 )

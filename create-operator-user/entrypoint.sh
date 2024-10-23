@@ -14,6 +14,7 @@ main() {
 		if [ -f "shared/${ADMIN_TOKEN_FILE}" ] && \
 		    [ -f "shared/${VERAMO_API_CRED_FILE}" ] && \
 		    ! wc -l "shared/${VERAMO_API_CRED_FILE}" | awk '{print $1;}' | grep -qE '^0$'; then
+			sleep 5
 			echo "Files ready to process."
 			break
 		else
@@ -28,6 +29,7 @@ main() {
 	export OPERATOR_TOKEN="$(cat "shared/operator-token.txt")"
 	node scripts/call_oracle.js
 	node scripts/mint.js
+	touch shared/create_user_operator_finished
 }
 
 main "${@}"
