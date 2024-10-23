@@ -13,6 +13,7 @@ router
     const eReuseResolver = getResolver(process.env.API_CONNECTOR_URL)
     const didResolver = new Resolver(eReuseResolver)
     const doc = await didResolver.resolve(req.url.substring(1))
+    res.header("Access-Control-Allow-Origin", "*");
     res.send(JSON.stringify(doc, null, 2))
 })
 

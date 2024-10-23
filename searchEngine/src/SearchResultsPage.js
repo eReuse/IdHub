@@ -118,7 +118,7 @@ const SearchResultsPage = ({ location }) => {
     //     })
     //     return retVal
     // }
-    else if (temp2_dpps[0].item.balance == undefined) {
+    else if (dpps[0].item.balance == undefined) {
         template = templateDraw(false, true)
     }
     else {

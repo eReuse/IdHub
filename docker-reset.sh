@@ -17,9 +17,9 @@ main() {
 	# remove previous data
 	rm -f shared/*
 	# remove registry instances
-	rm idIndexApi/data/id_url.json
+	rm -f idIndexApi/data/id_url.json
 	# remove cached devices
-	rm observerModule/data/devices.json
+	rm -f observerModule/data/devices.json
 	# remove docker volumes (mapped filesystem mounts are persisted)
         docker compose down -v
 

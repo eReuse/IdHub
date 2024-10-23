@@ -176,6 +176,27 @@ services:
     networks:
       - ereuse
 
+  search:
+    init: true
+    build:
+      context: ./searchEngine/
+      #dockerfile: ./Dockerfile
+    container_name: fuzzySearchEngine # name of the built image
+    ports:
+      - "80:3000"
+    #restart: always
+    environment:
+      - REACT_APP_CONNECTOR_API=${SEARCH_REACT_APP_CONNECTOR_API}
+      - REACT_APP_DPP_INDEXER=${SEARCH_REACT_APP_DPP_INDEXER}
+      - REACT_APP_EREUSE_DID_RESOLVER=${SEARCH_REACT_APP_EREUSE_DID_RESOLVER}
+      - REACT_APP_ID_INDEX_API=${SEARCH_REACT_APP_ID_INDEX_API}
+    volumes:
+      # TODO env vars???
+      - ./searchEngine/src:/home/node/searchEngine/src:ro
+      - ./searchEngine/public:/home/node/searchEngine/public:ro
+      - ./shared:/home/node/searchEngine/shared
+    networks:
+      - ereuse
 
 networks:
     ereuse:
