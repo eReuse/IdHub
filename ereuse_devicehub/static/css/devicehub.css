@@ -1,0 +1,45 @@
+/**
+* eReuse CSS
+*/
+
+/*--------------------------------------------------------------
+# LotsSelector
+--------------------------------------------------------------*/
+
+#dropDownLotsSelector {
+    max-height: 500px;
+}
+
+#dropDownLotsSelector>ul#LotsSelector {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    min-width: max-content;
+    max-height: 330px;
+    overflow-y: auto;
+}
+
+#dropDownLotsSelector #ApplyDeviceLots {
+    padding-top: 0px;
+    padding-bottom: 5px;
+}
+#ApplyDeviceLots {
+    color: #993365;
+    font-weight: bold;
+}
+#ApplyDeviceLots.disabled {
+    color: #adb5bd;
+    font-weight: normal;
+    pointer-events: none;
+    background-color: #fff;
+}
+.help {
+    color: #993365;
+}
+.doTransfer {
+    margin-top: -8px; 
+    margin-right: 15px;"
+}
+.printLabelForm {
+    margin-left: 10px;
+}

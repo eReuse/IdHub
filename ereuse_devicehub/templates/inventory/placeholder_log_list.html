@@ -1,0 +1,156 @@
+{% extends "ereuse_devicehub/base_site.html" %}
+{% block main %}
+
+<div class="pagetitle">
+  <h1>{{ page_title }}</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('inventory.devicelist')}}">Inventory</a></li>
+      <li class="breadcrumb-item active">Placeholders</li>
+    </ol>
+  </nav>
+</div><!-- End Page Title -->
+
+<section class="section profile">
+  <div class="row">
+
+    <div class="col-xl-12">
+
+      <div class="card">
+        <div class="card-body pt-3" style="min-height: 650px;">
+          <!-- Bordered Tabs -->
+          <div class="tab-content pt-5">
+            <div id="devices-list" class="tab-pane fade devices-list active show">
+              <div class="tab-content pt-2">
+                <div class="dataTable-top" style="float: left;">
+                  <div class="dataTable-dropdown">
+                    <label>
+                      <select class="dataTable-selector">
+                        <option value="5"{% if placeholders_log.per_page == 5 %} selected="selected"{% endif %}>
+                          5
+                        </option>
+                        <option value="10"{% if placeholders_log.per_page == 10 %} selected="selected"{% endif %}>
+                          10
+                        </option>
+                        <option value="15"{% if placeholders_log.per_page == 15 %} selected="selected"{% endif %}>
+                          15
+                        </option>
+                        <option value="20"{% if placeholders_log.per_page == 20 %} selected="selected"{% endif %}>
+                          20
+                        </option>
+                        <option value="25"{% if placeholders_log.per_page == 25 %} selected="selected"{% endif %}>
+                          25
+                        </option>
+                        <option value="50"{% if placeholders_log.per_page == 50 %} selected="selected"{% endif %}>
+                          50
+                        </option>
+                        <option value="100"{% if placeholders_log.per_page == 100 %} selected="selected"{% endif %}>
+                          100
+                        </option>
+                      </select> entries per page
+                    </label>
+                  </div>
+                  <div class="dataTable-search">
+                  </div>
+                </div>
+                <div class="dataTable-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">PHID</th>
+                      <th scope="col">Placeholder source</th>
+                      <th scope="col">Type Upload</th>
+                      <th scope="col">DHID</th>
+                      <th scope="col">Status</th>
+                      <th scope="col" data-type="date" data-format="YYYY-MM-DD hh:mm">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for log in placeholders_log.items %}
+                    <tr>
+                      <td>
+                          {{ log.phid }}
+                      </td>
+                      <td>
+                          {{ log.source }}
+                      </td>
+                      <td>
+                          {{ log.type }}
+                      </td>
+                      <td>
+                          {% if log.dhid %}
+                          <a href="{{ url_for('inventory.device_details', id=log.dhid)}}">{{ log.dhid }}</a>
+                          {% endif %}
+                      </td>
+                      <td>
+                          {{ log.get_status() }}
+                      </td>
+                      <td>{{ log.created.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="dataTable-bottom">
+                  <div class="dataTable-info">
+                    Showing {{ placeholders_log.first }} to {{ placeholders_log.last }} of {{ placeholders_log.total }} entries
+                  </div>
+                  <nav class="dataTable-pagination">
+                    <ul class="dataTable-pagination-list">
+                      {% if placeholders_log.has_prev %}
+                        <li class="pager">
+                            <a href="{{ url_for('inventory.placeholder_logs', page=placeholders_log.prev_num, per_page=placeholders_log.per_page) }}">‹</a>
+                        </li>
+                      {% endif %}
+                      {% for page in placeholders_log.iter_pages() %}
+                        {% if page %}
+                          {% if page == placeholders_log.page %}
+                            <li class="active"><a href="javascript:void()">{{ page }}</a></li>
+                          {% else %}
+                            <li class="">
+                              <a href="{{ url_for('inventory.placeholder_logs', page=page, per_page=placeholders_log.per_page) }}">
+                                {{ page }}
+                              </a>
+                            </li>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if placeholders_log.has_next %}
+                        <li class="pager">
+                          <a href="{{ url_for('inventory.placeholder_logs', page=placeholders_log.next_num, per_page=placeholders_log.per_page) }}">›</a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </nav>
+                </div>
+
+                </div>
+              </div>
+
+            </div><!-- End Bordered Tabs -->
+          </div>
+        </div>
+      </div>
+
+      <div id="NotificationsContainer" style="position: absolute; bottom: 0; right: 0; margin: 10px; margin-top: 70px; width: calc(100% - 310px);"></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Custom Code -->
+<script>
+  $(document).ready(() => {
+    $(".dataTable-selector").on("change", function() {
+        const per_page = $('.dataTable-selector').val();
+        window.location.href = "{{ url_for('inventory.placeholder_logs', page=1) }}&per_page="+per_page;
+    });
+  });
+</script>
+<script>
+  let table = new simpleDatatables.DataTable("table", {
+    footer: false,
+    paging: false,
+    
+  })
+</script>
+{% endblock main %}

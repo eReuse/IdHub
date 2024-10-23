@@ -1,0 +1,49 @@
+@startuml
+skinparam nodesep 10
+skinparam ranksep 1
+
+
+[*] -> Registered
+
+state Attributes {
+	state Broken : cannot turn on
+	state Owners
+	state Usufructuarees
+	state Reservees
+	state "Physical\nPossessor"
+	state "Waste\n\Product"
+	state problems : List of current events \nwith Warn/Error
+	state privacy : Set of\ncurrent erasures
+	state working : List of current events\naffecting working
+}
+
+state Physical {
+	Registered --> Preparing : ToPrepare
+	Registered --> ToBeRepaired : ToRepair
+	ToBeRepaired --> Repaired : Repair
+	Repaired -> Preparing : ToPrepare
+	Preparing --> Prepared : Prepare
+	Prepared --> Ready : ReadyToUse
+	Ready --> InUse : Live
+	InUse -> InUse : Live
+	state DisposeWaste
+	state Recover
+
+}
+
+state Trading {
+	Registered --> Reserved : Reserve
+	Registered --> Sold : Sell
+	Reserved -> Sold : Sell
+	Reserved --> Cancelled : Cancel
+	Sold --> Cancelled : Cancel
+	Sold --> Payed : Pay
+	Registered --> ToBeDisposed : ToDisposeProduct
+	ToBeDisposed --> ProductDisposed : DisposeProduct
+	Registered --> Donated: Donate
+	Registered --> Renting: Rent
+	Donated --> Cancelled : Cancel
+	Renting --> Cancelled : Cancel
+}
+
+@enduml
