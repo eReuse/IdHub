@@ -11,15 +11,10 @@ const SearchResultsPage = ({ location }) => {
     // const [deepSearchQuery, setDeepSearchQuery] = useState('');
     var [notFoundText, setNotFoundText] = useState('')
     var [temp1_dpps, setTemp1] = useState([])
-    var [temp2_dpps, setTemp2] = useState([])
     var [dpps, setDpps] = useState([])
     const history = useHistory();
     var ERC20Url = process.env.REACT_APP_CONNECTOR_API+"/balanceOf?chid="
     var searchUrl = process.env.REACT_APP_DPP_INDEXER+`/search?query=`
-    var iotaEndpoint = process.env.REACT_APP_IOTA_API+'/api/dpp-registry/v1/'
-    var iotaToken = process.env.REACT_APP_IOTA_TOKEN
-    var iotaExplorer = process.env.REACT_APP_IOTA_EXPLORER+"/custom/output/"
-    var iotaEvmExplorer = process.env.REACT_APP_IOTA_EVM_EXPLORER+"/address/"
 
     useEffect(() => {
         console.log("FIRST EFFECT")
@@ -48,47 +43,6 @@ const SearchResultsPage = ({ location }) => {
         console.log("SECOND EFFECT")
         const execute = async () => {
             let dppsArray = temp1_dpps
-            // IOTA STATUS
-            for (let i = 0; i < dppsArray.length; i++) {
-                try {
-                    let result2 = await axios.get(encodeURI(iotaEndpoint + `registrations?dppRealProductID=${dppsArray[i].item.chid}`), {
-                        headers: {
-                            "Authorization": iotaToken
-                        }
-                    })
-                    let outputId = result2.data.items[0]
-                    let result3 = await axios.get(encodeURI(iotaEndpoint + `registration/id/${outputId}`), {
-                        headers: {
-                            "Authorization": iotaToken
-                        }
-                    })
-                    let aliasId = result3.data.aliasId
-                    let result4 = await axios.get(encodeURI(iotaEndpoint + `registration/status/${aliasId}`), {
-                        headers: {
-                            "Authorization": iotaToken
-                        }
-                    })
-                    dppsArray[i].item.iotaStatus = "YES"
-                    dppsArray[i].item.iotaOutput = outputId
-                } catch (error) {
-                    dppsArray[i].item.iotaStatus = "NO"
-                }
-            }
-            // ERC20 STATUS
-            // for (let i = 0; i < dppsArray.length; i++) {
-            //     let result2 = await axios.get(encodeURI(ERC20Url+dppsArray[i].item.chid))
-            //     dppsArray[i].item.balance=result2.data.balance
-            // }
-            setTemp2(dppsArray)
-        }
-
-        execute()
-    }, [temp1_dpps]);
-
-    useEffect(() => {
-        console.log("THIRD EFFECT")
-        const execute = async () => {
-            let dppsArray = temp2_dpps
             for (let i = 0; i < dppsArray.length; i++) {
                 let result2 = await axios.get(encodeURI(ERC20Url + dppsArray[i].item.chid))
                 dppsArray[i].item.balance = result2.data.balance
@@ -97,7 +51,7 @@ const SearchResultsPage = ({ location }) => {
             setDpps(dppsArray)
         }
         execute()
-    }, [temp2_dpps]);
+    }, [temp1_dpps]);
 
     const handleSearch = (e, query) => {
         e.preventDefault();
@@ -107,141 +61,14 @@ const SearchResultsPage = ({ location }) => {
     };
 
     const spinnerDraw = (spin, thing, which, output) => {
-        if (spin) {
-            if (which == "iota") return <div style={{
-                height: "50px",
-                width: "180px",
-                border: "2px solid gray",
-                backgroundColor: "#d3d3d3",
-                borderRadius: "5px",
-                display: "inline-block",
-                position: "relative",
-                marginRight: "30px",
-                marginTop:"8px"
-
-            }}><span
-                style={{
-                    position: "absolute",
-                    float: "left",
-                    left: "10px",
-                    top: "15px",
-                    fontSize: "15px"
-                }}>
-                    Checking DPP...
-                </span>
-                <div style={{
-                    position: "absolute",
-                    width: "47px",
-                    height: "47px",
-                    border: "3px solid black",
-                    backgroundColor: "gray",
-                    borderRadius: "50%",
-                    marginLeft: "150px"
-                }}>
-                    <span style={{
-                        position: "relative",
-                        float: "left",
-                        left: "5px",
-                        top: "0px",
-                        fontSize: "35px",
-                        color:"white"
-                    }}>
-                        <Spinner style={{color:"white", fontSize:"20px"}} animation="border" />
-                    </span>
-                </div>
-            </div>
-            return <Spinner style={{marginRight:"15px", marginTop:"100px"}} animation="border" />
-        }
         // if (which == "erc" && thing > 0) return <img style={{marginRight:"15px", marginTop:"80px"}} src={reward} width={60} />
         if (which == "erc" && thing > 0) return <div style={{marginRight:"15px", marginTop:"60px"}}>
-        <a href={iotaEvmExplorer+output} style={{cursor: "pointer"}}><img src={reward} width={60} /><br></br></a>
+        <img src={reward} width={60} /><br></br>
         <div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
         else if (which == "erc" && thing == 0) return <div style={{marginRight:"15px", marginTop:"60px"}}>
-        <a href={iotaEvmExplorer+output} style={{cursor: "pointer"}}><img src={reward_spent} width={60} /><br></br></a>
+        <img src={reward_spent} width={60} /><br></br>
         <div style={{width:"100%", textAlign:"center"}}>{thing}</div></div>
-        if (which == "iota") {
-            if (thing == "YES") return <div style={{
-                height: "50px",
-                width: "180px",
-                border: "2px solid gray",
-                backgroundColor: "#ebf1e7",
-                borderRadius: "5px",
-                display: "inline-block",
-                position: "relative",
-                marginRight: "30px",
-                marginTop:"8px"
-
-            }}><span
-                style={{
-                    position: "absolute",
-                    float: "left",
-                    left: "10px",
-                    top: "15px",
-                    fontSize: "15px"
-                }}>
-                    <a href={iotaExplorer+output}>Registered DPP</a>
-                </span>
-                <div style={{
-                    position: "absolute",
-                    width: "47px",
-                    height: "47px",
-                    border: "3px solid black",
-                    backgroundColor: "green",
-                    borderRadius: "50%",
-                    marginLeft: "150px"
-                }}>
-                    <span style={{
-                        position: "relative",
-                        float: "left",
-                        left: "7px",
-                        top: "0px",
-                        fontSize: "35px",
-                        color:"white"
-                    }}>✓</span>
-                </div>
-            </div>
-            else{ return <div style={{
-                height: "50px",
-                width: "180px",
-                border: "2px solid gray",
-                backgroundColor: "#f9e9e9",
-                borderRadius: "5px",
-                display: "inline-block",
-                position: "relative",
-                marginRight: "30px",
-                marginTop:"8px"
-
-            }}><span
-                style={{
-                    position: "absolute",
-                    float: "left",
-                    left: "10px",
-                    top: "15px",
-                    fontSize: "15px"
-                }}>
-                    Unregistered DPP
-                </span>
-                <div style={{
-                    position: "absolute",
-                    width: "47px",
-                    height: "47px",
-                    border: "3px solid black",
-                    backgroundColor: "red",
-                    borderRadius: "50%",
-                    marginLeft: "150px"
-                }}>
-                    <span style={{
-                        position: "relative",
-                        float: "left",
-                        left: "12px",
-                        top: "3px",
-                        fontSize: "30px",
-                        color:"white"
-                    }}>X</span>
-                </div>
-            </div>
         }
-    }}
 
     const templateDraw = (iotaspin, ercspin) => {
         return <div>
@@ -252,7 +79,6 @@ const SearchResultsPage = ({ location }) => {
                         <Card>
                             <Card.Title>
                                 <a style={{ display: "inline-block", marginRight: "20px" }} onClick={(e) => handleSearch(e, elem.item.chid)} href="#">{elem.item.manufacturer + " "}{elem.item.model}</a>
-                                <span style={{ display: "inline-block", float: "right" }}>{spinnerDraw(iotaspin, elem.item.iotaStatus, "iota", elem.item.iotaOutput)}</span>
                             </Card.Title>
                             <Card.Text>
                                 <span style={{ display: "inline-block", marginRight: "20px" , marginTop:"-20px"}}>
@@ -283,9 +109,6 @@ const SearchResultsPage = ({ location }) => {
         template = <div>
             <h2 className="mb-4">Looking for DPPs... <Spinner animation="border" /></h2>
         </div>
-    }
-    else if (temp1_dpps[0].item.iotaStatus == undefined) {
-        template = templateDraw(true, true)
     }
     // const drawShit = () => {
     //     var retVal

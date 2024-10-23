@@ -11,7 +11,7 @@ const SearchResultsPage = ({ location }) => {
     var [notFoundText, setNotFoundText] = useState('')
     var [dpps, setDpps] = useState([])
     const history = useHistory();
-    var searchUrl = `http://45.150.187.47:3024/search?query=`
+    var searchUrl = `http://dpp_indexer:304/search?query=`
     var iotaEndpoint = 'https://api.stable.iota-ec.net/api/dpp-registry/v1/'
     var iotaToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpb3RhIiwic3ViIjoiaW90YSIsImF1ZCI6WyJpb3RhIl0sIm5iZiI6MTY4ODU1MjY2MCwiaWF0IjoxNjg4NTUyNjYwLCJqdGkiOiIxNjg4NTUyNjYwIn0.F3FRT_Nn-s7rZqQHJc5Bk8T7fKhGB0ifpEOEnj3TysQ'
 
