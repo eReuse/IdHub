@@ -98,8 +98,8 @@ const Proof = (props) => {
     }, [verifyPressed])
 
     const proofType = (type) => {
-        if(type == "Funds_released") return "verifier"
-        return "operator"
+        if(type == "Funds_released") return "Verifier"
+        return "Operator"
     }
     
 
@@ -116,12 +116,12 @@ const Proof = (props) => {
             <ListGroup.Item>Inventory ID: {props.proof.InventoryID}</ListGroup.Item>
             <ListGroup.Item>Date: {datet.toString()}</ListGroup.Item>
             <ListGroup.Item>Block: {props.proof.blockNumber}</ListGroup.Item>
-            {/* <ListGroup.Item>
+            { <ListGroup.Item>
                 <Accordion.Item eventKey={props.proof.IssuerID+props.proof.DocumentHash+props.proof.timestamp}>
                     <Accordion.Header>Trust chain</Accordion.Header>
                     <Accordion.Body><TrustActor type={proofType(props.proof.Type)} address={props.proof.IssuerID} key_for_event={props.proof.IssuerID+props.proof.timestamp} apiUrl={props.apiUrl}></TrustActor></Accordion.Body>
                 </Accordion.Item>
-            </ListGroup.Item> */}
+            </ListGroup.Item> }
             </ListGroup>
             </Accordion.Body>
         </Accordion.Item>

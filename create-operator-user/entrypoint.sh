@@ -23,6 +23,7 @@ main() {
 		fi
 	done
 
+	# TODO in terms of trustchain, root should not issue directly to operator
 	export ADMIN_TOKEN="$(cat "shared/${ADMIN_TOKEN_FILE}")"
 	export VERAMO_API_CRED="$(cat "shared/${VERAMO_API_CRED_FILE}")"
 	node scripts/register_user.js > shared/operator-token.txt

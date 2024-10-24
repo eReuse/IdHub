@@ -81,7 +81,7 @@ const SearchResultsPage = ({ location }) => {
                                 <a style={{ display: "inline-block", marginRight: "20px" }} onClick={(e) => handleSearch(e, elem.item.chid)} href="#">{elem.item.manufacturer + " "}{elem.item.model}</a>
                             </Card.Title>
                             <Card.Text>
-                                <span style={{ display: "inline-block", marginRight: "20px" , marginTop:"-20px"}}>
+                                <span style={{ display: "inline-block", marginRight: "20px"}}>
                                     Chassis: {elem.item.chassis}<br></br>
                                     Manufacturer: {elem.item.manufacturer}<br></br>
                                     Model: {elem.item.model}<br></br>

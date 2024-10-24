@@ -25,6 +25,8 @@ const depositDeviceIface = new ethers.utils.Interface(
 const dataDir = '../data';
 const filePath = path.join(dataDir, 'devices.json');
 
+// TODO env var
+const scheduled_task_time = 20000
 
 async function process_event(parsed_log) {
     try {
@@ -40,7 +42,10 @@ async function process_event(parsed_log) {
         jsonData.push(device)
         fs.writeFileSync(filePath, JSON.stringify(jsonData));
     } catch (err) {
-        console.log("Something went wrong when fetching a device." + err)
+	// TODO this could mean having repeated logs
+        console.log("Something went wrong when fetching a device. We will try later" + err)
+        setTimeout(()=>process_event(parsed_log), scheduled_task_time)
+        console.log("Task scheduled: "+ parsed_log.args.chid)
     }
 }
 
@@ -55,7 +60,7 @@ filter = {
 provider.on(filter, (log, event) => {
     let parsed_log = depositDeviceIface.parseLog(log)
     if (parsed_log.args.documentType == "DPP_creation"){
-        setTimeout(()=>process_event(parsed_log), 20000)
+        setTimeout(()=>process_event(parsed_log), scheduled_task_time)
         console.log("Task scheduled: "+ parsed_log.args.chid)
     }
     // if (parsed_log.args.documentType == "Device_creation") {

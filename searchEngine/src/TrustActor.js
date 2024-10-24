@@ -6,9 +6,10 @@ const TrustActor = (props) => {
     const [template, setTemplate] = useState("")
     const [verifyPressed, setVerifyPressed] = useState(0)
     const [parentCredential, setParentCredential] = useState("")
-    const root="0x2851e010738422CE8786D9F86e166Fc6E1030a1a"
+    const root="0x2f67B1d86651aF2E37E39b30F2E689Aa7fbAc79F"
 
     const press = (turn) => {
+	console.log("SOY TRUSTACTOR: " + JSON.stringify(props))
         if (turn == 1) {
             setVerifyPressed(verifyPressed + 1)
             axios.post(`${props.apiUrl}/getCredentials`,
@@ -22,6 +23,19 @@ const TrustActor = (props) => {
                     }
                 }).then((data) => {
                     console.log(data)
+                    if(data.data.data[0]==root){
+                        setParentCredential(
+                            <ListGroup>
+                <TrustActor type="Root" address={data.data.data[0]} key_for_event={props.key_for_event+props.address+data.data.data[0]} apiUrl={props.apiUrl}></TrustActor>
+            </ListGroup>
+                        )
+                    }
+                    else if(data.data.data[1]){
+                        setParentCredential(
+                        <TrustActor type="Issuer" address={data.data.data[0]} key_for_event={props.key_for_event+props.address+data.data.data[0]} apiUrl={props.apiUrl}></TrustActor>
+                        )
+                    }
+
                     press(2)
                 }).catch((error) => {
                     press(3)

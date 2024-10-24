@@ -17,5 +17,5 @@ COPY didResolverModule/src /home/node/didResolverModule/src
 EXPOSE 3011
 WORKDIR /home/node/didResolverApi/src
 COPY didResolverApi/src /home/node/didResolverApi/src
-# COPY ../.env ./
+COPY ./.env ./
 CMD ["node", "./index.js"]
