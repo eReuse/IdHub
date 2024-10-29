@@ -18,7 +18,7 @@ const SearchPage = () => {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={6}>
-          <h1 className="text-center mb-4">eReuse Search Engine</h1>
+          <h1 className="text-center mb-4">DPP Search Engine</h1>
           <Form onSubmit={handleSearch}>
             <Form.Group controlId="searchQuery">
               <Form.Control
