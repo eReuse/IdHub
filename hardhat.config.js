@@ -11,6 +11,7 @@ module.exports = {
       hardfork: "london",
       initialBaseFeePerGas:0,
       mining: {
+          // mempool when auto disabled -> src https://hardhat.org/hardhat-network/docs/explanation/mining-modes#mempool-behavior
           auto: false,
           interval: miningInterval,
       },
