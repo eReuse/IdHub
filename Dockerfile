@@ -4,12 +4,12 @@ WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node contracts ./contracts
 COPY --chown=node:node scripts ./scripts
-COPY --chown=node:node hardhat.config.js ./hardhat.config.js
 
 USER node
 RUN npm install express ethers crypto-js node-persist body-parser fs cors hardhat '@nomicfoundation/hardhat-ethers' --save
 RUN npx hardhat vars set TEST_NODE_IP blockchain_test_node
 COPY --chown=node:node src ./src
+COPY --chown=node:node hardhat.config.js ./hardhat.config.js
 RUN mkdir -p /home/node/app/shared && chown -R node:node /home/node/app/shared
 
 EXPOSE 3010
