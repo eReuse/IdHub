@@ -11,7 +11,7 @@ module.exports = {
       hardfork: "london",
       initialBaseFeePerGas:0,
       mining: {
-          auto: true,
+          auto: false,
           interval: miningInterval,
       },
     },
