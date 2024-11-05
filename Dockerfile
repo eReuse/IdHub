@@ -2,8 +2,8 @@ FROM node:20.10.0-alpine
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 USER node
-RUN npm install express ethers crypto-js node-persist body-parser fs cors hardhat '@nomicfoundation/hardhat-ethers' --save
 COPY --chown=node:node package*.json ./
+RUN npm install express ethers crypto-js node-persist body-parser fs cors hardhat '@nomicfoundation/hardhat-ethers' --save
 COPY --chown=node:node contracts ./contracts
 COPY --chown=node:node scripts ./scripts
 COPY --chown=node:node src ./src
