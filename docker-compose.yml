@@ -19,6 +19,8 @@ services:
     # TODO I hope this is fine
     #   Allows 2 seconds for the container to gracefully shut down (by default is 10, and it always take 10)
     stop_grace_period: 2s
+    environment:
+      - MINING_INTERVAL=${MINING_INTERVAL:-1000}
     build:
       context: ./
       dockerfile: ./Dockerfile_blockchain_test_node

@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-ethers");
 const { vars } = require("hardhat/config");
 const TEST_NODE_IP=vars.get("TEST_NODE_IP", "blockchain_test_node")
+const miningInterval = parseInt(process.env.MINING_INTERVAL, 10) || 1000;
+
 module.exports = {
   networks:{
     hardhat:{
@@ -8,6 +10,10 @@ module.exports = {
       gasPrice:0,
       hardfork: "london",
       initialBaseFeePerGas:0,
+      mining: {
+          auto: true,
+          interval: miningInterval,
+      },
     },
     test: {
       url: "http://"+TEST_NODE_IP+":8545",
