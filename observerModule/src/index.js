@@ -43,7 +43,7 @@ async function process_event(parsed_log) {
         fs.writeFileSync(filePath, JSON.stringify(jsonData));
     } catch (err) {
 	// TODO this could mean having repeated logs
-        console.log("Something went wrong when fetching a device. We will try later" + err)
+        console.log("Something went wrong when fetching a device. We will try later. Error: " + err)
         setTimeout(()=>process_event(parsed_log), scheduled_task_time)
         console.log("Task scheduled: "+ parsed_log.args.chid)
     }
