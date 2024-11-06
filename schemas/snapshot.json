@@ -1,0 +1,103 @@
+{
+  "$id": "https://idhub.pangea.org/vc_schemas/v1/snapshot.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Snapshot",
+  "description": "Snapshot create by workbench-script, software for discover hardware in one device.",
+  "name": [
+    {
+      "value": "Snapshot",
+      "lang": "en"
+    },
+  ],
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines additional properties on credentialSubject",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines a hash of token",
+              "type": "string",
+              "minLength": 36
+            },
+            "uuid": {
+              "description": "Defines a unique identifier of the snapshot",
+              "type": "string",
+              "minLength": 36
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "Snapshot"
+              ],
+              "minLength": 1
+            },
+            "software": {
+      	      "description": "Name of software used.",
+              "type": "string",
+              "enum": [
+                "workbench-script"
+              ],
+              "minLength": 1
+            },
+            "timestamp": {
+              "description": "Time when is make this snapshot.",
+              "type": "string"
+            },
+            "data": {
+              "description": "Device details discovery data.",
+      	      "type": "object",
+              "allOf": [
+                {
+              		"lshw": {
+              		  "description": "Result of execution of lshw program",
+              		  "type": "string",
+              		  "minlength": 0
+              		},
+              		"disks": {
+              		  "description": "Result of execution of smartctl program",
+              		  "type": "string",
+              		  "minlength": 0		  
+              		},
+              		"hwinfo": {
+              		  "description": "Result of execution of hwinfo program",
+              		  "type": "string",
+              		  "minlength": 0		  
+              		},
+              		"dmidecode": {
+              		  "description": "Result of execution of dmidecode program",
+              		  "type": "string",
+              		  "minlength": 0		  
+              		},
+              		"lspci": {
+              		  "description": "Result of execution of lspci program",
+              		  "type": "string",
+              		  "minlength": 0		  
+              		}
+            	  }
+              ]
+            },
+            "erase": {
+              "description": "Datas of erase disk process",
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "required": [
+            "id",
+            "uuid",
+            "type",
+            "software",
+            "timestamp",
+            "data"
+          ]
+        }
+      }
+    }
+  ]
+}
