@@ -45,7 +45,7 @@ async function process_event(parsed_log) {
 	// TODO this could mean having repeated logs
         console.log("Something went wrong when fetching a device. We will try later. Error: " + err)
         setTimeout(()=>process_event(parsed_log), scheduled_task_time)
-        console.log("Task scheduled: "+ parsed_log.args.chid)
+        console.log("Indexing task scheduled for chid: "+ parsed_log.args.chid)
     }
 }
 
@@ -61,7 +61,7 @@ provider.on(filter, (log, event) => {
     let parsed_log = depositDeviceIface.parseLog(log)
     if (parsed_log.args.documentType == "DPP_creation"){
         setTimeout(()=>process_event(parsed_log), scheduled_task_time)
-        console.log("Task scheduled: "+ parsed_log.args.chid)
+        console.log("Indexing task scheduled for chid: "+ parsed_log.args.chid)
     }
     // if (parsed_log.args.documentType == "Device_creation") {
     //     try {
