@@ -57,6 +57,10 @@ services:
       - SHARED=./shared
     networks:
       - ereuse
+    extra_hosts:
+      # for localhost deployments: map localhost to reach the host machine
+      #   thanks https://stackoverflow.com/a/43541681
+      - 'localhost:host-gateway'
 
   did_resolver:
     init: true
@@ -96,6 +100,10 @@ services:
       - ./.env:/home/node/observerModule/src/.env:ro
     networks:
       - ereuse
+    extra_hosts:
+      # for localhost deployments: map localhost to reach the host machine
+      #   thanks https://stackoverflow.com/a/43541681
+      - 'localhost:host-gateway'
 
   veramo_api:
     init: true
