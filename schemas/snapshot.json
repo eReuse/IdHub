@@ -21,7 +21,7 @@
           "type": "object",
           "properties": {
             "id": {
-              "description": "Defines a hash of token",
+              "description": "Defines a hash of token sign_token",
               "type": "string",
               "minLength": 36
             },
@@ -51,36 +51,7 @@
             },
             "data": {
               "description": "Device details discovery data.",
-      	      "type": "object",
-              "allOf": [
-                {
-              		"lshw": {
-              		  "description": "Result of execution of lshw program",
-              		  "type": "string",
-              		  "minlength": 0
-              		},
-              		"disks": {
-              		  "description": "Result of execution of smartctl program",
-              		  "type": "string",
-              		  "minlength": 0		  
-              		},
-              		"hwinfo": {
-              		  "description": "Result of execution of hwinfo program",
-              		  "type": "string",
-              		  "minlength": 0		  
-              		},
-              		"dmidecode": {
-              		  "description": "Result of execution of dmidecode program",
-              		  "type": "string",
-              		  "minlength": 0		  
-              		},
-              		"lspci": {
-              		  "description": "Result of execution of lspci program",
-              		  "type": "string",
-              		  "minlength": 0		  
-              		}
-            	  }
-              ]
+              "type": "string",
             },
             "erase": {
               "description": "Datas of erase disk process",
