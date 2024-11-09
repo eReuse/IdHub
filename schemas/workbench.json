@@ -1,7 +1,7 @@
 {
-  "$id": "https://idhub.pangea.org/vc_schemas/v1/snapshot.json",
+  "$id": "https://idhub.pangea.org/vc_schemas/v1/workbench.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Snapshot",
+  "title": "DeviceSnapshot",
   "description": "Snapshot create by workbench-script, software for discover hardware in one device.",
   "name": [
     {
@@ -12,16 +12,16 @@
   "type": "object",
   "allOf": [
     {
-      "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+      "$ref": "https://www.w3.org/2018/credentials/v1"
     },
     {
       "properties": {
         "credentialSubject": {
-          "description": "Defines additional properties on credentialSubject",
+          "description": "Define the properties of a digital device snapshot",
           "type": "object",
           "properties": {
             "id": {
-              "description": "Defines a hash of token sign_token",
+              "description": "Defines a hash of id token",
               "type": "string",
               "minLength": 36
             },
@@ -47,13 +47,13 @@
             },
             "timestamp": {
               "description": "Time when is make this snapshot.",
-              "type": "string"
+              "type": "date-time"
             },
             "data": {
               "description": "Device details discovery data.",
               "type": "string",
             },
-            "erase": {
+            "dataDeletion": {
               "description": "Datas of erase disk process",
               "type": "string",
               "minLength": 0
