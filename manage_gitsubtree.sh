@@ -21,7 +21,8 @@ manage_gitst() {
 
 main() {
 	# right now, just devicehub-teal
-	manage_gitst 'devicehub-teal' 'https://github.com/ereuse/devicehub-teal' 'new_dpp'
+	#manage_gitst 'devicehub-teal' 'https://github.com/ereuse/devicehub-teal' 'new_dpp'
+	manage_gitst 'devicehub-django' 'https://farga.pangea.org/ereuse/devicehub-django' 'dpp'
 }
 
 main "${@}"
