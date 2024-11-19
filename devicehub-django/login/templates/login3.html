@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Login - Usody</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="/static/img/favicon.png" rel="icon">
+  <link href="/static/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- JS Files -->
+  <script src="/static/js/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@5.0.3" type="text/javascript"></script>
+
+
+
+  <!-- Vendor CSS Files -->
+  <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@5.0.3/dist/style.css" rel="stylesheet" type="text/css">
+
+
+  <!-- Template Main CSS File -->
+  <link href="/static/css/style.css" rel="stylesheet">
+  <link href="/static/css/devicehub.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: NiceAdmin - v2.2.0
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+  
+<main>
+  <div class="container">
+
+    <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+            <div class="d-flex justify-content-center py-4">
+              <a href="/login/" class="d-flex align-items-center w-auto">
+                <img src="/static/img/usody_logo_transparent_noicon-y-purple-120x41.png" alt="">
+              </a>
+            </div><!-- End Logo -->
+
+            <div class="card mb-3">
+
+              <div class="card-body">
+
+                <div class="pt-2 pb-3">
+                  <h5 class="card-title text-center pb-0 fs-4 help">Sign in</h5>
+                  
+                </div>
+
+                <form method="post" class="row g-3 needs-validation" novalidate>
+                  <input id="csrf_token" name="csrf_token" type="hidden" value="ImNlZTM1N2RlMjQ2MDMxYmQ0NDQzMWI0ZDQ0NmZkNjdhZjc0NGU2NjMi.Zn14CA.unYlCb0lVq4wtzKx_42V3vXQ0dg">
+
+                  <div class="col-12">
+                    <input type="email" placeholder="Email" name="email" class="form-control" id="yourEmail" required value="">
+                    <div class="invalid-feedback">Please enter your email.</div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="input-group">
+                    <input type="password" placeholder="Password" name="password" class="form-control" id="id_password" required>
+                    <i class="input-group-text bi bi-eye" id="togglePassword" style="cursor: pointer">
+                    </i>
+                    </div>
+                    <div class="invalid-feedback">Please enter your password!</div>
+                  </div>
+
+                  <!-- TODO(@slamora): hidde until it is implemented
+                  <div class="col-12">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="remember"  id="rememberMe">
+                      <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                  </div>
+                  -->
+                  <div class="col-12">
+                    <button class="btn btn-primary w-100" type="submit">Next</button>
+                  </div>
+                  <div class="col-12">
+                    <p class="small mb-0">Don't have account? <a href="https://www.usody.com/pricing.html">Create an account</a></p>
+                    <p class="small mb-0">Forgot password? <a href="/reset_password/">Reset your password</a></p>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+
+            <div class="credits">
+              <a href="https://help.usody.com/en/getting-started/login-usody/" target="_blank">Help</a> | 
+              <a href="https://www.usody.com/legal/privacy-policy" target="_blank">Privacy</a> | 
+              <a href="https://www.usody.com/legal/terms" target="_blank">Terms</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+</main><!-- End #main -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Do you want to try USOdy tools?</h5>
+      </div>
+      <div class="modal-body">
+        Just write an email to <a href="mali:hello@usody.com">hello@usody.com</a>
+      </div>
+    </div>
+  </div>
+</div> <!-- End register modal -->
+<script>
+const togglePassword = document.querySelector('#togglePassword');
+const password = document.querySelector('#id_password');
+
+togglePassword.addEventListener('click', function (e) {
+    // toggle the type attribute
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    // toggle the eye slash icon
+    if(type == "password"){
+    this.classList.remove('bi-eye-slash');
+    this.classList.add('bi-eye');
+    } else if(type == "text"){
+    this.classList.remove('bi-eye');
+    this.classList.add('bi-eye-slash');
+    }
+    password.setAttribute('type', type);
+});
+</script>
+
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="/static/js/main.js"></script>
+
+  <!-- Api backend -->
+  <script>
+    const API_URLS = {
+      Auth_Token: `Basic ${btoa("fa0cd7fb-690d-4ebb-a482-c1d4eae3deb1:")}`, //
+      currentUserID: "56957cdb-db7b-452c-843b-200dc4604b08",
+      lots: "/lots/",
+      lots_detail: "/inventory/lot/ReplaceTEXT/device/",
+      devices: "/devices/",
+      devices_modify: "/lots/UUID/devices",
+      devices_detail: "/inventory/device/ReplaceTEXT/"
+    }
+  </script>
+  <script src="/static/js/api.js"></script>
+
+</body>
+
+</html>

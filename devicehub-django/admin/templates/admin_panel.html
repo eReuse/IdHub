@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <h3>{{ subtitle }}</h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <a href="{% url 'admin:institution' user.institution.pk %}" class="btn btn-green-admin">
+      {% translate "Institution" %}
+    </a>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col">
+      <h3>{{ object.shortid }}</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <ul class="nav nav-tabs nav-tabs-bordered">
+        <li class="nav-item">
+          <a href="#details" class="nav-link active" data-bs-toggle="tab" data-bs-target="#details">{% trans 'General details' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#annotations" class="nav-link" data-bs-toggle="tab" data-bs-target="#annotations">{% trans 'User annotations' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#documents" class="nav-link" data-bs-toggle="tab" data-bs-target="#documents">{% trans 'Documents' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#lots" class="nav-link" data-bs-toggle="tab" data-bs-target="#lots">{% trans 'Lots' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#components" class="nav-link" data-bs-toggle="tab" data-bs-target="#components">{% trans 'Components' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#evidences" class="nav-link" data-bs-toggle="tab" data-bs-target="#evidences">{% trans 'Evidences' %}</a>
+        </li>
+        <li class="nav-item">
+          <a href="#dpps" class="nav-link" data-bs-toggle="tab" data-bs-target="#dpps">{% trans 'Dpps' %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'device:device_web' object.id %}" target="_blank">Web</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tab-content pt-2">
+    <div class="tab-pane fade show active" id="details">
+      <h5 class="card-title">{% trans 'Details' %}</h5>
+      <div class="row mb-3">
+        <div class="col-lg-3 col-md-4 label">Phid</div>
+        <div class="col-lg-9 col-md-8">{{ object.id }}</div>
+      </div>
+
+      {% if object.is_eraseserver %}
+        <div class="row mb-3">
+          <div class="col-lg-3 col-md-4 label">
+            {% trans 'Is a erase server' %}
+          </div>
+          <div class="col-lg-9 col-md-8"></div>
+        </div>
+      {% endif %}
+
+      <div class="row mb-3">
+        <div class="col-lg-3 col-md-4 label">Type</div>
+        <div class="col-lg-9 col-md-8">{{ object.type }}</div>
+      </div>
+
+      {% if object.is_websnapshot and object.last_user_evidence %}
+        {% for k, v in object.last_user_evidence %}
+          <div class="row mb-3">
+            <div class="col-lg-3 col-md-4 label">{{ k }}</div>
+            <div class="col-lg-9 col-md-8">{{ v|default:'' }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="row mb-3">
+          <div class="col-lg-3 col-md-4 label">
+            {% trans 'Manufacturer' %}
+          </div>
+          <div class="col-lg-9 col-md-8">{{ object.manufacturer|default:'' }}</div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-lg-3 col-md-4 label">
+            {% trans 'Model' %}
+          </div>
+          <div class="col-lg-9 col-md-8">{{ object.model|default:'' }}</div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-lg-3 col-md-4 label">
+            {% trans 'Serial Number' %}
+          </div>
+          <div class="col-lg-9 col-md-8">{{ object.serial_number|default:'' }}</div>
+        </div>
+      {% endif %}
+
+      <div class="row mb-3">
+        <div class="col-lg-3 col-md-4 label">
+          {% trans 'Identifiers' %}
+        </div>
+      </div>
+      {% for chid in object.hids %}
+        <div class="row mb-3">
+          <div class="col">{{ chid|default:'' }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="tab-pane fade" id="annotations">
+      <div class="btn-group mt-1 mb-3">
+        <a href="{% url 'device:add_annotation' object.pk %}" class="btn btn-primary">
+          <i class="bi bi-plus"></i>
+          {% trans 'Add new annotation' %}
+        </a>
+      </div>
+
+      <h5 class="card-title">{% trans 'Annotations' %}</h5>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">
+              {% trans 'Key' %}
+            </th>
+            <th scope="col">
+              {% trans 'Value' %}
+            </th>
+            <th scope="col" data-type="date" data-format="YYYY-MM-DD HH:mm">
+              {% trans 'Created on' %}
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in object.get_user_annotations %}
+            <tr>
+              <td>{{ a.key }}</td>
+              <td>{{ a.value }}</td>
+              <td>{{ a.created }}</td>
+              <td></td>
+              <td></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-pane fade" id="documents">
+      <div class="btn-group mt-1 mb-3">
+        <a href="{% url 'device:add_document' object.pk %}" class="btn btn-primary">
+          <i class="bi bi-plus"></i>
+          {% trans 'Add new document' %}
+        </a>
+      </div>
+
+      <h5 class="card-title">{% trans 'Documents' %}</h5>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">
+              {% trans 'Key' %}
+            </th>
+            <th scope="col">
+              {% trans 'Value' %}
+            </th>
+            <th scope="col" data-type="date" data-format="YYYY-MM-DD HH:mm">
+              {% trans 'Created on' %}
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in object.get_user_documents %}
+            <tr>
+              <td>{{ a.key }}</td>
+              <td>{{ a.value }}</td>
+              <td>{{ a.created }}</td>
+              <td></td>
+              <td></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-pane fade" id="lots">
+      {% for tag in lot_tags %}
+        <h5 class="card-title">{{ tag }}</h5>
+        {% for lot in object.lots %}
+          {% if lot.type == tag %}
+            <div class="row mb-3">
+              <div class="col">
+                <a href="{% url 'dashboard:lot' lot.id %}">{{ lot.name }}</a>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <div class="tab-pane fade" id="components">
+      <h5 class="card-title">{% trans 'Components last evidence' %}</h5>
+      <div class="list-group col-6">
+        {% for c in object.components %}
+          <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ c.type }}</h5>
+              <small class="text-muted">{{ evidence.created }}</small>
+            </div>
+            <p class="mb-1">
+              {% for k, v in c.items %}
+                {% if k not in 'actions,type' %}
+                  {{ k }}: {{ v }}<br />
+                {% endif %}
+              {% endfor %}
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="evidences">
+      <h5 class="card-title">{% trans 'List of evidences' %}</h5>
+      <div class="list-group col-6">
+        {% for snap in object.evidences %}
+          <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+              <small class="text-muted">{{ snap.created }}</small>
+            </div>
+            <p class="mb-1">
+              <a href="{% url 'evidence:details' snap.uuid %}">{{ snap.uuid }}</a>
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <div class="tab-pane fade" id="dpps">
+      <h5 class="card-title">{% trans 'List of dpps' %}</h5>
+      <div class="list-group col-6">
+        {% for d in dpps %}
+          <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+              <small class="text-muted">{{ d.timestamp }}</small>
+            </div>
+            <p class="mb-1">
+              <a href="{% url 'did:device_web' d.uuid %}">{{ d.signature }}</a>
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrascript %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Obtener el hash de la URL (ejemplo: #components)
+      const hash = window.location.hash
+    
+      // Verificar si hay un hash en la URL
+      if (hash) {
+        // Buscar el botón o enlace que corresponde al hash y activarlo
+        const tabTrigger = document.querySelector(`[data-bs-target="${hash}"]`)
+    
+        if (tabTrigger) {
+          // Crear una instancia de tab de Bootstrap para activar el tab
+          const tab = new bootstrap.Tab(tabTrigger)
+          tab.show()
+        }
+      }
+    })
+  </script>
+{% endblock %}
