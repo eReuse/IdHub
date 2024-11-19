@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <h3>{{ subtitle }}</h3>
+  </div>
+</div>
+
+{% load django_bootstrap5 %}
+<form role="form" method="post">
+  {% csrf_token %}
+  {% if form.errors %}
+  <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+    <div class="message">
+      {% for field, error in form.errors.items %}
+        {{ error }}<br />
+      {% endfor %}
+      <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+  </div>
+  {% endif %}
+  {{ form.management_form }}
+  <div class="container" id="formset-container">
+    <div class="row mb-2">
+      <div class="col"></div>
+    </div>
+    {% for f in form %}
+      <div class="row mb-2">
+        <div class="col">
+          {% bootstrap_field f %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="container">
+    <a class="btn btn-grey" href="{% url 'dashboard:unassigned_devices' %}">{% translate "Cancel" %}</a>
+    <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+  </div>
+
+</form>
+
+{% endblock %}

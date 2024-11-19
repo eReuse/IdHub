@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <h3>{{ object.id }}</h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <ul class="nav nav-tabs nav-tabs-bordered">
+      <li class="nav-items">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#device">{% trans "Devices" %}</button>
+      </li>
+      <li class="nav-items">
+	<a href="#tag" class="nav-link" data-bs-toggle="tab" data-bs-target="#tag">{% trans "Tag" %}</a>
+      </li>
+      <li class="nav-items">
+        <a href="{% url 'evidence:erase_server' object.uuid %}" class="nav-link">{% trans "Erase Server" %}</a>
+      </li>
+      <li class="nav-items">
+        <a href="{% url 'evidence:download' object.uuid %}" class="nav-link">{% trans "Download File" %}</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<div class="tab-content pt-2">
+
+  <div class="tab-pane fade show active" id="device">
+    <h5 class="card-title"></h5>
+    <div class="list-group col-6">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" data-sortable="">
+              {% trans "Type" %}
+            </th>
+            <th scope="col" data-sortable="">
+              {% trans "Identificator" %}
+            </th>
+            <th scope="col" data-sortable="">
+              {% trans "Data" %}
+            </th>
+          </tr>
+        </thead>
+        {% for snap in object.annotations %}
+        <tbody>
+        {% if snap.type == 0 %}
+          <tr>
+            <td>
+              {{ snap.key }}
+            </td>
+            <td>
+              <small class="text-muted">
+                <a href="{% url 'device:details' snap.value %}">{{ snap.value }}</a>
+              </small>
+            </td>
+            <td>
+              <small class="text-muted">
+		{{ snap.created }}
+              </small>
+            </td>
+          </tr>
+        {% endif %}
+        </tbody>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="tag">
+    {% load django_bootstrap5 %}
+    <div class="list-group col-6">
+      <form role="form" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+          <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+          <div class="message">
+            {% for field, error in form.errors.items %}
+              {{ error }}<br />
+            {% endfor %}
+            <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+        {% endif %}
+	{% bootstrap_form form %}
+        <div class="container">
+	  <div class="row">
+	    <div class="col">
+              <a class="btn btn-grey" href="">{% translate "Cancel" %}</a>
+              <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+	    </div>
+	    {% if form.tag.value %}
+	    <div class="col-1">
+	      <a class="btn btn-yellow" href="{% url 'evidence:delete_annotation' form.pk %}">{% translate "Delete" %}</a>
+	    </div>
+	    {% endif %}
+	  </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Obtener el hash de la URL (ejemplo: #components)
+    const hash = window.location.hash;
+
+    // Verificar si hay un hash en la URL
+    if (hash) {
+      // Buscar el botón o enlace que corresponde al hash y activarlo
+      const tabTrigger = document.querySelector(`[data-bs-target="${hash}"]`);
+
+      if (tabTrigger) {
+        // Crear una instancia de tab de Bootstrap para activar el tab
+        const tab = new bootstrap.Tab(tabTrigger);
+        tab.show();
+      }
+    }
+  });
+</script>
+{% endblock %}
