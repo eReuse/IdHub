@@ -27,6 +27,8 @@ RUN python -m pip install --upgrade pip || (rm -rf /usr/local/lib/python3.11/sit
 
 COPY ./requirements.txt /opt/devicehub-django
 RUN pip install -r requirements.txt
+# TODO hardcoded, is ignored in requirements.txt
+RUN pip install -i https://test.pypi.org/simple/ ereuseapitest==0.0.14
 
 # TODO Is there a better way?
 #   Set PYTHONPATH to include the directory with the xapian module
