@@ -31,6 +31,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
+DEVELOPMENT = config('DEVELOPMENT', default=False, cast=bool)
 
 DOMAIN = config("DOMAIN")
 assert DOMAIN not in [None, ''], "DOMAIN var is MANDATORY"

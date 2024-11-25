@@ -1,7 +1,7 @@
 {
-  "$id": "https://idhub.pangea.org/vc_schemas/v1/device-snapshot.json",
+  "$id": "https://idhub.pangea.org/vc_schemas/device-snapshot-v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "DeviceSnapshot",
+  "title": "DeviceSnapshotV1",
   "description": "Snapshot create by workbench-script, software for discover hardware in one device.",
   "name": [
     {
