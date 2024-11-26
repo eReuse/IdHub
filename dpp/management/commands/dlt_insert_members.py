@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         domain = kwargs.get("domain")
         api = settings.API_RESOLVER
-        if not api
+        if not api:
             logger.error("you need set the var API_RESOLVER")
             return
         
