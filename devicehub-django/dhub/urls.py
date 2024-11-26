@@ -28,4 +28,5 @@ urlpatterns = [
     path("lot/", include("lot.urls")),
     path('api/', include('api.urls')),
     path('dpp/', include('dpp.urls')),
+    path('did/', include('did.urls')),
 ]
