@@ -10,7 +10,7 @@ COPY tsconfig.json ./
 ENV PYTHONUNBUFFERED=1
 RUN apk add --update --no-cache python3 jq && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
+RUN pip3 install --no-cache --upgrade pip setuptools pyvckit
 RUN apk add --no-cache make
 RUN mkdir ~/.npm-global
 RUN npm config set prefix '~/.npm-global'
