@@ -53,10 +53,10 @@ END
         # generate config using env vars from docker
         cat > .env <<END
 ${dpp_env_vars:-}
-DB_USER='${DB_USER}'
-DB_PASSWORD='${DB_PASSWORD}'
-DB_HOST='${DB_HOST}'
-DB_DATABASE='${DB_DATABASE}'
+DB_USER='${DB_USER:-}'
+DB_PASSWORD='${DB_PASSWORD:-}'
+DB_HOST='${DB_HOST:-}'
+DB_DATABASE='${DB_DATABASE:-}'
 URL_MANUALS='${URL_MANUALS:-}'
 
 HOST='${HOST}'
