@@ -28,6 +28,11 @@ wait_for_dpp_shared() {
 # 3. Generate an environment .env file.
 # TODO cargar via shared
 gen_env_vars() {
+        INIT_ORG="${INIT_ORG:-example-org}"
+        INIT_USER="${INIT_USER:-user@example.org}"
+        INIT_PASSWD="${INIT_PASSWD:-1234}"
+        ADMIN='True'
+        PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
         # specific dpp env vars
         if [ "${DPP_MODULE}" = 'y' ]; then
                 # docker situation
@@ -98,7 +103,8 @@ config_dpp_part1() {
         else
                 # TODO when this runs more than one time per service, this is a problem, but for the docker-reset.sh workflow, that's fine
                 # TODO put this in already_configured
-                ./manage.py dlt_insert_members "${DEVICEHUB_HOST}"
+                # TODO hardcoded http proto and port
+                ./manage.py dlt_insert_members "http://${DOMAIN}:8000"
         fi
 
         # 13. Do a rsync api resolve
@@ -108,8 +114,8 @@ config_dpp_part1() {
         DATASET_FILE='/tmp/dataset.json'
         cat > "${DATASET_FILE}" <<END
 {
-  "email": "${EMAIL_DEMO}",
-  "password": "${PASSWORD_DEMO}",
+  "email": "${INIT_USER}",
+  "password": "${INIT_PASSWD}",
   "api_token": "${API_DLT_TOKEN}"
 }
 END
@@ -127,12 +133,12 @@ config_phase() {
 
                 # TODO fix wrong syntax
                 # non DL user (only for the inventory)
-                #   ./manage.py adduser user2@dhub.com ${PASSWORD_DEMO}
+                #   ./manage.py adduser user2@dhub.com ${INIT_PASSWD}
 
-                # # 15. Add inventory snapshots for user "${EMAIL_DEMO}".
+                # # 15. Add inventory snapshots for user "${INIT_USER}".
                 if [ "${IMPORT_SNAPSHOTS}" = 'y' ]; then
                         cp /mnt/snapshots/*.json example/snapshots/
-                        /usr/bin/time ./manage.py up_snapshots "${EMAIL_DEMO}" ${PASSWORD_DEMO}
+                        /usr/bin/time ./manage.py up_snapshots "${INIT_USER}"
                 fi
 
                 # remain next command as the last operation for this if conditional
@@ -166,11 +172,6 @@ deploy() {
                 #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
                 echo "INFO detected NEW deployment"
                 ./manage.py migrate
-                INIT_ORG="${INIT_ORG:-example-org}"
-                INIT_USER="${INIT_USER:-user@example.org}"
-                INIT_PASSWD="${INIT_PASSWD:-1234}"
-                ADMIN='True'
-                PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
                 ./manage.py add_institution "${INIT_ORG}"
                 # TODO: one error on add_user, and you don't add user anymore
                 ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
