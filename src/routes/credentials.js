@@ -109,7 +109,10 @@ router
         const api_token = req.body.api_token;
         const verifiableCredential = req.body.Credential;
         const credentialType = verifiableCredential.credentialSubject.role
-        const target_user = verifiableCredential.credentialSubject.id
+        // TODO uncomment next line when enabling pyvckit
+        //const target_user = verifiableCredential.credentialSubject.id
+        // TODO comment next line replace when enabling pyvckit
+        const target_user = verifiableCredential.credentialSubject.id.slice(9)
         const dlt = req.headers.dlt ?? "";
         var response_data
         try {

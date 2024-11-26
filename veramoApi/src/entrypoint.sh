@@ -21,8 +21,8 @@ main() {
 	npx tsx scripts/import-identifier.ts
         # TODO use pyvckit
         #   TODO/FIXME hardcoded values
-	python scripts/create-cred-with-pyvckit.py > ../shared/veramo-api_credential.json
-	#npx tsx scripts/create-credential.ts > ../shared/veramo-api_credential.json
+	#python scripts/create-cred-with-pyvckit.py > ../shared/veramo-api_credential.json
+	npx tsx scripts/create-credential.ts > ../shared/veramo-api_credential.json
         node index.js
 }
 
