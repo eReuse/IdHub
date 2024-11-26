@@ -144,12 +144,11 @@ services:
       context: ./devicehub-django/
       dockerfile: ./docker/devicehub-django.Dockerfile
     environment:
-      - HOST=${DH__HOST}
-      - EMAIL_DEMO=${DH__EMAIL_DEMO}
-      - PASSWORD_DEMO=${DH__PASSWORD_DEMO}
-      - JWT_PASS=${DH__JWT_PASS}
-      - SECRET_KEY=${DH__SECRET_KEY}
-      - DEVICEHUB_HOST=${DH__DEVICEHUB_HOST}
+      - DEBUG=${DEBUG:-false}
+      - DOMAIN=${DOMAIN:-localhost}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-$DOMAIN}
+      - DEMO=${DEMO:-false}
+      - PREDEFINED_TOKEN=${PREDEFINED_TOKEN:-}
       # TODO hardcoded in entrypoint
       # - ID_FEDERATED=
       - DPP_MODULE=y
@@ -160,6 +159,8 @@ services:
     volumes:
       - ${SNAPSHOTS_PATH:-./devicehub-django/example/snapshots}:/mnt/snapshots:ro
       - ${devicehub_django__vol__shared:-./shared}:/shared:rw
+      - ./devicehub-django/:/opt/devicehub-django
+
     networks:
       - ereuse
 
