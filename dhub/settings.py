@@ -245,3 +245,4 @@ COMMIT = config('COMMIT', default='')
 # DLT SETTINGS
 TOKEN_DLT = config("TOKEN_DLT", default=None)
 API_DLT = config("API_DLT", default=None)
+API_RESULVER = config("API_RESOLVER", default=None)

@@ -1,10 +1,11 @@
+import json
 import time
 import logging
 
 from django.conf import settings
 from ereuseapi.methods import API
 
-from dpp.models import Proof
+from dpp.models import Proof, UserDpp
 
 
 logger = logging.getLogger('django')
@@ -29,22 +30,22 @@ PROOF_TYPE = {
 }
 
 
-def connect_api():
+def connect_api(user):
 
-    if not settings.TOKEN_DLT:
+    dp = UserDpp.objects.filter(user=user).first()
+    if not dp:
         return
-
-    token_dlt = settings.TOKEN_DLT
+    
     api_dlt = settings.API_DLT
+    token_dlt = json.loads(dp).get("token_dlt")
+    if not api_dlt or not token_dlt:
+        logger.error("NOT POSSIBLE CONNECT WITH API DLT!!!")
+        return
 
     return API(api_dlt, token_dlt, "ethereum")
 
 
-def register_dlt(chid, phid, proof_type=None):
-    api = connect_api()
-    if not api:
-        return
-
+def register_dlt(api, chid, phid, proof_type=None):
     if proof_type:
         return api.generate_proof(
             chid,
@@ -62,11 +63,8 @@ def register_dlt(chid, phid, proof_type=None):
     )
 
 
-def issuer_dpp_dlt(dpp):
+def issuer_dpp_dlt(api, dpp):
     phid = dpp.split(":")[0]
-    api = connect_api()
-    if not api:
-        return
 
     return api.issue_passport(
         dpp,
@@ -87,7 +85,7 @@ def save_proof(signature, ev_uuid, result, proof_type, user):
         d = {
             "type": proof_type,
             "timestamp": timestamp,
-            "issuer": user.institution.id,
+            "issuer": user.institution,
             "user": user,
             "uuid": ev_uuid,
             "signature": signature,
@@ -96,14 +94,14 @@ def save_proof(signature, ev_uuid, result, proof_type, user):
 
 
 def register_device_dlt(chid, phid, ev_uuid, user):
-    token_dlt = settings.TOKEN_DLT
-    api_dlt = settings.API_DLT
-    if not token_dlt or not api_dlt:
-        return
-    
     cny_a = 1
     while cny_a:
-        result = register_dlt(chid, phid)
+        api = connect_api(user)
+        if not api:
+            cny_a = 0
+            return
+        
+        result = register_dlt(api, chid, phid)
         try:
             assert result['Status'] == STATUS_CODE.get("Success")
             assert result['Data']['data']['timestamp']
@@ -148,7 +146,12 @@ def register_passport_dlt(chid, phid, ev_uuid, user):
     cny_a = 1
     while cny_a:
         try:
-            result = issuer_dpp_dlt(dpp)
+            api = connect_api(user)
+            if not api:
+                cny_a = 0
+                return
+        
+            result = issuer_dpp_dlt(api, dpp)
             cny_a = 0
         except Exception as err:
             logger.error("ERROR API issue passport return: %s", err)
