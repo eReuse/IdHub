@@ -51,24 +51,9 @@ END
         fi
 
         # generate config using env vars from docker
+        # TODO rethink if this is needed because now this is django, not flask
         cat > .env <<END
 ${dpp_env_vars:-}
-DB_USER='${DB_USER:-}'
-DB_PASSWORD='${DB_PASSWORD:-}'
-DB_HOST='${DB_HOST:-}'
-DB_DATABASE='${DB_DATABASE:-}'
-URL_MANUALS='${URL_MANUALS:-}'
-
-HOST='${HOST}'
-
-SCHEMA='dbtest'
-DB_SCHEMA='dbtest'
-
-EMAIL_DEMO='${EMAIL_DEMO}'
-PASSWORD_DEMO='${PASSWORD_DEMO}'
-
-JWT_PASS=${JWT_PASS}
-SECRET_KEY=${SECRET_KEY}
 END
 }
 
