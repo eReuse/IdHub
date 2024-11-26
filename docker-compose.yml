@@ -144,11 +144,11 @@ services:
       context: ./devicehub-django/
       dockerfile: ./docker/devicehub-django.Dockerfile
     environment:
-      - DEBUG=${DEBUG:-false}
-      - DOMAIN=${DOMAIN:-localhost}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-$DOMAIN}
-      - DEMO=${DEMO:-false}
-      - PREDEFINED_TOKEN=${PREDEFINED_TOKEN:-}
+      - DEBUG=${DH__DEBUG:-false}
+      - DOMAIN=${DH__DOMAIN:-localhost}
+      - ALLOWED_HOSTS=${DH__ALLOWED_HOSTS:-$DH__DOMAIN}
+      - DEMO=${DH__DEMO:-false}
+      - PREDEFINED_TOKEN=${DH__PREDEFINED_TOKEN:-}
       # TODO hardcoded in entrypoint
       # - ID_FEDERATED=
       - DPP_MODULE=y
