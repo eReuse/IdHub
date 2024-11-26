@@ -104,11 +104,12 @@ router
     //     }
     // })
 
+    // TODO: rewrite contract chain to include a check for correct issuer
     .post("/oracle", async (req, res, next) => {
         const api_token = req.body.api_token;
         const verifiableCredential = req.body.Credential;
         const credentialType = verifiableCredential.credentialSubject.role
-        const target_user = verifiableCredential.credentialSubject.id.slice(9)
+        const target_user = verifiableCredential.credentialSubject.id
         const dlt = req.headers.dlt ?? "";
         var response_data
         try {
