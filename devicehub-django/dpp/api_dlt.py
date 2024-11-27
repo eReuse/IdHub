@@ -125,7 +125,7 @@ def register_device_dlt(chid, phid, ev_uuid, user):
                 api.add_service(
                     chid,
                     'DeviceHub',
-                    settings.get('ID_FEDERATED'),
+                    settings.ID_FEDERATED,
                     'Inventory service',
                     'Inv',
                 )
