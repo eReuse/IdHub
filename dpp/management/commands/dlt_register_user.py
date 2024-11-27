@@ -42,8 +42,8 @@ class Command(BaseCommand):
         data_eth = json.dumps(api_token)
         # TODO encrypt in the future
         # api_keys_dlt = encrypt(password, data_eth)
-        api_keys_dlt = data_eth
-                
+        api_keys_dlt = data_eth.strip('"').strip("'")
+
         user = User.objects.filter(email=email).first()
 
         if not user:
