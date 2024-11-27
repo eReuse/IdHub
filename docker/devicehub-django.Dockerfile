@@ -36,4 +36,10 @@ RUN pip install -i https://test.pypi.org/simple/ ereuseapitest==0.0.14
 ENV PYTHONPATH="${PYTHONPATH}:/usr/lib/python3/dist-packages"
 
 COPY docker/devicehub-django.entrypoint.sh /
+
+# TODO I don't like this, but the whole ereuse-dpp works with user 1000 because of the volume mapping
+#   thanks https://stackoverflow.com/questions/70520205/docker-non-root-user-best-practices-for-python-images
+RUN adduser --system --no-create-home app
+USER app
+
 ENTRYPOINT sh /devicehub-django.entrypoint.sh
