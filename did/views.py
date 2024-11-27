@@ -6,6 +6,7 @@ from django.views.generic.base import TemplateView
 from device.models import Device
 from dpp.api_dlt import ALGORITHM
 from dpp.models import Proof
+from dpp.api_dlt import PROOF_TYPE
 
 
 logger = logging.getLogger('django')
@@ -98,18 +99,24 @@ class PublicDeviceWebView(TemplateView):
             'data': data,
         }
 
-        # if self.dpp:
-        #     data['document'] = self.dpp.snapshot.json_hw
-        #     last_dpp = self.get_last_dpp()
-        #     url_last = ''
-        #     if last_dpp:
-        #         url_last = 'https://{host}/{did}'.format(
-        #             did=last_dpp.key, host=app.config.get('HOST')
-        #         )
-        #     data['url_last'] = url_last
-        #     for c in self.dpp.snapshot.components:
-        #         components.append({c.type: c.chid})
-        #     return result
+        if len(self.pk.split(":")) > 1:
+            data['document'] = json.dumps(self.object.last_evidence.doc)
+
+            self.object.get_evidences()
+            last_dpp = Proof.objects.filter(
+                uuid__in=self.object.uuids, type=PROOF_TYPE['IssueDPP']
+            ).order_by("-timestamp").first()
+
+            key = self.pk
+            if last_dpp:
+                key = last_dpp.signature
+
+            url = "https://{}/did/{}".format(
+                self.request.get_host(),
+                key
+            )
+            data['url_last'] = url
+            return result
 
         dpps = []
         self.object.initial()
