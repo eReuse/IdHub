@@ -98,19 +98,19 @@ class PublicDeviceWebView(TemplateView):
             'data': data,
         }
 
-        if self.dpp:
-            data['document'] = self.dpp.snapshot.json_hw
-            last_dpp = self.get_last_dpp()
-            url_last = ''
-            if last_dpp:
-                url_last = 'https://{host}/{did}'.format(
-                    did=last_dpp.key, host=app.config.get('HOST')
-                )
-            data['url_last'] = url_last
+        # if self.dpp:
+        #     data['document'] = self.dpp.snapshot.json_hw
+        #     last_dpp = self.get_last_dpp()
+        #     url_last = ''
+        #     if last_dpp:
+        #         url_last = 'https://{host}/{did}'.format(
+        #             did=last_dpp.key, host=app.config.get('HOST')
+        #         )
+        #     data['url_last'] = url_last
 
-            for c in self.dpp.snapshot.components:
-                components.append({c.type: c.chid})
-            return result
+        #     for c in self.dpp.snapshot.components:
+        #         components.append({c.type: c.chid})
+        #     return result
 
         dpps = []
         for d in self.device.dpps:
