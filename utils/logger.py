@@ -31,10 +31,13 @@ class CustomFormatter(logging.Formatter):
         # Highlight the final formatted message
         record.msg = self.highlight_message(record.msg, color)
 
-        # provide trace when DEBUG config
-        if settings.DEBUG:
-            import traceback
-            print(traceback.format_exc())
+        # pedro says: I discovered that trace is provided anyway with
+        # this commented (reason: strange None msgs)
+        # is this needed?
+        ### provide trace when DEBUG config
+        #if settings.DEBUG:
+        #    import traceback
+        #    print(traceback.format_exc())
 
         return super().format(record)
 
