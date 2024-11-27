@@ -136,7 +136,7 @@ config_phase() {
                         config_dpp_part1
 
                         # cleanup other spnapshots and copy dlt/dpp snapshots
-                        rm example/example/snapshots/*
+                        rm example/snapshots/*
                         cp example/dpp-snapshots/*.json example/snapshots/
                 fi
 
