@@ -126,6 +126,11 @@ config_phase() {
         init_flagfile='/already_configured'
         if [ ! -f "${init_flagfile}" ]; then
 
+                # non DL user (only for the inventory)
+                ./manage.py add_institution "${INIT_ORG}"
+                # TODO: one error on add_user, and you don't add user anymore
+                ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
+
                 if [ "${DPP_MODULE}" = 'y' ]; then
                         # 12, 13, 14
                         config_dpp_part1
@@ -134,11 +139,6 @@ config_phase() {
                         rm example/example/snapshots/*
                         cp example/dpp-snapshots/*.json example/snapshots/
                 fi
-
-                # non DL user (only for the inventory)
-                ./manage.py add_institution "${INIT_ORG}"
-                # TODO: one error on add_user, and you don't add user anymore
-                ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
 
                 # # 15. Add inventory snapshots for user "${INIT_USER}".
                 if [ "${DEMO:-}" = 'true' ]; then
