@@ -116,6 +116,7 @@ class Device:
             return
         annotation = annotations.first()
         self.last_evidence = Evidence(annotation.uuid)
+        self.uuid = annotation.uuid
 
     def is_eraseserver(self):
         if not self.uuids:
