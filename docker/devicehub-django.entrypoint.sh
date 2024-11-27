@@ -129,15 +129,19 @@ config_phase() {
                 if [ "${DPP_MODULE}" = 'y' ]; then
                         # 12, 13, 14
                         config_dpp_part1
+
+                        # cleanup other spnapshots and copy dlt/dpp snapshots
+                        rm example/example/snapshots/*
+                        cp example/dpp-snapshots/*.json example/snapshots/
                 fi
 
-                # TODO fix wrong syntax
                 # non DL user (only for the inventory)
-                #   ./manage.py adduser user2@dhub.com ${INIT_PASSWD}
+                ./manage.py add_institution "${INIT_ORG}"
+                # TODO: one error on add_user, and you don't add user anymore
+                ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
 
                 # # 15. Add inventory snapshots for user "${INIT_USER}".
-                if [ "${IMPORT_SNAPSHOTS}" = 'y' ]; then
-                        cp /mnt/snapshots/*.json example/snapshots/
+                if [ "${DEMO:-}" = 'true' ]; then
                         /usr/bin/time ./manage.py up_snapshots "${INIT_USER}"
                 fi
 
@@ -172,13 +176,7 @@ deploy() {
                 #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
                 echo "INFO detected NEW deployment"
                 ./manage.py migrate
-                ./manage.py add_institution "${INIT_ORG}"
-                # TODO: one error on add_user, and you don't add user anymore
-                ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
-
-                if [ "${DEMO:-}" = 'true' ]; then
-                        ./manage.py up_snapshots example/snapshots/ "${INIT_USER}"
-                fi
+                config_phase
         fi
 }
 
@@ -207,7 +205,6 @@ main() {
         program_dir='/opt/devicehub-django'
         cd "${program_dir}"
         gen_env_vars
-        config_phase
         deploy
         runserver
 }
