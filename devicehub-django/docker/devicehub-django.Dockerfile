@@ -7,6 +7,7 @@ RUN apt update && \
     git \
     sqlite3 \
     jq \
+    time \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/devicehub-django
