@@ -27,7 +27,7 @@ services:
     container_name: blockchain_test_node
     ports:
       # we saw this is sometimes attacked, that's why it is not globally exposed
-      #- "127.0.0.1:8545:8545"
+      - "127.0.0.1:8545:8545"
       - "8545:8545"
     restart: always
     networks:
