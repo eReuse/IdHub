@@ -20,7 +20,7 @@ main() {
                 echo "WARNING: .env was not there, .env.example was copied, this only happens once"
         fi
         # remove old database
-        sudo rm -vfr ./db/*
+        rm -vfr ./db/*
         docker compose down -v
         docker compose build
         docker compose up ${detach_arg:-}
