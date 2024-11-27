@@ -27,9 +27,10 @@ services:
     container_name: blockchain_test_node
     ports:
       # use this to avoid attacks (by default)
-      - "127.0.0.1:8545:8545"
+      # TODO this does not work for dpp_indexer
+      #- "127.0.0.1:8545:8545"
       # if you want to expose, comment above line and uncomment the next one
-      #- "8545:8545"
+      - "8545:8545"
     restart: always
     networks:
       - ereuse
