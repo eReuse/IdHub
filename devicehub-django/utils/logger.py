@@ -22,8 +22,14 @@ class CustomFormatter(logging.Formatter):
         record.levelname = f"{color}{record.levelname}{RESET}"
 
         if record.args:
-            record.msg = self.highlight_args(record.msg, record.args, color)
-            record.args = ()
+            try:
+                record.msg = record.msg % record.args
+                record.args = ()
+            except (TypeError, ValueError):
+                record.msg = f"{color}{record.msg}{RESET}"
+
+        # Highlight the final formatted message
+        record.msg = self.highlight_message(record.msg, color)
 
         # provide trace when DEBUG config
         if settings.DEBUG:
@@ -33,8 +39,4 @@ class CustomFormatter(logging.Formatter):
         return super().format(record)
 
     def highlight_args(self, message, args, color):
-        try:
-            highlighted_args = tuple(f"{color}{arg}{RESET}" for arg in args)
-            return message % highlighted_args
-        except (TypeError, ValueError):
-            return f"{color}{message}{RESET}"
+        return f"{color}{message}{RESET}"
