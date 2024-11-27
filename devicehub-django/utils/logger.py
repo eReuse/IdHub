@@ -38,5 +38,5 @@ class CustomFormatter(logging.Formatter):
 
         return super().format(record)
 
-    def highlight_args(self, message, args, color):
+    def highlight_message(self, message, args, color):
         return f"{color}{message}{RESET}"
