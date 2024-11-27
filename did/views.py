@@ -80,7 +80,8 @@ class PublicDeviceWebView(TemplateView):
         return data
 
     def get_json_response(self):
-        device_data = self.get_device_data()
+        device_data = self.get_result()
+        # device_data = self.get_device_data()
         return JsonResponse(device_data)
 
     def get_result(self):
