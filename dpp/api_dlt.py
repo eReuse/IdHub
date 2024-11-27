@@ -118,20 +118,20 @@ def register_device_dlt(chid, phid, ev_uuid, user):
 
 
     # TODO is neccesary?
-    # if settings.get('ID_FEDERATED'):
-    #     cny = 1
-    #     while cny:
-    #         try:
-    #             api.add_service(
-    #                 chid,
-    #                 'DeviceHub',
-    #                 settings.get('ID_FEDERATED'),
-    #                 'Inventory service',
-    #                 'Inv',
-    #             )
-    #             cny = 0
-    #         except Exception:
-    #             time.sleep(10)
+    if settings.get('ID_FEDERATED'):
+        cny = 1
+        while cny:
+            try:
+                api.add_service(
+                    chid,
+                    'DeviceHub',
+                    settings.get('ID_FEDERATED'),
+                    'Inventory service',
+                    'Inv',
+                )
+                cny = 0
+            except Exception:
+                time.sleep(10)
 
 
 def register_passport_dlt(chid, phid, ev_uuid, user):
