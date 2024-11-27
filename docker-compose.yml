@@ -26,9 +26,10 @@ services:
       dockerfile: ./Dockerfile_blockchain_test_node
     container_name: blockchain_test_node
     ports:
-      # we saw this is sometimes attacked, that's why it is not globally exposed
+      # use this to avoid attacks (by default)
       - "127.0.0.1:8545:8545"
-      - "8545:8545"
+      # if you want to expose, comment above line and uncomment the next one
+      #- "8545:8545"
     restart: always
     networks:
       - ereuse
