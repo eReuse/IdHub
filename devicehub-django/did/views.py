@@ -107,16 +107,18 @@ class PublicDeviceWebView(TemplateView):
         #             did=last_dpp.key, host=app.config.get('HOST')
         #         )
         #     data['url_last'] = url_last
-
         #     for c in self.dpp.snapshot.components:
         #         components.append({c.type: c.chid})
         #     return result
 
         dpps = []
-        for d in self.device.dpps:
+        self.object.initial()
+        for d in self.object.evidences:
+            d.get_doc()
+            ev = json.dumps(d.doc)
             rr = {
                 'dpp': d.key,
-                'document': d.snapshot.json_hw,
+                'document': ev,
                 'algorithm': ALGORITHM,
                 'manufacturer DPP': '',
             }
