@@ -118,7 +118,7 @@ def register_device_dlt(chid, phid, ev_uuid, user):
 
 
     # TODO is neccesary?
-    if settings.get('ID_FEDERATED'):
+    if settings.ID_FEDERATED:
         cny = 1
         while cny:
             try:
