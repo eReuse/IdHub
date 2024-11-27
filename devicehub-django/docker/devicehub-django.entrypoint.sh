@@ -35,24 +35,21 @@ gen_env_vars() {
         PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
         # specific dpp env vars
         if [ "${DPP_MODULE}" = 'y' ]; then
-                # docker situation
-                if [ -d "${DPP_SHARED:-}" ]; then
-                        wait_for_dpp_shared
-                        export API_DLT='http://api_connector:3010'
-                        export API_DLT_TOKEN="$(cat "/shared/${OPERATOR_TOKEN_FILE}")"
-                        export API_RESOLVER='http://id_index_api:3012'
-                        # TODO hardcoded
-                        export ID_FEDERATED='DH1'
-                # .env situation
-                else
-                        dpp_env_vars="$(cat <<END
-API_DLT='${API_DLT}'
-API_DLT_TOKEN='${API_DLT_TOKEN}'
-API_RESOLVER='${API_RESOLVER}'
-ID_FEDERATED='${ID_FEDERATED}'
+                # fill env vars in this docker entrypoint
+                wait_for_dpp_shared
+                export API_DLT='http://api_connector:3010'
+                export API_DLT_TOKEN="$(cat "/shared/${OPERATOR_TOKEN_FILE}")"
+                export API_RESOLVER='http://id_index_api:3012'
+                # TODO hardcoded
+                export ID_FEDERATED='DH1'
+                # propagate to .env
+                dpp_env_vars="$(cat <<END
+API_DLT=${API_DLT}
+API_DLT_TOKEN=${API_DLT_TOKEN}
+API_RESOLVER=${API_RESOLVER}
+ID_FEDERATED=${ID_FEDERATED}
 END
 )"
-                fi
         fi
 
         # generate config using env vars from docker
@@ -123,7 +120,8 @@ END
 }
 
 config_phase() {
-        init_flagfile='/already_configured'
+	# TODO review this flag file
+        init_flagfile="${program_dir}/already_configured"
         if [ ! -f "${init_flagfile}" ]; then
 
                 # non DL user (only for the inventory)
@@ -158,7 +156,7 @@ check_app_is_there() {
 
 deploy() {
         # TODO this is weird, find better workaround
-        git config --global --add safe.directory /opt/devicehub-django
+        git config --global --add safe.directory "${program_dir}"
         export COMMIT=$(git log --format="%H %ad" --date=iso -n 1)
 
         if [ "${DEBUG:-}" = 'true' ]; then

@@ -37,7 +37,8 @@ def connect_api(user):
         return
     
     api_dlt = settings.API_DLT
-    token_dlt = json.loads(dp).get("token_dlt")
+    token_dlt = dp.api_keys_dlt
+
     if not api_dlt or not token_dlt:
         logger.error("NOT POSSIBLE CONNECT WITH API DLT!!!")
         return

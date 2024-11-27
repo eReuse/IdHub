@@ -235,14 +235,15 @@
     
     <div class="tab-pane fade" id="dpps">
       <h5 class="card-title">{% trans 'List of dpps' %}</h5>
-      <div class="list-group col-6">
+      <div class="list-group col">
         {% for d in dpps %}
           <div class="list-group-item">
             <div class="d-flex w-100 justify-content-between">
               <small class="text-muted">{{ d.timestamp }}</small>
+	      <span>{{ d.type }}</span>
             </div>
             <p class="mb-1">
-              <a href="{% url 'did:device_web' d.uuid %}">{{ d.signature }}</a>
+              <a href="{% url 'did:device_web' d.signature %}">{{ d.signature }}</a>
             </p>
           </div>
         {% endfor %}
