@@ -4,7 +4,7 @@ import logging
 
 from dmidecode import DMIParse
 from json_repair import repair_json
-from evidence.parse_details import get_lshw_child
+from evidence.parse_details import get_lshw_child, ParseSnapshot
 
 from evidence.models import Annotation
 from evidence.xapian import index
@@ -60,6 +60,7 @@ class Build:
     def generate_chids(self):
         self.algorithms = {
             'hidalgo1': self.get_hid_14(),
+            'legacy_dpp': self.get_chid_dpp(),
         }
 
     def get_hid_14(self):
@@ -77,6 +78,56 @@ class Build:
 
         self.chid = hashlib.sha3_256(hid.encode()).hexdigest()
         return self.chid
+
+    def get_chid_dpp(self):
+        if self.json.get("software") == "workbench-script":
+            dmidecode_raw = self.json["data"]["dmidecode"]
+            dmi = DMIParse(dmidecode_raw)
+
+            manufacturer = dmi.manufacturer().strip()
+            model = dmi.model().strip()
+            chassis = self.get_chassis_dh()
+            serial_number = dmi.serial_number()
+            sku = self.get_sku()
+            typ = chassis
+            version = self.get_version()
+            hid = f"{manufacturer}{model}{chassis}{serial_number}{sku}{typ}{version}"
+        else:
+            device = self.json['device']
+            hid = self.get_id_hw_dpp(device)
+
+        self.chid = hashlib.sha3_256(hid.encode("utf-8")).hexdigest()
+        return self.chid
+
+    def get_id_hw_dpp(self, d):
+        manufacturer = d.get("manufacturer", '')
+        model = d.get("model", '')
+        chassis = d.get("chassis", '')
+        serial_number = d.get("serialNumber", '')
+        sku = d.get("sku", '')
+        typ = d.get("type", '')
+        version = d.get("version", '')
+
+        return f"{manufacturer}{model}{chassis}{serial_number}{sku}{typ}{version}"
+
+    def get_phid(self):
+        if self.json.get("software") == "workbench-script":
+            data = ParseSnapshot(self.json)
+            self.device = data.device
+            self.components = data.components
+        else:
+            self.device = self.json.get("device")
+            self.components = self.json.get("components" [])
+
+        device = self.get_id_hw_dpp(self.device)
+        components = self.json.get(self.components)
+        components = sorted(components, key=lambda x: x.get("type"))
+        doc = [("computer", device)]
+
+        for c in components:
+            doc.append((c.get("type"), self.get_id_hw_dpp(c)))
+
+        return doc
 
     def create_annotations(self):
         annotation = Annotation.objects.filter(
@@ -114,6 +165,9 @@ class Build:
     def get_chassis(self):
         return self.dmi.get("Chassis")[0].get("Type", '_virtual')
 
+    def get_version(self):
+        return self.dmi.get("System")[0].get("Verson", '_virtual')
+
     def get_hid(self, snapshot):
         dmidecode_raw = snapshot["data"]["dmidecode"]
         self.dmi = DMIParse(dmidecode_raw)
@@ -135,10 +189,12 @@ class Build:
             logger.warning(txt, snapshot['uuid'])
 
         return f"{manufacturer}{model}{chassis}{serial_number}{sku}{mac}"
-    
+
     def get_signature(self, doc):
         return hashlib.sha3_256(json.dumps(doc).encode()).hexdigest()
 
     def register_device_dlt(self):
-        register_device_dlt(self.chid, self.phid, self.uuid, self.user)
-        register_passport_dlt(self.chid, self.phid, self.uuid, self.user)
+        chid = self.algorithms.get('legacy_dpp')
+        phid = self.get_signature(self.get_phid(self))
+        register_device_dlt(chid, phid, self.uuid, self.user)
+        register_passport_dlt(chid, phid, self.uuid, self.user)

@@ -17,8 +17,19 @@ HID_ALGO1 = [
     "sku"
 ]
 
+LEGACY_DPP = [
+    "manufacturer",
+    "model",
+    "chassis",
+    "serialNumber",
+    "sku",
+    "type",
+    "version"
+]
+
 ALGOS = {
     "hidalgo1": HID_ALGO1,
+    "legacy_dpp": LEGACY_DPP
 }
 
 
