@@ -117,7 +117,7 @@ class Build:
             self.components = data.components
         else:
             self.device = self.json.get("device")
-            self.components = self.json.get("components" [])
+            self.components = self.json.get("components", [])
 
         device = self.get_id_hw_dpp(self.device)
         components = self.json.get(self.components)
@@ -163,7 +163,7 @@ class Build:
         return self.dmi.get("System")[0].get("SKU Number", "n/a").strip()
 
     def get_chassis(self):
-        return self.dmi.get("Chassis")[0].get("Type", '_virtual')
+        return self.dmi.get("Chassis")[0].get("Type", '_virtual') # 
 
     def get_version(self):
         return self.dmi.get("System")[0].get("Verson", '_virtual')
