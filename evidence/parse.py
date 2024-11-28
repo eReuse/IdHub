@@ -195,6 +195,6 @@ class Build:
 
     def register_device_dlt(self):
         chid = self.algorithms.get('legacy_dpp')
-        phid = self.get_signature(self.get_phid())
+        phid = self.get_signature(json.dumps(self.get_phid()))
         register_device_dlt(chid, phid, self.uuid, self.user)
         register_passport_dlt(chid, phid, self.uuid, self.user)
