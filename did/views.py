@@ -4,6 +4,7 @@ import logging
 from django.http import JsonResponse, Http404
 from django.views.generic.base import TemplateView
 from device.models import Device
+from evidence.parse import Build
 from dpp.api_dlt import ALGORITHM
 from dpp.models import Proof
 from dpp.api_dlt import PROOF_TYPE
@@ -93,6 +94,8 @@ class PublicDeviceWebView(TemplateView):
             'algorithm': ALGORITHM,
             'components': components,
             'manufacturer DPP': '',
+            'device': {},
+            'components': [],
         }
         result = {
             '@context': ['https://ereuse.org/dpp0.json'],
@@ -100,7 +103,11 @@ class PublicDeviceWebView(TemplateView):
         }
 
         if len(self.pk.split(":")) > 1:
-            data['document'] = json.dumps(self.object.last_evidence.doc)
+            dev = Build(self.object.last_evidence.doc, None, check=True)
+            doc = dev.get_phid()
+            data['document'] = json.dumps(doc)
+            data['device'] = dev.device
+            data['components'] = dev.components
 
             self.object.get_evidences()
             last_dpp = Proof.objects.filter(
@@ -122,13 +129,18 @@ class PublicDeviceWebView(TemplateView):
         self.object.initial()
         for d in self.object.evidences:
             d.get_doc()
-            ev = json.dumps(d.doc)
+            dev = Build(d.doc, None, check=True)
+            doc = dev.get_phid()
+            ev = json.dumps(doc)
             rr = {
                 'dpp': d.key,
                 'document': ev,
                 'algorithm': ALGORITHM,
                 'manufacturer DPP': '',
+                'device': dev.device,
+                'components': dev.components
             }
+
             dpps.append(rr)
         return {
             '@context': ['https://ereuse.org/dpp0.json'],
