@@ -120,8 +120,7 @@ class Build:
             self.components = self.json.get("components", [])
 
         device = self.get_id_hw_dpp(self.device)
-        components = self.json.get(self.components)
-        components = sorted(components, key=lambda x: x.get("type"))
+        components = sorted(self.components, key=lambda x: x.get("type"))
         doc = [("computer", device)]
 
         for c in components:
