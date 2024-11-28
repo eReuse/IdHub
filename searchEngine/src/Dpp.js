@@ -18,8 +18,8 @@ const Dpp = (props) => {
         axios.get(completeUrl)
         .then((response)=>{
             console.log(response)
-            setDeviceInfo(JSON.parse(response.data.data.document).device)
-            setComponents(JSON.parse(response.data.data.document).components)
+            setDeviceInfo(response.data.data.device)
+            setComponents(response.data.data.components)
             setComponentsCHID(response.data.data.components)
         })
     }, [])
