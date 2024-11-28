@@ -119,6 +119,9 @@ class Build:
             self.device = self.json.get("device")
             self.components = self.json.get("components", [])
 
+        for c in self.components:
+            c.pop("actions", None)
+
         device = self.get_id_hw_dpp(self.device)
         components = sorted(self.components, key=lambda x: x.get("type"))
         doc = [("computer", device)]
@@ -162,7 +165,7 @@ class Build:
         return self.dmi.get("System")[0].get("SKU Number", "n/a").strip()
 
     def get_chassis(self):
-        return self.dmi.get("Chassis")[0].get("Type", '_virtual') # 
+        return self.dmi.get("Chassis")[0].get("Type", '_virtual') #
 
     def get_version(self):
         return self.dmi.get("System")[0].get("Verson", '_virtual')
