@@ -95,7 +95,6 @@ class PublicDeviceWebView(TemplateView):
             'components': components,
             'manufacturer DPP': '',
             'device': {},
-            'components': [],
         }
         result = {
             '@context': ['https://ereuse.org/dpp0.json'],
@@ -132,8 +131,10 @@ class PublicDeviceWebView(TemplateView):
             dev = Build(d.doc, None, check=True)
             doc = dev.get_phid()
             ev = json.dumps(doc)
+            phid = dev.get_signature(ev)
+            dpp = "{}:{}".format(self.pk, phid)
             rr = {
-                'dpp': d.key,
+                'dpp': dpp,
                 'document': ev,
                 'algorithm': ALGORITHM,
                 'manufacturer DPP': '',
