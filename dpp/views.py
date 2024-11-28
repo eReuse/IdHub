@@ -1,11 +1,13 @@
+import json
 import logging
+
 from django.views.generic.edit import View
 from django.http import JsonResponse
 
-from evidence.xapian import search
-from dpp.models import Proof
 from dpp.api_dlt import ALGORITHM
-
+from evidence.models import Evidence
+from evidence.parse import Build
+from dpp.models import Proof
 
 logger = logging.getLogger('django')
 
@@ -20,27 +22,23 @@ class ProofView(View):
         proof = Proof.objects.filter(timestamp=timestamp).first()
         if not proof:
             return JsonResponse({}, status=404)
-
-        ev_uuid = 'uuid:"{}"'.format(proof.uuid)
-        matches = search(None, ev_uuid, limit=1)
-        if not matches or matches.size() < 1:
+        
+        ev = Evidence(proof.uuid)
+        if not ev.doc:
             return JsonResponse({}, status=404)
         
-        for x in matches:
-            snap = x.document.get_data()
-            
-            data = {
-                "algorithm": ALGORITHM,
-                "document": snap
-            }
+        dev = Build(ev.doc, None, check=True)
+        doc = dev.get_phid()
 
-            d = {
-                '@context': ['https://ereuse.org/proof0.json'],
-                'data': data,
-            }
-            response = JsonResponse(d, status=200)
-            response["Access-Control-Allow-Origin"] = "*"
-            return response
+        data = {
+            "algorithm": ALGORITHM,
+            "document": json.dumps(doc)
+        }
 
-        return JsonResponse({}, status=404)
-
+        d = {
+            '@context': ['https://ereuse.org/proof0.json'],
+            'data': data,
+        }
+        response = JsonResponse(d, status=200)
+        response["Access-Control-Allow-Origin"] = "*"
+        return response
