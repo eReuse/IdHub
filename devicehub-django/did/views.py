@@ -84,7 +84,9 @@ class PublicDeviceWebView(TemplateView):
     def get_json_response(self):
         device_data = self.get_result()
         # device_data = self.get_device_data()
-        return JsonResponse(device_data)
+        response = JsonResponse(device_data)
+        response["Access-Control-Allow-Origin"] = "*"
+        return response
 
     def get_result(self):
         components = []
