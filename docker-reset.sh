@@ -20,6 +20,10 @@ main() {
 	rm -f idIndexApi/data/id_url.json
 	# remove cached devices
 	rm -f observerModule/data/devices.json
+        # remove old devicehub-django database
+        rm -vfr ./devicehub-django/db/*
+        rm -vfr ./devicehub-django/already_configured
+
 	# remove docker volumes (mapped filesystem mounts are persisted)
         docker compose down -v
 

@@ -25,7 +25,7 @@ axios.post(`${api_url}/${route}`, params, {
         }
     }).then(response => {
         // TODO less logs
-        console.error(response)
+        console.error(response.data)
     })
 }
     

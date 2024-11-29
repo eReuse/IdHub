@@ -19,7 +19,7 @@ main() {
 	# TODO hardcoded path
 	export ETH_REGISTRY="$(cat ../shared/deployed-contracts.json | jq -r .EthereumDIDRegistry)"
 	npx tsx scripts/import-identifier.ts
-	npx tsx scripts/create-credential.ts > ../shared/veramo-api_credential.json
+	python scripts/pyvckit_sign.py > ../shared/pyvckit-api_credential.json
         node index.js
 }
 

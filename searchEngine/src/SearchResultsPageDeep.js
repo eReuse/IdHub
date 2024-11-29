@@ -29,11 +29,13 @@ const SearchResultsPageDeep = ({ location }) => {
                     });
                     let inventoryUrl = idIndexUrl + service.serviceEndpoint
                     console.log(inventoryUrl)
+	            const headers = { 'Accept': 'application/json' };
+
                     axios.get(inventoryUrl)
                         .then(response => {
                             console.log(response.data.url + "/did/" + chid)
                             setInvUrl(`${response.data.url + "/did/"}`)
-                            axios.get(`${response.data.url + "/did/" + searchQuery}`)
+                            axios.get(`${response.data.url + "/did/" + searchQuery}`, { headers })
                                 .then(deviceData => {
                                     console.log(deviceData)
                                     // console.log(deviceData.data.data.components)

@@ -14,8 +14,9 @@ async function main() {
     provider: "did:ethr",
     did: "did:ethr:0x2f67B1d86651aF2E37E39b30F2E689Aa7fbAc79F"
   })
-  console.log(`New identifier created`)
-  console.log(JSON.stringify(identifier, null, 2))
+  console.log(`New identifier imported`)
+  // DEBUG: uncomment
+  //console.log(JSON.stringify(identifier, null, 2))
 }
 
 main().catch(console.log)

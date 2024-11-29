@@ -26,9 +26,11 @@ services:
       dockerfile: ./Dockerfile_blockchain_test_node
     container_name: blockchain_test_node
     ports:
-      # we saw this is sometimes attacked, that's why it is not globally exposed
-      #- "127.0.0.1:8545:8545"
-      - "8545:8545"
+      # use this to avoid attacks (by default)
+      - "127.0.0.1:8545:8545"
+      # if you want to expose or debug more, comment above line and
+      #   uncomment the next one
+      #- "8545:8545"
     restart: always
     networks:
       - ereuse
@@ -135,56 +137,32 @@ services:
     networks:
       - ereuse
 
-  devicehub-teal:
-    # TODO custom entrypoint devicehub-teal
+  devicehub-django:
     init: true
     depends_on:
       - create-operator-user
       - id_index_api
     build:
-      context: ./devicehub-teal/
-      dockerfile: ./docker/devicehub.Dockerfile
+      context: ./devicehub-django/
+      dockerfile: ./docker/devicehub-django.Dockerfile
     environment:
-      - DB_USER=${DH__DB_USER}
-      - DB_PASSWORD=${DH__DB_PASSWORD}
-      - DB_HOST=postgres-devicehub-teal
-      - DB_DATABASE=${DH__DB_DATABASE}
-      - HOST=${DH__HOST}
-      - EMAIL_DEMO=${DH__EMAIL_DEMO}
-      - PASSWORD_DEMO=${DH__PASSWORD_DEMO}
-      - JWT_PASS=${DH__JWT_PASS}
-      - SECRET_KEY=${DH__SECRET_KEY}
-      - DEVICEHUB_HOST=${DH__DEVICEHUB_HOST}
+      - DEBUG=${DH__DEBUG:-false}
+      - DOMAIN=${DH__DOMAIN:-localhost}
+      - ALLOWED_HOSTS=${DH__ALLOWED_HOSTS:-$DH__DOMAIN}
+      - DEMO=${DH__DEMO:-false}
+      - PREDEFINED_TOKEN=${DH__PREDEFINED_TOKEN:-}
       # TODO hardcoded in entrypoint
       # - ID_FEDERATED=
       - DPP_MODULE=y
       - DPP_SHARED=/shared
       - IMPORT_SNAPSHOTS=${DH__IMPORT_SNAPSHOTS}
     ports:
-      - 5000:5000
+      - 8000:8000
     volumes:
-      - ${SNAPSHOTS_PATH:-./devicehub-teal/examples/snapshots}:/mnt/snapshots:ro
-      - ${devicehub_teal__vol__shared:-./shared}:/shared:rw
-    networks:
-      - ereuse
+      - ${SNAPSHOTS_PATH:-./devicehub-django/example/snapshots}:/mnt/snapshots:ro
+      - ${devicehub_django__vol__shared:-./shared}:/shared:rw
+      - ./devicehub-django/:/opt/devicehub-django
 
-  postgres-devicehub-teal:
-    build:
-      context: ./devicehub-teal/
-      dockerfile: ./docker/postgres.Dockerfile
-    # 4. To create the database.
-    # 5. Give permissions to the corresponding users in the database.
-    #   extra src https://github.com/docker-library/docs/blob/master/postgres/README.md#environment-variables
-    environment:
-      - POSTGRES_PASSWORD=${DH__DB_PASSWORD}
-      - POSTGRES_USER=${DH__DB_USER}
-      - POSTGRES_DB=${DH__DB_DATABASE}
-    # DEBUG
-    #ports:
-    #  - 5432:5432
-    # TODO persistence
-    #volumes:
-    #  - pg_data:/var/lib/postgresql/data
     networks:
       - ereuse
 
@@ -202,6 +180,10 @@ services:
       - REACT_APP_DPP_INDEXER=${SEARCH_REACT_APP_DPP_INDEXER}
       - REACT_APP_EREUSE_DID_RESOLVER=${SEARCH_REACT_APP_EREUSE_DID_RESOLVER}
       - REACT_APP_ID_INDEX_API=${SEARCH_REACT_APP_ID_INDEX_API}
+      # TODO env var
+      # src https://stackoverflow.com/questions/67986657/how-to-disable-eslint-during-build-phase-in-react
+      - DISABLE_ESLINT_PLUGIN=true
+
     volumes:
       # TODO env vars???
       - ./searchEngine/src:/home/node/searchEngine/src:ro

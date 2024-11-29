@@ -7,7 +7,7 @@ set -x
 
 main() {
 	ADMIN_TOKEN_FILE=api-connector_admin-token.txt
-	VERAMO_API_CRED_FILE=veramo-api_credential.json
+	VERAMO_API_CRED_FILE=pyvckit-api_credential.json
 	while true; do
 		# specially ensure VERAMO_API_CRED_FILE is not empty,
 		#   it takes some time to get data in
@@ -25,7 +25,10 @@ main() {
 
 	# TODO in terms of trustchain, root should not issue directly to operator
 	export ADMIN_TOKEN="$(cat "shared/${ADMIN_TOKEN_FILE}")"
+	# temp disable logs to avoid massive DEBUG, enable as needed
+	set +x
 	export VERAMO_API_CRED="$(cat "shared/${VERAMO_API_CRED_FILE}")"
+	set -x
 	node scripts/register_user.js > shared/operator-token.txt
 	export OPERATOR_TOKEN="$(cat "shared/operator-token.txt")"
 	node scripts/call_oracle.js

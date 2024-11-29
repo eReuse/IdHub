@@ -12,14 +12,14 @@ const Dpp = (props) => {
 
     var apiUrl = process.env.REACT_APP_CONNECTOR_API
     var apiKey = process.env.REACT_APP_CONNECTOR_API_TOKEN
-    
+    const headers = { 'Accept': 'application/json' };
 
     useEffect(() => {
-        axios.get(completeUrl)
+        axios.get(completeUrl, { headers })
         .then((response)=>{
             console.log(response)
-            setDeviceInfo(JSON.parse(response.data.data.document).device)
-            setComponents(JSON.parse(response.data.data.document).components)
+            setDeviceInfo(response.data.data.device)
+            setComponents(response.data.data.components)
             setComponentsCHID(response.data.data.components)
         })
     }, [])

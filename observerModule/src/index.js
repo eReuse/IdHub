@@ -33,10 +33,11 @@ async function process_event(parsed_log) {
         let inventoryUrl = idIndexUrl + "/getURL?id=" + parsed_log.args.inventoryID
         console.log(inventoryUrl)
         let response = await axios.get(inventoryUrl)
-        let deviceData = await axios.get(`${response.data.url + "/did/" + parsed_log.args.chid + ":" + parsed_log.args.phid}`)
+        const headers = { 'Accept': 'application/json' };
+        let deviceData = await axios.get(`${response.data.url + "/did/" + parsed_log.args.chid + ":" + parsed_log.args.phid}`, { headers })
         let fileData = fs.readFileSync(filePath, 'utf8');
         let jsonData = JSON.parse(fileData);
-        let device = JSON.parse(deviceData.data.data.document).device
+        let device = deviceData.data.data.device
         device.chid = parsed_log.args.chid
         device.phid = parsed_log.args.phid
         jsonData.push(device)

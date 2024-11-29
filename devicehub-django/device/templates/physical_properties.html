@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <h3>{{ object.pk }}</h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="nav nav-tabs nav-tabs-bordered">
+      <li class="nav-items">
+        <a class="nav-link" href="{% url 'device:details' device.pk %}">General details</a>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#physicalproperties">Physical properties</button>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents">Documents</button>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lots">Lots</button>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#status">Status</button>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#components">Components</button>
+      </li>
+      <li class="nav-items">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#traceabiliy">Traceability log</button>
+      </li>
+      <li class="nav-items">
+        <a class="nav-link" href="">Web</a>
+      </li>
+
+    </div>
+  </div>
+</div>
+<div class="tab-content pt-2">
+
+  <div class="tab-pane fade profile-overview" id="details">
+    <h5 class="card-title">Details</h5>
+    <div class="row mb-3">
+      <div class="col-lg-3 col-md-4 label ">
+        (<a href="/inventory/device/edit/4W8D3/">Edit Device</a>)
+      </div>
+      <div class="col-lg-9 col-md-8">
+        {%if object.hid %}Snapshot{% else %}Placeholder{% endif %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label ">Phid</div>
+      <div class="col-lg-9 col-md-8">{{ object.id }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label ">Id device internal</div>
+      <div class="col-lg-9 col-md-8"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label ">Type</div>
+      <div class="col-lg-9 col-md-8">{{ object.type }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Manufacturer</div>
+      <div class="col-lg-9 col-md-8">{{ object.manufacturer|default:"" }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Model</div>
+      <div class="col-lg-9 col-md-8">{{ object.model|default:"" }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Part Number</div>
+      <div class="col-lg-9 col-md-8">{{ object.part_number|default:"" }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Serial Number</div>
+      <div class="col-lg-9 col-md-8">{{ object.serial_number|default:"" }}</div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade show active" id="physicalproperties">
+    <h5 class="card-title">Physical Properties</h5>
+    <div class="row mb-3">
+      <div class="col-lg-3 col-md-4 label ">
+        (<a href="{% url 'device:physical_edit' object.pk %}">Edit Physical Properties</a>)
+      </div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-lg-3 col-md-4 label ">
+        {% load django_bootstrap5 %}
+        <form role="form" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+          <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+          <div class="message">
+            {% for field, error in form.errors.items %}
+              {{ error }}<br />
+            {% endfor %}
+            <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+        {% endif %}
+        {% bootstrap_form form %}
+        <div class="form-actions-no-box">
+          <a class="btn btn-grey" href="{% url 'device:details' device.pk %}">{% translate "Cancel" %}</a>
+          <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+        </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="tab-pane fade profile-overview" id="lots">
+    <h5 class="card-title">Incoming Lots</h5>
+
+    <div class="row">
+    
+    </div>
+
+    <h5 class="card-title">Outgoing Lots</h5>
+
+    <div class="row">
+    
+    </div>
+
+    <h5 class="card-title">Temporary Lots</h5>
+
+    <div class="row">
+    
+    </div>
+  </div>
+
+  <div class="tab-pane fade profile-overview" id="documents">
+    <div class="btn-group dropdown ml-1 mt-1" uib-dropdown="">
+      <a href="/inventory/device/4W8D3/document/add/" class="btn btn-primary">
+        <i class="bi bi-plus"></i>
+        Add new document
+        <span class="caret"></span>
+      </a>
+    </div>
+
+    <h5 class="card-title">Documents</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">File</th>
+          <th scope="col">Type</th>
+          <th scope="col">Description</th>
+          <th scope="col" data-type="date" data-format="YYYY-MM-DD hh:mm">Uploaded on</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tab-pane fade profile-overview" id="status">
+    <h5 class="card-title">Status Details</h5>
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Physical State</div>
+      <div class="col-lg-9 col-md-8">
+          
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Lifecycle State</div>
+      <div class="col-lg-9 col-md-8">
+          
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3 col-md-4 label">Allocated State</div>
+      <div class="col-lg-9 col-md-8">
+          
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade profile-overview" id="traceability">
+    <h5 class="card-title">Traceability log Details</h5>
+    <div class="list-group col-6">
+      
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        Snapshot ✓
+        <small class="text-muted">14:07 23-06-2024</small>
+      </div>
+      
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        EraseCrypto ✓
+        <small class="text-muted">14:07 23-06-2024</small>
+      </div>
+      
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        EraseCrypto ✓
+        <small class="text-muted">14:07 23-06-2024</small>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="tab-pane fade profile-overview" id="components">
+    <h5 class="card-title">Components Snapshot</h5>
+    <div class="list-group col-6">
+      
+      <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Motherboard</h5>
+          <small class="text-muted">14:07 23-06-2024</small>
+        </div>
+        <p class="mb-1">
+          hp<br />
+          890e<br />
+        </p>
+        <small class="text-muted">
+        </small>
+      </div>
+        
+      <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">NetworkAdapter</h5>
+          <small class="text-muted">14:07 23-06-2024</small>
+        </div>
+        <p class="mb-1">
+          realtek semiconductor co., ltd.<br />
+          rtl8852ae 802.11ax pcie wireless network adapter<br />
+        </p>
+        <small class="text-muted">
+        </small>
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% endblock %}

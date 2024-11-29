@@ -15,6 +15,9 @@ module.exports = {
           auto: false,
           interval: miningInterval,
       },
+      // enable logging for debugging purposes
+      //   src https://hardhat.org/hardhat-network/docs/reference
+      loggingEnabled: false,
     },
     test: {
       url: "http://"+TEST_NODE_IP+":8545",
