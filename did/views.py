@@ -133,7 +133,7 @@ class PublicDeviceWebView(TemplateView):
             dev = Build(d.doc, None, check=True)
             doc = dev.get_phid()
             ev = json.dumps(doc)
-            phid = dev.get_signature(ev)
+            phid = dev.get_signature(doc)
             dpp = "{}:{}".format(self.pk, phid)
             rr = {
                 'dpp': dpp,
