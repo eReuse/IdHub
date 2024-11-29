@@ -2,13 +2,9 @@ import { agent } from './setup.js'
 import { execSync } from 'child_process';
 
 export async function verify(credential) {
-  // TODO replace with pyvckit
-  //const result = execSync('python /path/to/pyvckit-script.py').toString().trim();
-  const result = await agent.verifyCredential({
-    credential: credential
-  })
-  console.log(`Credential verified`, result.verified)
-  return result.verified
+  const result = execSync('python scripts/pyvckit_verify.py ../shared/pyvckit-api_credential.json').toString().trim();
+  console.log(`Credential verified`, result)
+  return result == 'True'
 }
 
 // verify().catch(console.log)
