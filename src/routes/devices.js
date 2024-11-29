@@ -1152,7 +1152,9 @@ router
     var inventoryURL = await axios.get(ethereum.idIndexURL+"/getURL?id="+parameters.inventoryID)
     inventoryURL = inventoryURL.data.url
 
-    var proof = await axios.get(inventoryURL+"/proofs/"+parameters.timestamp)
+    //var proof = await axios.get(inventoryURL+"/proofs/"+parameters.timestamp)
+    // TODO better endpoint
+    var proof = await axios.get(inventoryURL+"/dpp/"+parameters.timestamp)
     var algorithm = proof.data.data.algorithm
     var document = proof.data.data.document
 

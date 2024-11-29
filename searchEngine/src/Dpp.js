@@ -12,10 +12,10 @@ const Dpp = (props) => {
 
     var apiUrl = process.env.REACT_APP_CONNECTOR_API
     var apiKey = process.env.REACT_APP_CONNECTOR_API_TOKEN
-    
+    const headers = { 'Accept': 'application/json' };
 
     useEffect(() => {
-        axios.get(completeUrl)
+        axios.get(completeUrl, { headers })
         .then((response)=>{
             console.log(response)
             setDeviceInfo(response.data.data.device)
