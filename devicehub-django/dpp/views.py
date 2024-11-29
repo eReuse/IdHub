@@ -10,8 +10,6 @@ from evidence.models import Evidence
 from evidence.parse import Build
 from dpp.models import Proof
 
-logger = logging.getLogger('django')
-
 
 class ProofView(View):
     
@@ -21,19 +19,12 @@ class ProofView(View):
         if not proof:
             return JsonResponse({}, status=404)
 
-        logger.error(proof.type)
-        logger.error(proof.signature)
-        
         ev = Evidence(proof.uuid)
         if not ev.doc:
             return JsonResponse({}, status=404)
         
         dev = Build(ev.doc, None, check=True)
         doc = dev.get_phid()
-
-        logger.error(doc)
-        hs = hashlib.sha3_256(json.dumps(doc).encode()).hexdigest()
-        logger.error(hs)
 
         data = {
             "algorithm": ALGORITHM,

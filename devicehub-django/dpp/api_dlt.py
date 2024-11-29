@@ -80,10 +80,10 @@ def save_proof(signature, ev_uuid, result, proof_type, user):
     if result['Status'] == STATUS_CODE.get("Success"):
         timestamp = result.get('Data', {}).get('data', {}).get('timestamp')
 
-        logger.error("timestamp: %s", timestamp)
         if not timestamp:
             return
 
+        logger.debug("timestamp: %s", timestamp)
         d = {
             "type": proof_type,
             "timestamp": timestamp,
