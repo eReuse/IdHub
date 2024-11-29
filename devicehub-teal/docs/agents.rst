@@ -1,4 +1,0 @@
-Agents
-######
-
-.. uml:: agents.puml

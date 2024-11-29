@@ -1,6 +1,0 @@
-[tool.black]
-skip-string-normalization = true
-target-version = ['py39']
-
-[tool.isort]
-profile = "black"
