@@ -7,7 +7,7 @@ set -x
 
 main() {
 	ADMIN_TOKEN_FILE=api-connector_admin-token.txt
-	VERAMO_API_CRED_FILE=veramo-api_credential.json
+	VERAMO_API_CRED_FILE=pyvckit-api_credential.json
 	while true; do
 		# specially ensure VERAMO_API_CRED_FILE is not empty,
 		#   it takes some time to get data in
