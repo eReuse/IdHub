@@ -65,7 +65,7 @@ def register_dlt(api, chid, phid, proof_type=None):
 
 
 def issuer_dpp_dlt(api, dpp):
-    phid = dpp.split(":")[0]
+    phid = dpp.split(":")[1]
 
     return api.issue_passport(
         dpp,
