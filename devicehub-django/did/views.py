@@ -8,6 +8,7 @@ from evidence.parse import Build
 from dpp.api_dlt import ALGORITHM
 from dpp.models import Proof
 from dpp.api_dlt import PROOF_TYPE
+from did.template_credential import dpp_tmpl
 
 
 logger = logging.getLogger('django')
@@ -89,43 +90,46 @@ class PublicDeviceWebView(TemplateView):
         return response
 
     def get_result(self):
-        components = []
+
+        if len(self.pk.split(":")) > 1:
+            return self.build_from_dpp()
+        else:
+            return self.build_from_chid()
+
+    def build_from_dpp(self):
         data = {
             'document': {},
             'dpp': self.pk,
             'algorithm': ALGORITHM,
-            'components': components,
+            'components': [],
             'manufacturer DPP': '',
             'device': {},
         }
-        result = {
-            '@context': ['https://ereuse.org/dpp0.json'],
-            'data': data,
-        }
+        dev = Build(self.object.last_evidence.doc, None, check=True)
+        doc = dev.get_phid()
+        data['document'] = json.dumps(doc)
+        data['device'] = dev.device
+        data['components'] = dev.components
 
-        if len(self.pk.split(":")) > 1:
-            dev = Build(self.object.last_evidence.doc, None, check=True)
-            doc = dev.get_phid()
-            data['document'] = json.dumps(doc)
-            data['device'] = dev.device
-            data['components'] = dev.components
+        self.object.get_evidences()
+        last_dpp = Proof.objects.filter(
+            uuid__in=self.object.uuids, type=PROOF_TYPE['IssueDPP']
+        ).order_by("-timestamp").first()
 
-            self.object.get_evidences()
-            last_dpp = Proof.objects.filter(
-                uuid__in=self.object.uuids, type=PROOF_TYPE['IssueDPP']
-            ).order_by("-timestamp").first()
+        key = self.pk
+        if last_dpp:
+            key = last_dpp.signature
 
-            key = self.pk
-            if last_dpp:
-                key = last_dpp.signature
+        url = "https://{}/did/{}".format(
+            self.request.get_host(),
+            key
+        )
+        data['url_last'] = url
+        tmpl = dpp_tmpl.copy()
+        tmpl["credentialSubject"]["data"] = data
+        return tmpl
 
-            url = "https://{}/did/{}".format(
-                self.request.get_host(),
-                key
-            )
-            data['url_last'] = url
-            return result
-
+    def build_from_chid(self):
         dpps = []
         self.object.initial()
         for d in self.object.evidences:
@@ -144,7 +148,10 @@ class PublicDeviceWebView(TemplateView):
                 'components': dev.components
             }
 
-            dpps.append(rr)
+            tmpl = dpp_tmpl.copy()
+            tmpl["credentialSubject"]["data"] = rr
+
+            dpps.append(tmpl)
         return {
             '@context': ['https://ereuse.org/dpp0.json'],
             'data': dpps,
