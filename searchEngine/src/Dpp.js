@@ -18,15 +18,15 @@ const Dpp = (props) => {
         axios.get(completeUrl, { headers })
         .then((response)=>{
             console.log(response)
-            setDeviceInfo(response.data.data.device)
-            setComponents(response.data.data.components)
-            setComponentsCHID(response.data.data.components)
+            setDeviceInfo(response.data.credentialSubject.data.device)
+            setComponents(response.data.credentialSubject.data.components)
+            setComponentsCHID(response.data.credentialSubject.data.components)
         })
     }, [])
 
     useEffect(() =>{
         var proofsArray=[]
-        axios.post(`${apiUrl}/getProofs`, 
+        axios.post(`${apiUrl}/getProofs`,
         {
             api_token: apiKey,
             DeviceCHID: props.chid

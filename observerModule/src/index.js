@@ -37,7 +37,7 @@ async function process_event(parsed_log) {
         let deviceData = await axios.get(`${response.data.url + "/did/" + parsed_log.args.chid + ":" + parsed_log.args.phid}`, { headers })
         let fileData = fs.readFileSync(filePath, 'utf8');
         let jsonData = JSON.parse(fileData);
-        let device = deviceData.data.data.device
+        let device = deviceData.data.credentialSubject.data.device
         device.chid = parsed_log.args.chid
         device.phid = parsed_log.args.phid
         jsonData.push(device)

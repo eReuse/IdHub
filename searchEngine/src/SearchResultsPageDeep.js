@@ -39,7 +39,7 @@ const SearchResultsPageDeep = ({ location }) => {
                                 .then(deviceData => {
                                     console.log(deviceData)
                                     // console.log(deviceData.data.data.components)
-                                    console.log(JSON.parse(deviceData.data.data[0].document))
+                                    console.log(JSON.parse(deviceData.data.data[0].credentialSubject.data.document))
                                     var dppsArray = deviceData.data.data
                                     // dppsArray.push(deviceData.data.data[0])
                                     setDpps(dppsArray)
@@ -72,7 +72,7 @@ const SearchResultsPageDeep = ({ location }) => {
         template = <div>
             <Accordion alwaysOpen>
         {dpps.map((item) => (
-            <Dpp dpp={item.dpp.split(":")[1]} url={invUrl} chid={chid}>item.dpp</Dpp>
+            <Dpp dpp={item.credentialSubject.data.dpp.split(":")[1]} url={invUrl} chid={chid}>item.credentialSubject.data.dpp</Dpp>
         ))}
     </Accordion>
     </div>
