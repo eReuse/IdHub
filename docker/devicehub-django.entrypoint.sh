@@ -34,7 +34,7 @@ gen_env_vars() {
         ADMIN='True'
         PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
         # specific dpp env vars
-        if [ "${DPP}" = 'true' ]; then
+        if [ "${DPP:-}" = 'true' ]; then
                 # fill env vars in this docker entrypoint
                 wait_for_dpp_shared
                 export API_DLT='http://api_connector:3010'
@@ -129,7 +129,7 @@ config_phase() {
                 # TODO: one error on add_user, and you don't add user anymore
                 ./manage.py add_user "${INIT_ORG}" "${INIT_USER}" "${INIT_PASSWD}" "${ADMIN}" "${PREDEFINED_TOKEN}"
 
-                if [ "${DPP}" = 'true' ]; then
+                if [ "${DPP:-}" = 'true' ]; then
                         # 12, 13, 14
                         config_dpp_part1
 
