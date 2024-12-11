@@ -153,7 +153,7 @@ services:
       - PREDEFINED_TOKEN=${DH__PREDEFINED_TOKEN:-}
       # TODO hardcoded in entrypoint
       # - ID_FEDERATED=
-      - DPP_MODULE=y
+      - DPP=${DH__DPP:-false}
       - DPP_SHARED=/shared
       - IMPORT_SNAPSHOTS=${DH__IMPORT_SNAPSHOTS}
     ports:
