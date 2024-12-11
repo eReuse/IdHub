@@ -4,12 +4,14 @@ import logging
 
 from dmidecode import DMIParse
 from json_repair import repair_json
+from django.conf import settings
 from evidence.parse_details import get_lshw_child, ParseSnapshot
 
 from evidence.models import Annotation
 from evidence.xapian import index
-from dpp.api_dlt import register_device_dlt, register_passport_dlt
 from utils.constants import CHASSIS_DH
+if settings.DPP:
+    from dpp.api_dlt import register_device_dlt, register_passport_dlt
 
 
 logger = logging.getLogger('django')
@@ -51,7 +53,8 @@ class Build:
 
         self.index()
         self.create_annotations()
-        self.register_device_dlt()
+        if settings.DPP:
+            self.register_device_dlt()
 
     def index(self):
         snap = json.dumps(self.json)

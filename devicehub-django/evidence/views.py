@@ -137,7 +137,7 @@ class DownloadEvidenceView(DashboardView, TemplateView):
         evidence.get_doc()
         data = json.dumps(evidence.doc)
         response = HttpResponse(data, content_type="application/json")
-        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("evidence.json")
         return response
 
 

@@ -89,9 +89,12 @@ INSTALLED_APPS = [
     "dashboard",
     "admin",
     "api",
-    "dpp",
-    "did",
 ]
+
+DPP = config("DPP", default=False, cast=bool)
+
+if DPP:
+    INSTALLED_APPS.extend(["dpp", "did"])
 
 
 MIDDLEWARE = [
