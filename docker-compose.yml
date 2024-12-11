@@ -9,6 +9,7 @@ services:
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-$DOMAIN}
       - DEMO=${DEMO:-false}
       - PREDEFINED_TOKEN=${PREDEFINED_TOKEN:-}
+      - DPP=${DPP:-false}
     volumes:
       - .:/opt/devicehub-django
     ports:

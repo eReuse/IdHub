@@ -29,9 +29,11 @@
         <li class="nav-item">
           <a href="#evidences" class="nav-link" data-bs-toggle="tab" data-bs-target="#evidences">{% trans 'Evidences' %}</a>
         </li>
+	{% if dpps %}
         <li class="nav-item">
           <a href="#dpps" class="nav-link" data-bs-toggle="tab" data-bs-target="#dpps">{% trans 'Dpps' %}</a>
         </li>
+	{% endif %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'device:device_web' object.id %}" target="_blank">Web</a>
         </li>
@@ -232,7 +234,8 @@
         {% endfor %}
       </div>
     </div>
-    
+
+    {% if dpps %}
     <div class="tab-pane fade" id="dpps">
       <h5 class="card-title">{% trans 'List of dpps' %}</h5>
       <div class="list-group col">
@@ -249,6 +252,7 @@
         {% endfor %}
       </div>
     </div>
+    {% endif %}
   </div>
 {% endblock %}
 
@@ -257,12 +261,12 @@
     document.addEventListener('DOMContentLoaded', function () {
       // Obtener el hash de la URL (ejemplo: #components)
       const hash = window.location.hash
-    
+
       // Verificar si hay un hash en la URL
       if (hash) {
         // Buscar el botón o enlace que corresponde al hash y activarlo
         const tabTrigger = document.querySelector(`[data-bs-target="${hash}"]`)
-    
+
         if (tabTrigger) {
           // Crear una instancia de tab de Bootstrap para activar el tab
           const tab = new bootstrap.Tab(tabTrigger)
