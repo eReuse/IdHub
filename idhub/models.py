@@ -680,7 +680,7 @@ class VerificableCredential(models.Model):
         credential_subject = ujson.loads(data).get("credentialSubject", {})
         return credential_subject.items()
 
-    def issue(self, did, domain):
+    def issue(self, did, domain, save=True):
         if self.status == self.Status.ISSUED:
             return
 
@@ -699,6 +699,9 @@ class VerificableCredential(models.Model):
 
         if not valid:
             return
+
+        if not save:
+            return vc_str
 
         self.data = self.user.encrypt_data(vc_str)
 
