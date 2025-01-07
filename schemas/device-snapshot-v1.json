@@ -1,0 +1,122 @@
+{
+  "$id": "https://idhub.pangea.org/vc_schemas/device-snapshot-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeviceSnapshotV1",
+  "description": "Snapshot create by workbench-script, software for discover hardware in one device.",
+  "name": [
+    {
+      "value": "Snapshot",
+      "lang": "en"
+    }
+  ],
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://www.w3.org/2018/credentials/v1"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Define the properties of a digital device snapshot",
+          "type": "object",
+          "properties": {
+            "operatorId": {
+              "description": "Indentifier related to the product operator, defined a hash of an Id token (10 chars enough)",
+              "type": "string",
+              "minLength": 10
+            },
+            "uuid": {
+              "description": "Unique identifier of the snapshot.",
+              "type": "string",
+              "minLength": 36
+            },
+            "type": {
+              "description": "Defines a snapshot type, e.g., hardwareList, dataDeletion (need to adjust the enum values).",
+              "type": "string",
+              "enum": [
+                "hardwareList", "dataDeletion"
+              ],
+              "minLength": 1
+            },
+            "software": {
+              "description": "Name of the snapshot software used.",
+              "type": "string",
+              "enum": [
+                "workbench-script"
+              ],
+              "minLength": 1
+            },
+            "deviceId": {
+              "description": "List of identification properties for the device, each with a name and value.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "The type of device identifier information, e.g., ManufacturerSerial, EthernetMacAddress.",
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "The value of the device identifier information.",
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "value"]
+              }
+            },
+            "timestamp": {
+              "description": "Date and time of this snapshot.",
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "uuid",
+            "type",
+            "timestamp"
+          ]
+        },
+        "evidence": {
+          "description": "Contains supporting evidence about the process which resulted in the issuance of this credential as a result of system operations.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Type of evidence, linked to credentialSubject.type.",
+                "type": "string",
+                "enum": [
+                  "HardwareList",
+                  "DataDeletion"
+                ]
+              },
+              "operation": {
+                "description": "Specifies the command executed for evidence generation.",
+                "type": "string",
+                "enum": [
+                  "inxi",
+                  "dmidecode",
+                  "smartctl"
+                ]
+              },
+              "output": {
+                "description": "Output from the executed command.",
+                "type": "string"
+              },
+              "timestamp": {
+                "description": "Timestamp of the evidence generation if needed.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "type",
+              "operation",
+              "output"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

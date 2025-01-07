@@ -105,6 +105,7 @@ class Command(BaseCommand):
             assert dname
             assert title
         except Exception:
+            ldata = {}
             title = ''
             _name = ''
 
