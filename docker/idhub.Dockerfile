@@ -31,4 +31,7 @@ COPY ./requirements.txt /opt/idhub
 RUN pip install -r requirements.txt
 
 COPY docker/idhub.entrypoint.sh /
+
+COPY . /opt/idhub/
+
 ENTRYPOINT sh /idhub.entrypoint.sh
