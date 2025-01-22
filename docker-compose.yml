@@ -3,6 +3,7 @@ services:
   idhub:
     init: true
     build:
+      context: .
       dockerfile: docker/idhub.Dockerfile
     environment:
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
@@ -29,5 +30,6 @@ services:
       - SYNC_ORG_DEV=${IDHUB_SYNC_ORG_DEV}
     ports:
       - 9001:9001
+    # this is for dev
     volumes:
       - .:/opt/idhub
