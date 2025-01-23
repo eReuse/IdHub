@@ -7,9 +7,9 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from decouple import config
 from idhub.models import Schemas
 from oidc4vp.models import Organization
+from webhook.models import Token
 
 
 User = get_user_model()
@@ -20,9 +20,13 @@ class Command(BaseCommand):
     DOMAIN = settings.DOMAIN
     OIDC_ORGS = settings.OIDC_ORGS
 
+    def add_arguments(self, parser):
+        parser.add_argument('predefined_token', nargs='?', default='', type=str, help='predefined token')
+
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = settings.INITIAL_ADMIN_EMAIL
         ADMIN_PASSWORD = settings.INITIAL_ADMIN_PASSWORD
+        self.predefined_token = kwargs['predefined_token']
 
         self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
         if settings.CREATE_TEST_USERS:
@@ -31,8 +35,8 @@ class Command(BaseCommand):
                 self.create_users(user, '1234')
 
         self.org = Organization.objects.create(
-            name=self.DOMAIN, 
-            domain=self.DOMAIN, 
+            name=self.DOMAIN,
+            domain=self.DOMAIN,
             main=True
         )
 
@@ -45,6 +49,9 @@ class Command(BaseCommand):
         su = User.objects.create_superuser(email=email, password=password)
         su.save()
 
+        tk = Token.objects.filter(token=self.predefined_token).first()
+        if self.predefined_token and not tk:
+            Token.objects.create(token=self.predefined_token)
 
     def create_users(self, email, password):
         u = User.objects.create(email=email, password=password)
