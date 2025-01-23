@@ -29,6 +29,10 @@ def webhook_verify(request):
         if not tk:
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
+        user = User.objects.filter(is_admin=True).first()
+        if not user.accept_gdpr:
+            return JsonResponse({'error': 'Temporary out of service'}, status=400)
+
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -90,6 +94,9 @@ def webhook_issue(request):
             return JsonResponse({'error': 'Invalid credential'}, status=400)
 
         user = User.objects.filter(is_admin=True).first()
+        if not user.accept_gdpr:
+            return JsonResponse({'error': 'Temporary out of service'}, status=400)
+
         cred = VerificableCredential(
             csv_data=vc,
             issuer_did=did,
