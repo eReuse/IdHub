@@ -153,6 +153,22 @@ class TokenDeleteView(AdminView, DeleteView):
         return redirect('webhook:tokens')
 
 
+class TokenStatusView(AdminView, DeleteView):
+    model = Token
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        if self.object.active:
+            self.object.active = False
+        else:
+            self.object.active = True
+        self.object.save()
+
+        return redirect('webhook:tokens')
+
+
 class TokenNewView(AdminView, View):
 
     def get(self, request, *args, **kwargs):
