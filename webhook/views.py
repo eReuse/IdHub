@@ -3,13 +3,14 @@ import json
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.base import View
 from django.core.cache import cache
 from django.http import JsonResponse
 from django_tables2 import SingleTableView
 from pyvckit.verify import verify_vp, verify_vc
 from uuid import uuid4
+from django.urls import reverse_lazy
 
 from idhub.mixins import AdminView
 from idhub_auth.models import User
@@ -30,7 +31,7 @@ def webhook_verify(request):
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
         token = auth_header.split(' ')[1].strip("'").strip('"')
-        tk = Token.objects.filter(token=token).first()
+        tk = Token.objects.filter(token=token, active=True).first()
         if not tk:
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
@@ -70,7 +71,7 @@ def webhook_issue(request):
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
         token = auth_header.split(' ')[1].strip("'").strip('"')
-        tk = Token.objects.filter(token=token).first()
+        tk = Token.objects.filter(token=token, active=True).first()
         if not tk:
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
@@ -169,10 +170,23 @@ class TokenStatusView(AdminView, DeleteView):
         return redirect('webhook:tokens')
 
 
-class TokenNewView(AdminView, View):
+class TokenNewView(AdminView, CreateView):
+    title = _("Token management")
+    section = "Credential"
+    subtitle = _('New Tokens')
+    icon = 'bi bi-key'
+    title = "Token"
+    template_name = "new_token.html"
+    model = Token
+    fields = ("label",)
+    success_url = reverse_lazy('webhook:tokens')
+    # def get(self, request, *args, **kwargs):
+    #     self.check_valid_user()
+    #     Token.objects.create(token=uuid4())
 
-    def get(self, request, *args, **kwargs):
-        self.check_valid_user()
-        Token.objects.create(token=uuid4())
+    #     return redirect('webhook:tokens')
 
-        return redirect('webhook:tokens')
+    def form_valid(self, form):
+        form.instance.token = uuid4()
+        form.save()
+        return super().form_valid(form)

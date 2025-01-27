@@ -43,6 +43,7 @@ class TokensTable(tables.Table):
     )
 
     token = tables.Column(verbose_name=_("Token"), empty_values=())
+    label = tables.Column(verbose_name=_("Label"), empty_values=())
 
     # def render_view_user(self):
     #     return format_html('<i class="bi bi-eye"></i>')
@@ -71,13 +72,12 @@ class TokensTable(tables.Table):
     class Meta:
         model = Token
         template_name = "idhub/custom_table.html"
-        fields = ("token", "lavel", "active")
+        fields = ("token", "label", "active")
 
     def render_active(self, value):
         """
         Render icons custom based on active value
         """
-        # import pdb; pdb.set_trace()
         if value:  # if `active` is True
             return format_html('<i class="bi bi-toggle-on text-primary"></i>')
         else:  # if `active` is False
