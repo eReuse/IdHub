@@ -1,11 +1,12 @@
 import django_tables2 as tables
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from webhook.models import Token
 
-
-class ButtonColumn(tables.Column):
+        
+class ButtonRemoveColumn(tables.Column):
     attrs = {
         "a": {
             "type": "button",
@@ -25,7 +26,7 @@ class ButtonColumn(tables.Column):
 
 
 class TokensTable(tables.Table):
-    delete = ButtonColumn(
+    delete = ButtonRemoveColumn(
             verbose_name=_("Delete"),
             linkify={
                 "viewname": "webhook:delete_token",
@@ -33,11 +34,18 @@ class TokensTable(tables.Table):
             },
             orderable=False
     )
+    # active = tables.Column(linkify=lambda record: reverse("webhook:status_token", kwargs={"pk": record.pk}))
+    active = tables.Column(
+            linkify={
+                "viewname": "webhook:status_token",
+                "args": [tables.A("pk")]
+            }
+    )
 
     token = tables.Column(verbose_name=_("Token"), empty_values=())
 
-    def render_view_user(self):
-        return format_html('<i class="bi bi-eye"></i>')
+    # def render_view_user(self):
+    #     return format_html('<i class="bi bi-eye"></i>')
 
     # def render_token(self, record):
     #     return record.get_memberships()
@@ -63,5 +71,14 @@ class TokensTable(tables.Table):
     class Meta:
         model = Token
         template_name = "idhub/custom_table.html"
-        fields = ("token", "view_user")
+        fields = ("token", "lavel", "active")
 
+    def render_active(self, value):
+        """
+        Render icons custom based on active value
+        """
+        # import pdb; pdb.set_trace()
+        if value:  # if `active` is True
+            return format_html('<i class="bi bi-toggle-on text-primary"></i>')
+        else:  # if `active` is False
+            return format_html('<i class="bi bi-toggle-off text-danger"></i>')
