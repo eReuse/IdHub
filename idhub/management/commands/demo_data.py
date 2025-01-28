@@ -7,6 +7,7 @@ from utils import credtools
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.urls import reverse
 from pyvckit.did import (
     generate_did,
@@ -28,25 +29,28 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('predefined_token', nargs='?', default='', type=str, help='predefined token')
-        parser.add_argument('example_did', nargs='?', default='', type=str, help='predefined did')
+        parser.add_argument('predefined_did', nargs='?', default='', type=str, help='predefined did')
 
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = settings.INITIAL_ADMIN_EMAIL
         ADMIN_PASSWORD = settings.INITIAL_ADMIN_PASSWORD
         self.predefined_token = kwargs['predefined_token']
         self.predefined_did = kwargs['predefined_did']
-
-        self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
-        if settings.CREATE_TEST_USERS:
-            for u in range(1, 6):
-                user = 'user{}@example.org'.format(u)
-                self.create_users(user, '1234')
+        cache.set("KEY_DIDS", "1", None)
 
         self.org = Organization.objects.create(
             name=self.DOMAIN,
             domain=self.DOMAIN,
             main=True
         )
+        self.org.set_encrypted_sensitive_data()
+        self.org.save()
+
+        self.create_admin_users(ADMIN_EMAIL, ADMIN_PASSWORD)
+        if settings.CREATE_TEST_USERS:
+            for u in range(1, 6):
+                user = 'user{}@example.org'.format(u)
+                self.create_users(user, '1234')
 
         if self.OIDC_ORGS:
             self.create_organizations()
@@ -57,23 +61,30 @@ class Command(BaseCommand):
         su = User.objects.create_superuser(email=email, password=password)
         su.save()
 
-        tk = Token.objects.filter(token=self.predefined_token).first()
-        if self.predefined_token and not tk:
-            Token.objects.create(token=self.predefined_token)
+        if self.predefined_token:
+            tk = Token.objects.filter(token=self.predefined_token).first()
+            if not tk:
+                Token.objects.create(token=self.predefined_token)
 
-        self.create_default_did(su, password)
+        self.create_default_did()
 
-    def create_default_did(self, admin, password):
-        # import pdb; pdb.set_trace()
+    def create_default_did(self):
+
+        # did = DID.objects.create(label='Default', type=DID.Types.WEB)
+        # did.set_did()
+        # did.save()
+        # return
+
         fdid = self.open_example_did()
         if not fdid:
             return
 
-        did = DID()
+        did = DID(type=DID.Types.WEB)
         new_key_material = fdid.get("key_material", "")
         label = fdid.get("label", "")
         if not new_key_material:
             return
+
         did.set_key_material(new_key_material)
 
         if label:
@@ -91,20 +102,19 @@ class Command(BaseCommand):
 
             did.did = generate_did(new_key_material, url)
             key = json.loads(new_key_material)
-            url, did.didweb_document = gen_did_document(self.did, key)
+            url, did.didweb_document = gen_did_document(did.did, key)
 
         did.save()
 
     def open_example_did(self):
-        # import pdb; pdb.set_trace()
         BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
         didweb_path = os.path.join(BASE_DIR, "examples", "keys_did.json")
 
-        if self.predefined_web:
-           didweb_path = self.predefined_web
+        if self.predefined_did:
+           didweb_path = self.predefined_did
 
         data = ''
-        with didweb_path.open() as _file:
+        with open(didweb_path) as _file:
             try:
                 data = json.loads(_file.read())
             except Exception:
