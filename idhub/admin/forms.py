@@ -36,16 +36,16 @@ class TermsConditionsForm2(forms.Form):
         if data.get("accept"):
             self.user.accept_gdpr = True
         else:
-            self.user.accept_gdpr = False        
+            self.user.accept_gdpr = False
         return data
-        
+
     def save(self, commit=True):
 
         if commit:
             self.user.save()
             return self.user
-        
-        return 
+
+        return
 
 
 class EncryptionKeyForm(forms.Form):
@@ -80,8 +80,8 @@ class EncryptionKeyForm(forms.Form):
                 did = DID.objects.create(label='Default', type=DID.Types.WEB)
                 did.set_did()
                 did.save()
-        
-        return 
+
+        return
 
 
 class TermsConditionsForm(forms.Form):
@@ -131,16 +131,16 @@ class TermsConditionsForm(forms.Form):
         if privacy and legal and cookies:
             self.user.accept_gdpr = True
         else:
-            self.user.accept_gdpr = False        
+            self.user.accept_gdpr = False
         return data
-        
+
     def save(self, commit=True):
 
         if commit:
             self.user.save()
             return self.user
-        
-        return 
+
+        return
 
 
 class ImportForm(forms.Form):
@@ -197,7 +197,7 @@ class ImportForm(forms.Form):
                 eidas1=True,
                 did=eidas1
             ).first()
-            
+
         return data
 
     def clean_schema(self):
@@ -288,15 +288,15 @@ class ImportForm(forms.Form):
     def save(self, commit=True):
         table = []
         for k, v in self.rows.items():
-            table.append(self.create_credential(k, v)) 
+            table.append(self.create_credential(k, v))
 
         if commit:
             for cred in table:
               cred.save()
             File_datas.objects.create(file_name=self.file_name)
             return table
-        
-        return 
+
+        return
 
     def validate_jsonld(self, line, row):
         try:
@@ -355,7 +355,7 @@ class ImportForm(forms.Form):
 class SchemaForm(forms.Form):
     file_template = forms.FileField(label=_("File template"))
 
-    
+
 class MembershipForm(forms.ModelForm):
 
     class Meta:
@@ -376,7 +376,7 @@ class MembershipForm(forms.ModelForm):
         if members.filter(start_date__lte=start_date, end_date=None).exists():
             msg = _("This membership already exists!")
             raise forms.ValidationError(msg)
-            
+
         if (start_date and end_date):
             if start_date > end_date:
                 msg = _("The end date is less than the start date")
@@ -399,8 +399,8 @@ class MembershipForm(forms.ModelForm):
             if members.exists():
                 msg = _("This membership already exists!")
                 raise forms.ValidationError(msg)
-            
-        
+
+
         return end_date
 
 
@@ -417,7 +417,7 @@ class UserRolForm(forms.ModelForm):
             choices = self.fields['service'].choices
             choices.queryset = choices.queryset.exclude(users__user=user)
             self.fields['service'].choices = choices
-    
+
     def clean_service(self):
         data = super().clean()
         service = UserRol.objects.filter(
