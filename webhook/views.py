@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import DeleteView
 from django.views.generic.base import View
+from django.core.cache import cache
 from django.http import JsonResponse
 from django_tables2 import SingleTableView
 from pyvckit.verify import verify_vp, verify_vc
@@ -20,6 +21,10 @@ from webhook.tables import TokensTable
 @csrf_exempt
 def webhook_verify(request):
     if request.method == 'POST':
+        user = User.objects.filter(is_admin=True).first()
+        if not cache.get("KEY_DIDS") or not user.accept_gdpr:
+            return JsonResponse({'error': 'Temporary out of service'}, status=400)
+
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
@@ -56,6 +61,10 @@ def webhook_verify(request):
 @csrf_exempt
 def webhook_issue(request):
     if request.method == 'POST':
+        user = User.objects.filter(is_admin=True).first()
+        if not cache.get("KEY_DIDS") or not user.accept_gdpr:
+            return JsonResponse({'error': 'Temporary out of service'}, status=400)
+
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return JsonResponse({'error': 'Invalid or missing token'}, status=401)
@@ -89,7 +98,6 @@ def webhook_issue(request):
         if not schema:
             return JsonResponse({'error': 'Invalid credential'}, status=400)
 
-        user = User.objects.filter(is_admin=True).first()
         cred = VerificableCredential(
             csv_data=vc,
             issuer_did=did,
@@ -99,6 +107,9 @@ def webhook_issue(request):
 
         cred.set_type()
         vc_signed = cred.issue(did, domain=request.get_host(), save=save)
+
+        if not vc_signed:
+            return JsonResponse({'error': 'Invalid credential'}, status=400)
 
         return JsonResponse({'status': 'success', "data": vc_signed}, status=200)
 
