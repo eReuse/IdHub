@@ -36,7 +36,8 @@ class Command(BaseCommand):
         ADMIN_PASSWORD = settings.INITIAL_ADMIN_PASSWORD
         self.predefined_token = kwargs['predefined_token']
         self.predefined_did = kwargs['predefined_did']
-        cache.set("KEY_DIDS", "1", None)
+        # on demo situation, encrypted vault is hardcoded with password DEMO
+        cache.set("KEY_DIDS", "DEMO", None)
 
         self.org = Organization.objects.create(
             name=self.DOMAIN,
