@@ -15,6 +15,7 @@ services:
       - ENABLE_EMAIL=${IDHUB_ENABLE_EMAIL:-true}
       - ENABLE_2FACTOR_AUTH=${IDHUB_ENABLE_2FACTOR_AUTH:-true}
       - ENABLE_DOMAIN_CHECKER=${IDHUB_ENABLE_DOMAIN_CHECKER:-true}
+      - PREDEFINED_TOKEN=${IDHUB_PREDEFINED_TOKEN:-}
       - SECRET_KEY=${IDHUB_SECRET_KEY:-publicsecretisnotsecureVtmKBfxpVV47PpBCF2Nzz2H6qnbd}
       - STATIC_ROOT=${IDHUB_STATIC_ROOT:-/static/}
       - MEDIA_ROOT=${IDHUB_MEDIA_ROOT:-/media/}
@@ -26,7 +27,7 @@ services:
       - EMAIL_PORT=${IDHUB_EMAIL_PORT}
       - EMAIL_USE_TLS=${IDHUB_EMAIL_USE_TLS}
       - EMAIL_BACKEND=${IDHUB_EMAIL_BACKEND}
-      - SUPPORTED_CREDENTIALS=['CourseCredential', 'EOperatorClaim', 'FederationMembership', 'FinancialVulnerabilityCredential', 'MembershipCard', 'Snapshot']
+      - SUPPORTED_CREDENTIALS=${IDHUB_SUPPORTED_CREDENTIALS:-}
       - SYNC_ORG_DEV=${IDHUB_SYNC_ORG_DEV}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
