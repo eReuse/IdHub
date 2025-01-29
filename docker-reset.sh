@@ -17,7 +17,9 @@ main() {
         fi
         
         docker compose down -v
-        docker compose build
+        if [ "${DEV_DOCKER_ALWAYS_BUILD:-}" = 'true' ]; then
+                docker compose build
+        fi
         docker compose up ${detach_arg:-}
 
         # TODO docker registry
