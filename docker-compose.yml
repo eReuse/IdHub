@@ -26,10 +26,10 @@ services:
       - EMAIL_PORT=${IDHUB_EMAIL_PORT}
       - EMAIL_USE_TLS=${IDHUB_EMAIL_USE_TLS}
       - EMAIL_BACKEND=${IDHUB_EMAIL_BACKEND}
-      - SUPPORTED_CREDENTIALS=['CourseCredential', 'EOperatorClaim', 'FederationMembership', 'FinancialVulnerabilityCredential', 'MembershipCard', 'DeviceSnapshotV1']
+      - SUPPORTED_CREDENTIALS=['CourseCredential', 'EOperatorClaim', 'FederationMembership', 'FinancialVulnerabilityCredential', 'MembershipCard', 'Snapshot']
       - SYNC_ORG_DEV=${IDHUB_SYNC_ORG_DEV}
     ports:
-      - 9001:9001
-    # this is for dev
+      - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
+    # TODO manage volumes dev vs prod
     volumes:
       - .:/opt/idhub
