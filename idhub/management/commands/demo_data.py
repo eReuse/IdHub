@@ -70,11 +70,6 @@ class Command(BaseCommand):
 
     def create_default_did(self):
 
-        # did = DID.objects.create(label='Default', type=DID.Types.WEB)
-        # did.set_did()
-        # did.save()
-        # return
-
         fdid = self.open_example_did()
         if not fdid:
             return
