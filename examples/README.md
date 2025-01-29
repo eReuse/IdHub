@@ -2,7 +2,7 @@ We use the following files as examples to demonstrate different functionalities 
 
 - **organizations.csv** is used for install organizations with the command:
 ```
-  python manage.py initial_datas
+  python manage.py demo_data
 ```
 - **federation-membership.xls** is a example of datas for offer credentials for NGOs that are members of a NGO federation.
 - **membership-card.xls** is a example of datas for credential of membership

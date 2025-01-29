@@ -41,7 +41,7 @@ The application's backend is responsible for issuing credentials upun user reque
    ```
 5. Optionally you can install a minumum data set:
    ```
-   python manage.py initial_datas
+   python manage.py demo_data
    ```
 6. Start the development server:
    ```
@@ -79,7 +79,7 @@ MEDIA_ROOT=/tmp/media/
 # Currently unused but will be used in the future
 # DATABASE_URL=postgres://link:to@database:port/idhub
 
-# Defines the admin user after running the initial_datas command
+# Defines the admin user after running the demo_data command
 # Defaults to "admin@example.org" if no INITIAL_ADMIN_EMAIL is provided
 # INITIAL_ADMIN_EMAIL="idhub_admin@pangea.org"
 
