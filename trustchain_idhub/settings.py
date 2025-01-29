@@ -241,5 +241,6 @@ OIDC_ORGS = config('OIDC_ORGS', '')
 ENABLE_EMAIL = config('ENABLE_EMAIL', default=True, cast=bool)
 CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
+ENABLE_DOMAIN_CHECKER = config('ENABLE_DOMAIN_CHECKER', default=True, cast=bool)
 COMMIT = config('COMMIT', default='')
 

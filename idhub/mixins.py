@@ -33,7 +33,7 @@ class UserView(LoginRequiredMixin):
     ]
 
     def get(self, request, *args, **kwargs):
-        if not settings.DEVELOPMENT:
+        if settings.ENABLE_DOMAIN_CHECKER:
             err_txt = "User domain is {} which does not match server domain {}".format(
                 request.get_host(), settings.DOMAIN
             )
@@ -56,7 +56,7 @@ class UserView(LoginRequiredMixin):
         return url or response
         
     def post(self, request, *args, **kwargs):
-        if not settings.DEVELOPMENT:
+        if settings.ENABLE_DOMAIN_CHECKER:
             err_txt = "User domain is {} which does not match server domain {}".format(
                 request.get_host(), settings.DOMAIN
             )
