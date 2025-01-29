@@ -179,8 +179,8 @@ class TermsAndConditionsView(UserView, FormView):
 
 class WaitingView(UserView, TemplateView):
     template_name = "idhub/user/waiting.html"
-    title = _("Comunication with admin")
-    subtitle = _('Service temporary close')
+    title = _("Comunication with admin required")
+    subtitle = _('Service temporarily closed')
     section = ""
     icon = 'bi bi-file-earmark-medical'
     success_url = reverse_lazy('idhub:user_dashboard')
