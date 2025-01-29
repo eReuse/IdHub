@@ -125,7 +125,7 @@ class User(AbstractBaseUser):
         sb = secret.SecretBox(sb_key)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        
+
         return base64.b64encode(sb.encrypt(data)).decode('utf-8')
 
     def get_salt(self):
@@ -166,6 +166,6 @@ class User(AbstractBaseUser):
         sb = secret.SecretBox(sb_key)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        
+
         encrypted_data = base64.b64encode(sb.encrypt(data)).decode('utf-8')
         self.encrypted_sensitive_data = encrypted_data

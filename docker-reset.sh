@@ -15,6 +15,7 @@ main() {
                 cp -v .env.example .env
                 echo "WARNING: .env was not there, .env.example was copied, this only happens once"
         fi
+        . ./.env
         
         docker compose down -v
         if [ "${DEV_DOCKER_ALWAYS_BUILD:-}" = 'true' ]; then

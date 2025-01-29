@@ -2796,11 +2796,11 @@ msgid "Data Protection"
 msgstr "Protecció de dades"
 
 #: idhub/user/views.py:183
-msgid "Comunication with admin"
-msgstr "Comunicació amb l'admin"
+msgid "Comunication with admin required"
+msgstr "Es requereix comunicació amb l'admin"
 
 #: idhub/user/views.py:184
-msgid "Service temporary close"
+msgid "Service temporarily closed"
 msgstr "Tancament temporal del servei"
 
 #: idhub/user/views.py:407
