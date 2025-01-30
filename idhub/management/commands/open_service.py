@@ -6,6 +6,7 @@ from django.core.management import call_command
 from django.core.cache import cache
 
 from idhub.models import DID
+from idhub_auth.models import User
 
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,10 @@ class Command(BaseCommand):
         self.ip_port = kwargs["ip_port"]
         cache.set("KEY_DIDS", self._key, None)
 
+        admin = User.objects.filter(is_admin=True).first()
+        admin.accept_gdpr = True
+        admin.save()
+
         if not DID.objects.exists():
             cache.set("KEY_DIDS", self._key, None)
             call_command('runserver', self.ip_port)
@@ -30,6 +35,7 @@ class Command(BaseCommand):
 
         did = DID.objects.first()
         cache.set("KEY_DIDS", self._key, None)
+
         try:
             did.get_key_material()
         except CryptoError:
