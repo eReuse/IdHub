@@ -45,10 +45,11 @@ deployment_strategy() {
                 echo "INFO detected NEW deployment"
                 ./manage.py migrate
 
-                printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
-
-                PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                if [ "${DEMO:-}" = 'true' ]; then
+                        printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
+                        PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
+                        ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                fi
 
                 if [ "${OIDC_ORGS:-}" ]; then
                         config_oidc4vp
