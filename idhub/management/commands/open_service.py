@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self._key = kwargs["key"]
-        self.p_port = kwargs["ip_port"]
+        self.ip_port = kwargs["ip_port"]
         cache.set("KEY_DIDS", self._key, None)
 
         if not DID.objects.exists():
