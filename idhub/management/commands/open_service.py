@@ -16,14 +16,16 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('key', nargs='?', default='', type=str, help='key')
+        parser.add_argument('ip_port', nargs='?', default='', type=str, help='ip_port')
 
     def handle(self, *args, **kwargs):
         self._key = kwargs["key"]
+        self.p_port = kwargs["ip_port"]
         cache.set("KEY_DIDS", self._key, None)
 
         if not DID.objects.exists():
             cache.set("KEY_DIDS", self._key, None)
-            call_command('runserver')
+            call_command('runserver', self.ip_port)
             return
 
         did = DID.objects.first()
@@ -37,4 +39,4 @@ class Command(BaseCommand):
             return
 
         cache.set("KEY_DIDS", self._key, None)
-        call_command('runserver')
+        call_command('runserver', self.ip_port)
