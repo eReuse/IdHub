@@ -1,3 +1,0 @@
-{% load i18n %}{% autoescape off %}
-{% blocktrans %}Authentication in {{ site_name }}{% endblocktrans %}
-{% endautoescape %}
