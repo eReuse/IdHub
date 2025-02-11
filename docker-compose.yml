@@ -142,27 +142,22 @@ services:
     depends_on:
       - create-operator-user
       - id_index_api
-    build:
-      context: ./devicehub-django/
-      dockerfile: ./docker/devicehub-django.Dockerfile
+    image: farga.pangea.org/ereuse/devicehub-django/latest
     environment:
-      - DEBUG=${DH__DEBUG:-false}
-      - DOMAIN=${DH__DOMAIN:-localhost}
-      - ALLOWED_HOSTS=${DH__ALLOWED_HOSTS:-$DH__DOMAIN}
-      - DEMO=${DH__DEMO:-false}
-      - PREDEFINED_TOKEN=${DH__PREDEFINED_TOKEN:-}
-      # TODO hardcoded in entrypoint
-      # - ID_FEDERATED=
-      - DPP=${DH__DPP:-false}
+      - DEBUG=${DEVICEHUB_DEBUG:-false}
+      - DOMAIN=${DEVICEHUB_DOMAIN:-localhost}
+      - PORT=${DEVICEHUB_PORT:-8000}
+      - ALLOWED_HOSTS=${DEVICEHUB_ALLOWED_HOSTS:-$DEVICEHUB_DOMAIN}
+      - DEMO=${DEVICEHUB_DEMO:-false}
+      - DEMO_IDHUB_DOMAIN=${DEMO_IDHUB_DOMAIN:-}
+      - DEMO_IDHUB_PREDEFINED_TOKEN=${IDHUB__PREDEFINED_TOKEN:-}
+      - DPP=${DEVICEHUB_DPP:-false}
       - DPP_SHARED=/shared
-      - IMPORT_SNAPSHOTS=${DH__IMPORT_SNAPSHOTS}
+      - IMPORT_SNAPSHOTS=${DEVICEHUB_IMPORT_SNAPSHOTS}
     ports:
-      - 8000:8000
+      - ${DEVICEHUB_PORT}:${DEVICEHUB_PORT}
     volumes:
-      - ${SNAPSHOTS_PATH:-./devicehub-django/example/snapshots}:/mnt/snapshots:ro
       - ${devicehub_django__vol__shared:-./shared}:/shared:rw
-      - ./devicehub-django/:/opt/devicehub-django
-
     networks:
       - ereuse
 
