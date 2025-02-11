@@ -8,23 +8,23 @@ set -u
 #set -x
 
 main() {
-	cd "$(dirname "${0}")"
+        cd "$(dirname "${0}")"
 
         if [ "${DETACH:-}" ]; then
                 detach_arg='-d'
         fi
 
-	# remove previous data
-	rm -f shared/*
-	# remove registry instances
-	rm -f idIndexApi/data/id_url.json
-	# remove cached devices
-	rm -f observerModule/data/devices.json
+        # remove previous data
+        rm -f shared/*
+        # remove registry instances
+        rm -f idIndexApi/data/id_url.json
+        # remove cached devices
+        rm -f observerModule/data/devices.json
         # remove old devicehub-django database
         rm -vfr ./devicehub-django/db/*
         rm -vfr ./devicehub-django/already_configured
 
-	# remove docker volumes (mapped filesystem mounts are persisted)
+        # remove docker volumes (mapped filesystem mounts are persisted)
         docker compose down -v
 
         docker compose build
