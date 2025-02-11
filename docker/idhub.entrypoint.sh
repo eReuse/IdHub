@@ -17,8 +17,10 @@ END
 
 inject_env_vars() {
         # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
-        git config --global --add safe.directory "${idhub_dir}"
-        export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
+        if [ -d "${idhub_dir}/.git" ]
+                git config --global --add safe.directory "${idhub_dir}"
+                export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
+        fi
 
         cat > status_data <<END
 DOMAIN=${DOMAIN}
@@ -118,7 +120,8 @@ runserver() {
         elif [ "${DEMO:-}" = 'true' ]; then
                 VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
-                #   useful for debugging/dev purposes ./manage.py
+                #   and runs the service
+                #   useful for debugging/dev/demo purposes ./manage.py
                 ./manage.py open_service "${VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
                 ./manage.py runserver 0.0.0.0:${PORT}
