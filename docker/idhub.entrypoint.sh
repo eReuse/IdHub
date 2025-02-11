@@ -17,7 +17,7 @@ END
 
 inject_env_vars() {
         # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
-        if [ -d "${idhub_dir}/.git" ]
+        if [ -d "${idhub_dir}/.git" ]; then
                 git config --global --add safe.directory "${idhub_dir}"
                 export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
         fi
