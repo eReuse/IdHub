@@ -2,6 +2,7 @@ services:
 
   idhub:
     init: true
+    image: farga.pangea.org/ereuse/idhub:latest
     build:
       context: .
       dockerfile: docker/idhub.Dockerfile
