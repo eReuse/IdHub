@@ -155,7 +155,7 @@ services:
       - DPP_SHARED=/shared
       - IMPORT_SNAPSHOTS=${DEVICEHUB_IMPORT_SNAPSHOTS}
     ports:
-      - ${DEVICEHUB_PORT}:${DEVICEHUB_PORT}
+      - ${DEVICEHUB_PORT:-8000}:${DEVICEHUB_PORT:-8000}
     volumes:
       - ${devicehub_django__vol__shared:-./shared}:/shared:rw
     networks:
@@ -217,7 +217,7 @@ services:
       - SUPPORTED_CREDENTIALS=['Snapshot']
       - SYNC_ORG_DEV=${IDHUB_SYNC_ORG_DEV}
     ports:
-      - 9001:9001
+      - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     networks:
       - ereuse
 
