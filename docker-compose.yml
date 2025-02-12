@@ -142,7 +142,7 @@ services:
     depends_on:
       - create-operator-user
       - id_index_api
-    image: farga.pangea.org/ereuse/devicehub-django/latest
+    image: farga.pangea.org/ereuse/devicehub-django:latest
     environment:
       - DEBUG=${DEVICEHUB_DEBUG:-false}
       - DOMAIN=${DEVICEHUB_DOMAIN:-localhost}
@@ -190,7 +190,7 @@ services:
   idhub:
     # https://docs.docker.com/compose/how-tos/profiles/
     init: true
-    image: farga.pangea.org/ereuse/idhub/latest
+    image: farga.pangea.org/ereuse/idhub:latest
     environment:
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
