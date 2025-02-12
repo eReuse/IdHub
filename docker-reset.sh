@@ -5,7 +5,7 @@
 set -e
 set -u
 # DEBUG
-#set -x
+set -x
 
 main() {
         cd "$(dirname "${0}")"
@@ -15,14 +15,17 @@ main() {
         fi
 
         # remove previous data
-        rm -f shared/*
+        rm -fv shared/*
         # remove registry instances
-        rm -f idIndexApi/data/id_url.json
+        rm -fv idIndexApi/data/id_url.json
         # remove cached devices
-        rm -f observerModule/data/devices.json
-        # remove old devicehub-django database
-        rm -vfr ./devicehub-django/db/*
-        rm -vfr ./devicehub-django/already_configured
+        rm -fv observerModule/data/devices.json
+
+        # .env is the configuration of the docker compose deployment
+        if [ ! -f .env ]; then
+                cp -v .env.example .env
+                echo "WARNING: .env was not there, .env.example was copied, this only happens once"
+        fi
 
         # remove docker volumes (mapped filesystem mounts are persisted)
         docker compose down -v
