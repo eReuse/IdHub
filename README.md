@@ -69,9 +69,11 @@ node index.js
 ```
 
 ### Docker deployment
-Build and run the docker image. It will deploy the smart contracts by default to the iota-ebsi stable network, the DID resolver and the HTTP API:
-```javascript
-$docker-compose up
+
+Build and run the docker image, we recommend using the buildx and docker-compose plugins (debian packages: `docker-compose-plugin` and `docker-buildx-plugin`). It will deploy the smart contracts by default to the iota-ebsi stable network, the DID resolver and the HTTP API:
+
+```sh
+./docker-reset.sh
 ```
 
 The API will run on port 3010 and the DID resolver on port 3011.
