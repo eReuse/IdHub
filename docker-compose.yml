@@ -157,6 +157,8 @@ services:
     ports:
       - ${DEVICEHUB_PORT:-8000}:${DEVICEHUB_PORT:-8000}
     volumes:
+      # uncomment and put right path to develop devicehub on top of this
+      #- /path/to/my/devicehub-django:/opt/devicehub-django
       - ${devicehub_django__vol__shared:-./shared}:/shared:rw
     networks:
       - ereuse
