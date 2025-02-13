@@ -13,7 +13,7 @@ RUN apk add --update --no-cache python3 jq py3-pip && ln -sf python3 /usr/bin/py
 # TODO next version of pyvckit, add pyroaring as dependency and quit it from here
 # src https://jairoandres.com/python-dependencies-break-your-system-if-you-want/
 RUN python3 -m pip install --break-system-packages pyvckit
-RUN python3 -m pip install --break-system-packages setup-tools pyroaring
+RUN python3 -m pip install --break-system-packages setuptools pyroaring
 RUN apk add --no-cache make
 RUN mkdir ~/.npm-global
 RUN npm config set prefix '~/.npm-global'
