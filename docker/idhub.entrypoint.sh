@@ -107,6 +107,11 @@ config_oidc4vp() {
 
 runserver() {
         PORT="${PORT:-8000}"
+
+        if [ "${DEBUG:-}" = 'true' ]; then
+                ./manage.py print_settings
+        fi
+
         if [ ! "${DEBUG:-}" = "true" ]; then
                 ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
