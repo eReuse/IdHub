@@ -34,16 +34,20 @@ The application's backend is responsible for issuing credentials upun user reque
 3. Install the required packages:
    ```
    pip install -r requirements.txt
+
+4. Create the .env file with the settings below:
    ```
-4. Run migrations:
+   nano .env
+   ```
+5. Run migrations:
    ```
    python manage.py migrate
    ```
-5. Optionally you can install a minumum data set:
+6. Optionally you can install a minumum data set:
    ```
    python manage.py demo_data
    ```
-6. Start the development server:
+7. Start the development server:
    ```
    python manage.py runserver
    ```
@@ -64,7 +68,7 @@ SECRET_KEY = 'Dummy-S3cr3t-K3y!#12#**3aaxd'
 DEBUG=True
 
 # Specifies a list of host/domain names that this Django site can serve, enhancing security by preventing HTTP Host header attacks.
-ALLOWED_HOSTS=.localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Defines a list of trusted origins for safe cross-site HTTP requests, aiding in the prevention of cross-site request forgery attacks.
 CSRF_TRUSTED_ORIGINS="http://localhost:8000","http://127.0.0.1:8000","http://localhost"
