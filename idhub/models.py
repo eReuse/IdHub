@@ -431,6 +431,7 @@ class DID(models.Model):
     class Types(models.IntegerChoices):
         WEB = 1, "Web"
         KEY = 2, "Key"
+        WEBETH = 3, "Web+Ether"
     type = models.PositiveSmallIntegerField(
         _("Type"),
         choices=Types.choices,
@@ -475,7 +476,7 @@ class DID(models.Model):
 
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
-        elif self.type == self.Types.WEB:
+        elif self.type == self.Types.WEB or self.type == self.Types.WEBETH:
             url = "https://{}".format(settings.DOMAIN)
             path = reverse("idhub:serve_did", args=["a"])
 
