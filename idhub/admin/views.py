@@ -41,7 +41,8 @@ from idhub.admin.tables import (
         CredentialTable,
         DIDTable,
         DataTable,
-        TemplateTable
+        TemplateTable,
+        VCTemplatePdfsTable,
 )
 from idhub.models import (
     DID,
@@ -53,6 +54,7 @@ from idhub.models import (
     Schemas,
     UserRol,
     VerificableCredential,
+    VCTemplatePdf,
 )
 
 
@@ -110,7 +112,7 @@ class DobleFactorAuthView(AdminView, View):
 
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
-            
+
         if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
             self.request.session.pop("2fauth", None)
             return redirect(self.url)
@@ -242,7 +244,7 @@ class PeopleActivateView(PeopleView):
         self.object.save()
 
         return redirect('idhub:admin_people', self.object.id)
-            
+
 
 class PeopleDeleteView(PeopleView):
 
@@ -258,7 +260,7 @@ class PeopleDeleteView(PeopleView):
             messages.error(self.request, _('It is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
-            
+
 
 class PeopleEditView(People, FormView):
     template_name = "idhub/admin/user_edit.html"
@@ -365,7 +367,7 @@ class PeopleMembershipRegisterView(People, FormView):
         kwargs = super().get_form_kwargs()
         kwargs['instance'] = self.object
         return kwargs
-    
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Membership created successfully'))
@@ -433,7 +435,7 @@ class PeopleMembershipDeleteView(PeopleView):
 
         return redirect('idhub:admin_people_edit', user.id)
 
-        
+
 class PeopleRolRegisterView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Add a user role to access a service')
@@ -542,14 +544,14 @@ class RolRegisterView(AccessControl, CreateView):
     fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
-    
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Role created successfully'))
         Event.set_EV_ROLE_CREATED_BY_ADMIN()
         return super().form_valid(form)
 
-        
+
 class RolEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/rol_register.html"
     subtitle = _('Edit role')
@@ -564,7 +566,7 @@ class RolEditView(AccessControl, UpdateView):
             self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
         return kwargs
-        
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Role updated successfully'))
@@ -621,7 +623,7 @@ class ServiceRegisterView(AccessControl, CreateView):
         Event.set_EV_SERVICE_CREATED_BY_ADMIN()
         return super().form_valid(form)
 
-        
+
 class ServiceEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Modify service')
@@ -955,7 +957,7 @@ class SchemasImportView(SchemasMix):
 
     def get_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        schemas = [x for x  in schemas_files 
+        schemas = [x for x  in schemas_files
             if not Schemas.objects.filter(file_schema=x).exists()]
         return schemas
 
@@ -1094,4 +1096,26 @@ class ImportDeleteView(AdminView, DeleteView):
         self.object.delete()
 
         return redirect('idhub:admin_import')
-            
+
+
+class VCTemplatesPdfView(AdminView, SingleTableView):
+    template_name = "templates_pdf.html"
+    title = _("Credential management")
+    section = "Credential"
+    subtitle = _('Managament VCTemplatePdfs')
+    icon = 'bi bi-key'
+    model = VCTemplatePdf
+    table_class = VCTemplatePdfsTable
+
+    def get_queryset(self):
+        """
+        Override the get_queryset method to filter events based on the user type.
+        """
+        return VCTemplatePdf.objects.filter().order_by("-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'vc_templates_pdf': VCTemplatePdf.objects,
+        })
+        return context

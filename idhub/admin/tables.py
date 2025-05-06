@@ -9,7 +9,8 @@ from idhub.models import (
         VerificableCredential,
         DID,
         File_datas,
-        Schemas
+        Schemas,
+        VCTemplatePdf,
 )
 from idhub_auth.models import User
 
@@ -280,3 +281,30 @@ class TemplateTable(tables.Table):
         template_name = "idhub/custom_table.html"
         fields = ("created_at", "file_schema", "name", "description",
                   "view_schema", "delete_schema")
+
+
+class VCTemplatePdfsTable(tables.Table):
+    delete = ButtonColumn(
+            verbose_name=_("Delete"),
+            linkify={
+                "viewname": "webhook:delete_token",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+
+    name = tables.Column(verbose_name=_("Name"), empty_values=())
+
+    class Meta:
+        model = VCTemplatePdf
+        template_name = "idhub/custom_table.html"
+        fields = ("Name",)
+
+    def render_active(self, value):
+        """
+        Render icons custom based on active value
+        """
+        if value:  # if `active` is True
+            return format_html('<i class="bi bi-toggle-on text-primary"></i>')
+        else:  # if `active` is False
+            return format_html('<i class="bi bi-toggle-off text-danger"></i>')

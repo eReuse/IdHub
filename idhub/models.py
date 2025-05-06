@@ -493,6 +493,7 @@ class DID(models.Model):
     def get_organization(self):
         return Organization.objects.get(main=True)
 
+
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
     file_schema = models.CharField(_('Schema'), max_length=250)
@@ -799,6 +800,11 @@ class VerificableCredential(models.Model):
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
+    data = models.TextField()
+
+
+class VCTemplatePdf(models.Model):
+    name = models.CharField(max_length=250)
     data = models.TextField()
 
 
