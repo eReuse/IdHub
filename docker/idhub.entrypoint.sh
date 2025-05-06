@@ -17,13 +17,33 @@ END
 
 detect_app_version() {
         if [ -d "${APP_DIR}/.git" ]; then
-                git_commit_info="$(gosu ${APP} git log --pretty=format:'%h' -n 1)"
+                git_commit_info="$(gosu ${APP_USER} git log --pretty=format:'%h' -n 1)"
                 export COMMIT="version: commit ${git_commit_info}"
         else
                 # TODO if software is packaged in setup.py and/or pyproject.toml we can get from there the version
                 #   then we might want to distinguish prod version (stable version) vs development (commit/branch)
                 export COMMIT="version: unknown (reason: git undetected)"
         fi
+}
+
+wait_dpp_services() {
+        OPERATOR_TOKEN_FILE='operator-token.txt'
+        ADMIN_TOKEN_FILE=api-connector_admin-token.txt
+        VERAMO_API_CRED_FILE=pyvckit-api_credential.json
+        while true; do
+                # specially ensure VERAMO_API_CRED_FILE is not empty,
+                #   it takes some time to get data in
+                if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] && \
+                    [ -f "/shared/${VERAMO_API_CRED_FILE}" ] && \
+                    ! wc -l "/shared/${VERAMO_API_CRED_FILE}" | awk '{print $1;}' | grep -qE '^0$'; then
+                        sleep 5
+                        echo "Files ready to process."
+                        break
+                else
+                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}, (2) ${VERAMO_API_CRED_FILE}"
+                        sleep 5
+                fi
+        done
 }
 
 gen_env_vars() {
@@ -33,12 +53,13 @@ gen_env_vars() {
 
         detect_app_version
 
-        gosu ${APP} tee status_data <<END
+        gosu ${APP_USER} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
 
-        if [ "${DEBUG:-}" = 'true' ]; then
-                gosu ${APP} ./manage.py print_settings
+        if [ "${DPP:-}" = 'true' ]; then
+                wait_dpp_services
+                export API_DLT_OPERATOR_TOKEN="$(cat "/shared/${OPERATOR_TOKEN_FILE}")"
         fi
 }
 
@@ -52,16 +73,20 @@ init_db() {
 
         # move the migrate thing in docker entrypoint
         #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
-        gosu ${APP} ./manage.py migrate
+        gosu ${APP_USER} ./manage.py migrate
 
         # init data
         if [ "${DEMO:-}" = 'true' ]; then
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                if [ "${DPP:-}" = 'true' ]; then
+                        # because of verification, we need to wait that the server is up
+                        ( sleep 20 && gosu ${APP_USER} ./manage.py demo_data_dpp ) &
+                fi
         else
-                gosu ${APP} ./manage.py init_org "${INIT_ORGANIZATION}"
-                gosu ${APP} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
+                gosu ${APP_USER} ./manage.py init_org "${INIT_ORG}"
+                gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
         fi
 
         if [ -f "${OIDC_ORGS:-}" ]; then
@@ -88,21 +113,13 @@ manage_db() {
                 echo "INFO: REMOVE IDHUB DATABASE (reason: IDHUB_REMOVE_DATA is equal to true)"
                 # https://django-extensions.readthedocs.io/en/latest/reset_db.html
                 # https://github.com/django-cms/django-cms/issues/5921#issuecomment-343658455
-                gosu ${APP} ./manage.py reset_db --close-sessions --noinput
+                gosu ${APP_USER} ./manage.py reset_db --close-sessions --noinput
+                init_db
         else
                 echo "INFO: PRESERVE IDHUB DATABASE"
-        fi
-
-        # detect if is an existing deployment
-        if ./manage.py showmigrations --plan \
-                        | grep -F -q '[X]  idhub_auth.0001_initial'; then
-                echo "INFO: detected EXISTING deployment"
-                gosu ${APP} ./manage.py migrate
+                gosu ${APP_USER} ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
-                gosu ${APP} ./manage.py send_mail_admins
-        else
-                echo "INFO detected NEW deployment"
-                init_db
+                gosu ${APP_USER} ./manage.py send_mail_admins
         fi
 }
 
@@ -153,26 +170,29 @@ config_oidc4vp() {
 runserver() {
         PORT="${PORT:-8000}"
 
-        ./manage.py check --deploy
 
-        if [ "${DEBUG:-}" = "false" ]; then
-                gosu ${APP} ./manage.py collectstatic
+        if [ "${DEBUG:-}" = 'true' ]; then
+                gosu ${APP_USER} ./manage.py print_settings
+        fi
+
+        if [ ! "${DEBUG:-}" = "true" ]; then
+                gosu ${APP_USER} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
                         # reloading on source code changing is a debugging future, maybe better then use debug
                         #   src https://stackoverflow.com/questions/12773763/gunicorn-autoreload-on-source-change/24893069#24893069
                         # gunicorn with 1 worker, with more than 1 worker this is not expected to work
                         gunicorn --access-logfile - --error-logfile - -b :${PORT} trustchain_idhub.wsgi:application
                 else
-                        gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
+                        gosu ${APP_USER} ./manage.py runserver 0.0.0.0:${PORT}
                 fi
         elif [ "${DEMO_AUTODECRYPT:-}" = 'true' ]; then
                 DEMO_VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
                 #   and runs the service
                 #   useful for debugging/dev/demo purposes ./manage.py
-                gosu ${APP} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
+                gosu ${APP_USER} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
-                gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
+                gosu ${APP_USER} ./manage.py runserver 0.0.0.0:${PORT}
         fi
 }
 
@@ -182,21 +202,28 @@ check_app_is_there() {
         fi
 }
 
-_prepare() {
-        APP=idhub
-        APP_DIR="/opt/${APP}"
+
+_detect_proper_user() {
         # src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
         #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
         #   related https://github.com/moby/moby/issues/2259
-        #USER_ID=${LOCAL_USER_ID:-9001}
-        # use USER_ID as the owner of idhub dir
-        USER_ID="$(stat --printf='%g' "${APP_DIR}")"
-        # TODO if user is 0, then use root user
-        #   idhub-1  | useradd warning: idhub's uid 0 outside of the UID_MIN 1000 and UID_MAX 60000 range.
-        #   use a env var similar to USER instead of APP, APP_USER ? DOCKER_APP_USER ?
-        if ! id -u "${APP}" >/dev/null 2>&1; then
-                useradd --shell /bin/bash -u ${USER_ID} -o -c "" -m ${APP}
+
+        # user of current dir
+        USER_ID="$(stat -c "%u" .)"
+        if [ "${USER_ID}" = "0" ]; then
+                APP_USER="root"
+        else
+                APP_USER="${APP}"
+                if ! id -u "${APP_USER}" >/dev/null 2>&1; then
+                        useradd --shell /bin/bash -u ${USER_ID} -o -c "" -m ${APP_USER}
+                fi
         fi
+}
+
+_prepare() {
+        APP=idhub
+        _detect_proper_user
+        APP_DIR="/opt/${APP}"
         cd "${APP_DIR}"
 }
 

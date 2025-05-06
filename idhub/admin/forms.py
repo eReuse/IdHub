@@ -458,6 +458,7 @@ class ImportForm(forms.Form):
         return
 
     def validate_jsonld(self, line, row):
+
         try:
             jsonschema.validate(
                 instance=row,
@@ -478,11 +479,17 @@ class ImportForm(forms.Form):
         return user
 
     def create_defaults_dids(self, user):
-        did = DID(label="Default", user=user, type=DID.Types.WEB)
+        if settings.DPP:
+            did = DID(label="dpp", user=user, type=DID.Types.WEBETH)
+        else:
+            did = DID(label="Default", user=user, type=DID.Types.WEB)
         did.set_did()
         did.save()
 
     def create_credential(self, user, row):
+        logger.error('##############')
+        logger.error(row)
+        logger.error('##############')
         bcred = VerificableCredential.objects.filter(
             user=user,
             schema=self._schema,
