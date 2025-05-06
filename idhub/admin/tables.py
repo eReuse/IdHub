@@ -10,7 +10,8 @@ from idhub.models import (
         VerificableCredential,
         DID,
         File_datas,
-        Schemas
+        Schemas,
+        VCTemplatePdf,
 )
 from idhub_auth.models import User
 
@@ -31,6 +32,20 @@ class ButtonColumn(tables.Column):
 
     def render(self):
         return format_html('<i class="bi bi-eye"></i>')
+
+
+class ButtonDeleteColumn(tables.Column):
+    attrs = {
+        "a": {
+            "type": "button",
+            "class": "text-danger",
+        }
+    }
+    orderable = False
+    empty_values = ()
+
+    def render(self):
+        return format_html('<i class="bi bi-trash"></i>')
 
 
 class UserTable(tables.Table):
@@ -239,6 +254,14 @@ class DataTable(tables.Table):
 
 
 class TemplateTable(tables.Table):
+    template_excel = ButtonColumn(
+            verbose_name=_("Excel"),
+            linkify={
+                "viewname": "idhub:admin_schemas_template_excel",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
     view_schema = ButtonColumn(
             verbose_name=_("View"),
             linkify={
@@ -274,6 +297,9 @@ class TemplateTable(tables.Table):
 
         return (queryset, True)
 
+    def render_template_excel(self):
+        return format_html('<i class="bi bi-file-spreadsheet"></i>')
+
     def render_delete_schema(self, value, record):
         if not record.has_credentials:
             tmpl = self.delete_template_code.format(record.id)
@@ -285,4 +311,38 @@ class TemplateTable(tables.Table):
         model = Schemas
         template_name = "idhub/custom_table.html"
         fields = ("created_at", "file_schema", "name", "description",
-                  "view_schema", "delete_schema")
+                  "template_excel", "view_schema", "delete_schema")
+
+
+class VCTemplatePdfsTable(tables.Table):
+    render = ButtonColumn(
+            verbose_name=_("Render"),
+            linkify={
+                "viewname": "idhub:admin_template_pdf_render",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+    delete = ButtonDeleteColumn(
+            verbose_name=_("Delete"),
+            linkify={
+                "viewname": "idhub:admin_template_pdf_del",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+
+
+    class Meta:
+        model = VCTemplatePdf
+        template_name = "idhub/custom_table.html"
+        fields = ("name",)
+
+    def render_active(self, value):
+        """
+        Render icons custom based on active value
+        """
+        if value:  # if `active` is True
+            return format_html('<i class="bi bi-toggle-on text-primary"></i>')
+        else:  # if `active` is False
+            return format_html('<i class="bi bi-toggle-off text-danger"></i>')

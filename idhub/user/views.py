@@ -19,6 +19,7 @@ from django.views.generic.edit import (
     DeleteView,
     FormView
 )
+from django.template import RequestContext, Template
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.core.cache import cache
@@ -116,7 +117,7 @@ class ProfileView(MyProfile, UpdateView, SingleTableView):
 
     def form_valid(self, form):
         return super().form_valid(form)
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -151,11 +152,11 @@ class CredentialsView(MyWallet, SingleTableView):
 
     def get_queryset(self):
         queryset = VerificableCredential.objects.filter(
-                user=self.request.user)
+                user=self.request.user).order_by('-created_on')
 
         return queryset
 
-    
+
 class TermsAndConditionsView(UserView, FormView):
     template_name = "idhub/user/terms_conditions.html"
     title = _("Data Protection")
@@ -213,19 +214,16 @@ class CredentialView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        url_ca = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id, 'ca'])
-        url_es = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id, 'es'])
+        url_pdf = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id])
         context.update({
             'object': self.object,
-            'url_ca': url_ca,
-            'url_es': url_es,
+            'url_pdf': url_pdf
         })
         return context
 
 
 class CredentialPdfView(MyWallet, TemplateView):
-    template_name = "certificates/{}_{}.html"
-    template_name = "certificates/{}_{}.html"
+    template_name = "certificates/{}.html"
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
     file_name = "certificate.pdf"
@@ -234,61 +232,43 @@ class CredentialPdfView(MyWallet, TemplateView):
         if not cache.get("KEY_DIDS"):
             return redirect(reverse_lazy('idhub:user_dashboard'))
         pk = kwargs['pk']
-        lang = kwargs.get('lang', 'ca')
         self.user = self.request.user
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
             eidas1_did__isnull=False,
+            template_pdf__isnull=False,
             user=self.request.user
         )
         self.credential_type = self.object.schema.file_schema.split(".json")[0]
-        self.template_name = self.template_name.format(
-            self.credential_type,
-            lang
-        )
+        self.template_name = self.template_name.format(self.credential_type)
         self.url_id = "{}://{}/public/credentials/{}".format(
             self.request.scheme,
             self.request.get_host(),
             self.object.hash
         )
 
-        data = self.build_certificate()
-        if self.object.eidas1_did:
-            doc = self.insert_signature(data)
-        else:
-            doc = data
+        try:
+            data = self.build_certificate()
+            data = self.insert_signature(data)
+        except Exception:
+            messages.error(self.request, _("Error rendering this credencial"))
+            url_success = reverse_lazy('idhub:user_credential', args=[self.object.id,])
+            return redirect(url_success)
+
+        doc = data
+
         response = HttpResponse(doc, content_type="application/pdf")
         response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
         return response
 
-    def get_img_sign(self):
-        path_img_sig = "idhub/static/images/4_Model_Certificat_html_58d7f7eeb828cf29.jpg"
-        img_signature = next(Path.cwd().glob(path_img_sig))
-        with open(img_signature, 'rb') as _f:
-            img_sig = base64.b64encode(_f.read()).decode('utf-8')
-        return img_sig
-
-    def get_img_header(self):
-        path_img_head = "idhub/static/images/4_Model_Certificat_html_7a0214c6fc8f2309.jpg" 
-        img_header= next(Path.cwd().glob(path_img_head))
-        with open(img_header, 'rb') as _f:
-            img_head = base64.b64encode(_f.read()).decode('utf-8')
-        return img_head
-
-    def get_img_footer(self):
-        path_img_foot = "idhub/static/images/4_Model_Certificat_html_941e7b967953b3f3.jpg"
-        img_foot= next(Path.cwd().glob(path_img_foot))
-        with open(img_foot, 'rb') as _f:
-            img_foot = base64.b64encode(_f.read()).decode('utf-8')
-        return img_foot
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # get the excel datas
+        context.update(json.loads(self.object.csv_data))
+        # get the credentialSubject datas
         context.update(dict(self.object.get_datas()))
-        img_sig = self.get_img_sign()
-        img_head = self.get_img_header()
-        img_foot = self.get_img_footer()
+
         qr = self.generate_qr_code(self.url_id)
         issue_date = context.get('certificationDate', '')
         membership_since = context.get('membershipSince', '')
@@ -296,24 +276,17 @@ class CredentialPdfView(MyWallet, TemplateView):
 
         context.update({
             'object': self.object,
-            "image_signature": img_sig,
-            "image_header": img_head,
-            "image_footer": img_foot,
             "issue_date": issue_date,
             "membership_since": membership_since,
             "membership_type": membership_type,
             "qr": qr,
         })
-        return context
+        return RequestContext(self.request, context)
 
     def build_certificate(self):
-        try:
-            doc = self.render_to_response(context=self.get_context_data())
-        except Exception:
-            self.template_name = "certificates/4_Model_Certificat_ca.html"
-            doc = self.render_to_response(context=self.get_context_data())
-        doc.render()
-        pdf = weasyprint.HTML(string=doc.content)
+        template_pdf = self.object.template_pdf.data.read().decode()
+        doc = Template(template_pdf).render(self.get_context_data())
+        pdf = weasyprint.HTML(string=doc)
         return pdf.write_pdf()
 
     def generate_qr_code(self, data):
@@ -341,7 +314,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         if cert and passphrase:
             return base64.b64decode(cert), passphrase.encode('utf-8')
         return None, None
-        
+
 
     def signer_init(self):
         pfx_data, passphrase = self.get_pfx_data()
@@ -376,6 +349,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         _bf_out = BytesIO()
         pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': self.url_id})
         return _bf_out.read()
+
 
 
 class CredentialJsonView(MyWallet, TemplateView):
@@ -420,7 +394,7 @@ class CredentialsRequestView(MyWallet, FormView):
             return redirect(reverse_lazy('idhub:user_dids_new'))
 
         return response
-    
+
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -431,11 +405,11 @@ class CredentialsRequestView(MyWallet, FormView):
 
         kwargs['user'] = self.request.user
         kwargs['lang'] = self.request.LANGUAGE_CODE
-        domain = "{}://{}".format(self.request.scheme, self.request.get_host())
+        domain = "https://{}".format(self.request.get_host())
         kwargs['domain'] = domain
         kwargs['if_credentials'] = self.if_credentials
         return kwargs
-    
+
     def form_valid(self, form):
         try:
             cred = form.save()
@@ -469,7 +443,7 @@ class DemandAuthorizationView(MyWallet, FormView):
             user=self.request.user,
             status=VerificableCredential.Status.ENABLED.value,
         ).exists()
-        
+
         if not self.if_credentials and creds_enable:
             return redirect(reverse_lazy('idhub:user_credentials_request'))
         return response
@@ -480,11 +454,11 @@ class DemandAuthorizationView(MyWallet, FormView):
             user=self.request.user,
             status=VerificableCredential.Status.ISSUED.value,
         ).exists()
-        
+
         kwargs['user'] = self.request.user
         kwargs['if_credentials'] = self.if_credentials
         return kwargs
-    
+
     def form_valid(self, form):
         try:
             authorization = form.save()
@@ -501,7 +475,7 @@ class DemandAuthorizationView(MyWallet, FormView):
             messages.error(self.request, _("Error sending credential!"))
         return super().form_valid(form)
 
-    
+
 class DidsView(MyWallet, SingleTableView):
     template_name = "idhub/user/dids.html"
     table_class = DIDTable
@@ -577,4 +551,3 @@ class DidDeleteView(MyWallet, DeleteView):
         messages.success(self.request, _('DID delete successfully'))
 
         return redirect(self.success_url)
-
