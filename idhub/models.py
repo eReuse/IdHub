@@ -1,9 +1,11 @@
+import os
 import json
 import ujson
 import pytz
 import hashlib
 import logging
 import datetime
+import requests
 from collections import OrderedDict
 from urllib.parse import urljoin
 from django.db import models
@@ -75,6 +77,7 @@ class Event(models.Model):
         EV_USR_SEND_VP = 32, "User send Verificable Presentation"
         EV_USR_SEND_CREDENTIAL = 33, "User send credential"
         EV_SCHEME_UPLOAD = 34, "Upload new Schema"
+        EV_USR_CRED_TO_DLT = 35, "User presented a credential to DLT"
 
     created = models.DateTimeField(_("Date"), auto_now=True)
     message = models.CharField(_("Description"), max_length=350)
@@ -449,6 +452,12 @@ class Event(models.Model):
     def set_EV_SCHEME_UPLOAD(cls, msg):
         cls.objects.create(
             type=cls.Types.EV_SCHEME_UPLOAD,
+        )
+
+    @classmethod
+    def set_EV_USR_CRED_TO_DLT(cls, msg):
+        cls.objects.create(
+            type=cls.Types.EV_USR_CRED_TO_DLT,
             message=msg,
         )
 
@@ -457,6 +466,7 @@ class DID(models.Model):
     class Types(models.IntegerChoices):
         WEB = 1, "Web"
         KEY = 2, "Key"
+        WEBETH = 3, "Web+Ether"
     type = models.PositiveSmallIntegerField(
         _("Type"),
         choices=Types.choices,
@@ -497,11 +507,10 @@ class DID(models.Model):
 
     def set_did(self):
         new_key_material = generate_keys()
-        self.set_key_material(new_key_material)
 
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
-        elif self.type == self.Types.WEB:
+        elif self.type == self.Types.WEB or self.type == self.Types.WEBETH:
             url = "https://{}".format(settings.DOMAIN)
             path = reverse("idhub:serve_did", args=["a"])
 
@@ -509,9 +518,33 @@ class DID(models.Model):
                 path = path.split("/a/did.json")[0]
                 url = "https://{}/{}".format(settings.DOMAIN, path)
 
+            if self.type == self.Types.WEBETH:
+                register_user_url = f"{settings.API_DLT_URL}/registerUser"
+                ether_data = requests.post(register_user_url).json()
+                err_token = 'api_token has invalid length'
+                err_eth = 'eth_pub_key has invalid length'
+                assert len(ether_data['data']['api_token']) == 80, err_token
+                assert len(ether_data['data']['eth_pub_key']) == 42, err_eth
+
+                # TODO this is always the same, should be on DLT_INIT
+                ether_tao_url = f"{settings.API_DLT_URL}/getTa"
+                ether_tao_data = requests.get(ether_tao_url).json()
+
+                ether_chainid_url = f"{settings.API_DLT_URL}/getChainId"
+                ether_chainid_data = requests.get(ether_chainid_url).json()
+
+                # convert new_key_material to json to add more elements
+                new_key_material_json = json.loads(new_key_material)
+                new_key_material_json['eth_api_token'] = ether_data['data']['api_token']
+                new_key_material_json['eth_subject_pub_key'] = ether_data['data']['eth_pub_key']
+                new_key_material_json['eth_issuer_pub_key'] = ether_tao_data['data']['root_pub_key']
+                new_key_material_json['eth_chainid'] = ether_chainid_data['data']['chain_id']
+                new_key_material = json.dumps(new_key_material_json)
             self.did = generate_did(new_key_material, url)
             key = json.loads(new_key_material)
             url, self.didweb_document = gen_did_document(self.did, key)
+
+        self.set_key_material(new_key_material)
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -524,7 +557,7 @@ class DID(models.Model):
         return reverse("idhub:serve_did", args=[did_id])
 
     def has_link(self):
-        linked_types = [self.Types.WEB]
+        linked_types = [self.Types.WEB, self.Types.WEBETH]
         if self.type in linked_types:
             return True
         return False
@@ -794,19 +827,57 @@ class VerificableCredential(models.Model):
         credential_subject = ujson.loads(data).get("credentialSubject", {})
         return credential_subject.items()
 
+    @property
+    def is_webeth(self):
+        return self.issuer_did.type == DID.Types.WEBETH
+
+    def call_oracle(self):
+
+        with open("/shared/" + os.environ["ADMIN_TOKEN_FILE"], "r") as f:
+            admin_api_token = f.read().strip()
+
+        oracle_url = f"{settings.API_DLT_URL}/oracle"
+
+        cred = json.loads(self.get_data())
+
+        oracle_payload = {
+            'api_token': admin_api_token,
+            'Credential': cred
+        }
+        headers = {'dlt': 'ethereum' }
+
+        response = requests.post(oracle_url, json = oracle_payload, headers = headers).json()
+
+        # mint and allow tokens
+
+        # get operator address and its api_token
+        did = self.subject_did
+        if did and did.type == DID.Types.WEBETH:
+            key_material = json.loads(did.get_key_material())
+            operator_api_token = key_material.get('eth_api_token', 'error')
+            operator_address = key_material.get('eth_subject_pub_key', 'error')
+
+        mint_url = f"{settings.API_DLT_URL}/mintTokens"
+        mint_payload = {
+            'api_token': admin_api_token,
+            'Address': operator_address
+        }
+        response = requests.post(mint_url, json = mint_payload, headers = headers).json()
+
+        allow_url = f"{settings.API_DLT_URL}/allowTokens"
+        allow_amount = 10000
+        allow_payload = {
+            'api_token': operator_api_token,
+            'Amount': allow_amount
+        }
+
+        response = requests.post(allow_url, json = allow_payload, headers = headers).json()
+
+        return response.get('Status') == 'Success'
+
     def issue(self, did, domain, save=True):
         if self.status == self.Status.ISSUED:
             return
-
-        # TODO cleanup commented:
-
-        # supported = False
-        # for name in self.schema.get_schema.get("name"):
-        #     if name.get("value") in settings.SUPPORTED_CREDENTIALS:
-        #         supported = True
-
-        # if not supported:
-        #     return
 
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
@@ -852,6 +923,7 @@ class VerificableCredential(models.Model):
 
         org = Organization.objects.get(main=True)
 
+        # TODO support revocation
         credential_status_id = 'https://revocation.not.supported/'
         if self.issuer_did.type == DID.Types.WEB:
             credential_status_id = self.issuer_did.did
@@ -869,6 +941,15 @@ class VerificableCredential(models.Model):
             'credential_status_id': credential_status_id,
             'type': self.schema.get_type
         }
+
+        if self.issuer_did.type == DID.Types.WEBETH:
+            issuer_key = json.loads(self.issuer_did.get_key_material())
+            context['issuer_id'] = issuer_key['eth_issuer_pub_key']
+
+        if self.subject_did and self.subject_did.type == DID.Types.WEBETH:
+            subject_key = json.loads(self.subject_did.get_key_material())
+            context['subject_did'] = subject_key['eth_subject_pub_key']
+
         context.update(d)
         return context
 

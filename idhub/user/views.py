@@ -11,6 +11,7 @@ from pyhanko.sign import fields, signers
 from pyhanko import stamp
 from pyhanko.pdf_utils import text
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import (
@@ -215,9 +216,21 @@ class CredentialView(MyWallet, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         url_pdf = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id])
+
+        API_DLT_URL = ''
+        API_DLT_TOKEN = ''
+
+        did = self.object.subject_did
+        if did and did.type == DID.Types.WEBETH:
+            key_material = json.loads(did.get_key_material())
+            API_DLT_URL = settings.API_DLT_URL
+            API_DLT_TOKEN = key_material.get('eth_api_token', 'error')
+
         context.update({
             'object': self.object,
-            'url_pdf': url_pdf
+            'url_pdf': url_pdf,
+            'API_DLT_URL': API_DLT_URL,
+            'API_DLT_TOKEN': API_DLT_TOKEN,
         })
         return context
 
@@ -551,3 +564,23 @@ class DidDeleteView(MyWallet, DeleteView):
         messages.success(self.request, _('DID delete successfully'))
 
         return redirect(self.success_url)
+
+
+class CallOracleView(MyWallet, View):
+    subtitle = _('Identities (DIDs)')
+    icon = 'bi bi-patch-check-fill'
+    wallet = True
+    model = VerificableCredential
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        Event.set_EV_USR_CRED_TO_DLT(self.object)
+        try:
+            self.object.call_oracle()
+            messages.success(self.request, _('Credential successfully presented to DLT'))
+        except Exception as err:
+            logger.error(f"Credential to DLT failed. Details: {err}")
+            messages.error(self.request, _('Credential could not be presented to DLT'))
+
+        return redirect(reverse_lazy('idhub:user_credential', args=[self.object.id]))
