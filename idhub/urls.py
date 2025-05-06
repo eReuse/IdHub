@@ -78,6 +78,8 @@ urlpatterns = [
         name='user_credential'),
     path('user/credentials/<int:pk>/pdf/', views_user.CredentialPdfView.as_view(),
         name='user_credential_pdf'),
+    path('user/credentials/<int:pk>/call_oracle', views_user.CallOracleView.as_view(),
+        name='call_oracle'),
     path('credentials/<int:pk>/', views_user.CredentialJsonView.as_view(),
         name='user_credential_json'),
     path('public/credentials/<str:pk>/', views_user.PublicCredentialJsonView.as_view(),

@@ -1,0 +1,53 @@
+{
+    "$id": "https://idhub.pangea.org/vc_schemas/organization-membership-dlt.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Organization Membership (DLT)",
+    "description": "The organization membership specifies participation of a Member (Trusted Issuer, TI) in top-level organization (Trusted Accreditation Organization, TAO)",
+    "name": [
+        {
+            "value": "TI member part of TAO",
+            "lang": "en"
+        }
+    ],
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+        },
+        {
+            "properties": {
+                "credentialSubject": {
+                    "description": "Defines properties on credentialSubject",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "description": "Holder (TI) ether address",
+                            "type": "string",
+                            "minLength":  1
+                        },
+                        "issuer_id": {
+                            "description": "Issuer (TAO) ether address",
+                            "type": "string",
+                            "minLength":  1
+                        },
+                        "role": {
+                            "description": "Role, either operator, witness, auditor",
+                            "type": "string",
+                            "minLength":  1
+                        },
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^\\S+@\\S+\\.\\S+$"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "role",
+                        "email"
+                    ]
+                }
+            }
+        }
+    ]
+}
