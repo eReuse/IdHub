@@ -2,24 +2,28 @@ import json
 import base64
 import logging
 import jsonschema
+import requests
 import pandas as pd
 
 from nacl.exceptions import CryptoError
 from openpyxl import load_workbook
+from urllib.parse import urlparse, urljoin
 from django.conf import settings
+from django.urls import reverse
 from django import forms
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from utils import certs
+from utils import certs, credtools
 from idhub.models import (
     DID,
+    ContextFile,
     File_datas,
     Membership,
     Schemas,
     UserRol,
     VerificableCredential,
+    VCTemplatePdf,
 )
 from idhub_auth.models import User
 
@@ -149,10 +153,138 @@ class TermsConditionsForm(forms.Form):
         return
 
 
+class ImportSchemaForm(forms.Form):
+    schema_import = forms.FileField(label=_("Schema to import"))
+    context_import = forms.FileField(label=_("Context to import (optional)"), required=False)
+
+    def clean(self):
+        data = self.cleaned_data["schema_import"]
+        context = self.cleaned_data["context_import"]
+        self.context = {}
+
+        try:
+            self.file_name = data.name
+            self.schema = json.loads(data.read())
+        except Exception:
+             raise ValidationError(_("This schema not is a json file"))
+
+        if context and ContextFile.objects.filter(file_name=context.name).exists():
+            raise ValidationError(_("This context exist"))
+
+        try:
+            self.context["file_name"] = context.name
+            self.context["data"] = context.read()
+        except Exception:
+            pass
+
+        try:
+            if context:
+                self.context["data"] = json.dumps(json.loads(self.context["data"]))
+        except Exception:
+            raise ValidationError(_("This context is no a valid jsonld"))
+
+        try:
+            assert credtools.validate_schema(self.schema)
+            assert self.schema.get('name')
+            assert self.schema.get('title')
+        except Exception:
+            raise ValidationError(_("This is not a valid schema!"))
+
+        if Schemas.objects.filter(file_schema=self.file_name).exists():
+            raise ValidationError(_("Schema exist!"))
+
+        return data
+
+    def save(self, domain=None, commit=True):
+        _name = json.dumps(self.schema.get("name"))
+        _description = json.dumps(self.schema.get("description"))
+        title = self.schema.get("title")
+        data = json.dumps(self.schema)
+        url_context = None
+
+        if self.context and domain:
+            file_name = self.context["file_name"]
+            url_context = urljoin(domain, reverse("idhub:context_file", args=[file_name]))
+
+        schema = Schemas.objects.create(
+            file_schema=self.file_name,
+            data=data,
+            _name=_name,
+            _description=_description,
+            type=title,
+            template_description=_description,
+            context=url_context
+        )
+
+        if url_context:
+            ContextFile.objects.create(schema=schema, **self.context)
+
+        return schema
+
+
+class ImportSchemaUrlForm(forms.Form):
+    schema = forms.CharField(label=_("Schema url reference"))
+    context = forms.CharField(label=_("Context url reference"))
+
+    def clean(self):
+        schema = self.cleaned_data["schema"]
+        self.context = self.cleaned_data["context"]
+
+        try:
+            path= urlparse(schema).path
+            self.file_name = path.split("/")[-1]
+            if self.file_name[-5:] != ".json":
+                self.file_name += ".json"
+            self.schema = requests.get(schema).json()
+        except Exception:
+             raise ValidationError(_("This schema not is a json file"))
+
+        try:
+            res = requests.get(self.context)
+            assert 200 <= res.status_code < 300
+            res.json()
+        except Exception:
+             raise ValidationError(_("This context is not accessible"))
+
+        try:
+            assert credtools.validate_schema(self.schema)
+            assert self.schema.get('name')
+            assert self.schema.get('title')
+        except Exception:
+            raise ValidationError(_("This is not a valid schema!"))
+
+        if Schemas.objects.filter(_name=self.schema["name"]).exists():
+            raise ValidationError(_("Schema exist!"))
+
+        return self.cleaned_data
+
+    def save(self):
+        _name = json.dumps(self.schema.get("name"))
+        _description = json.dumps(self.schema.get("description"))
+        title = self.schema.get("title")
+        data = json.dumps(self.schema)
+        schema = Schemas.objects.create(
+            file_schema=self.file_name,
+            data=data,
+            _name=_name,
+            _description=_description,
+            type=title,
+            template_description=_description,
+            context=self.context
+        )
+
+        return schema
+
+
 class ImportForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
     eidas1 = forms.ChoiceField(
         label=_("Signature with Eidas1"),
+        choices=[],
+        required=False
+    )
+    template_pdf = forms.ChoiceField(
+        label=_("Select one template for render to Pdf"),
         choices=[],
         required=False
     )
@@ -175,6 +307,7 @@ class ImportForm(forms.Form):
         self.fields['schema'].choices = [(0,txt_select_one)] + [
             (x.id, x.name) for x in Schemas.objects.filter()
         ]
+
         if dids.filter(eidas1=True).exists():
             choices = [("", "")]
             choices.extend([
@@ -183,6 +316,15 @@ class ImportForm(forms.Form):
             self.fields['eidas1'].choices = choices
         else:
           self.fields.pop('eidas1')
+
+        if self.fields.get('eidas1') and VCTemplatePdf.objects.filter().exists():
+            choices = [("", "")]
+            choices.extend([
+                (x.id, x.name) for x in VCTemplatePdf.objects.all()
+            ])
+            self.fields['template_pdf'].choices = choices
+        else:
+          self.fields.pop('template_pdf')
 
     def clean(self):
         data = self.cleaned_data["did"]
@@ -202,6 +344,13 @@ class ImportForm(forms.Form):
                 user__isnull=True,
                 eidas1=True,
                 did=eidas1
+            ).first()
+
+        template_pdf = self.cleaned_data.get('template_pdf')
+        self._template_pdf = None
+        if template_pdf and eidas1:
+            self._template_pdf = VCTemplatePdf.objects.filter(
+                id=template_pdf
             ).first()
 
         return data
@@ -236,8 +385,12 @@ class ImportForm(forms.Form):
             "phone": str,
             'postCode': str
         }
-        df = pd.read_excel(data, dtype=dtype_dict)
-        df.fillna('', inplace=True)
+        try:
+            df = pd.read_excel(data, dtype=dtype_dict)
+            df.fillna('', inplace=True)
+        except Exception:
+            txt = _("This file does not a excel valid!")
+            raise ValidationError(txt)
 
         try:
             workbook = load_workbook(data)
@@ -313,7 +466,7 @@ class ImportForm(forms.Form):
             )
         except jsonschema.exceptions.ValidationError as err:
             msg = "line {}: {}".format(line, err.message)
-            return self.exception(msg)
+            self.exception(msg)
 
         user, new = User.objects.get_or_create(email=row.get('email'))
         if new:
@@ -340,6 +493,7 @@ class ImportForm(forms.Form):
             cred = bcred.first()
             cred.csv_data = json.dumps(row, default=str)
             cred.eidas1_did = self._eidas1
+            cred.template_pdf = self._template_pdf
             return cred
 
         cred = VerificableCredential(
@@ -348,7 +502,8 @@ class ImportForm(forms.Form):
             csv_data=json.dumps(row, default=str),
             issuer_did=self._did,
             schema=self._schema,
-            eidas1_did=self._eidas1
+            eidas1_did=self._eidas1,
+            template_pdf=self._template_pdf
         )
         cred.set_type()
         return cred

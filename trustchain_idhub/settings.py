@@ -181,6 +181,10 @@ MEDIA_ROOT = config('MEDIA_ROOT', default="idhub/upload")
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 SCHEMAS_DIR = os.path.join(BASE_DIR, 'schemas')
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static/'),
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

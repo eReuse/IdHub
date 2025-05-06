@@ -1,13 +1,13 @@
 import os
+import io
 import json
 import logging
-
+import weasyprint
 from pathlib import Path
 from smtplib import SMTPException
-from django_tables2 import SingleTableView
+from django_tables2 import SingleTableView, RequestConfig
 
 from django.conf import settings
-from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import (
@@ -30,6 +30,8 @@ from idhub.admin.forms import (
     EncryptionKeyForm,
     ImportCertificateForm,
     ImportForm,
+    ImportSchemaForm,
+    ImportSchemaUrlForm,
     MembershipForm,
     TermsConditionsForm,
     SchemaForm,
@@ -43,7 +45,8 @@ from idhub.admin.tables import (
         CredentialTable,
         DIDTable,
         DataTable,
-        TemplateTable
+        TemplateTable,
+        VCTemplatePdfsTable,
 )
 from idhub.models import (
     DID,
@@ -55,6 +58,7 @@ from idhub.models import (
     Schemas,
     UserRol,
     VerificableCredential,
+    VCTemplatePdf,
 )
 
 
@@ -115,7 +119,7 @@ class DobleFactorAuthView(AdminView, View):
 
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
-            
+
         if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
             self.request.session.pop("2fauth", None)
             return redirect(self.url)
@@ -247,7 +251,7 @@ class PeopleActivateView(PeopleView):
         self.object.save()
 
         return redirect('idhub:admin_people', self.object.id)
-            
+
 
 class PeopleDeleteView(PeopleView):
 
@@ -263,7 +267,7 @@ class PeopleDeleteView(PeopleView):
             messages.error(self.request, _('It is not possible delete your account!'))
 
         return redirect('idhub:admin_people_list')
-            
+
 
 class PeopleEditView(People, FormView):
     template_name = "idhub/admin/user_edit.html"
@@ -370,7 +374,7 @@ class PeopleMembershipRegisterView(People, FormView):
         kwargs = super().get_form_kwargs()
         kwargs['instance'] = self.object
         return kwargs
-    
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Membership created successfully'))
@@ -438,7 +442,7 @@ class PeopleMembershipDeleteView(PeopleView):
 
         return redirect('idhub:admin_people_edit', user.id)
 
-        
+
 class PeopleRolRegisterView(People, FormView):
     template_name = "idhub/admin/people_rol_register.html"
     subtitle = _('Add a user role to access a service')
@@ -547,14 +551,14 @@ class RolRegisterView(AccessControl, CreateView):
     fields = ('name', "description")
     success_url = reverse_lazy('idhub:admin_roles')
     object = None
-    
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Role created successfully'))
         Event.set_EV_ROLE_CREATED_BY_ADMIN()
         return super().form_valid(form)
 
-        
+
 class RolEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/rol_register.html"
     subtitle = _('Edit role')
@@ -569,7 +573,7 @@ class RolEditView(AccessControl, UpdateView):
             self.object = get_object_or_404(self.model, pk=pk)
         kwargs = super().get_form_kwargs()
         return kwargs
-        
+
     def form_valid(self, form):
         form.save()
         messages.success(self.request, _('Role updated successfully'))
@@ -626,7 +630,7 @@ class ServiceRegisterView(AccessControl, CreateView):
         Event.set_EV_SERVICE_CREATED_BY_ADMIN()
         return super().form_valid(form)
 
-        
+
 class ServiceEditView(AccessControl, UpdateView):
     template_name = "idhub/admin/service_register.html"
     subtitle = _('Modify service')
@@ -758,7 +762,7 @@ class DeleteCredentialsView(Credentials):
 class DidsView(Credentials, SingleTableView):
     template_name = "idhub/admin/dids.html"
     table_class = DIDTable
-    subtitle = _('Manage identities (DID)')
+    subtitle = _('Manage identities')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
@@ -767,11 +771,21 @@ class DidsView(Credentials, SingleTableView):
         queryset = kwargs.pop('object_list', None)
         dids = DID.objects.filter(user__isnull=True)
         if queryset is None:
-            self.object_list = dids.all()
+            self.object_list = dids.filter(eidas1=False)
 
         context = super().get_context_data(**kwargs)
+        eidas1 = dids.filter(eidas1=True)
+        eidas2 = dids.filter(eidas1=False)
+        table_eidas1 = DIDTable(eidas1)
+        table_eidas2 = DIDTable(eidas2)
+
+        RequestConfig(self.request).configure(table_eidas1)
+        RequestConfig(self.request).configure(table_eidas2)
+
         context.update({
-            'dids': dids
+            'dids': dids,
+            'eidas1': table_eidas1,
+            'eidas2': table_eidas2
         })
         return context
 
@@ -846,9 +860,9 @@ class WalletCredentialsView(Credentials):
     wallet = True
 
 
-class WalletConfigIssuesView(Credentials, FormView):
-    template_name = "idhub/admin/wallet_issues.html"
-    subtitle = _('Configure credential issuance')
+class WalletConfigEidas1sView(Credentials, FormView):
+    template_name = "idhub/admin/wallet_eidas1.html"
+    subtitle = _('Configure identity eIDAS1')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     form_class = ImportCertificateForm
@@ -857,10 +871,10 @@ class WalletConfigIssuesView(Credentials, FormView):
     def form_valid(self, form):
         cred = form.save()
         if cred:
-            messages.success(self.request, _("The credential was imported successfully!"))
+            messages.success(self.request, _("The eIDAS1 identity was created successfully!"))
             Event.set_EV_ORG_DID_CREATED_BY_ADMIN(cred)
         else:
-            messages.error(self.request, _("Error importing the credential!"))
+            messages.error(self.request, _("Error creating eIDAS1 identity!"))
         return super().form_valid(form)
 
 
@@ -903,6 +917,32 @@ class SchemasDownloadView(SchemasMix):
 
         response = HttpResponse(self.object.data, content_type="application/json")
         response['Content-Disposition'] = 'inline; filename={}'.format(self.object.file_schema)
+        return response
+
+
+class TemplateExcelDownloadView(SchemasMix):
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(Schemas, pk=self.pk)
+        output = io.BytesIO()
+        try:
+            credtools.schema_to_xls_comment(self.object.get_schema, output)
+        except Exception:
+            msg = _("You cannot download an excel template of this scheme.")
+            msg += " "+_("Remember that we have an API to interact with this type of schemes")
+            messages.error(self.request, msg)
+            return redirect('idhub:admin_schemas')
+
+        output.seek(0)
+
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        file_name = self.object.file_schema.split(".json")[0]
+        response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(file_name)
         return response
 
 
@@ -954,8 +994,46 @@ class SchemasNewView(SchemasMix):
         return schema
 
 
-class SchemasImportView(SchemasMix):
-    template_name = "idhub/admin/schemas_import.html"
+class SchemasUploadView(SchemasMix, ImportExport, FormView):
+    template_name = "idhub/admin/schemas_upload.html"
+    subtitle = _('Upload Schema')
+    icon = ''
+    form_class = ImportSchemaForm
+    success_url = reverse_lazy('idhub:admin_schemas')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'form_url': ImportSchemaUrlForm(),
+        })
+        return context
+
+    def get_form(self):
+        if "submitUrl" in self.request.POST:
+            self.form_class = ImportSchemaUrlForm
+        form = super().get_form()
+        return form
+
+    def form_valid(self, form):
+        if "submitUrl" not in self.request.POST:
+            path = reverse_lazy("idhub:schema", args=[form.file_name])
+            domain = "https://{}".format(self.request.get_host())
+            url = "{}{}".format(domain, path)
+            form.schema["$id"] = url
+            schema = form.save(domain=domain)
+        else:
+            schema = form.save()
+        if schema:
+            messages.success(self.request, _("The file was imported successfully!"))
+            Event.set_EV_SCHEME_UPLOAD(schema)
+        else:
+            messages.error(self.request, _("Error importing the file!"))
+
+        return super().form_valid(form)
+
+
+class SchemasEnableView(SchemasMix):
+    template_name = "idhub/admin/schemas_enable.html"
     subtitle = _('Import template')
     icon = ''
 
@@ -968,12 +1046,12 @@ class SchemasImportView(SchemasMix):
 
     def get_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        schemas = [x for x  in schemas_files 
+        schemas = [x for x  in schemas_files
             if not Schemas.objects.filter(file_schema=x).exists()]
         return schemas
 
 
-class SchemasImportAddView(SchemasMix):
+class SchemasEnableAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
@@ -982,7 +1060,7 @@ class SchemasImportAddView(SchemasMix):
         if self.file_name not in schemas_files:
             file_name = self.file_name
             messages.error(self.request, f"The schema {file_name} not exist!")
-            return redirect('idhub:admin_schemas_import')
+            return redirect('idhub:admin_schemas_enable')
 
         schema = self.create_schema()
         if schema:
@@ -1011,8 +1089,7 @@ class SchemasImportAddView(SchemasMix):
             type=title,
             _name=_name,
             _description=_description,
-            # template_description=_description
-            template_description=self.get_description()
+            template_description=_description
         )
         schema.save()
         return schema
@@ -1025,22 +1102,6 @@ class SchemasImportAddView(SchemasMix):
 
         return data
 
-    def get_template_description(self):
-        context = {}
-        template_name = 'credentials/{}'.format(
-            self.file_name
-        )
-        tmpl = get_template(template_name)
-        return tmpl.render(context)
-
-    def get_description(self):
-        for des in json.loads(self.get_template_description()).get('description', []):
-            lang = settings.LANGUAGE_CODE
-            if lang == 'ca':
-                lang = 'ca_ES'
-            if lang == des.get('lang'):
-                return des.get('value', '')
-        return ''
 
 
 class ImportView(ImportExport, SingleTableView):
@@ -1107,4 +1168,85 @@ class ImportDeleteView(AdminView, DeleteView):
         self.object.delete()
 
         return redirect('idhub:admin_import')
-            
+
+
+class VCTemplatesPdfView(AdminView, SingleTableView):
+    # template_name = "token.html"
+    template_name = "idhub/admin/templates_pdf.html"
+    title = _("Credential management")
+    section = "Credential"
+    subtitle = _('Managament VCTemplatePdfs')
+    icon = 'bi bi-filetype-pdf'
+    model = VCTemplatePdf
+    table_class = VCTemplatePdfsTable
+
+    def get_queryset(self):
+        """
+        Override the get_queryset method to filter events based on the user type.
+        """
+        return VCTemplatePdf.objects.filter().order_by("-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'vc_templates_pdf': VCTemplatePdf.objects,
+        })
+        return context
+
+
+class VCTemplatePdfNewView(AdminView, CreateView):
+    title = _("Vctemplatepdf management")
+    section = "Credential"
+    subtitle = _('New Vctemplatepdf')
+    icon = 'bi bi-filetype-pdf'
+    title = "Vctemplatepdf"
+    template_name = "idhub/admin/new_template_pdf.html"
+    model = VCTemplatePdf
+    fields = ("name", "data")
+    success_url = reverse_lazy('idhub:admin_templates_pdf')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+class VCTemplatePdfDeleteView(AdminView, DeleteView):
+    model = VCTemplatePdf
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object.delete()
+
+        return redirect('idhub:admin_templates_pdf')
+
+
+class VCTemplatePdfRenderView(AdminView, TemplateView):
+    model = VCTemplatePdf
+    template_name = "idhub/admin/new_template_pdf.html"
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return self.render_pdf()
+
+    def render_pdf(self):
+        try:
+            doc = self.build_certificate()
+        except Exception as err:
+            logger.error(err)
+            messages.error(self.request, _("Some thing is wrong with this template"))
+            messages.error(self.request, err)
+            return redirect('idhub:admin_templates_pdf')
+
+        self.file_name = "{}.pdf".format(self.object.name)
+        response = HttpResponse(doc, content_type="application/pdf")
+        response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
+        return response
+
+    def build_certificate(self):
+        data = self.object.data.read()
+        pdf = weasyprint.HTML(string=data)
+        return pdf.write_pdf()

@@ -27,7 +27,8 @@ pyhanko
 qrcode
 uharfbuzz==0.38.0
 fontTools==4.47.0
-weasyprint==60.2
+weasyprint==65.1
+pydyf==0.11.0
 ujson==5.9.0
 openpyxl==3.1.2
 jsonpath_ng==1.6.1
@@ -36,3 +37,4 @@ coverage==7.4.3
 gunicorn==21.2.0
 pyvckit
 psycopg2-binary==2.9.10
+xlsxwriter==3.2.3

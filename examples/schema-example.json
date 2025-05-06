@@ -1,0 +1,95 @@
+{
+  "$id": "https://idhub.pangea.org/vc_schemas/schema-example.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Schema Example",
+  "description": "This is an example of schema.",
+  "name": [
+    {
+      "value": "Schema Example",
+      "lang": "en"
+    }
+  ],
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://idhub.pangea.org/vc_schemas/ebsi/attestation.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines additional properties on credentialSubject",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines a unique identifier of the credential subject",
+              "type": "string",
+              "minLength":  1
+            },
+            "organisation": {
+              "description": "Organisation the credential subject is affiliated with",
+              "type": "string",
+              "minLength":  1
+            },
+            "membershipType": {
+              "description": "Type of membership",
+              "type": "string"
+            },
+            "membershipId": {
+              "description": "Membership identifier",
+              "type": "string"
+            },
+            "affiliatedSince": {
+              "type": "string",
+              "format": "date",
+              "minLength":  1
+            },
+            "affiliatedUntil": {
+              "type": "string",
+              "format": "date"
+            },
+            "typeOfPerson": {
+              "type": "string",
+              "enum": [
+                "natural",
+                "legal"
+              ],
+              "minLength":  1
+            },
+            "identityDocType": {
+              "description": "Type of the Identity Document of the credential subject",
+              "type": "string"
+            },
+            "identityNumber": {
+              "description": "Number of the Identity Document of the credential subject",
+              "type": "string"
+            },
+            "firstName": {
+              "description": "Name of the natural person or name of the legal person (organisation)",
+              "type": "string",
+              "minLength":  1
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^\\S+@\\S+\\.\\S+$"
+            }
+          },
+          "required": [
+            "id",
+            "organisation",
+            "affiliatedSince",
+            "typeOfPerson",
+            "firstName",
+            "email"
+          ]
+        }
+      }
+    }
+  ]
+}
