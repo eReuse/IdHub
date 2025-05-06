@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 
-from idhub.models import DID, VerificableCredential
+from idhub.models import DID, VerificableCredential, Schemas, Context, ContextFile
 from idhub.email.views import NotifyActivateUserByEmail
 from oidc4vp.models import Organization
 
@@ -145,3 +145,24 @@ class DobleFactorSendView(LoginRequiredMixin, NotifyActivateUserByEmail, Templat
 
         self.send_email(self.request.user, token=f2auth)
         return super().get(request, *args, **kwargs)
+
+
+def SchemaView(request, file_name):
+    schema = get_object_or_404(Schemas, file_schema=file_name)
+    retval = HttpResponse(schema.data)
+    retval.headers["Content-Type"] = "application/json"
+    return retval
+
+
+def ContextView(request):
+    ctx = Context.get_context()
+    retval = HttpResponse(ctx)
+    retval.headers["Content-Type"] = "application/json"
+    return retval
+
+
+def ContextFileView(request, file_name):
+    context = get_object_or_404(ContextFile, file_name=file_name)
+    retval = HttpResponse(context.data)
+    retval.headers["Content-Type"] = "application/json"
+    return retval

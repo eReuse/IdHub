@@ -13,18 +13,20 @@
 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
   <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
   <div class="message">
-    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-    <span class="mdi mdi-close" aria-hidden="true"></span>
-    </button>
     {% for field, error in form.errors.items %}
-      {{ error }}
+      {{ error }}<br />
     {% endfor %}
+    <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
   </div>
 </div>
 {% endif %}
-{% bootstrap_form form %}
+<div class="row">
+  <div class="col-sm-4">
+    {% bootstrap_form form %}
+  </div>
+</div>
 <div class="form-actions-no-box">
-  <a class="btn btn-grey" href="{% url 'idhub:admin_schemas_enable' %}">{% translate "Cancel" %}</a>
+  <a class="btn btn-grey" href="{% url 'idhub:admin_templates_pdf' %}">{% translate "Cancel" %}</a>
   <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
 </div>
 

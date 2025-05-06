@@ -69,6 +69,11 @@ class Command(BaseCommand):
 
         self.create_default_did()
 
+    def create_default_user_did(self, user):
+        did = DID(user=user, type=DID.Types.WEB, label="Default")
+        did.set_did()
+        did.save()
+
     def create_default_did(self):
 
         fdid = self.open_example_did()
@@ -122,6 +127,7 @@ class Command(BaseCommand):
         u = User.objects.create(email=email, password=password)
         u.set_password(password)
         u.save()
+        self.create_default_user_did(u)
 
     def create_organizations(self):
         BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
