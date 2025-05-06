@@ -1,0 +1,58 @@
+{% extends "idhub/base_admin.html" %}
+{% load i18n %}
+
+{% block content %}
+{% load django_bootstrap5 %}
+
+{% if form.errors %}
+<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
+  <div class="message">
+    <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+    <span class="mdi mdi-close" aria-hidden="true"></span>
+    </button>
+    {% for field, error in form.errors.items %}
+      {{ error }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="nav">
+    <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#profile" type="button" aria-selected="false">{% trans 'Enable Schema from File' %}</button>
+
+  <div class="btn">
+  </div>
+
+  <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#contact" type="button" aria-selected="false">{% trans 'Enable Schema from URL' %}</button>
+</div>
+
+<div class="tab-content mt-5">
+  <div class="tab-pane fade" id="profile" tabindex="0">
+    <h4>{% trans 'Enable Schema from File' %}</h4>
+    <div>
+      <form role="form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <div class="form-actions-no-box">
+        <a class="btn btn-grey" href="{% url 'idhub:admin_schemas' %}">{% translate "Cancel" %}</a>
+        <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+      </div>
+      </form>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="contact" tabindex="0">
+   <h4>{% trans 'Enable Schema from URL' %}</h4>
+   <div>
+      <form role="form" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form_url %}
+      <div class="form-actions-no-box">
+        <a class="btn btn-grey" href="{% url 'idhub:admin_schemas' %}">{% translate "Cancel" %}</a>
+        <input class="btn btn-green-admin" type="submit" name="submitUrl" value="{% translate 'Save' %}" />
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
