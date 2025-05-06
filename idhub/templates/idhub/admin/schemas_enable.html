@@ -17,12 +17,19 @@
           </tr>
         </thead>
         <tbody>
+	  {% if schemas %}
           {% for schema in schemas %}
           <tr style="font-size:15px;">
             <td>{{ schema }}</td>
-            <td><a class="text-primary" href="{% url 'idhub:admin_schemas_import_add' schema %}" title="{% trans 'Add' %}"><i class="bi bi-plus-circle"></i></a></td>
+            <td><a class="text-primary" href="{% url 'idhub:admin_schemas_enable_add' schema %}" title="{% trans 'Add' %}"><i class="bi bi-plus-circle"></i></a></td>
           </tr>
           {% endfor %}
+	  {% else %}
+          <tr style="font-size:15px;">
+            <td>{% trans 'All templates are enabled' %}</td>
+            <td></td>
+          </tr>
+	  {% endif %}
         </tbody>
       </table>
     </div>

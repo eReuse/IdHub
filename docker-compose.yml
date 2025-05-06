@@ -8,12 +8,12 @@ services:
       context: .
       dockerfile: docker/idhub.Dockerfile
     environment:
-      - LOCAL_USER_ID=${IDHUB_LOCAL_USER_ID}
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
       - DEBUG=${IDHUB_DEBUG:-true}
       - DEMO=${IDHUB_DEMO:-true}
       - DEMO_AUTODECRYPT=${IDHUB_DEMO_AUTODECRYPT:-false}
+      - DEMO_CREATE_SCHEMAS=${IDHUB_DEMO_CREATE_SCHEMAS:-true}
       - REMOVE_DATA=${IDHUB_REMOVE_DATA:-false}
       - DB_TYPE=${IDHUB_DB_TYPE:-postgres}
       - CREATE_TEST_USERS=${IDHUB_CREATE_TEST_USERS:-true}
@@ -26,10 +26,12 @@ services:
       - ENABLE_EMAIL=${IDHUB_ENABLE_EMAIL:-true}
       - ENABLE_2FACTOR_AUTH=${IDHUB_ENABLE_2FACTOR_AUTH:-true}
       - ENABLE_DOMAIN_CHECKER=${IDHUB_ENABLE_DOMAIN_CHECKER:-true}
-      - PREDEFINED_TOKEN=${IDHUB_PREDEFINED_TOKEN:-}
+      - DEMO_PREDEFINED_TOKEN=${DEMO_IDHUB_PREDEFINED_TOKEN:-}
       - SECRET_KEY=${IDHUB_SECRET_KEY}
-      - STATIC_ROOT=${IDHUB_STATIC_ROOT:-/static/}
+      - MEDIA_URL=${IDHUB_MEDIA_URL:-/media/}
       - MEDIA_ROOT=${IDHUB_MEDIA_ROOT:-/media/}
+      - STATIC_URL=${IDHUB_STATIC_URL:-/static/}
+      - STATIC_ROOT=${IDHUB_STATIC_ROOT:-/static/}
       - PORT=${IDHUB_PORT:-9001}
       - DEFAULT_FROM_EMAIL=${IDHUB_DEFAULT_FROM_EMAIL}
       - EMAIL_HOST=${IDHUB_EMAIL_HOST}
@@ -54,6 +56,8 @@ services:
     volumes:
       - ${IDHUB_VOLUME:-.}:/opt/idhub
       - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/idhub-postgres:/idhub-postgres
+      - ${DOCKER_IDHUB_STATIC_ROOT}:${IDHUB_STATIC_ROOT:-/static/}
+      - ${DOCKER_IDHUB_MEDIA_ROOT}:${IDHUB_MEDIA_ROOT:-/media/}
 
   idhub-postgres:
     profiles: [postgres]

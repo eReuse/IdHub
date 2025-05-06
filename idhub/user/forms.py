@@ -102,20 +102,18 @@ class RequestCredentialForm(forms.Form):
         did = DID.objects.filter(
             user=self.user,
             did=self.data['did']
-        )
+        ).first()
         cred = VerificableCredential.objects.filter(
             user=self.user,
             id=self.data['credential'],
             status=VerificableCredential.Status.ENABLED
-        )
-        if not all([cred.exists(), did.exists()]):
+        ).first()
+
+        if not all([cred, did]):
             return
 
-        did = did[0]
-        cred = cred[0]
-        cred.issue(did, domain=self._domain)
-
-        if commit:
+        if commit and self._domain:
+            cred.issue(did, domain=self._domain)
             cred.save()
             return cred
 
