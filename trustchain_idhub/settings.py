@@ -67,6 +67,15 @@ ADMINS = config('ADMINS', default='[]', cast=literal_eval)
 
 MANAGERS = config('MANAGERS', default='[]', cast=literal_eval)
 
+DPP = config("DPP", default='false', cast=bool)
+API_DLT_URL = config("API_DLT_URL", default='')
+API_DLT_TOKEN = config("API_DLT_TOKEN", default='')
+API_DLT_OPERATOR_TOKEN = config("API_DLT_OPERATOR_TOKEN", default='')
+
+if DPP:
+    assert API_DLT_URL, "API_DLT_URL must be defined"
+    assert API_DLT_TOKEN, "API_DLT_TOKEN (ADMIN) must be defined"
+    assert API_DLT_OPERATOR_TOKEN, "API_DLT_OPERATOR_TOKEN must be defined"
 
 # Application definition
 
