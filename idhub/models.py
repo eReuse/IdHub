@@ -472,7 +472,6 @@ class DID(models.Model):
 
     def set_did(self):
         new_key_material = generate_keys()
-        self.set_key_material(new_key_material)
 
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
@@ -484,9 +483,20 @@ class DID(models.Model):
                 path = path.split("/a/did.json")[0]
                 url = "https://{}/{}".format(settings.DOMAIN, path)
 
+            if self.Types.WEBETH:
+                register_user_url = f"https://{settings.API_DLT_URL}/registerUser"
+                ether_data = requests.post(register_user_url).json()
+                err_token = 'api_token has invalid length'
+                err_eth = 'eth_pub_key has invalid length'
+                assert len(ether_data['data']['api_token']) == 80, err_token
+                assert len(ether_data['data']['eth_pub_key']) == 42, err_eth
+                new_key_material['eth_api_token'] = ether_data['data']['api_token']
+                new_key_material['eth_pub_key'] = ether_data['data']['eth_pub_key']
             self.did = generate_did(new_key_material, url)
             key = json.loads(new_key_material)
             url, self.didweb_document = gen_did_document(self.did, key)
+
+        self.set_key_material(new_key_material)
 
     def get_key(self):
         return json.loads(self.key_material)
