@@ -192,12 +192,12 @@ services:
   idhub:
     # https://docs.docker.com/compose/how-tos/profiles/
     init: true
-    image: farga.pangea.org/ereuse/idhub:latest
+    image: farga.pangea.org/ereuse/idhub:issue_261__dpp_v3
     environment:
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
       - DEBUG=true
-      - DEMO=${DEMO:-false}
+      - DEMO=${IDHUB_DEMO:-false}
       - INITIAL_ADMIN_EMAIL=${IDHUB_ADMIN_EMAIL}
       - INITIAL_ADMIN_PASSWORD=${IDHUB_ADMIN_PASSWD}
       - CREATE_TEST_USERS=true
@@ -218,6 +218,8 @@ services:
       - EMAIL_BACKEND=${IDHUB_EMAIL_BACKEND}
       - SUPPORTED_CREDENTIALS=['Snapshot']
       - SYNC_ORG_DEV=${IDHUB_SYNC_ORG_DEV}
+      - DPP=${IDHUB_DPP:-false}
+      - API_DLT_URL=${API_CONNECTOR_URL}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     networks:
