@@ -67,6 +67,9 @@ ADMINS = config('ADMINS', default='[]', cast=literal_eval)
 
 MANAGERS = config('MANAGERS', default='[]', cast=literal_eval)
 
+DPP = config("DPP", default='', cast=bool)
+if DPP:
+    API_DLT_URL = config("API_DLT_URL")
 
 # Application definition
 
