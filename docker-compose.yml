@@ -1,6 +1,7 @@
 services:
 
   idhub:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     init: true
     image: farga.pangea.org/ereuse/idhub:stable
     build:
@@ -46,9 +47,9 @@ services:
     depends_on:
       idhub-postgres:
         condition: service_healthy
-        restart: true
 
   idhub-postgres:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     image: postgres:17
     environment:
       - POSTGRES_DB=${IDHUB_POSTGRES_NAME}
@@ -65,6 +66,46 @@ services:
       interval: 1s
       timeout: 10s
       retries: 10
+
+  # You can comment this webserver section if you want to use another webserver/proxy or test PeerTube in local
+  idhub-rproxy:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    image: farga.pangea.org/ereuse/idhub-rproxy:latest
+    build:
+      context: .
+      dockerfile: ./docker/nginx.Dockerfile
+    environment:
+      - WEBSERVER_HOST=${IDHUB_RPROXY_WEBSERVER_HOST}
+      - APP_HOST=${IDHUB_RPROXY_APP_HOST}
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+      - type: bind
+        source: docker/nginx/app.template
+        target: /etc/nginx/conf.d/app.template
+      # TODO
+      #- static:/path/to/static/files:ro
+      #- certbot-www:/var/www/certbot
+      #- ./docker-volume/certbot/conf:/etc/letsencrypt
+    depends_on:
+      - idhub
+
+
+  # TODO uncomment, explain
+
+  # You can comment this certbot section if you want to use another webserver/proxy or test idhub in local
+  #certbot:
+  #  restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+  #  container_name: certbot
+  #  image: certbot/certbot
+  #  volumes:
+  #    - ./docker-volume/certbot/conf:/etc/letsencrypt
+  #    - certbot-www:/var/www/certbot
+  #  restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+  #  entrypoint: /bin/sh -c "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
+  #  depends_on:
+  #    - idhub-rproxy
 
 volumes:
   IDHUB_DATA:
