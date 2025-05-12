@@ -23,8 +23,6 @@ compile = no
 no-cache-dir = True
 END
 
-RUN pip install --upgrade pip
-
 # not needed anymore?
 #COPY ssikit_trustchain/didkit-0.3.2-cp311-cp311-manylinux_2_34_x86_64.whl /opt/idhub
 COPY ./requirements.txt /opt/idhub
