@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from idhub.models import (
         Rol,
@@ -205,6 +206,11 @@ class DIDTable(tables.Table):
     delete_did = tables.TemplateColumn(template_code=delete_template_code,
                                        orderable=False,
                                        verbose_name="Delete")
+
+    def render_did(self, record):
+        if record.has_link():
+            return format_html('<a href="{}">{}</a>', record.get_path(), record.did)
+        return record.did
 
     def render_edit_did(self):
         return format_html('<i class="bi bi-pencil-square"></i>')
