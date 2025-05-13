@@ -35,3 +35,4 @@ pyroaring==0.4.5
 coverage==7.4.3
 gunicorn==21.2.0
 pyvckit
+psycopg2-binary==2.9.10
