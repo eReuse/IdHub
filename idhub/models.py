@@ -493,6 +493,16 @@ class DID(models.Model):
     def get_organization(self):
         return Organization.objects.get(main=True)
 
+    def get_path(self):
+        did_id = self.did.split(':')[-1]
+        return reverse("idhub:serve_did", args=[did_id])
+
+    def has_link(self):
+        linked_types = [self.Types.WEB]
+        if self.type in linked_types:
+            return True
+        return False
+
 class Schemas(models.Model):
     type = models.CharField(max_length=250)
     file_schema = models.CharField(_('Schema'), max_length=250)
