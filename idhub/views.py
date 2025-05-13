@@ -31,10 +31,6 @@ class LoginView(auth_views.LoginView):
     }
 
     def get(self, request, *args, **kwargs):
-        self.extra_context['success_url'] = request.GET.get(
-            'next',
-            reverse_lazy('idhub:user_dashboard')
-        )
         if not self.request.user.is_anonymous:
             if self.request.user.is_admin:
                 return redirect(reverse_lazy('idhub:admin_dashboard'))
@@ -44,6 +40,7 @@ class LoginView(auth_views.LoginView):
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
+        next_url = self.request.GET.get('next')
         user = form.get_user()
         auth_login(self.request, user)
 
@@ -55,8 +52,14 @@ class LoginView(auth_views.LoginView):
                 self.request.session["2fauth"] = str(uuid.uuid4())
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
-            admin_dashboard = reverse_lazy('idhub:admin_dashboard')
-            self.extra_context['success_url'] = admin_dashboard
+            if not next_url:
+                admin_dashboard = reverse_lazy('idhub:admin_dashboard')
+                self.extra_context['success_url'] = admin_dashboard
+        # is user
+        else:
+            if not next_url:
+                user_dashboard = reverse_lazy('idhub:user_dashboard')
+                self.extra_context['success_url'] = user_dashboard
 
         return redirect(self.extra_context['success_url'])
 
