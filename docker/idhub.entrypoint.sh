@@ -28,14 +28,15 @@ END
 }
 
 deployment_strategy() {
-        # detect if existing deployment (TODO only works with sqlite)
-        if [ -f "${idhub_dir}/db.sqlite3" ]; then
-                echo "INFO: detected EXISTING deployment"
-                ./manage.py migrate
+        init_flagfile="${idhub_dir}/already_configured.idhub"
 
+        if [ -f "${init_flagfile}" ]; then
+                echo "INFO: detected PREVIOUS deployment"
+                ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
                 ./manage.py send_mail_admins
         else
+                echo "INFO: detected NEW deployment"
                 # this file helps all docker containers to guess number of hosts involved
                 #   right now is only needed by new deployment for oidc
                 if [ -d "/sharedsecret" ]; then
@@ -58,6 +59,7 @@ deployment_strategy() {
                 else
                         echo "Note: skipping oidc4vp config"
                 fi
+                touch "${init_flagfile}"
         fi
 }
 
