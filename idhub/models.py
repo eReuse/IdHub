@@ -594,6 +594,16 @@ class Schemas(models.Model):
         return json.loads(self.data)
 
 
+class VCTemplate(models.Model):
+    wkit_template_id = models.CharField(max_length=250)
+    data = models.TextField()
+
+
+class VCTemplatePdf(models.Model):
+    name = models.CharField(_("Name"), max_length=250)
+    data = models.FileField(upload_to='uploads/')
+
+
 class VerificableCredential(models.Model):
     """
         Definition of Verificable Credentials
@@ -636,6 +646,11 @@ class VerificableCredential(models.Model):
     )
     eidas1_did = models.ForeignKey(
         DID,
+        on_delete=models.CASCADE,
+        null=True
+    )
+    template_pdf = models.ForeignKey(
+        VCTemplatePdf,
         on_delete=models.CASCADE,
         null=True
     )
@@ -796,16 +811,6 @@ class VerificableCredential(models.Model):
             elif value:
                 new_dict[key] = value
         return new_dict
-
-
-class VCTemplate(models.Model):
-    wkit_template_id = models.CharField(max_length=250)
-    data = models.TextField()
-
-
-class VCTemplatePdf(models.Model):
-    name = models.CharField(max_length=250)
-    data = models.TextField()
 
 
 class File_datas(models.Model):

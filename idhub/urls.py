@@ -182,7 +182,13 @@ urlpatterns = [
     path('admin/auth/<uuid:admin2fauth>', views_admin.DobleFactorAuthView.as_view(),
         name='admin_2fauth'),
     path('admin/auth/2f/', DobleFactorSendView.as_view(), name='confirm_send_2f'),
-    path('admin/templates_pdf', views_admin.VCTemplatesPdfView.as_view(), name='templates_pdf'),
+    path('admin/templates_pdf', views_admin.VCTemplatesPdfView.as_view(), name='admin_templates_pdf'),
+    path('admin/templates_pdf/new/',
+         views_admin.VCTemplatePdfNewView.as_view(), name='admin_new_template_pdf'),
+    path('admin/templates_pdf/<int:pk>/del/',
+         views_admin.VCTemplatePdfDeleteView.as_view(), name='admin_template_pdf_del'),
+    path('admin/templates_pdf/<int:pk>/render/',
+         views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
 
     path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did")
 

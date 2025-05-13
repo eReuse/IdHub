@@ -17,6 +17,7 @@ from idhub.models import (
     Schemas,
     UserRol,
     VerificableCredential,
+    VCTemplatePdf,
 )
 from idhub_auth.models import User
 
@@ -150,6 +151,11 @@ class ImportForm(forms.Form):
         choices=[],
         required=False
     )
+    template_pdf = forms.ChoiceField(
+        label=_("Select one template for render to Pdf"),
+        choices=[],
+        required=False
+    )
     schema = forms.ChoiceField(label=_("Schema"), choices=[])
     file_import = forms.FileField(label=_("File to import"))
 
@@ -169,6 +175,7 @@ class ImportForm(forms.Form):
         self.fields['schema'].choices = [(0,txt_select_one)] + [
             (x.id, x.name) for x in Schemas.objects.filter()
         ]
+
         if dids.filter(eidas1=True).exists():
             choices = [("", "")]
             choices.extend([
@@ -177,6 +184,15 @@ class ImportForm(forms.Form):
             self.fields['eidas1'].choices = choices
         else:
           self.fields.pop('eidas1')
+
+        if self.fields.get('eidas1') and VCTemplatePdf.objects.filter().exists():
+            choices = [("", "")]
+            choices.extend([
+                (x.id, x.name) for x in VCTemplatePdf.objects.all()
+            ])
+            self.fields['template_pdf'].choices = choices
+        else:
+          self.fields.pop('template_pdf')
 
     def clean(self):
         data = self.cleaned_data["did"]
@@ -196,6 +212,12 @@ class ImportForm(forms.Form):
                 user__isnull=True,
                 eidas1=True,
                 did=eidas1
+            ).first()
+
+        template_pdf = self.cleaned_data.get('template_pdf')
+        if template_pdf and eidas1:
+            self._template_pdf = VCTemplatePdf.objects.filter(
+                id=template_pdf
             ).first()
 
         return data
@@ -334,6 +356,7 @@ class ImportForm(forms.Form):
             cred = bcred.first()
             cred.csv_data = json.dumps(row, default=str)
             cred.eidas1_did = self._eidas1
+            cred.template_pdf = self._template_pdf
             return cred
 
         cred = VerificableCredential(
@@ -342,7 +365,8 @@ class ImportForm(forms.Form):
             csv_data=json.dumps(row, default=str),
             issuer_did=self._did,
             schema=self._schema,
-            eidas1_did=self._eidas1
+            eidas1_did=self._eidas1,
+            template_pdf=self._template_pdf
         )
         cred.set_type()
         return cred

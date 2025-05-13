@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+import weasyprint
 from pathlib import Path
 from smtplib import SMTPException
 from django_tables2 import SingleTableView
@@ -56,6 +58,9 @@ from idhub.models import (
     VerificableCredential,
     VCTemplatePdf,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class TermsAndConditionsView(AdminView, FormView):
@@ -1099,11 +1104,12 @@ class ImportDeleteView(AdminView, DeleteView):
 
 
 class VCTemplatesPdfView(AdminView, SingleTableView):
-    template_name = "templates_pdf.html"
+    # template_name = "token.html"
+    template_name = "idhub/admin/templates_pdf.html"
     title = _("Credential management")
     section = "Credential"
     subtitle = _('Managament VCTemplatePdfs')
-    icon = 'bi bi-key'
+    icon = 'bi bi-filetype-pdf'
     model = VCTemplatePdf
     table_class = VCTemplatePdfsTable
 
@@ -1119,3 +1125,61 @@ class VCTemplatesPdfView(AdminView, SingleTableView):
             'vc_templates_pdf': VCTemplatePdf.objects,
         })
         return context
+
+
+class VCTemplatePdfNewView(AdminView, CreateView):
+    title = _("Vctemplatepdf management")
+    section = "Credential"
+    subtitle = _('New Vctemplatepdf')
+    icon = 'bi bi-filetype-pdf'
+    title = "Vctemplatepdf"
+    template_name = "idhub/admin/new_template_pdf.html"
+    model = VCTemplatePdf
+    fields = ("name", "data")
+    success_url = reverse_lazy('idhub:admin_templates_pdf')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+class VCTemplatePdfDeleteView(AdminView, DeleteView):
+    model = VCTemplatePdf
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object.delete()
+
+        return redirect('idhub:admin_templates_pdf')
+
+
+class VCTemplatePdfRenderView(AdminView, TemplateView):
+    model = VCTemplatePdf
+    template_name = "idhub/admin/new_template_pdf.html"
+
+    def get(self, request, *args, **kwargs):
+        self.check_valid_user()
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return self.render_pdf()
+
+    def render_pdf(self):
+        try:
+            doc = self.build_certificate()
+        except Exception as err:
+            logger.error(err)
+            messages.error(self.request, _("Some thing is wrong with this template"))
+            messages.error(self.request, err)
+            return redirect('idhub:admin_templates_pdf')
+
+        self.file_name = "{}.pdf".format(self.object.name)
+        response = HttpResponse(doc, content_type="application/pdf")
+        response['Content-Disposition'] = 'attachment; filename={}'.format(self.file_name)
+        return response
+
+    def build_certificate(self):
+        data = self.object.data.read()
+        pdf = weasyprint.HTML(string=data)
+        return pdf.write_pdf()

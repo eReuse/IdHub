@@ -33,6 +33,20 @@ class ButtonColumn(tables.Column):
         return format_html('<i class="bi bi-eye"></i>')
 
 
+class ButtonDeleteColumn(tables.Column):
+    attrs = {
+        "a": {
+            "type": "button",
+            "class": "text-danger",
+        }
+    }
+    orderable = False
+    empty_values = ()
+
+    def render(self):
+        return format_html('<i class="bi bi-trash"></i>')
+
+
 class UserTable(tables.Table):
     view_user = ButtonColumn(
             verbose_name=_("View"),
@@ -284,21 +298,28 @@ class TemplateTable(tables.Table):
 
 
 class VCTemplatePdfsTable(tables.Table):
-    delete = ButtonColumn(
+    render = ButtonColumn(
+            verbose_name=_("Render"),
+            linkify={
+                "viewname": "idhub:admin_template_pdf_render",
+                "args": [tables.A("pk")]
+            },
+            orderable=False
+    )
+    delete = ButtonDeleteColumn(
             verbose_name=_("Delete"),
             linkify={
-                "viewname": "webhook:delete_token",
+                "viewname": "idhub:admin_template_pdf_del",
                 "args": [tables.A("pk")]
             },
             orderable=False
     )
 
-    name = tables.Column(verbose_name=_("Name"), empty_values=())
 
     class Meta:
         model = VCTemplatePdf
         template_name = "idhub/custom_table.html"
-        fields = ("Name",)
+        fields = ("name",)
 
     def render_active(self, value):
         """

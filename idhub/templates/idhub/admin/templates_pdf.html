@@ -9,6 +9,8 @@
 </h3>
 {% render_table table %}
 <div class="form-actions-no-box">
-    <a class="btn btn-green-admin" href="{% url 'webhook:new_token' %}">{% translate "Generate a new token" %} <i class="bi bi-plus"></i></a>
+  <a class="btn btn-green-admin" href="{% url 'idhub:admin_new_template_pdf' %}">
+    {% translate "Upload new template" %} <i class="bi bi-plus"></i>
+  </a>
 </div>
 {% endblock %}

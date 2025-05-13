@@ -51,7 +51,7 @@
       }
     </style>
 
-  
+
     <!-- Custom styles for this template -->
     <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
     {% endblock %}
@@ -158,6 +158,11 @@
                   <li class="nav-item">
                     <a id="wallet" class="nav-link{% if path == 'tokens' %} active2{% endif %}" href="{% url 'webhook:tokens' %}">
                       {% trans "Webhook Tokens" %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a id="wallet" class="nav-link{% if path == 'admin:templates_pdf' %} active2{% endif %}" href="{% url 'idhub:admin_templates_pdf' %}">
+                      {% trans "Templates Pdf" %}
                     </a>
                   </li>
                 </ul>
