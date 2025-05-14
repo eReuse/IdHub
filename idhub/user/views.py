@@ -267,6 +267,9 @@ class CredentialPdfView(MyWallet, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # get the excel datas
+        context.update(json.loads(self.object.csv_data))
+        # get the credentialSubject datas
         context.update(dict(self.object.get_datas()))
 
         qr = self.generate_qr_code(self.url_id)
