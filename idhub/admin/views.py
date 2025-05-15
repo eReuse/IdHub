@@ -948,8 +948,26 @@ class SchemasNewView(SchemasMix):
         return schema
 
 
-class SchemasImportView(SchemasMix):
-    template_name = "idhub/admin/schemas_import.html"
+class SchemasUploadView(SchemasMix):
+    template_name = "idhub/admin/schemas_enable.html"
+    subtitle = _('Import template')
+    icon = ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'schemas': self.get_schemas(),
+        })
+        return context
+
+    def get_schemas(self):
+        schemas_files = os.listdir(settings.SCHEMAS_DIR)
+        schemas = [x for x  in schemas_files
+            if not Schemas.objects.filter(file_schema=x).exists()]
+        return schemas
+
+class SchemasEnableView(SchemasMix):
+    template_name = "idhub/admin/schemas_enable.html"
     subtitle = _('Import template')
     icon = ''
 
@@ -967,7 +985,7 @@ class SchemasImportView(SchemasMix):
         return schemas
 
 
-class SchemasImportAddView(SchemasMix):
+class SchemasEnableAddView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
@@ -976,7 +994,7 @@ class SchemasImportAddView(SchemasMix):
         if self.file_name not in schemas_files:
             file_name = self.file_name
             messages.error(self.request, f"The schema {file_name} not exist!")
-            return redirect('idhub:admin_schemas_import')
+            return redirect('idhub:admin_schemas_enable')
 
         schema = self.create_schema()
         if schema:
