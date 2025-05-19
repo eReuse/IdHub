@@ -144,6 +144,41 @@ class TermsConditionsForm(forms.Form):
         return
 
 
+class ImportSchemaForm(forms.Form):
+    file_import = forms.FileField(label=_("Schema to import"))
+
+    def clean(self):
+        data = self.cleaned_data["file_import"]
+
+        try:
+            self.schema = json.loads(data.read())
+        except Exception:
+             raise ValidationError(_("This schema not is a json file"))
+
+        id = self.schema.get("$id", "").split("/")[-1]
+
+        if not id:
+            raise ValidationError(_("This schema not have ID"))
+
+        jsonschema.validators.Draft202012Validator.check_schema(self.schema)
+
+        if Schemas.objects.filter(file_schema=id).exists():
+            raise ValidationError(_("Schema exist!"))
+
+        return data
+
+    def save(self):
+        file_name = self.schema.get("$id", "").split("/")[-1]
+        name = self.schema.get("name")
+        data = json.dumps(self.schema)
+        schema = Schemas.objects.create(
+            file_schema=file_name,
+            data=data,
+            type=name
+        )
+        return schema
+
+
 class ImportForm(forms.Form):
     did = forms.ChoiceField(label=_("Did"), choices=[])
     eidas1 = forms.ChoiceField(

@@ -30,6 +30,7 @@ from idhub.admin.forms import (
     EncryptionKeyForm,
     ImportCertificateForm,
     ImportForm,
+    ImportSchemaForm,
     MembershipForm,
     TermsConditionsForm,
     SchemaForm,
@@ -948,23 +949,23 @@ class SchemasNewView(SchemasMix):
         return schema
 
 
-class SchemasUploadView(SchemasMix):
-    template_name = "idhub/admin/schemas_enable.html"
-    subtitle = _('Import template')
+class SchemasUploadView(SchemasMix, ImportExport, FormView):
+    template_name = "idhub/admin/schemas_upload.html"
+    subtitle = _('Upload Schema')
     icon = ''
+    form_class = ImportSchemaForm
+    success_url = reverse_lazy('idhub:admin_schemas_enable')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'schemas': self.get_schemas(),
-        })
-        return context
+    def form_valid(self, form):
+        schema = form.save()
+        if schema:
+            messages.success(self.request, _("The file was imported successfully!"))
+            Event.set_EV_SCHEME_UPLOAD(schema)
+        else:
+            messages.error(self.request, _("Error importing the file!"))
 
-    def get_schemas(self):
-        schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        schemas = [x for x  in schemas_files
-            if not Schemas.objects.filter(file_schema=x).exists()]
-        return schemas
+        return super().form_valid(form)
+
 
 class SchemasEnableView(SchemasMix):
     template_name = "idhub/admin/schemas_enable.html"
