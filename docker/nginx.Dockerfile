@@ -2,6 +2,9 @@
 
 FROM nginx:alpine
 
+RUN apk add --no-cache openssl \
+    && openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -days 365 -subj "/CN=localhost"
+
 COPY ./docker/nginx.entrypoint.sh .
 RUN chmod +x nginx.entrypoint.sh
 

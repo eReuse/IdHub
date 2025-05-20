@@ -3,7 +3,7 @@ services:
   idhub:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     init: true
-    image: farga.pangea.org/ereuse/idhub:stable
+    image: farga.pangea.org/ereuse/idhub:${IDHUB_DOCKER_TAG:-stable}
     build:
       context: .
       dockerfile: docker/idhub.Dockerfile
@@ -43,6 +43,7 @@ services:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     volumes:
       - ${IDHUB_VOLUME:-.:/opt/idhub}
+      - /opt/ereuse-docker-data/idhub-postgres:/idhub-postgres
 
     depends_on:
       idhub-postgres:
@@ -50,16 +51,14 @@ services:
 
   idhub-postgres:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    # src https://github.com/docker-library/postgres
     image: postgres:17
     environment:
       - POSTGRES_DB=${IDHUB_POSTGRES_NAME}
       - POSTGRES_USER=${IDHUB_POSTGRES_USER}
       - POSTGRES_PASSWORD=${IDHUB_POSTGRES_PASSWORD}
-    # TODO probablemente no hace falta, si no afecta borrar 'ports'
-    #ports:
-    #  - 5432:5432
     volumes:
-      - IDHUB_POSTGRES_DATA:/var/lib/postgresql/data
+      - /opt/ereuse-docker-data/idhub-postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${IDHUB_POSTGRES_USER} -d ${IDHUB_POSTGRES_NAME}"]
       start_period: 1s
@@ -87,7 +86,7 @@ services:
       # TODO
       #- static:/path/to/static/files:ro
       #- certbot-www:/var/www/certbot
-      #- ./docker-volume/certbot/conf:/etc/letsencrypt
+      #- /opt/ereuse-docker-data/certbot/conf:/etc/letsencrypt
     depends_on:
       - idhub
 
@@ -100,13 +99,9 @@ services:
   #  container_name: certbot
   #  image: certbot/certbot
   #  volumes:
-  #    - ./docker-volume/certbot/conf:/etc/letsencrypt
+  #    - /opt/ereuse-docker-data/certbot/conf:/etc/letsencrypt
   #    - certbot-www:/var/www/certbot
   #  restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
   #  entrypoint: /bin/sh -c "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
   #  depends_on:
   #    - idhub-rproxy
-
-volumes:
-  IDHUB_DATA:
-  IDHUB_POSTGRES_DATA:

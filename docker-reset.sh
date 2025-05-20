@@ -7,17 +7,32 @@ set -u
 # DEBUG
 set -x
 
+remove_data() {
+        docker compose down -v
+
+        if [ "${IDHUB_DB_TYPE}" = "postgres" ]; then
+                # then remove data and directories
+                docker run --rm -u 999 -v "/opt/ereuse-docker-data/idhub-postgres:/data" alpine sh -c "rm -rf /data/*"
+        else
+                rm -f "./db.sqlite3"
+        fi
+}
+
 main() {
         cd "$(dirname "${0}")"
 
-        rm -fv ./db.sqlite3
         if [ ! -f .env ]; then
                 cp -v .env.example .env
                 echo "WARNING: .env was not there, .env.example was copied, this only happens once"
         fi
         . ./.env
-        
-        docker compose down -v
+
+        remove_data
+
+        if [ "${IDHUB_ENABLED:-}" = 'true' ]; then
+                export COMPOSE_PROFILES='production'
+        fi
+
         if [ "${DEV_DOCKER_ALWAYS_BUILD:-}" = 'true' ]; then
                 docker compose build
         fi

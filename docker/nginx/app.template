@@ -20,9 +20,10 @@ upstream backend {
 }
 
 server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
+  listen 443 ssl;
+  listen [::]:443 ssl;
   server_name ${WEBSERVER_HOST};
+  http2 on;
 
   access_log /var/log/nginx/app.access.log; # reduce I/0 with buffer=10m flush=5m
   error_log  /var/log/nginx/app.error.log;
@@ -31,8 +32,8 @@ server {
   # Certificates
   # you need a certificate to run in production. see https://letsencrypt.org/
   ##
-  ssl_certificate     /etc/letsencrypt/live/${WEBSERVER_HOST}/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/${WEBSERVER_HOST}/privkey.pem;
+  ssl_certificate     ${SSL_CERTIFICATE_PATH};
+  ssl_certificate_key ${SSL_CERTIFICATE_KEY_PATH};
 
   location ^~ '/.well-known/acme-challenge' {
     default_type "text/plain";
@@ -50,8 +51,8 @@ server {
   ssl_session_timeout       1d; # defaults to 5m
   ssl_session_cache         shared:SSL:10m; # estimated to 40k sessions
   ssl_session_tickets       off;
-  ssl_stapling              on;
-  ssl_stapling_verify       on;
+  #ssl_stapling              on;
+  #ssl_stapling_verify       on;
   # HSTS (https://hstspreload.org), requires to be copied in 'location' sections that have add_header directives
   #add_header Strict-Transport-Security "max-age=63072000; includeSubDomains";
 
@@ -81,7 +82,7 @@ server {
   ##
 
   # TODO
-  #root /var/www/app/storage;
+  #root /var/www/app;
 
   # Enable compression for JS/CSS/HTML, for improved client load times.
   # It might be nice to compress JSON/XML as returned by the API, but

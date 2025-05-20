@@ -17,6 +17,7 @@ END
 
 inject_env_vars() {
         # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
+        # TODO I don't like this
         if [ -d "${idhub_dir}/.git" ]; then
                 git config --global --add safe.directory "${idhub_dir}"
                 export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
@@ -28,9 +29,13 @@ END
 }
 
 deployment_strategy() {
-        init_flagfile="${idhub_dir}/already_configured.idhub"
+        if [ "${IDHUB_DB_TYPE}" = "postgres" ]; then
+                IDHUB_DB_PATH_CHECKER=/idhub-postgres/pg_hba.conf
+        else
+                IDHUB_DB_PATH_CHECKER=/opt/idhub/db.sqlite3
+        fi
 
-        if [ -f "${init_flagfile}" ]; then
+        if [ -e "${IDHUB_DB_PATH_CHECKER}" ]; then
                 echo "INFO: detected PREVIOUS deployment"
                 ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
@@ -59,7 +64,6 @@ deployment_strategy() {
                 else
                         echo "Note: skipping oidc4vp config"
                 fi
-                touch "${init_flagfile}"
         fi
 }
 
