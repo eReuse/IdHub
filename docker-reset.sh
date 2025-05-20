@@ -24,21 +24,22 @@ prompt_env_var() {
         set +x
         var_name=${1}
         default=${2}
+        info=${3:-}
 
         # dereference: get current value of the variable named in $var_name
         eval "current=\${${var_name}:-}"
 
-        if [ -z "$current" ]; then
+        if [ -z "${current}" ]; then
                 # show the default in the prompt
-                printf "Enter value for %s (default is %s): " "$var_name" "$default"
+                printf "${info}Enter value for %s (default is %s): " "${var_name}" "${default}"
                 # read into a temporary
                 read answer
                 # if they just hit enter, use default
-                if [ -z "$answer" ]; then
-                        answer=$default
+                if [ -z "${answer}" ]; then
+                        answer=${default}
                 fi
                 # export the result back into the named variable
-                export "$var_name"="$answer"
+                export "${var_name}"="${answer}"
         fi
         set -x
 }
@@ -50,6 +51,8 @@ main() {
                 prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
                 # TODO add more useful vars (postfix _REQUEST)
                 #   - db persistence
+                #   - db type
+                #   - docker profile
                 envsubst '${IDHUB_DOMAIN_REQUEST}' < .env.example > .env
                 #cp -v .env.example .env
                 echo "WARNING: .env was not there, .env.example was copied, this only happens once"
