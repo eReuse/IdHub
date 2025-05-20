@@ -29,10 +29,6 @@ main() {
 
         remove_data
 
-        if [ "${IDHUB_ENABLED:-}" = 'true' ]; then
-                export COMPOSE_PROFILES='production'
-        fi
-
         if [ "${DEV_DOCKER_ALWAYS_BUILD:-}" = 'true' ]; then
                 docker compose build
         fi
