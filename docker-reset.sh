@@ -12,17 +12,46 @@ remove_data() {
 
         if [ "${IDHUB_DB_TYPE}" = "postgres" ]; then
                 # then remove data and directories
-                docker run --rm -u 999 -v "/opt/ereuse-docker-data/idhub-postgres:/data" alpine sh -c "rm -rf /data/*"
+                docker run --rm -u 999 -v "/opt/ereuse-docker-data/${IDHUB_DOMAIN}/idhub-postgres:/data" alpine sh -c "rm -rf /data/*"
         else
                 rm -f "./db.sqlite3"
         fi
+}
+
+# Prompt for an env var if unset or empty, with a fallback default.
+# Usage: prompt_env_var VAR_NAME DEFAULT_VALUE
+prompt_env_var() {
+        set +x
+        var_name=${1}
+        default=${2}
+
+        # dereference: get current value of the variable named in $var_name
+        eval "current=\${${var_name}:-}"
+
+        if [ -z "$current" ]; then
+                # show the default in the prompt
+                printf "Enter value for %s (default is %s): " "$var_name" "$default"
+                # read into a temporary
+                read answer
+                # if they just hit enter, use default
+                if [ -z "$answer" ]; then
+                        answer=$default
+                fi
+                # export the result back into the named variable
+                export "$var_name"="$answer"
+        fi
+        set -x
 }
 
 main() {
         cd "$(dirname "${0}")"
 
         if [ ! -f .env ]; then
-                cp -v .env.example .env
+                prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
+                # TODO add more useful vars (postfix _REQUEST)
+                #   - db persistence
+                envsubst '${IDHUB_DOMAIN_REQUEST}' < .env.example > .env
+                #cp -v .env.example .env
                 echo "WARNING: .env was not there, .env.example was copied, this only happens once"
         fi
         . ./.env
