@@ -9,6 +9,7 @@ set -u
 set -x
 
 main() {
+        cd "$(dirname "${0}")"
         . ../.env
         # inspiration: https://docs.joinpeertube.org/install/docker
         mkdir -p /opt/ereuse-docker-data/${IDHUB_DOMAIN}/certbot
