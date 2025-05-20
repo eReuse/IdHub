@@ -22,6 +22,7 @@ from .views import (
     PasswordResetView,
     PasswordResetConfirmView,
     ServeDidView,
+    SchemaView,
     DobleFactorSendView,
 )
 from .admin import views as views_admin
@@ -192,7 +193,8 @@ urlpatterns = [
     path('admin/templates_pdf/<int:pk>/render/',
          views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
 
-    path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did")
+    path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did"),
+    path('schema/<str:file_name>', SchemaView, name="schema")
 
     # path('verification_portal/verify/', views_verification_portal.verify,
     #      name="verification_portal_verify")

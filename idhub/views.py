@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 
-from idhub.models import DID, VerificableCredential
+from idhub.models import DID, VerificableCredential, Schemas
 from idhub.email.views import NotifyActivateUserByEmail
 
 
@@ -27,7 +27,7 @@ class LoginView(auth_views.LoginView):
     extra_context = {
         'title': _('Login'),
         'success_url': reverse_lazy('idhub:user_dashboard'),
-        'commit_id': settings.COMMIT, 
+        'commit_id': settings.COMMIT,
     }
 
     def get(self, request, *args, **kwargs):
@@ -40,7 +40,7 @@ class LoginView(auth_views.LoginView):
                 return redirect(reverse_lazy('idhub:admin_dashboard'))
             else:
                 return redirect(reverse_lazy('idhub:user_dashboard'))
-            
+
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -141,3 +141,8 @@ class DobleFactorSendView(LoginRequiredMixin, NotifyActivateUserByEmail, Templat
         return super().get(request, *args, **kwargs)
 
 
+def SchemaView(request, file_name):
+    schema = get_object_or_404(Schemas, file_schema=file_name)
+    retval = HttpResponse(schema.data)
+    retval.headers["Content-Type"] = "application/json"
+    return retval

@@ -957,6 +957,9 @@ class SchemasUploadView(SchemasMix, ImportExport, FormView):
     success_url = reverse_lazy('idhub:admin_schemas_enable')
 
     def form_valid(self, form):
+        path = reverse_lazy("idhub:schema", args=[form.file_name])
+        url = self.request.build_absolute_uri(path)
+        form.schema["$id"] = url
         schema = form.save()
         if schema:
             messages.success(self.request, _("The file was imported successfully!"))

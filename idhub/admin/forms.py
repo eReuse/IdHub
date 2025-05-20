@@ -151,28 +151,23 @@ class ImportSchemaForm(forms.Form):
         data = self.cleaned_data["file_import"]
 
         try:
+            self.file_name = data.name
             self.schema = json.loads(data.read())
         except Exception:
              raise ValidationError(_("This schema not is a json file"))
 
-        id = self.schema.get("$id", "").split("/")[-1]
-
-        if not id:
-            raise ValidationError(_("This schema not have ID"))
-
         jsonschema.validators.Draft202012Validator.check_schema(self.schema)
 
-        if Schemas.objects.filter(file_schema=id).exists():
+        if Schemas.objects.filter(file_schema=self.file_name).exists():
             raise ValidationError(_("Schema exist!"))
 
         return data
 
     def save(self):
-        file_name = self.schema.get("$id", "").split("/")[-1]
         name = self.schema.get("name")
         data = json.dumps(self.schema)
         schema = Schemas.objects.create(
-            file_schema=file_name,
+            file_schema=self.file_name,
             data=data,
             type=name
         )
