@@ -128,12 +128,12 @@ runserver() {
                 else
                         ./manage.py runserver 0.0.0.0:${PORT}
                 fi
-        elif [ "${DEMO:-}" = 'true' ]; then
-                VAULT_PASSWORD="DEMO"
+        elif [ "${DEMO_AUTODECRYPT:-}" = 'true' ]; then
+                DEMO_VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
                 #   and runs the service
                 #   useful for debugging/dev/demo purposes ./manage.py
-                ./manage.py open_service "${VAULT_PASSWORD}" 0.0.0.0:${PORT}
+                ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
                 ./manage.py runserver 0.0.0.0:${PORT}
         fi
