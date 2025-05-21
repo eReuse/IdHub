@@ -44,7 +44,6 @@ prompt_env_var() {
 
 docker_wizard() {
         set +x
-        clear
         printf "\n%s\n" "Detected .env file is missing, so let's initialize the config (if you
 want to see again, remove .env file), press enter to continue"
         read enter
@@ -83,6 +82,7 @@ by default does not use rproxy nor certbot
 }
 
 main() {
+        clear
         cd "$(dirname "${0}")"
 
         if [ ! -f .env ]; then
