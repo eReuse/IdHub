@@ -77,6 +77,7 @@ services:
     environment:
       - WEBSERVER_HOST=${IDHUB_DOMAIN}
       - APP_HOST=idhub:${IDHUB_PORT}
+      - FAKE_HTTP_CERT=${IDHUB_FAKE_HTTP_CERT}
     ports:
      - "80:80"
      - "443:443"
