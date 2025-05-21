@@ -31,4 +31,4 @@ while [ ! "${FAKE_HTTP_CERT:-}" = "true" ]; do
   nginx -s reload;
 done &
 
-exec nginx -g 'daemon off;'
+exec nginx -g 'worker_processes 2; daemon off;'
