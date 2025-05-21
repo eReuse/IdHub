@@ -44,16 +44,22 @@ prompt_env_var() {
 
 docker_wizard() {
         set +x
-
-        echo "Detected .env file is missing, so let's initialize the config (if you want to see again, remove .env file), press enter to continue"
+        clear
+        printf "\n%s\n" "Detected .env file is missing, so let's initialize the config (if you
+want to see again, remove .env file), press enter to continue"
         read enter
 
         prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
         # TODO add more useful vars (postfix _REQUEST)
         #   - db persistence
         #   - db type
-        docker_profiles_info="\nuse\n  rproxy          if you want to add rproxy (nginx) to docker compose\n  rproxy,certbot  for managing a real HTTPS 
-cert\nby default does not use rproxy nor certbot\n\n"
+        docker_profiles_info="
+use
+  rproxy          if you want to add rproxy (nginx) to docker compose
+  rproxy,certbot  for managing a real HTTPS cert
+by default does not use rproxy nor certbot
+
+"
         prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
 
         set -x
