@@ -52,8 +52,9 @@ docker_wizard() {
                 # TODO add more useful vars (postfix _REQUEST)
                 #   - db persistence
                 #   - db type
-                prompt_env_var COMPOSE_PROFILES_REQUEST "" "\nuse\n  rproxy          if you want to add rproxy (nginx) to docker compose\n  rproxy,certbot  for managing a real HTTPS 
+                docker_profiles_info="\nuse\n  rproxy          if you want to add rproxy (nginx) to docker compose\n  rproxy,certbot  for managing a real HTTPS 
 cert\nby default does not use rproxy nor certbot\n\n"
+                prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
 
                 set -x
 
