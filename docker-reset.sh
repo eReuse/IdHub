@@ -43,37 +43,37 @@ prompt_env_var() {
 }
 
 docker_wizard() {
-                set +x
+        set +x
 
-                echo "Detected .env file is missing, so let's initialize the config (if you want to see again, remove .env file), press enter to continue"
-                read enter
+        echo "Detected .env file is missing, so let's initialize the config (if you want to see again, remove .env file), press enter to continue"
+        read enter
 
-                prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
-                # TODO add more useful vars (postfix _REQUEST)
-                #   - db persistence
-                #   - db type
-                docker_profiles_info="\nuse\n  rproxy          if you want to add rproxy (nginx) to docker compose\n  rproxy,certbot  for managing a real HTTPS 
+        prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
+        # TODO add more useful vars (postfix _REQUEST)
+        #   - db persistence
+        #   - db type
+        docker_profiles_info="\nuse\n  rproxy          if you want to add rproxy (nginx) to docker compose\n  rproxy,certbot  for managing a real HTTPS 
 cert\nby default does not use rproxy nor certbot\n\n"
-                prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
+        prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
 
-                set -x
+        set -x
 
-                if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
-                        export IDHUB_FAKE_HTTP_CERT_REQUEST=true
-                else
-                        export IDHUB_FAKE_HTTP_CERT_REQUEST=false
-                fi
+        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
+                export IDHUB_FAKE_HTTP_CERT_REQUEST=true
+        else
+                export IDHUB_FAKE_HTTP_CERT_REQUEST=false
+        fi
 
-                envsubst '${IDHUB_DOMAIN_REQUEST} ${COMPOSE_PROFILES_REQUEST} ${IDHUB_FAKE_HTTP_CERT_REQUEST}' < .env.example > .env
+        envsubst '${IDHUB_DOMAIN_REQUEST} ${COMPOSE_PROFILES_REQUEST} ${IDHUB_FAKE_HTTP_CERT_REQUEST}' < .env.example > .env
 
-                # TODO cleanup the old thing
-                #cp -v .env.example .env
-                #echo "WARNING: .env was not there, .env.example was copied, this only happens once"
+        # TODO cleanup the old thing
+        #cp -v .env.example .env
+        #echo "WARNING: .env was not there, .env.example was copied, this only happens once"
 
-                if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
-                        echo "certbot docker profile detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
-                        ./docker/certbot__generate-first-cert.sh
-                fi
+        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
+                echo "certbot docker profile detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
+                ./docker/certbot__generate-first-cert.sh
+        fi
 }
 
 main() {
