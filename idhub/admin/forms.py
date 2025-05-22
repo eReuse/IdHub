@@ -6,6 +6,7 @@ import pandas as pd
 
 from nacl.exceptions import CryptoError
 from openpyxl import load_workbook
+from django.conf import settings
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
@@ -114,17 +115,17 @@ class TermsConditionsForm(forms.Form):
         return label
 
     def privacy_label(self):
-        url = "https://laweb.pangea.org/politica-de-privacitat/"
+        url = settings.POLICY_PRIVACY
         read = _("Privacy policy")
         return self.get_label(url, read)
 
     def legal_label(self):
-        url = "https://laweb.pangea.org/avis-legal/"
+        url = settings.POLICY_LEGAL
         read = _("Legal policy")
         return self.get_label(url, read)
 
     def cookies_label(self):
-        url = "https://laweb.pangea.org/politica-de-cookies-2/"
+        url = settings.POLICY_COOKIES
         read = _("Cookies policy")
         return self.get_label(url, read)
 
