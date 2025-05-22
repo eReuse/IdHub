@@ -17,17 +17,20 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 
 from idhub.models import DID, VerificableCredential
 from idhub.email.views import NotifyActivateUserByEmail
+from oidc4vp.models import Organization
 
 
 logger = logging.getLogger(__name__)
 
 
 class LoginView(auth_views.LoginView):
+    org = Organization.objects.filter(main=True).first()
     template_name = 'auth/login.html'
     extra_context = {
         'title': _('Login'),
         'success_url': reverse_lazy('idhub:user_dashboard'),
-        'commit_id': settings.COMMIT, 
+        'commit_id': settings.COMMIT,
+        'org': org,
     }
 
     def get(self, request, *args, **kwargs):
@@ -40,7 +43,7 @@ class LoginView(auth_views.LoginView):
                 return redirect(reverse_lazy('idhub:admin_dashboard'))
             else:
                 return redirect(reverse_lazy('idhub:user_dashboard'))
-            
+
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -139,5 +142,3 @@ class DobleFactorSendView(LoginRequiredMixin, NotifyActivateUserByEmail, Templat
 
         self.send_email(self.request.user, token=f2auth)
         return super().get(request, *args, **kwargs)
-
-
