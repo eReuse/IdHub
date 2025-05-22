@@ -24,7 +24,11 @@ logger = logging.getLogger(__name__)
 
 
 class LoginView(auth_views.LoginView):
-    org = Organization.objects.filter(main=True).first()
+    try:
+        org = Organization.objects.filter(main=True).first()
+    except Exception:
+        org= ""
+
     template_name = 'auth/login.html'
     extra_context = {
         'title': _('Login'),
