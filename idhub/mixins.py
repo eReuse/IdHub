@@ -5,6 +5,7 @@ from django.urls import reverse_lazy, resolve
 from django.shortcuts import redirect
 from django.core.cache import cache
 from django.conf import settings
+from oidc4vp.models import Organization
 
 
 class Http403(PermissionDenied):
@@ -54,7 +55,7 @@ class UserView(LoginRequiredMixin):
         url = self.check_gdpr()
 
         return url or response
-        
+
     def post(self, request, *args, **kwargs):
         if settings.ENABLE_DOMAIN_CHECKER:
             err_txt = "User domain is {} which does not match server domain {}".format(
@@ -68,6 +69,7 @@ class UserView(LoginRequiredMixin):
         return url or response
 
     def get_context_data(self, **kwargs):
+        org = Organization.objects.filter(main=True).first()
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
@@ -78,7 +80,8 @@ class UserView(LoginRequiredMixin):
             'user': self.request.user,
             'wallet': self.wallet,
             'admin_validated': True if self.admin_validated else False,
-            'commit_id': settings.COMMIT, 
+            'commit_id': settings.COMMIT,
+            'org': org,
         })
         return context
 
@@ -107,4 +110,3 @@ class AdminView(UserView):
 
         if self.request.session.get("2fauth"):
             raise Http403()
-        
