@@ -22,7 +22,7 @@ The application's backend is responsible for issuing credentials upun user reque
 
 ### Installation
 
-1. Clone this repository: 
+1. Clone this repository:
    ```
    git clone https://gitea.pangea.org/trustchain-oc1-orchestral/IdHub
    ```
@@ -55,7 +55,7 @@ Below you can find a sample .env file with the required variables and a descript
 If you wish to test the application, you can paste the text below into a `.env` file.
 Note that these values are insecure and should not be used in a production environment.
 ```
-# Django secret key. 
+# Django secret key.
 # It is used for cryptographic signing, securing password reset tokens, CSRF protection, and cookie security, ensuring the integrity and confidentiality of critical security operations within a Django application.
 # As the name implies, it's critical that this is kept secret in a production environment.
 SECRET_KEY = 'Dummy-S3cr3t-K3y!#12#**3aaxd'
@@ -80,8 +80,8 @@ MEDIA_ROOT=/tmp/media/
 # DATABASE_URL=postgres://link:to@database:port/idhub
 
 # Defines the admin user after running the demo_data command
-# Defaults to "admin@example.org" if no INITIAL_ADMIN_EMAIL is provided
-# INITIAL_ADMIN_EMAIL="idhub_admin@pangea.org"
+# Defaults to "admin@example.org" if no INIT_ADMIN_EMAIL is provided
+# INIT_ADMIN_EMAIL="idhub_admin@pangea.org"
 
 # Configures a list of tuples containing names and email addresses of site administrators who should receive error notifications.
 ADMINS=[('Admin', 'admin@example.org')]
@@ -168,7 +168,7 @@ IdHub's repository is organized into several directories, each serving a specifi
 
 - **promotion**: Example module showing how to create a portal that initializes the oidc4vp flow.
 
-- **schemas**: Contains verifiable credential schemas used within IdHub for a preload without having to go to the original source. 
+- **schemas**: Contains verifiable credential schemas used within IdHub for a preload without having to go to the original source.
 
 - **trustchain_idhub**: This folder includes settings and configurations for the Django project. It is the entry point of Django, where the global variables, the startup files and the file that defines the endpoints are defined.
 
@@ -197,7 +197,7 @@ For define one query here there are a python example:
 
    response.status_code == 200
    response.json()
-   
+
 ```
    The response of verification can be ```{'status': 'success'}``` or ```{'status': 'fail'}```
    If no there are *type* in data or this is not a *credential* then, the verification proccess hope a *presentation*
@@ -210,4 +210,3 @@ For detailed documentation, visit [Documentation Link](http://idhub.pangea.org/h
 ## License
 
 This project is licensed under the GNU Affero General Public License - see the [LICENSE.md](LICENSE.md) file for details.
-
