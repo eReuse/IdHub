@@ -245,4 +245,16 @@ CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
 ENABLE_DOMAIN_CHECKER = config('ENABLE_DOMAIN_CHECKER', default=True, cast=bool)
 COMMIT = config('COMMIT', default='')
+POLICY_PRIVACY = config(
+    'POLICY_PRIVACY',
+    default="https://laweb.pangea.org/politica-de-privacitat/"
+)
+POLICY_LEGAL = config(
+    'POLICY_LEGAL',
+    default="https://laweb.pangea.org/avis-legal/"
+)
+POLICY_COOKIES = config(
+    'POLICY_COOKIES',
+    default="https://laweb.pangea.org/politica-de-de-cookies-2/"
+)
 
