@@ -95,7 +95,7 @@ services:
 
   certbot:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
-    profiles: [certbot]
+    profiles: [letsencrypt]
     container_name: certbot
     image: certbot/certbot
     volumes:

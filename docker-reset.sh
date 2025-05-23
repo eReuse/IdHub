@@ -54,16 +54,16 @@ want to see again, remove .env file), press enter to continue"
         #   - db type
         docker_profiles_info="
 use
-  rproxy          if you want to add rproxy (nginx) to docker compose
-  rproxy,certbot  for managing a real HTTPS cert
-by default does not use rproxy nor certbot
+  rproxy              if you want to add rproxy (nginx) to docker compose
+  rproxy,letsencrypt  for managing a real HTTPS cert
+by default does not use rproxy nor letsencrypt
 
 "
         prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
 
         set -x
 
-        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
+        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'letsencrypt' ; then
                 export IDHUB_FAKE_HTTP_CERT_REQUEST=true
         else
                 export IDHUB_FAKE_HTTP_CERT_REQUEST=false
@@ -78,8 +78,8 @@ by default does not use rproxy nor certbot
         #cp -v .env.example .env
         #echo "WARNING: .env was not there, .env.example was copied, this only happens once"
 
-        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'certbot' ; then
-                echo "certbot docker profile detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
+        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'letsencrypt' ; then
+                echo "letsencrypt docker profile detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
                 ./docker/certbot__generate-first-cert.sh
         fi
 }
