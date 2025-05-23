@@ -48,11 +48,8 @@ services:
       - ${IDHUB_VOLUME:-.:/opt/idhub}
       - /opt/ereuse-docker-data/${IDHUB_DOMAIN}/idhub-postgres:/idhub-postgres
 
-    depends_on:
-      idhub-postgres:
-        condition: service_healthy
-
   idhub-postgres:
+    profiles: [postgres]
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     # src https://github.com/docker-library/postgres
     image: postgres:17

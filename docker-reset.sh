@@ -47,11 +47,10 @@ want to see again, remove .env file), press enter to continue"
         read enter
 
         prompt_env_var IDHUB_DOMAIN_REQUEST "idhub.example.org"
-        # TODO add more useful vars (postfix _REQUEST)
-        #   - db persistence
-        #   - db type
+
         prompt_env_var IDHUB_TIME_ZONE_REQUEST "Europe/Madrid"
         prompt_env_var IDHUB_DATA_PERSISTENCE_REQUEST "true"
+
         docker_profiles_info="
 use
   rproxy              if you want to add rproxy (nginx) to docker compose
@@ -60,6 +59,17 @@ by default does not use rproxy nor letsencrypt
 
 "
         prompt_env_var COMPOSE_PROFILES_REQUEST "" "${docker_profiles_info}"
+
+        prompt_env_var IDHUB_DB_TYPE_REQUEST "postgres" "
+use
+  postgres  production ready solution
+  sqlite    minimalist solution
+
+"
+        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'postgres' ; then
+                echo "postgres docker profile detected, adding to COMPOSE_PROFILES env var"
+                COMPOSE_PROFILES_REQUEST="${COMPOSE_PROFILES_REQUEST},postgres"
+        fi
 
         set -x
 
