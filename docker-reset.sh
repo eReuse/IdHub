@@ -8,8 +8,6 @@ set -u
 set -x
 
 remove_data() {
-        docker compose down -v
-
         if [ "${IDHUB_DB_TYPE}" = "postgres" ]; then
                 # then remove data and directories
                 docker run --rm -u 999 -v "/opt/ereuse-docker-data/${IDHUB_DOMAIN}/idhub-postgres:/data" alpine sh -c "rm -rf /data/*"
@@ -53,6 +51,7 @@ want to see again, remove .env file), press enter to continue"
         #   - db persistence
         #   - db type
         prompt_env_var IDHUB_TIME_ZONE_REQUEST "Europe/Madrid"
+        prompt_env_var IDHUB_DATA_PERSISTENCE_REQUEST "true"
         docker_profiles_info="
 use
   rproxy              if you want to add rproxy (nginx) to docker compose
@@ -94,7 +93,12 @@ main() {
         fi
         . ./.env
 
-        remove_data
+        if [ "${IDHUB_DATA_PERSISTENCE}" ]; then
+                docker compose down -v
+                remove_data
+        else
+                docker compose down
+        fi
 
         if [ "${DEV_DOCKER_ALWAYS_BUILD:-}" = 'true' ]; then
                 docker compose build
