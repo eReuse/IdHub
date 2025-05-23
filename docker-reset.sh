@@ -52,6 +52,7 @@ want to see again, remove .env file), press enter to continue"
         # TODO add more useful vars (postfix _REQUEST)
         #   - db persistence
         #   - db type
+        prompt_env_var IDHUB_TIME_ZONE_REQUEST "Europe/Madrid"
         docker_profiles_info="
 use
   rproxy              if you want to add rproxy (nginx) to docker compose
