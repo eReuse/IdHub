@@ -15,15 +15,21 @@ END
                 exit 1
 }
 
-inject_env_vars() {
-        # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
-        # TODO I don't like this
-        if [ -d "${idhub_dir}/.git" ]; then
-                git config --global --add safe.directory "${idhub_dir}"
-                export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
+detect_app_version() {
+        if [ -d "${APP_DIR}/.git" ]; then
+                git_commit_info="commit $(gosu ${APP} git log --pretty=format:'%h' -n 1)"
+                export COMMIT="version: commit ${git_commit_info}"
+        else
+                # TODO if software is packaged in setup.py and/or pyproject.toml we can get from there the version
+                #   then we might want to distinguish prod version (stable version) vs development (commit/branch)
+                export COMMIT="version: unknown (reason: git undetected)"
         fi
+}
 
-        cat > status_data <<END
+inject_env_vars() {
+        detect_app_version
+
+        gosu ${APP} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
 }
@@ -37,9 +43,9 @@ deployment_strategy() {
 
         if [ -e "${IDHUB_DB_PATH_CHECKER}" ]; then
                 echo "INFO: detected PREVIOUS deployment"
-                ./manage.py migrate
+                gosu ${APP} ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
-                ./manage.py send_mail_admins
+                gosu ${APP} ./manage.py send_mail_admins
         else
                 echo "INFO: detected NEW deployment"
                 # this file helps all docker containers to guess number of hosts involved
@@ -51,12 +57,12 @@ deployment_strategy() {
                 # move the migrate thing in docker entrypoint
                 #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
                 echo "INFO detected NEW deployment"
-                ./manage.py migrate
+                gosu ${APP} ./manage.py migrate
 
                 if [ "${DEMO:-}" = 'true' ]; then
                         printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                         PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                        ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                        gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
                 fi
 
                 if [ "${OIDC_ORGS:-}" ]; then
@@ -115,27 +121,27 @@ runserver() {
         PORT="${PORT:-8000}"
 
         if [ "${DEBUG:-}" = 'true' ]; then
-                ./manage.py print_settings
+                gosu ${APP} ./manage.py print_settings
         fi
 
         if [ ! "${DEBUG:-}" = "true" ]; then
-                ./manage.py collectstatic
+                gosu ${APP} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
                         # reloading on source code changing is a debugging future, maybe better then use debug
                         #   src https://stackoverflow.com/questions/12773763/gunicorn-autoreload-on-source-change/24893069#24893069
                         # gunicorn with 1 worker, with more than 1 worker this is not expected to work
                         gunicorn --access-logfile - --error-logfile - -b :${PORT} trustchain_idhub.wsgi:application
                 else
-                        ./manage.py runserver 0.0.0.0:${PORT}
+                        gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
                 fi
         elif [ "${DEMO_AUTODECRYPT:-}" = 'true' ]; then
                 DEMO_VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
                 #   and runs the service
                 #   useful for debugging/dev/demo purposes ./manage.py
-                ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
+                gosu ${APP} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
-                ./manage.py runserver 0.0.0.0:${PORT}
+                gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
         fi
 }
 
@@ -145,9 +151,19 @@ check_app_is_there() {
         fi
 }
 
+_prepare() {
+        APP=idhub
+        USER_ID=${LOCAL_USER_ID:-9001}
+        if ! id -u "${APP}" >/dev/null 2>&1; then
+                useradd --shell /bin/bash -u $USER_ID -o -c "" -m ${APP}
+        fi
+        APP_DIR="/opt/${APP}"
+        cd "${APP_DIR}"
+}
+
 main() {
-        idhub_dir='/opt/idhub'
-        cd "${idhub_dir}"
+
+        _prepare
 
         check_app_is_there
 

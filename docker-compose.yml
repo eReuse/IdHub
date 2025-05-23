@@ -8,6 +8,7 @@ services:
       context: .
       dockerfile: docker/idhub.Dockerfile
     environment:
+      - LOCAL_USER_ID=${IDHUB_LOCAL_USER_ID}
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
       - DEBUG=${IDHUB_DEBUG:-true}

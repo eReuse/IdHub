@@ -69,7 +69,10 @@ by default does not use rproxy nor certbot
                 export IDHUB_FAKE_HTTP_CERT_REQUEST=false
         fi
 
-        envsubst '${IDHUB_DOMAIN_REQUEST} ${COMPOSE_PROFILES_REQUEST} ${IDHUB_FAKE_HTTP_CERT_REQUEST}' < .env.example > .env
+        # adapt docker user to your runtime needs -> src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
+        export IDHUB_LOCAL_USER_ID_REQUEST="$(id -u "${USER}")"
+
+        envsubst '${IDHUB_DOMAIN_REQUEST} ${COMPOSE_PROFILES_REQUEST} ${IDHUB_FAKE_HTTP_CERT_REQUEST} LOCAL_USER_ID_REQUEST' < .env.example > .env
 
         # TODO cleanup the old thing
         #cp -v .env.example .env
