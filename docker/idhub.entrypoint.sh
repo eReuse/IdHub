@@ -17,7 +17,7 @@ END
 
 detect_app_version() {
         if [ -d "${APP_DIR}/.git" ]; then
-                git_commit_info="commit $(gosu ${APP} git log --pretty=format:'%h' -n 1)"
+                git_commit_info="$(gosu ${APP} git log --pretty=format:'%h' -n 1)"
                 export COMMIT="version: commit ${git_commit_info}"
         else
                 # TODO if software is packaged in setup.py and/or pyproject.toml we can get from there the version
