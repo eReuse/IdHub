@@ -7,6 +7,7 @@ const apiInitializer = require('./utils/apiInitializer')
 const userRouter = require('./routes/api_management')
 const devicesRouter = require('./routes/devices')
 const credentialsRouter = require('./routes/credentials')
+const miscRouter = require('./routes/misc')
 
 const app = express()
 app.use(bodyParser.json())
@@ -25,6 +26,7 @@ apiInitializer.initial_steps();
 app.use("/", userRouter)
 app.use("/", devicesRouter)
 app.use("/", credentialsRouter)
+app.use("/", miscRouter)
 
 app.use(apiErrorHandler);
 

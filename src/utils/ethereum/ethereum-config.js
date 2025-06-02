@@ -86,5 +86,6 @@ module.exports = {
   idIndexURL: idIndexURL,
   TOKEN_CONTRACT_ADDRESS: TOKEN_CONTRACT_ADDRESS,
   tokenContractIface: tokenContractIface,
-  veramoURL: veramoURL
+  veramoURL: veramoURL,
+  chainId: chainId
 }
