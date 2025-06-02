@@ -3,6 +3,7 @@ const storage = require('node-persist');
 const ethereum = require("./ethereum-config.js")
 const axios = require('axios')
 
+const CHAIN_ID = process.env.CHAIN_ID
 
 async function chid_to_deviceAdress(chid) {
     var response = await ethereum.defaultDeviceFactoryContract.getAddressFromChid(chid)
@@ -59,7 +60,7 @@ async function makeReceiptCall(hash) {
         "params": [
             hash
         ],
-        "id": "457"
+        "id": CHAIN_ID
     });
     var config = {
         method: 'POST',

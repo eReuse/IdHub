@@ -21,6 +21,7 @@ services:
     stop_grace_period: 2s
     environment:
       - MINING_INTERVAL=${DLT_MINING_INTERVAL:-1000}
+      - CHAIN_ID=${DLT_CHAIN_ID:-457}
     build:
       context: ./
       dockerfile: ./Dockerfile_blockchain_test_node
@@ -56,6 +57,7 @@ services:
     # TODO this is somehow redundant or not much consistent with shared volume
     # if this exist, writes api-connector_admin-token.txt file to shared path
     environment:
+      - CHAIN_ID=${DLT_CHAIN_ID:-457}
       - SHARED=./shared
     networks:
       - ereuse
@@ -112,6 +114,8 @@ services:
     build:
       context: ./veramoApi
       dockerfile: ./Dockerfile
+    environment:
+      - CHAIN_ID=${DLT_CHAIN_ID:-457}
     container_name: veramo_api # name of the built image
     ports:
       - "3016:3016"

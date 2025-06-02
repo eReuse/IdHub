@@ -2,11 +2,12 @@ require("@nomicfoundation/hardhat-ethers");
 const { vars } = require("hardhat/config");
 const TEST_NODE_IP=vars.get("TEST_NODE_IP", "blockchain_test_node")
 const miningInterval = parseInt(process.env.MINING_INTERVAL, 10) || 1000;
+const chainId = parseInt(process.env.CHAIN_ID, 10) || 457;
 
 module.exports = {
   networks:{
     hardhat:{
-      chainId: 457,
+      chainId: chainId,
       gasPrice:0,
       hardfork: "london",
       initialBaseFeePerGas:0,
@@ -28,7 +29,7 @@ module.exports = {
         count: 20,
         passphrase: "",
       },
-      chainId: 457,
+      chainId: chainId,
       gasPrice: 0
     },
     abc2_besu: {
@@ -40,7 +41,7 @@ module.exports = {
         count: 20,
         passphrase: "",
       },
-      chainId: 457,
+      chainId: chainId,
       gasPrice: 0
     }
   },

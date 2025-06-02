@@ -34,6 +34,8 @@ import {CredentialIssuerEIP712} from '@veramo/credential-eip712'
 
 const ETH_REGISTRY = process.env.ETH_REGISTRY
 
+const CHAIN_ID = process.env.CHAIN_ID
+
 // This will be the name for the local sqlite database for demo purposes
 const DATABASE_FILE = 'database.sqlite'
 
@@ -66,7 +68,7 @@ export const agent = createAgent({
                 'ereuse': new EthrDIDProvider({
                     name:"ereuse",
                     defaultKms: 'local',
-                    network: 457,
+                    network: CHAIN_ID,
                     //TODO CONFIGURE THIS BETTER
                     //TODO warning, hardcoded blockchain node (only for PoC)
                     rpcUrl: "http://blockchain_test_node:8545",
@@ -80,7 +82,7 @@ export const agent = createAgent({
                     networks: [
                         {
                             name:"mainnet",
-                            chainId: 457,
+                            chainId: CHAIN_ID,
                             //TODO CONFIGURE THIS BETTER
                             //TODO warning, hardcoded blockchain node (only for PoC)
                             rpcUrl: "http://blockchain_test_node:8545",

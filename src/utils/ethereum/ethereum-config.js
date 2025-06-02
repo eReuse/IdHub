@@ -1,6 +1,6 @@
 const ethers = require("ethers")
 const DeviceFactory = require('../../../artifacts/contracts/DeviceFactory.sol/DeviceFactory.json');
-//457
+
 const TokenContract = require('../../../artifacts/contracts/TokenContract.sol/TokenContract.json');
 
 const AccessList = require('../../../artifacts/contracts/AccessList.sol/AccessList.json');
