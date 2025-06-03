@@ -126,3 +126,4 @@ dist
 # do not track this data
 observerModule/data/devices.json
 idIndexApi/data/id_url.json
+veramoApi/src/cache_context.json
