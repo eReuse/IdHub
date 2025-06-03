@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const VIDEO = process.env.VIDEO === 'on';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -24,7 +26,23 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    video: process.env.VIDEO === 'on' ? 'on' : 'off',
+    // https://github.com/microsoft/playwright/issues/10855
+    viewport: { width: 1280, height: 720},
+    //video: VIDEO === 'on' ? 'on' : 'off',
+    // thanks https://www.youtube.com/watch?v=ETFS_RMt4go
+    // https://playwright.dev/docs/test-use-options#more-browser-and-context-options
+    // Conditionally add slowMo when video is on:
+    ...(VIDEO && {
+      video: {
+        mode: 'on',
+        // but remember that video quality is not a priority https://github.com/microsoft/playwright/issues/12056
+        size: { width: 1280, height: 720},
+      },
+      launchOptions: {
+        slowMo: 1000, // 1 second delay between each operation
+      //  slowMo: 0, // 1 second delay between each operation
+      },
+    }),
     recordVideo: { dir: 'test-results/videos/' },
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
@@ -34,20 +52,27 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
+  // viewport needs to be configured for each browser, see https://github.com/microsoft/playwright/issues/13673#issuecomment-1105621745
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'],
+          viewport: { width: 1280, height: 720 },
+      }
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { ...devices['Desktop Firefox'],
+          viewport: { width: 1280, height: 720 },
+      }
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { ...devices['Desktop Safari'],
+          viewport: { width: 1280, height: 720 },
+      }
     },
 
     /* Test against mobile viewports. */
