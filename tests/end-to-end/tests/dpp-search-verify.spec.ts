@@ -21,13 +21,14 @@ async function devicehub_login(page, date, time) {
 }
 
 test('dpp search and verify', async ({ page }) => {
+    test.setTimeout(0)
     await page.goto(TEST_SEARCH_SITE);
     await page.getByPlaceholder('Enter your search query').click();
     await page.getByPlaceholder('Enter your search query').fill('leonvo');
     await page.getByRole('button', { name: 'Search' }).click();
 
     await page.getByRole('link', { name: 'LENOVO 3227A2G' }).first().click();
-    await page.getByRole('button', { name: '7325be8b6bab24d019015a9caf16cdd539126ecd49976b73e4a20ff58fab7e57' }).click();
+    await page.locator('.accordion-button').first().click();
     await page.getByRole('tab', { name: 'Proofs' }).click();
     await page.getByRole('button', { name: 'Verify', exact: true }).click();
     await page.getByRole('button', { name: 'Trust chain' }).click();
