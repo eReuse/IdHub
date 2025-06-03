@@ -4,15 +4,15 @@ import { test, expect } from '@playwright/test';
 
 import path from 'path';
 
-const TEST_SITE = process.env.TEST_SITE || 'http://127.0.0.1:9001'
-const TEST_USER = process.env.TEST_USER || 'admin@example.org'
-const TEST_PASSWD = process.env.TEST_PASSWD || 'admin'
+const TEST_DEVICEHUB_SITE = process.env.TEST_DEVICEHUB_SITE || 'http://127.0.0.1:9001'
+const TEST_DEVICEHUB_USER = process.env.TEST_DEVICEHUB_USER || 'admin@example.org'
+const TEST_DEVICEHUB_PASSWD = process.env.TEST_DEVICEHUB_PASSWD || 'admin'
 
 async function login(page, date, time) {
-    await page.goto(TEST_SITE);
+    await page.goto(TEST_DEVICEHUB_SITE);
     await page.getByPlaceholder('Email address').click();
-    await page.getByPlaceholder('Email address').fill(TEST_USER);
-    await page.getByPlaceholder('Password').fill(TEST_PASSWD);
+    await page.getByPlaceholder('Email address').fill(TEST_DEVICEHUB_USER);
+    await page.getByPlaceholder('Password').fill(TEST_DEVICEHUB_PASSWD);
     await page.getByPlaceholder('Password').press('Enter');
 }
 

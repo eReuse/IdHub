@@ -2,9 +2,9 @@
 
 import { test, expect } from '@playwright/test';
 
-const TEST_DEVICEHUB_SITE = process.env.TEST_SITE || 'http://127.0.0.1:9001'
-const TEST_DEVICEHUB_USER = process.env.TEST_USER || 'user@example.org'
-const TEST_DEVICEHUB_PASSWD = process.env.TEST_PASSWD || '1234'
+const TEST_DEVICEHUB_SITE = process.env.TEST_DEVICEHUB_SITE || 'http://127.0.0.1:9001'
+const TEST_DEVICEHUB_USER = process.env.TEST_DEVICEHUB_USER || 'user@example.org'
+const TEST_DEVICEHUB_PASSWD = process.env.TEST_DEVICEHUB_PASSWD || '1234'
 
 const TEST_SEARCH_SITE = process.env.TEST_SEARCH_SITE || 'http://127.0.0.1'
 
