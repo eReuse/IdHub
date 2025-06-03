@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const VIDEO = process.env.VIDEO === 'on';
+const VIDEO = process.env.VIDEO === 'y';
 
 /**
  * Read environment variables from file.

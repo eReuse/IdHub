@@ -15,7 +15,7 @@ main() {
         headed="${headed:---headed}"
 
         if [ "${VIDEO}" = 'y' ]; then
-                export VIDEO="on"
+                export VIDEO
         else
                 unset VIDEO
         fi
