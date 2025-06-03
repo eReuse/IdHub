@@ -122,3 +122,7 @@ dist
 
 # vim temp files
 *.swp
+
+# do not track this data
+observerModule/data/devices.json
+idIndexApi/data/id_url.json
