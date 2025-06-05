@@ -437,7 +437,13 @@ class CredentialsRequestView(MyWallet, FormView):
         return kwargs
     
     def form_valid(self, form):
-        cred = form.save()
+        try:
+            cred = form.save()
+        except Exception as err:
+            logger.error(err)
+            messages.error(self.request, err)
+            return redirect(self.success_url)
+
         if cred:
             messages.success(self.request, _("The credential was issued successfully!"))
             Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)
