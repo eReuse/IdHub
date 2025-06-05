@@ -113,11 +113,7 @@ class RequestCredentialForm(forms.Form):
 
         did = did[0]
         cred = cred[0]
-        try:
-            cred.issue(did, domain=self._domain)
-        except Exception as err:
-            logger.error(err)
-            return
+        cred.issue(did, domain=self._domain)
 
         if commit:
             cred.save()

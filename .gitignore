@@ -4,3 +4,6 @@ db.sqlite3
 env/
 __pycache__/
 status_data
+
+# pyvckit cache
+cache_context.json

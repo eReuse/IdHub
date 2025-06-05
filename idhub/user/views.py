@@ -1,6 +1,7 @@
 import json
 import base64
 import qrcode
+import logging
 import weasyprint
 import qrcode.image.svg
 
@@ -41,6 +42,9 @@ from utils import certs
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event, Membership
 from idhub_auth.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 class MyProfile(UserView):
@@ -433,7 +437,13 @@ class CredentialsRequestView(MyWallet, FormView):
         return kwargs
     
     def form_valid(self, form):
-        cred = form.save()
+        try:
+            cred = form.save()
+        except Exception as err:
+            logger.error(err)
+            messages.error(self.request, err)
+            return redirect(self.success_url)
+
         if cred:
             messages.success(self.request, _("The credential was issued successfully!"))
             Event.set_EV_CREDENTIAL_ISSUED_FOR_USER(cred)

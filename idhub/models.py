@@ -2,6 +2,7 @@ import json
 import ujson
 import pytz
 import hashlib
+import logging
 import datetime
 from collections import OrderedDict
 from django.db import models
@@ -19,6 +20,9 @@ from pyvckit.verify import verify_vc
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 class Event(models.Model):
@@ -694,14 +698,6 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        supported = False
-        for name in self.schema.get_schema.get("name"):
-            if name.get("value") in settings.SUPPORTED_CREDENTIALS:
-                supported = True
-
-        if not supported:
-            return
-
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
@@ -716,7 +712,7 @@ class VerificableCredential(models.Model):
         valid = verify_vc(vc_str)
 
         if not valid:
-            return
+            raise Exception(_("The credential is not valid"))
 
         if not save:
             return vc_str
