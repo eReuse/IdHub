@@ -44,17 +44,17 @@ class TermsConditionsForm(forms.Form):
         return label
 
     def privacy_label(self):
-        url = "https://laweb.pangea.org/politica-de-privacitat/"
+        url = settings.POLICY_PRIVACY
         read = _("Privacy policy")
         return self.get_label(url, read)
 
     def legal_label(self):
-        url = "https://laweb.pangea.org/avis-legal/"
+        url = settings.POLICY_LEGAL
         read = _("Legal policy")
         return self.get_label(url, read)
 
     def cookies_label(self):
-        url = "https://laweb.pangea.org/politica-de-cookies-2/"
+        url = settings.POLICY_COOKIES
         read = _("Cookies policy")
         return self.get_label(url, read)
 
@@ -66,16 +66,16 @@ class TermsConditionsForm(forms.Form):
         if privacy and legal and cookies:
             self.user.accept_gdpr = True
         else:
-            self.user.accept_gdpr = False        
+            self.user.accept_gdpr = False
         return data
-        
+
     def save(self, commit=True):
 
         if commit:
             self.user.save()
             return self.user
-        
-        return 
+
+        return
 
 
 class RequestCredentialForm(forms.Form):
@@ -118,8 +118,8 @@ class RequestCredentialForm(forms.Form):
         if commit:
             cred.save()
             return cred
-        
-        return 
+
+        return
 
 
 class DemandAuthorizationForm(forms.Form):
@@ -132,7 +132,7 @@ class DemandAuthorizationForm(forms.Form):
         self.fields['organization'].choices = [
             (x.id, x.name) for x in Organization.objects.exclude(
                 domain=settings.DOMAIN
-            ) 
+            )
         ]
 
     def save(self, commit=True):
@@ -148,6 +148,5 @@ class DemandAuthorizationForm(forms.Form):
             url = self.org.demand_authorization()
             if url.status_code == 200:
                 return url.json().get('redirect_uri')
-        
-        return 
 
+        return

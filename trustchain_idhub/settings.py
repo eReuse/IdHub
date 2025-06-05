@@ -43,8 +43,8 @@ assert DOMAIN in ALLOWED_HOSTS, "DOMAIN is not ALLOWED_HOST"
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=f'https://{DOMAIN}', cast=Csv())
 
-INITIAL_ADMIN_EMAIL = config("INITIAL_ADMIN_EMAIL", default='admin@example.org')
-INITIAL_ADMIN_PASSWORD = config("INITIAL_ADMIN_PASSWORD", default='1234')
+INIT_ADMIN_EMAIL = config("INIT_ADMIN_EMAIL", default='admin@example.org')
+INIT_ADMIN_PASSWORD = config("INIT_ADMIN_PASSWORD", default='1234')
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
@@ -245,4 +245,16 @@ CREATE_TEST_USERS = config('CREATE_TEST_USERS', default=False, cast=bool)
 ENABLE_2FACTOR_AUTH = config('ENABLE_2FACTOR_AUTH', default=True, cast=bool)
 ENABLE_DOMAIN_CHECKER = config('ENABLE_DOMAIN_CHECKER', default=True, cast=bool)
 COMMIT = config('COMMIT', default='')
+POLICY_PRIVACY = config(
+    'POLICY_PRIVACY',
+    default="https://laweb.pangea.org/politica-de-privacitat/"
+)
+POLICY_LEGAL = config(
+    'POLICY_LEGAL',
+    default="https://laweb.pangea.org/avis-legal/"
+)
+POLICY_COOKIES = config(
+    'POLICY_COOKIES',
+    default="https://laweb.pangea.org/politica-de-de-cookies-2/"
+)
 

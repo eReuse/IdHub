@@ -35,7 +35,7 @@
       }
     </style>
 
-  
+
     <!-- Custom styles for this template -->
     <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
     {% endblock %}
@@ -68,9 +68,10 @@
             <div id="login-content" class="rounded">
                 <div id="login-branding">
                     {% block branding %}
-                    <h1>
-                        <img class="img-fluid" src="{% static '/images/logo-pangea-monocrome-h.png' %}"
-                            alt="Pangea.org - Internet etic i solidari" />
+                    <h1 class="text-center">
+		      {{ org.name }}
+                        <!-- <img class="img-fluid" src="{% static '/images/logo-pangea-monocrome-h.png' %}"
+                            alt="Pangea.org - Internet etic i solidari" /> -->
                     </h1>
                     {% endblock %}
                 </div><!-- /login-branding -->
