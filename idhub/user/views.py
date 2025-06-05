@@ -1,6 +1,7 @@
 import json
 import base64
 import qrcode
+import logging
 import weasyprint
 import qrcode.image.svg
 
@@ -41,6 +42,9 @@ from utils import certs
 from idhub.mixins import UserView
 from idhub.models import DID, VerificableCredential, Event, Membership
 from idhub_auth.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 class MyProfile(UserView):

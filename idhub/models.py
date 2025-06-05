@@ -2,6 +2,7 @@ import json
 import ujson
 import pytz
 import hashlib
+import logging
 import datetime
 from collections import OrderedDict
 from django.db import models
@@ -19,6 +20,9 @@ from pyvckit.verify import verify_vc
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 class Event(models.Model):

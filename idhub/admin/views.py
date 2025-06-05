@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+
 from pathlib import Path
 from smtplib import SMTPException
 from django_tables2 import SingleTableView
@@ -54,6 +56,9 @@ from idhub.models import (
     UserRol,
     VerificableCredential,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class TermsAndConditionsView(AdminView, FormView):
