@@ -9,7 +9,7 @@
     <meta name="robots" content="NONE,NOARCHIVE" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
-    <meta name="author" content="Pangea">
+    <meta name="author" content="{{ org.name }}">
     {% endblock %}
     <title>{% block title %}{% if title %}{{ title }} – {% endif %}IdHub{% endblock %}</title>
 
@@ -51,7 +51,7 @@
       }
     </style>
 
-  
+
     <!-- Custom styles for this template -->
     <link href="{% static "/css/dashboard.css" %}" rel="stylesheet">
     {% endblock %}
@@ -61,7 +61,7 @@
     <header class="navbar navbar-dark sticky-top bg-green flex-md-nowrap p-0 shadow">
       <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">ID HUB</a>
       <div class="navbar-nav navbar-sub-brand">
-         PANGEA
+         {{ org.name }}
       </div>
       <div class="navbar-nav">
         <div class="nav-item text-nowrap">

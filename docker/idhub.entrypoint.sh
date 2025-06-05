@@ -15,7 +15,11 @@ END
                 exit 1
 }
 
-inject_env_vars() {
+gen_env_vars() {
+        INIT_ORG="${INIT_ORG:-example-org}"
+        INIT_ADMIN_USER="${INIT_ADMIN_EMAIL:-user@example.org}"
+        INIT_ADMIN_PASSWD="${INIT_ADMIN_PASSWORD:-1234}"
+
         # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
         if [ -d "${idhub_dir}/.git" ]; then
                 git config --global --add safe.directory "${idhub_dir}"
@@ -48,10 +52,14 @@ deployment_strategy() {
                 echo "INFO detected NEW deployment"
                 ./manage.py migrate
 
+                # init data
                 if [ "${DEMO:-}" = 'true' ]; then
                         printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                         PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
                         ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                else
+                        ./manage.py init_org "${INIT_ORG}"
+                        ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
                 fi
 
                 if [ "${OIDC_ORGS:-}" ]; then
@@ -147,9 +155,9 @@ main() {
 
         check_app_is_there
 
-        deployment_strategy
+        gen_env_vars
 
-        inject_env_vars
+        deployment_strategy
 
         runserver
 }
