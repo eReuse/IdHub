@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+
 from pathlib import Path
 from smtplib import SMTPException
 from django_tables2 import SingleTableView
@@ -54,6 +56,9 @@ from idhub.models import (
     UserRol,
     VerificableCredential,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class TermsAndConditionsView(AdminView, FormView):
@@ -782,10 +787,18 @@ class DidRegisterView(Credentials, CreateView):
     object = None
 
     def form_valid(self, form):
-        form.instance.set_did()
+        try:
+            form.instance.set_did()
+        except Exception as err:
+            logger.error(err)
+            err_msg = _('DID could not be created: %(reason)s')
+            messages.error(self.request, err_msg % {'reason': str(err)})
+            return self.form_invalid(form)
+
         form.save()
-        messages.success(self.request, _('DID created successfully'))
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
+        messages.success(self.request, _('DID created successfully'))
+
         return super().form_valid(form)
 
 
