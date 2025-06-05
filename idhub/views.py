@@ -32,16 +32,11 @@ class LoginView(auth_views.LoginView):
     template_name = 'auth/login.html'
     extra_context = {
         'title': _('Login'),
-        'success_url': reverse_lazy('idhub:user_dashboard'),
         'commit_id': settings.COMMIT,
         'org': org,
     }
 
     def get(self, request, *args, **kwargs):
-        self.extra_context['success_url'] = request.GET.get(
-            'next',
-            reverse_lazy('idhub:user_dashboard')
-        )
         if not self.request.user.is_anonymous:
             if self.request.user.is_admin:
                 return redirect(reverse_lazy('idhub:admin_dashboard'))
@@ -54,6 +49,10 @@ class LoginView(auth_views.LoginView):
         user = form.get_user()
         auth_login(self.request, user)
 
+        next_url = self.request.POST.get('next')
+        if next_url:
+            return redirect(next_url)
+
         if user.is_anonymous:
             return redirect(reverse_lazy("idhub:login"))
 
@@ -62,10 +61,10 @@ class LoginView(auth_views.LoginView):
                 self.request.session["2fauth"] = str(uuid.uuid4())
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
-            admin_dashboard = reverse_lazy('idhub:admin_dashboard')
-            self.extra_context['success_url'] = admin_dashboard
+            return redirect(reverse_lazy('idhub:admin_dashboard'))
 
-        return redirect(self.extra_context['success_url'])
+        # is user
+        return redirect(reverse_lazy('idhub:user_dashboard'))
 
 
 class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
