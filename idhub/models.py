@@ -698,14 +698,6 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        supported = False
-        for name in self.schema.get_schema.get("name"):
-            if name.get("value") in settings.SUPPORTED_CREDENTIALS:
-                supported = True
-
-        if not supported:
-            return
-
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
