@@ -720,7 +720,7 @@ class VerificableCredential(models.Model):
         valid = verify_vc(vc_str)
 
         if not valid:
-            return
+            raise Exception(_("The credential is not valid"))
 
         if not save:
             return vc_str
