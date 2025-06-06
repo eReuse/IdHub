@@ -58,7 +58,6 @@ test('when user goes to login, redirect to user dashboard', async ({ page }) => 
     await expect(page).toHaveURL(new RegExp('user/dashboard'));
 });
 
-// TODO fix this, it does a weird forbidden
 test('user tries url from admin, should go to dashboard', async ({ page }) => {
     test.setTimeout(0)
     await page.goto(`${TEST_SITE}/admin/wallet/identities/`);

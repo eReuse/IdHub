@@ -5,6 +5,7 @@ from django.urls import reverse_lazy, resolve
 from django.shortcuts import redirect
 from django.core.cache import cache
 from django.conf import settings
+from django.contrib import messages
 from oidc4vp.models import Organization
 
 
@@ -106,7 +107,8 @@ class AdminView(UserView):
 
     def check_valid_user(self):
         if not self.request.user.is_admin:
-            raise Http403()
+            messages.error(self.request, _("User is not authorized to see admin pages, redirected to user dashboard"))
+            return redirect(reverse_lazy('idhub:user_dashboard'))
 
         if self.request.session.get("2fauth"):
             raise Http403()
