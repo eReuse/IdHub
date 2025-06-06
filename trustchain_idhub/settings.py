@@ -121,15 +121,15 @@ WSGI_APPLICATION = 'trustchain_idhub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if os.getenv('IDHUB_DB_TYPE', 'postgres') == 'postgres':
+if config('IDHUB_DB_TYPE', '') == 'postgres':
     DATABASES = {
         'default': {
-            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-            'NAME': os.getenv('IDHUB_DB_NAME', 'idhub'),
-            'USER': os.getenv('IDHUB_DB_USER', 'ereuse'),
-            'PASSWORD': os.getenv('IDHUB_DB_PASSWORD', 'ereuse'),
-            'HOST': os.getenv('IDHUB_DB_HOST', 'idhub-postgres'),
-            'PORT': os.getenv('IDHUB_DB_PORT', '5432'),
+            'ENGINE': config('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': config('IDHUB_DB_NAME', 'idhub'),
+            'USER': config('IDHUB_DB_USER', 'ereuse'),
+            'PASSWORD': config('IDHUB_DB_PASSWORD', 'ereuse'),
+            'HOST': config('IDHUB_DB_HOST', 'idhub-postgres'),
+            'PORT': config('IDHUB_DB_PORT', '5432'),
         }
     }
 # sqlite is fallback
