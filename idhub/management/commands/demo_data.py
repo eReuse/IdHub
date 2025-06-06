@@ -32,8 +32,8 @@ class Command(BaseCommand):
         parser.add_argument('predefined_did', nargs='?', default='', type=str, help='predefined did')
 
     def handle(self, *args, **kwargs):
-        ADMIN_EMAIL = settings.INITIAL_ADMIN_EMAIL
-        ADMIN_PASSWORD = settings.INITIAL_ADMIN_PASSWORD
+        ADMIN_EMAIL = settings.INIT_ADMIN_EMAIL
+        ADMIN_PASSWORD = settings.INIT_ADMIN_PASSWORD
         self.predefined_token = kwargs['predefined_token']
         self.predefined_did = kwargs['predefined_did']
         # on demo situation, encrypted vault is hardcoded with password DEMO
