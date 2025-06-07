@@ -209,7 +209,7 @@ class DIDTable(tables.Table):
 
     def render_did(self, record):
         if record.has_link():
-            return format_html('<a href="{}">{}</a>', record.get_path(), record.did)
+            return format_html('<a href="{}" target="_blank">{}</a>', record.get_path(), record.did)
         return record.did
 
     def render_edit_did(self):

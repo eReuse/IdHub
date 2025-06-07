@@ -1,0 +1,132 @@
+# serve no content when IP is reached
+#   first attempt -> thanks https://github.com/jcalazan/ansible-django-stack/pull/113
+#   second attempt includes handling 443 ssl http2 -> src https://stackoverflow.com/questions/9824328/why-is-nginx-responding-to-any-domain-name/43128186#43128186
+server {
+        # without listening in 80, it still does the expected thing
+        listen              80 default_server;
+        listen              443 ssl http2 default_server;
+        server_name         _;
+        ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
+        ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+        # return 204 "no content"
+        return              204;
+}
+
+
+# Minimum Nginx version required:  1.13.0 (released Apr 25, 2017)
+# Please check your Nginx installation features the following modules via 'nginx -V':
+# STANDARD HTTP MODULES: Core, Proxy, Rewrite, Access, Gzip, Headers, HTTP/2, Log, Real IP, SSL, Thread Pool, Upstream, AIO Multithreading.
+# THIRD PARTY MODULES:   None.
+
+server {
+  listen 80;
+  listen [::]:80;
+  server_name ${WEBSERVER_HOST};
+
+  location /.well-known/acme-challenge/ {
+    default_type "text/plain";
+    root /var/www/certbot;
+  }
+  location / { return 301 https://$host$request_uri; }
+}
+
+upstream backend {
+  server ${APP_HOST};
+}
+
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  server_name ${WEBSERVER_HOST};
+  http2 on;
+
+  access_log /var/log/nginx/app.access.log; # reduce I/0 with buffer=10m flush=5m
+  error_log  /var/log/nginx/app.error.log;
+
+  ##
+  # Certificates
+  # you need a certificate to run in production. see https://letsencrypt.org/
+  ##
+  ssl_certificate     ${SSL_CERTIFICATE_PATH};
+  ssl_certificate_key ${SSL_CERTIFICATE_KEY_PATH};
+
+  location ^~ '/.well-known/acme-challenge' {
+    default_type "text/plain";
+    root /var/www/certbot;
+  }
+
+  ##
+  # Security hardening (as of Nov 15, 2020)
+  # based on Mozilla Guideline v5.6
+  ##
+
+  ssl_protocols             TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers               ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256; # add ECDHE-RSA-AES256-SHA if you want compatibility with Android 4
+  ssl_session_timeout       1d; # defaults to 5m
+  ssl_session_cache         shared:SSL:10m; # estimated to 40k sessions
+  ssl_session_tickets       off;
+  #ssl_stapling              on;
+  #ssl_stapling_verify       on;
+  # HSTS (https://hstspreload.org), requires to be copied in 'location' sections that have add_header directives
+  #add_header Strict-Transport-Security "max-age=63072000; includeSubDomains";
+
+  ##
+  # Application
+  ##
+
+  location / {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host            $host;
+    proxy_set_header X-Real-IP       $remote_addr;
+
+    client_max_body_size  100k; # default is 1M
+
+    proxy_connect_timeout 10m;
+    proxy_send_timeout    10m;
+    proxy_read_timeout    10m;
+    send_timeout          10m;
+
+    proxy_pass http://backend;
+  }
+
+
+  ##
+  # Performance optimizations
+  # For extra performance please refer to https://github.com/denji/nginx-tuning
+  ##
+
+  # TODO
+  #root /var/www/app;
+
+  # Enable compression for JS/CSS/HTML, for improved client load times.
+  # It might be nice to compress JSON/XML as returned by the API, but
+  # leaving that out to protect against potential BREACH attack.
+  gzip              on;
+  gzip_vary         on;
+  gzip_types        # text/html is always compressed by HttpGzipModule
+                    text/css
+                    application/javascript
+                    font/truetype
+                    font/opentype
+                    application/vnd.ms-fontobject
+                    image/svg+xml;
+  gzip_min_length   1000; # default is 20 bytes
+  gzip_buffers      16 8k;
+  gzip_comp_level   2; # default is 1
+
+  client_body_timeout       30s; # default is 60
+  client_header_timeout     10s; # default is 60
+  send_timeout              10s; # default is 60
+  keepalive_timeout         10s; # default is 75
+  resolver_timeout          10s; # default is 30
+  reset_timedout_connection on;
+  proxy_ignore_client_abort on;
+
+  tcp_nopush                on; # send headers in one piece
+  tcp_nodelay               on; # don't buffer data sent, good for small data bursts in real time
+
+  # If you have a small /var/lib partition, it could be interesting to store temp nginx uploads in a different place
+  # See https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_temp_path
+  #client_body_temp_path /var/www/app/storage/nginx/;
+}
