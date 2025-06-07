@@ -1,17 +1,21 @@
 services:
 
   idhub:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     init: true
-    image: farga.pangea.org/ereuse/idhub:stable
+    image: ghcr.io/ereuse/idhub:${IDHUB_DOCKER_TAG:-stable}
     build:
       context: .
       dockerfile: docker/idhub.Dockerfile
     environment:
+      - LOCAL_USER_ID=${IDHUB_LOCAL_USER_ID}
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
       - DEBUG=${IDHUB_DEBUG:-true}
       - DEMO=${IDHUB_DEMO:-true}
-      - IDHUB_DB_TYPE=${IDHUB_DB_TYPE:-postgres}
+      - DEMO_AUTODECRYPT=${IDHUB_DEMO_AUTODECRYPT:-false}
+      - REMOVE_DATA=${IDHUB_REMOVE_DATA:-false}
+      - DB_TYPE=${IDHUB_DB_TYPE:-postgres}
       - CREATE_TEST_USERS=${IDHUB_CREATE_TEST_USERS:-true}
       - INIT_ADMIN_EMAIL=${IDHUB_INIT_ADMIN_EMAIL}
       - INIT_ADMIN_PASSWORD=${IDHUB_INIT_ADMIN_PASSWORD}
@@ -22,7 +26,7 @@ services:
       - ENABLE_2FACTOR_AUTH=${IDHUB_ENABLE_2FACTOR_AUTH:-true}
       - ENABLE_DOMAIN_CHECKER=${IDHUB_ENABLE_DOMAIN_CHECKER:-true}
       - PREDEFINED_TOKEN=${IDHUB_PREDEFINED_TOKEN:-}
-      - SECRET_KEY=${IDHUB_SECRET_KEY:-publicsecretisnotsecureVtmKBfxpVV47PpBCF2Nzz2H6qnbd}
+      - SECRET_KEY=${IDHUB_SECRET_KEY}
       - STATIC_ROOT=${IDHUB_STATIC_ROOT:-/static/}
       - MEDIA_ROOT=${IDHUB_MEDIA_ROOT:-/media/}
       - PORT=${IDHUB_PORT:-9001}
@@ -40,28 +44,25 @@ services:
       - DB_NAME=${IDHUB_POSTGRES_NAME}
       - DB_USER=${IDHUB_POSTGRES_USER}
       - DB_PASSWORD=${IDHUB_POSTGRES_PASSWORD}
+      - TIME_ZONE=${IDHUB_TIME_ZONE}
 
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     volumes:
-      - ${IDHUB_VOLUME:-.:/opt/idhub}
-
-    depends_on:
-      idhub-postgres:
-        condition: service_healthy
-        restart: true
+      - ${IDHUB_VOLUME:-.:${IDHUB_ROOT_DIR}/idhub}
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/idhub-postgres:/idhub-postgres
 
   idhub-postgres:
+    profiles: [postgres]
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    # src https://github.com/docker-library/postgres
     image: postgres:17
     environment:
       - POSTGRES_DB=${IDHUB_POSTGRES_NAME}
       - POSTGRES_USER=${IDHUB_POSTGRES_USER}
       - POSTGRES_PASSWORD=${IDHUB_POSTGRES_PASSWORD}
-    # TODO probablemente no hace falta, si no afecta borrar 'ports'
-    #ports:
-    #  - 5432:5432
     volumes:
-      - IDHUB_POSTGRES_DATA:/var/lib/postgresql/data
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/idhub-postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${IDHUB_POSTGRES_USER} -d ${IDHUB_POSTGRES_NAME}"]
       start_period: 1s
@@ -69,6 +70,43 @@ services:
       timeout: 10s
       retries: 10
 
+  idhub-rproxy:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    profiles: [rproxy]
+    image: ghcr.io/ereuse/idhub-rproxy:${IDHUB_DOCKER_TAG:-stable}
+    build:
+      context: .
+      dockerfile: ./docker/nginx.Dockerfile
+    environment:
+      - WEBSERVER_HOST=${IDHUB_DOMAIN}
+      - APP_HOST=idhub:${IDHUB_PORT}
+      - FAKE_HTTP_CERT=${IDHUB_FAKE_HTTP_CERT}
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+      - type: bind
+        source: docker/nginx/app.template
+        target: /etc/nginx/conf.d/app.template
+      # TODO static nginx files
+      #- static:/path/to/static/files:ro
+      - certbot-www:/var/www/certbot
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/certbot/conf:/etc/letsencrypt
+    depends_on:
+      - idhub
+
+  certbot:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    profiles: [letsencrypt]
+    container_name: certbot
+    image: certbot/certbot
+    volumes:
+      # TODO IDHUB_DOMAIN?
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/certbot/conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: /bin/sh -c "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
+    depends_on:
+      - idhub-rproxy
+
 volumes:
-  IDHUB_DATA:
-  IDHUB_POSTGRES_DATA:
+  certbot-www:

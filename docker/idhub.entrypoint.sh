@@ -15,59 +15,81 @@ END
                 exit 1
 }
 
+detect_app_version() {
+        if [ -d "${APP_DIR}/.git" ]; then
+                git_commit_info="$(gosu ${APP} git log --pretty=format:'%h' -n 1)"
+                export COMMIT="version: commit ${git_commit_info}"
+        else
+                # TODO if software is packaged in setup.py and/or pyproject.toml we can get from there the version
+                #   then we might want to distinguish prod version (stable version) vs development (commit/branch)
+                export COMMIT="version: unknown (reason: git undetected)"
+        fi
+}
+
 gen_env_vars() {
         INIT_ORG="${INIT_ORG:-example-org}"
         INIT_ADMIN_USER="${INIT_ADMIN_EMAIL:-user@example.org}"
         INIT_ADMIN_PASSWD="${INIT_ADMIN_PASSWORD:-1234}"
 
-        # related https://www.kenmuse.com/blog/avoiding-dubious-ownership-in-dev-containers/
-        if [ -d "${idhub_dir}/.git" ]; then
-                git config --global --add safe.directory "${idhub_dir}"
-                export COMMIT="commit: $(git log --pretty=format:'%h' -n 1)"
-        fi
+        detect_app_version
 
-        cat > status_data <<END
+        gosu ${APP} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
 }
 
-deployment_strategy() {
-        init_flagfile="${idhub_dir}/already_configured.idhub"
+init_db() {
+        echo "INFO: INIT IDHUB DATABASE"
+        # this file helps all docker containers to guess number of hosts involved
+        #   right now is only needed by new deployment for oidc
+        if [ -d "/sharedsecret" ]; then
+                touch /sharedsecret/${DOMAIN}
+        fi
 
-        if [ -f "${init_flagfile}" ]; then
-                echo "INFO: detected PREVIOUS deployment"
-                ./manage.py migrate
-                # warn admin that it should re-enter password to keep the service working
-                ./manage.py send_mail_admins
+        # move the migrate thing in docker entrypoint
+        #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
+        gosu ${APP} ./manage.py migrate
+
+        # init data
+        if [ "${DEMO:-}" = 'true' ]; then
+                printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
+                PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
+                gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
         else
-                echo "INFO: detected NEW deployment"
-                # this file helps all docker containers to guess number of hosts involved
-                #   right now is only needed by new deployment for oidc
-                if [ -d "/sharedsecret" ]; then
-                        touch /sharedsecret/${DOMAIN}
-                fi
+                gosu ${APP} ./manage.py init_org "${INIT_ORG}"
+                gosu ${APP} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
+        fi
 
-                # move the migrate thing in docker entrypoint
-                #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
-                echo "INFO detected NEW deployment"
-                ./manage.py migrate
+        if [ -f "${OIDC_ORGS:-}" ]; then
+                config_oidc4vp
+        else
+                echo "Note: skipping oidc4vp config"
+        fi
 
-                # init data
-                if [ "${DEMO:-}" = 'true' ]; then
-                        printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
-                        PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                        ./manage.py demo_data "${PREDEFINED_TOKEN}"
-                else
-                        ./manage.py init_org "${INIT_ORG}"
-                        ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
-                fi
+}
 
-                if [ "${OIDC_ORGS:-}" ]; then
-                        config_oidc4vp
-                else
-                        echo "Note: skipping oidc4vp config"
-                fi
-                touch "${init_flagfile}"
+manage_db() {
+        if [ "${DB_TYPE:-}" = "postgres" ]; then
+                echo "INFO: WAITING DATABASE CONNECTIVITY"
+                # TODO hardcoded only for this docker compose deployment
+                DB_HOST=idhub-postgres
+                #   https://github.com/docker-library/postgres/issues/146#issuecomment-213545864
+                #   https://github.com/docker-library/postgres/issues/146#issuecomment-2905869196
+                while ! pg_isready -h "${DB_HOST}"; do
+                        sleep 1
+                done
+        fi
+        if [ "${REMOVE_DATA}" = "true" ]; then
+                echo "INFO: REMOVE IDHUB DATABASE (reason: IDHUB_REMOVE_DATA is equal to true)"
+                # https://django-extensions.readthedocs.io/en/latest/reset_db.html
+                # https://github.com/django-cms/django-cms/issues/5921#issuecomment-343658455
+                gosu ${APP} ./manage.py reset_db --close-sessions --noinput
+                init_db
+        else
+                echo "INFO: PRESERVE IDHUB DATABASE"
+                gosu ${APP} ./manage.py migrate
+                # warn admin that it should re-enter password to keep the service working
+                gosu ${APP} ./manage.py send_mail_admins
         fi
 }
 
@@ -119,27 +141,27 @@ runserver() {
         PORT="${PORT:-8000}"
 
         if [ "${DEBUG:-}" = 'true' ]; then
-                ./manage.py print_settings
+                gosu ${APP} ./manage.py print_settings
         fi
 
         if [ ! "${DEBUG:-}" = "true" ]; then
-                ./manage.py collectstatic
+                gosu ${APP} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
                         # reloading on source code changing is a debugging future, maybe better then use debug
                         #   src https://stackoverflow.com/questions/12773763/gunicorn-autoreload-on-source-change/24893069#24893069
                         # gunicorn with 1 worker, with more than 1 worker this is not expected to work
                         gunicorn --access-logfile - --error-logfile - -b :${PORT} trustchain_idhub.wsgi:application
                 else
-                        ./manage.py runserver 0.0.0.0:${PORT}
+                        gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
                 fi
-        elif [ "${DEMO:-}" = 'true' ]; then
-                VAULT_PASSWORD="DEMO"
+        elif [ "${DEMO_AUTODECRYPT:-}" = 'true' ]; then
+                DEMO_VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
                 #   and runs the service
                 #   useful for debugging/dev/demo purposes ./manage.py
-                ./manage.py open_service "${VAULT_PASSWORD}" 0.0.0.0:${PORT}
+                gosu ${APP} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
-                ./manage.py runserver 0.0.0.0:${PORT}
+                gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
         fi
 }
 
@@ -149,15 +171,28 @@ check_app_is_there() {
         fi
 }
 
+_prepare() {
+        APP=idhub
+        # src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
+        #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
+        #   related https://github.com/moby/moby/issues/2259
+        USER_ID=${LOCAL_USER_ID:-9001}
+        if ! id -u "${APP}" >/dev/null 2>&1; then
+                useradd --shell /bin/bash -u $USER_ID -o -c "" -m ${APP}
+        fi
+        APP_DIR="/opt/${APP}"
+        cd "${APP_DIR}"
+}
+
 main() {
-        idhub_dir='/opt/idhub'
-        cd "${idhub_dir}"
+
+        _prepare
 
         check_app_is_there
 
         gen_env_vars
 
-        deployment_strategy
+        manage_db
 
         runserver
 }
