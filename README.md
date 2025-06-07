@@ -14,6 +14,12 @@ The main modules components it provides:
 The application's backend is responsible for issuing credentials upon user request through the user module. Meanwhile, the IdHub can function as a credential verifier and engage in dialogues with other IdHub instances that operate as user wallets by implementing a OIDC4VP based dialog. Consequently, the IdHub is multifaceted, capable of functioning as an issuer, wallet or verifier.
 - **OIDC4VP module**: Module where all oidc4vp flows reside for credential presentation.
 
+## Getting Started (without docker)
+
+### Prerequisites
+
+- Python >= 3.11.2
+
 ## Getting Started
 
 ### Prerequisites
@@ -138,7 +144,7 @@ ENABLE_2FACTOR_AUTH=false
 
 ### Usage
 
-Access the application at `http://localhost:8000`.
+Access the application at `http://localhost:9001`.
 
 ### Running Tests
 
@@ -151,6 +157,27 @@ python manage.py test
 ```
 
 This command will discover and run all tests in the `tests` directories of the application.
+
+
+## Quickstart (with docker)
+
+[Install docker in your computer](https://docs.docker.com/engine/install/), if you don't want to do that, go to next section.
+
+The proposed approach brings one command to manage everything, `./docker-reset.sh`.
+
+All configuration is in the form of environments variables in `.env`. Hence, it is not recommended to adapt `docker-compose.yml` configuration.
+
+On first run will detect that you don't have `.env` and a configuration wizard will guide you.
+
+The docker compose can be just the django application with sqlite, or can be configured to use postgres, nginx reverse proxy and letsencrypt.
+
+All relevant docker data is in filesystem. The user is autodetected fine, if is a 1000+ user, all docker data is in, by default, `~/ereuse-docker-data`, and if is root user, in `/opt/ereuse-docker-data`.
+
+### About the docker files involved
+
+- [docker/idhub.Dockerfile]() contains the dependencies used
+
+- [docker/idhub.entrypoint.sh]() contains the logic to run the django application
 
 ## Repository Structure
 
