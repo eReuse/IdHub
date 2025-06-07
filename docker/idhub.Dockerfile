@@ -3,8 +3,10 @@ FROM python:3.11.7-slim-bookworm
 # last line is dependencies for weasyprint (for generating pdfs in lafede pilot) https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#debian-11
 RUN apt update && \
     apt-get install -y \
+    gosu \
     git \
     sqlite3 \
+    postgresql-client \
     jq \
     libpango-1.0-0 libpangoft2-1.0-0 \
       && pip install cffi brotli \
