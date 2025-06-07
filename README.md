@@ -1,17 +1,17 @@
 # IdHub
 
-IdHub is a Django-based project designed to provide efficient identity management solutions.This README offers an overview of the project, setup instructions, and additional resources.
+IdHub is a Django-based project designed to provide efficient identity management solutions. This README offers an overview of the project, setup instructions, and additional resources.
 
 ## About IdHub
 
-The idHub service facilitates organisations (acting as issuer or verifiers) and beneficiaries (acting as subjects and credential holders) to issue, exchange, and verify data in the form of verifiable credentials for credible and flexible access to benefits or services.
+The IdHub service facilitates organisations (acting as issuer or verifiers) and beneficiaries (acting as subjects and credential holders) to issue, exchange, and verify data in the form of verifiable credentials for credible and flexible access to benefits or services.
 
 ## Features
 
 The main modules components it provides:
 - **Admin Dashboard**: A user-friendly admin panel that enables administrator to manage users and roles, handle aspects such as the creation of organisational Decentralized Identifiers (DIDs), credentials issued by the organisation, and upload the information for issuance of credentials to users (including credential schemas and data).
-- **User Dashboard**: A user-friendly user panel equips users to manage their personal information, create an identity (DID), request the issuance of a credential, and present these credentials to entities within our user communitity. This module operates as a user wallet.
-The application's backend is responsible for issuing credentials upun user request through the user module. Meanwhile, the idHub can function as a credential verifier and engage in dialogues with other idHub instances that operate as user wallets by implementing a OIDC4VP based dialog. Consequently, the idHub is multifaceted, capable of functioning as an issuer, wallet or verifier.
+- **User Dashboard**: A user-friendly user panel equips users to manage their personal information, create an identity (DID), request the issuance of a credential, and present these credentials to entities within our user community. This module operates as a user wallet.
+The application's backend is responsible for issuing credentials upon user request through the user module. Meanwhile, the IdHub can function as a credential verifier and engage in dialogues with other IdHub instances that operate as user wallets by implementing a OIDC4VP based dialog. Consequently, the IdHub is multifaceted, capable of functioning as an issuer, wallet or verifier.
 - **OIDC4VP module**: Module where all oidc4vp flows reside for credential presentation.
 
 ## Getting Started
@@ -39,7 +39,7 @@ The application's backend is responsible for issuing credentials upun user reque
    ```
    python manage.py migrate
    ```
-5. Optionally you can install a minumum data set:
+5. Optionally you can install a minimum data set:
    ```
    python manage.py demo_data
    ```
@@ -162,7 +162,7 @@ IdHub's repository is organized into several directories, each serving a specifi
 
 - **idhub_auth**: This directory contains the module where the users and the data encryption/decryption system are defined.
 
-- **locale**: Contains localization files for IdHub (po and mo files for translations), enabling support for multiple languages.
+- **locale**: Contains localization files for IdHub (*po* and *mo* files for translations), enabling support for multiple languages.
 
 - **oidc4vp**: Module where all oidc4vp flows (implementation of the credential's presentation dialog) reside.
 
@@ -172,10 +172,10 @@ IdHub's repository is organized into several directories, each serving a specifi
 
 - **trustchain_idhub**: This folder includes settings and configurations for the Django project. It is the entry point of Django, where the global variables, the startup files and the file that defines the endpoints are defined.
 
-- **utils**: A utility folder containing various helper scripts and tools developed by us but that are independent of idHub. Even so, IdHub uses them and needs them (examples of this are the validation system for the data that is loades by excel, or the system that manages the sskit)
+- **utils**: A utility folder containing various helper scripts and tools developed by us but that are independent of IdHub. Even so, IdHub uses them and needs them (examples of this are the validation system for the data that is loaded by excel, or the system that manages the sskit)
 
 ## Webhook
-You need define a token un the admin section "/webhool/tokens"
+You need define a token in the admin section "/webhook/tokens"
 For define one query here there are a python example:
 ```
    import requests
@@ -199,8 +199,8 @@ For define one query here there are a python example:
    response.json()
 
 ```
-   The response of verification can be ```{'status': 'success'}``` or ```{'status': 'fail'}```
-   If no there are *type* in data or this is not a *credential* then, the verification proccess hope a *presentation*
+   The response of verification can be `{'status': 'success'}` or `{'status': 'fail'}`
+   If no there are *type* in data or this is not a *credential* then, the verification process hope a *presentation*
    The field *data* have the credential or presentation.
 
 ## Documentation
