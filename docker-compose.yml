@@ -223,9 +223,6 @@ services:
       - API_DLT_URL=${API_CONNECTOR_URL}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
-    # DEBUG only: uncomment volume mapping for development
-    volumes:
-      - /home/music/idhub:/opt/idhub
 #    extra_hosts:
 #      # Allows routing from docker container to Host OS (see: https://stackoverflow.com/a/43541681)
 #      - ${IDHUB_DOMAIN}:host-gateway
