@@ -11,8 +11,6 @@ services:
     volumes:
       - ${id_index_api__vol__data:-id_index_api__data}:/home/node/idIndexApi/data:rw
       - ${id_index_api__vol__src:-id_index_api__src}:/home/node/idIndexApi/src:ro
-    networks:
-      - ereuse
 
   blockchain_test_node:
     init: true
@@ -33,8 +31,6 @@ services:
       #   uncomment the next one
       #- "8545:8545"
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
-    networks:
-      - ereuse
 
   # ereuse-dpp-api
   api_connector:
@@ -59,8 +55,6 @@ services:
     environment:
       - CHAIN_ID=${DLT_CHAIN_ID:-457}
       - SHARED=./shared
-    networks:
-      - ereuse
     extra_hosts:
       # for localhost deployments: map localhost to reach the host machine
       #   thanks https://stackoverflow.com/a/43541681
@@ -81,8 +75,6 @@ services:
       - ${did_resolver__vol__api_src:-did_resolver__api_src}:/home/node/didResolverAPI/src:rw
       - ${did_resolver__vol__module_src:-did_resolver__module_src}:/home/node/didResolverModule/src:rw
       - ./.env:/home/node/didResolverAPI/src/.env:ro
-    networks:
-      - ereuse
 
   dpp_indexer:
     init: true
@@ -102,8 +94,6 @@ services:
       - ${dpp_indexer__vol__src:-dpp_indexer__src}:/home/node/observerModule/src:ro
       - ${dpp_indexer__vol__shared:-./shared}:/home/node/observerModule/shared:rw
       - ./.env:/home/node/observerModule/src/.env:ro
-    networks:
-      - ereuse
     extra_hosts:
       # for localhost deployments: map localhost to reach the host machine
       #   thanks https://stackoverflow.com/a/43541681
@@ -123,8 +113,6 @@ services:
     volumes:
       - ${veramo_api__vol__src:-veramo_api__src}:/home/node/veramoApi/src:rw
       - ${veramo_api__vol__shared:-./shared}:/home/node/veramoApi/shared:rw
-    networks:
-      - ereuse
 
   create-operator-user:
     init: true
@@ -138,8 +126,6 @@ services:
     volumes:
       - ${create_operator_user__vol__src:-create_operator_user__src}:/home/node/app/scripts:rw
       - ${create_operator_user__vol__shared:-./shared}:/home/node/app/shared:rw
-    networks:
-      - ereuse
 
   devicehub-django:
     init: true
@@ -164,8 +150,6 @@ services:
       # uncomment and put right path to develop devicehub on top of this
       #- /path/to/my/devicehub-django:/opt/devicehub-django
       - ${devicehub_django__vol__shared:-./shared}:/shared:rw
-    networks:
-      - ereuse
 
   search:
     init: true
@@ -190,8 +174,6 @@ services:
       - ./searchEngine/src:/home/node/searchEngine/src:ro
       - ./searchEngine/public:/home/node/searchEngine/public:ro
       - ./shared:/home/node/searchEngine/shared
-    networks:
-      - ereuse
 
   idhub:
     # https://docs.docker.com/compose/how-tos/profiles/
@@ -226,8 +208,6 @@ services:
       - API_DLT_URL=${API_CONNECTOR_URL}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
-    networks:
-      - ereuse
     # DEBUG only: uncomment volume mapping for development
     volumes:
       - /home/music/idhub:/opt/idhub
@@ -267,9 +247,6 @@ services:
     entrypoint: /bin/sh -c "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
 
 
-networks:
-    ereuse:
-      driver: bridge
 
 volumes:
   shared:
