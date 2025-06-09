@@ -70,9 +70,9 @@ want to see again, remove .env file)\n\nPress enter to continue... "
 
         # if user is root, place it in /opt
         if [ "${APP_LOCAL_USER_ID_REQUEST}" = 0 ]; then
-                APP_ROOT_DIR_REQUEST='/opt'
+                export APP_ROOT_DIR_REQUEST='/opt'
         else
-                APP_ROOT_DIR_REQUEST="${HOME}"
+                export APP_ROOT_DIR_REQUEST="${HOME}"
         fi
         add_env_var APP_ROOT_DIR_REQUEST
 
