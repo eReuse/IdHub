@@ -238,6 +238,7 @@ services:
     environment:
       - WEBSERVER_HOST=${APP_DOMAIN}
       - FAKE_HTTP_CERT=${RPROXY_FAKE_HTTP_CERT}
+      - IDHUB_PORT=${IDHUB_PORT:-9001}
     ports:
      - "80:80"
      - "443:443"

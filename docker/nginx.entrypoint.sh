@@ -10,6 +10,7 @@ set -x
 SOURCE_FILE="/etc/nginx/conf.d/app.template"
 TARGET_FILE="/etc/nginx/conf.d/default.conf"
 export WEBSERVER_HOST="${WEBSERVER_HOST}"
+export IDHUB_PORT="${IDHUB_PORT}"
 
 if [ "${FAKE_HTTP_CERT:-true}" = "true" ]; then
   # do same snakeoil certs as `ssl-cert` debian package
@@ -20,7 +21,7 @@ else
   export SSL_CERTIFICATE_KEY_PATH="/etc/letsencrypt/live/${WEBSERVER_HOST}/privkey.pem";
 fi
 
-envsubst '${WEBSERVER_HOST} ${SSL_CERTIFICATE_PATH} ${SSL_CERTIFICATE_KEY_PATH}' < $SOURCE_FILE > $TARGET_FILE
+envsubst '${WEBSERVER_HOST} ${IDHUB_PORT} ${SSL_CERTIFICATE_PATH} ${SSL_CERTIFICATE_KEY_PATH}' < $SOURCE_FILE > $TARGET_FILE
 
 # DEBUG
 #sleep infinity
