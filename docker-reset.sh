@@ -65,16 +65,16 @@ want to see again, remove .env file)\n\nPress enter to continue... "
         # adapt docker user to your runtime needs -> src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
         #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
         #   related https://github.com/moby/moby/issues/2259
-        export IDHUB_LOCAL_USER_ID_REQUEST="$(id -u "${USER}")"
-        add_env_var IDHUB_LOCAL_USER_ID_REQUEST
+        export APP_LOCAL_USER_ID_REQUEST="$(id -u "${USER}")"
+        add_env_var APP_LOCAL_USER_ID_REQUEST
 
         # if user is root, place it in /opt
-        if [ "${IDHUB_LOCAL_USER_ID_REQUEST}" = 0 ]; then
-                IDHUB_ROOT_DIR='/opt'
+        if [ "${APP_LOCAL_USER_ID_REQUEST}" = 0 ]; then
+                APP_ROOT_DIR_REQUEST='/opt'
         else
-                IDHUB_ROOT_DIR="${HOME}"
+                APP_ROOT_DIR_REQUEST="${HOME}"
         fi
-        add_env_var IDHUB_ROOT_DIR_REQUEST
+        add_env_var APP_ROOT_DIR_REQUEST
 
         # src https://stackoverflow.com/questions/41298963/is-there-a-function-for-generating-settings-secret-key-in-django
         export IDHUB_SECRET_KEY_REQUEST="$(python3 -c 'import secrets; print(secrets.token_hex(100))')"
