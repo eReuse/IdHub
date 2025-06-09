@@ -72,10 +72,6 @@ server {
   # Application
   ##
 
-  location / {
-
-  }
-
   # default endpoint for search
 
   location / {
