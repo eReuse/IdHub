@@ -174,7 +174,7 @@ services:
       #dockerfile: ./Dockerfile
     container_name: fuzzySearchEngine # name of the built image
     ports:
-      - "80:3000"
+      - "3000:3000"
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     environment:
       - REACT_APP_CONNECTOR_API=${SEARCH_REACT_APP_CONNECTOR_API}
@@ -228,8 +228,44 @@ services:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     networks:
       - ereuse
+    # DEBUG only: uncomment volume mapping for development
+    volumes:
+      - /home/music/idhub:/opt/idhub
+    extra_hosts:
+      # Allows routing from docker container to Host OS (see: https://stackoverflow.com/a/43541681)
+      - ${IDHUB_DOMAIN}:host-gateway
 
-  # TODO add database service for idhub, meanwhile sqlite
+  dpp-rproxy:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    # image: TODO
+    build:
+      context: .
+      dockerfile: ./docker/nginx.Dockerfile
+    environment:
+      - WEBSERVER_HOST=${DPP_DOMAIN}
+      - FAKE_HTTP_CERT=${RPROXY_FAKE_HTTP_CERT}
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+      - type: bind
+        source: docker/nginx/app.template
+        target: /etc/nginx/conf.d/app.template
+      # TODO static nginx files
+      #- static:/path/to/static/files:ro
+      - certbot-www:/var/www/certbot
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/certbot/conf:/etc/letsencrypt
+
+  certbot:
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    profiles: [letsencrypt]
+    container_name: certbot
+    image: certbot/certbot
+    volumes:
+      - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/certbot/conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: /bin/sh -c "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
+
 
 networks:
     ereuse:
@@ -246,3 +282,4 @@ volumes:
   dpp_indexer__src:
   veramo_api__src:
   create_operator_user__src:
+  certbot-www:

@@ -14,12 +14,14 @@ main() {
                 detach_arg='-d'
         fi
 
+        # TODO I can quit the SUDO when I apply the technique I used in idhub docker
+
         # remove previous data
-        rm -fv shared/*
+        sudo rm -fv shared/*
         # remove registry instances
-        rm -fv idIndexApi/data/id_url.json
+        sudo rm -fv idIndexApi/data/id_url.json
         # remove cached devices
-        rm -fv observerModule/data/devices.json
+        sudo rm -fv observerModule/data/devices.json
 
         # .env is the configuration of the docker compose deployment
         if [ ! -f .env ]; then
