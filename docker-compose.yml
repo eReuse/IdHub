@@ -132,7 +132,7 @@ services:
     depends_on:
       - create-operator-user
       - id_index_api
-    image: farga.pangea.org/ereuse/devicehub-django:issue_261__dpp_v3
+    image: ghcr.io/ereuse/devicehub-django:issue_261__dpp_v3
     environment:
       - DEBUG=${DEVICEHUB_DEBUG:-false}
       - DOMAIN=${DEVICEHUB_DOMAIN:-localhost}
