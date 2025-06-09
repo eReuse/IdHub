@@ -196,14 +196,14 @@ services:
   idhub:
     # https://docs.docker.com/compose/how-tos/profiles/
     init: true
-    image: farga.pangea.org/ereuse/idhub:issue_261__dpp_v3
+    image: ghcr.io/ereuse/idhub:issue_261__dpp_v3
     environment:
       - DOMAIN=${IDHUB_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
       - DEBUG=true
       - DEMO=${IDHUB_DEMO:-false}
-      - INITIAL_ADMIN_EMAIL=${IDHUB_ADMIN_EMAIL}
-      - INITIAL_ADMIN_PASSWORD=${IDHUB_ADMIN_PASSWD}
+      - INIT_ADMIN_EMAIL=${IDHUB_INIT_ADMIN_EMAIL}
+      - INIT_ADMIN_PASSWORD=${IDHUB_INIT_ADMIN_PASSWORD}
       - CREATE_TEST_USERS=true
       - ENABLE_EMAIL=${IDHUB_ENABLE_EMAIL:-true}
       - ENABLE_2FACTOR_AUTH=${IDHUB_ENABLE_2FACTOR_AUTH:-true}
@@ -242,7 +242,7 @@ services:
       context: .
       dockerfile: ./docker/nginx.Dockerfile
     environment:
-      - WEBSERVER_HOST=${DPP_DOMAIN}
+      - WEBSERVER_HOST=${APP_DOMAIN}
       - FAKE_HTTP_CERT=${RPROXY_FAKE_HTTP_CERT}
     ports:
      - "80:80"
