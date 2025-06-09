@@ -248,6 +248,9 @@ services:
       #- static:/path/to/static/files:ro
       - certbot-www:/var/www/certbot
       - ${APP_ROOT_DIR}/${APP_DOCKER_DIR}/${IDHUB_DOMAIN}/certbot/conf:/etc/letsencrypt
+    depends_on:
+      - idhub
+      - search
 
   certbot:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
