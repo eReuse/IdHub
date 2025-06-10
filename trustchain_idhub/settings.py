@@ -121,7 +121,7 @@ WSGI_APPLICATION = 'trustchain_idhub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if config('IDHUB_DB_TYPE', '') == 'postgres':
+if config('DB_TYPE', '') == 'postgres':
     DATABASES = {
         'default': {
             'ENGINE': config('DB_ENGINE', 'django.db.backends.postgresql'),

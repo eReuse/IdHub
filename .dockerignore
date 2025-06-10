@@ -2,3 +2,4 @@
 db.sqlite
 # ignore playwright framework
 tests
+.env*

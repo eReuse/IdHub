@@ -96,9 +96,9 @@ by default does not use rproxy nor letsencrypt"
 
         # if user is root, place it in /opt
         if [ "${IDHUB_LOCAL_USER_ID_REQUEST}" = 0 ]; then
-                IDHUB_ROOT_DIR='/opt'
+                export IDHUB_ROOT_DIR_REQUEST='/opt'
         else
-                IDHUB_ROOT_DIR="${HOME}"
+                export IDHUB_ROOT_DIR_REQUEST="${HOME}"
         fi
         add_env_var IDHUB_ROOT_DIR_REQUEST
 

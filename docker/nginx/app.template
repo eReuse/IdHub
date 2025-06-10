@@ -4,10 +4,11 @@
 server {
         # without listening in 80, it still does the expected thing
         listen              80 default_server;
-        listen              443 ssl http2 default_server;
+        listen              443 ssl default_server;
         server_name         _;
         ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
         ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+        http2 on;
         # return 204 "no content"
         return              204;
 }
