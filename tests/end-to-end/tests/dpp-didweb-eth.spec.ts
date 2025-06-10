@@ -2,15 +2,15 @@
 
 import { test, expect } from '@playwright/test';
 
-const TEST_DEVICEHUB_SITE = process.env.TEST_DEVICEHUB_SITE || 'http://127.0.0.1:9001'
-const TEST_DEVICEHUB_USER = process.env.TEST_DEVICEHUB_USER || 'admin@example.org'
-const TEST_DEVICEHUB_PASSWD = process.env.TEST_DEVICEHUB_PASSWD || 'admin'
+const TEST_IDHUB_SITE = process.env.TEST_IDHUB_SITE || 'http://127.0.0.1:9001'
+const TEST_IDHUB_USER = process.env.TEST_IDHUB_USER || 'admin@example.org'
+const TEST_IDHUB_PASSWD = process.env.TEST_IDHUB_PASSWD || 'admin'
 
 async function login(page, date, time) {
-    await page.goto(TEST_DEVICEHUB_SITE);
+    await page.goto(`${TEST_IDHUB_SITE}/login`);
     await page.getByPlaceholder('Email address').click();
-    await page.getByPlaceholder('Email address').fill(TEST_DEVICEHUB_USER);
-    await page.getByPlaceholder('Password').fill(TEST_DEVICEHUB_PASSWD);
+    await page.getByPlaceholder('Email address').fill(TEST_IDHUB_USER);
+    await page.getByPlaceholder('Password').fill(TEST_IDHUB_PASSWD);
     await page.getByPlaceholder('Password').press('Enter');
 }
 
@@ -27,5 +27,5 @@ test('Create did Web+Ether', async ({ page }) => {
     await page.getByRole('button', { name: 'Save' }).click();
 
     // DEBUG
-    await page.pause();
+    //await page.pause();
 });
