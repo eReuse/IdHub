@@ -15,7 +15,7 @@ const app = express()
 router
 
 .post("/registerUser", async (req, res, next) => {
-    const privateKey = req.body.privateKey ?? ""
+    const privateKey = req.body?.privateKey ?? ""
     var wallet
     try {
       console.log(`Called /registerUser`)
