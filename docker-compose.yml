@@ -45,9 +45,11 @@ services:
       - DB_USER=${IDHUB_POSTGRES_USER}
       - DB_PASSWORD=${IDHUB_POSTGRES_PASSWORD}
       - TIME_ZONE=${IDHUB_TIME_ZONE}
+      - DPP=${IDHUB_DPP:-false}
 
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
+    # TODO review volumes
     volumes:
       - ${IDHUB_VOLUME:-.:${IDHUB_ROOT_DIR}/idhub}
       - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/idhub-postgres:/idhub-postgres
