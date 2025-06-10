@@ -219,8 +219,7 @@ services:
       - DB_PASSWORD=${IDHUB_POSTGRES_PASSWORD}
       - TIME_ZONE=${IDHUB_TIME_ZONE}
       - DPP=${IDHUB_DPP:-false}
-      # TODO is really needed?:
-      - API_DLT_URL=${API_CONNECTOR_URL}
+      - API_DLT_URL=${IDHUB_API_DLT_URL}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
 #    extra_hosts:
