@@ -35,6 +35,7 @@ prompt_env_var() {
         fi
 }
 
+# TODO move export from prompt_env_var here to detect empty vars?
 add_env_var() {
         # add env var to template
         var_name="${1}"
@@ -80,12 +81,12 @@ want to see again, remove .env file)\n\nPress enter to continue... "
         export IDHUB_SECRET_KEY_REQUEST="$(python3 -c 'import secrets; print(secrets.token_hex(100))')"
         add_env_var IDHUB_SECRET_KEY_REQUEST
 
+        use_env_var RPROXY_FAKE_HTTP_CERT_REQUEST "true" "use false to use automatic letsencrypt HTTP Cert in the reverse proxy"
 
         envsubst "${template_env_vars}" < .env.example > .env
 
-        # TODO volume map is incorrect (TODO touch file)
-        if echo "${COMPOSE_PROFILES_REQUEST}" | grep -q 'letsencrypt' ; then
-                echo "letsencrypt docker profile detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
+        if [ "${RPROXY_FAKE_HTTP_CERT_REQUEST}" = "false" ] ; then
+                echo "letsencrypt docker use detected, you should run ./docker/certbot__generate-first-cert.sh before continuing"
                 ./docker/certbot__generate-first-cert.sh
         fi
 }
