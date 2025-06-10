@@ -36,6 +36,10 @@ gen_env_vars() {
         gosu ${APP} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
+
+        if [ "${DEBUG:-}" = 'true' ]; then
+                gosu ${APP} ./manage.py print_settings
+        fi
 }
 
 init_db() {
@@ -140,10 +144,6 @@ config_oidc4vp() {
 runserver() {
         PORT="${PORT:-8000}"
 
-        if [ "${DEBUG:-}" = 'true' ]; then
-                gosu ${APP} ./manage.py print_settings
-        fi
-
         if [ ! "${DEBUG:-}" = "true" ]; then
                 gosu ${APP} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
@@ -173,14 +173,19 @@ check_app_is_there() {
 
 _prepare() {
         APP=idhub
+        APP_DIR="/opt/${APP}"
         # src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
         #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
         #   related https://github.com/moby/moby/issues/2259
-        USER_ID=${LOCAL_USER_ID:-9001}
+        #USER_ID=${LOCAL_USER_ID:-9001}
+        # use USER_ID as the owner of idhub dir
+        USER_ID="$(stat --printf='%g' "${APP_DIR}")"
+        # TODO if user is 0, then use root user
+        #   idhub-1  | useradd warning: idhub's uid 0 outside of the UID_MIN 1000 and UID_MAX 60000 range.
+        #   use a env var similar to USER instead of APP, APP_USER ? DOCKER_APP_USER ?
         if ! id -u "${APP}" >/dev/null 2>&1; then
-                useradd --shell /bin/bash -u $USER_ID -o -c "" -m ${APP}
+                useradd --shell /bin/bash -u ${USER_ID} -o -c "" -m ${APP}
         fi
-        APP_DIR="/opt/${APP}"
         cd "${APP_DIR}"
 }
 
