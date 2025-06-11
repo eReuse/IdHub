@@ -180,7 +180,6 @@ services:
     init: true
     image: ghcr.io/ereuse/idhub:${IDHUB_DOCKER_TAG:-stable}
     environment:
-      - STATIC_URL=${IDHUB_STATIC_URL}
       - LOCAL_USER_ID=${APP_LOCAL_USER_ID}
       - DOMAIN=${APP_DOMAIN:-localhost}
       - ALLOWED_HOSTS=${IDHUB_ALLOWED_HOSTS:-$IDHUB_DOMAIN}
