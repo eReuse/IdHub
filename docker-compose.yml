@@ -219,6 +219,7 @@ services:
       - TIME_ZONE=${IDHUB_TIME_ZONE}
       - DPP=${IDHUB_DPP:-false}
       - API_DLT_URL=${IDHUB_API_DLT_URL}
+      - API_DLT_TOKEN=${IDHUB_API_DLT_TOKEN}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
 #    extra_hosts:
