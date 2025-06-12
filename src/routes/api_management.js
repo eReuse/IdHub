@@ -96,6 +96,7 @@ router
       const isVerifier = await accessListContract.checkIfVerifier(wallet.address);
 
       var response_data_eth = {
+        walletAddress: wallet.address,
         isIssuer: isIssuer,
         isOperator: isOperator,
         isWitness: isWitness,
