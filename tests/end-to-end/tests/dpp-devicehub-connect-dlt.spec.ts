@@ -18,5 +18,5 @@ test('Connect to DLT', async ({ page }) => {
     await login(page);
 
     // DEBUG
-    await page.pause();
+    //await page.pause();
 });

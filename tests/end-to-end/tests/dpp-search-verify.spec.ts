@@ -21,7 +21,6 @@ async function devicehub_login(page, date, time) {
 }
 
 test('dpp search and verify', async ({ page }) => {
-    test.setTimeout(0)
     await page.goto(TEST_SEARCH_SITE);
     await page.getByPlaceholder('Enter your search query').click();
     await page.getByPlaceholder('Enter your search query').fill('leonvo');
@@ -38,6 +37,5 @@ test('dpp search and verify', async ({ page }) => {
     await page.getByRole('button', { name: 'Validate' }).click();
     await page.getByRole('link', { name: 'User of system' }).click();
     await devicehub_credentials(page);
-    // DEBUG
-    //await page.pause();
+    await expect(page.getByRole('navigation')).toContainText('Current Role: Operator');
 });

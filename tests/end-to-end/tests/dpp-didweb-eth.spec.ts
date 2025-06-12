@@ -16,7 +16,6 @@ async function login(page, date, time) {
 
 test('Create did Web+Ether', async ({ page }) => {
     await login(page);
-
     await page.getByRole('link', { name: ' Credentials' }).click();
     await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
     await page.getByRole('link', { name: 'Manage Identities (DIDs)' }).click();
@@ -26,6 +25,5 @@ test('Create did Web+Ether', async ({ page }) => {
     await page.getByLabel('Type').selectOption('3');
     await page.getByRole('button', { name: 'Save' }).click();
 
-    // DEBUG
-    //await page.pause();
+    await expect(page.getByRole('alert')).toContainText('DID created successfully');
 });

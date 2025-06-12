@@ -20,7 +20,6 @@ async function accept_data_protection(page) {
         }
 }
 
-
 async function login(page, date, time) {
     await page.goto(`${TEST_IDHUB_SITE}/login`);
     await page.getByPlaceholder('Email address').click();
@@ -31,9 +30,6 @@ async function login(page, date, time) {
 
 test('Request WIP Credential', async ({ page }) => {
     await login(page);
-    // DEBUG
-    await page.pause();
-
     await accept_data_protection(page);
     await page.getByRole('link', { name: 'Request a credential' }).click();
     await page.getByPlaceholder('Label').click();
@@ -42,4 +38,7 @@ test('Request WIP Credential', async ({ page }) => {
     await page.getByRole('button', { name: 'Save' }).click();
     await page.getByRole('link', { name: 'Request a credential' }).click();
     await page.getByRole('button', { name: 'Request' }).click();
+    await page.getByRole('link', { name: '' }).first().click();
+    await page.getByRole('link', { name: 'Publish to DLT' }).click();
+    await expect(page.getByRole('alert')).toContainText('Credential successfully presented to DLT');
 });

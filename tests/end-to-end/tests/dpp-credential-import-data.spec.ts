@@ -18,7 +18,6 @@ async function login(page, date, time) {
 
 test('Create WIP Credential', async ({ page }) => {
     await login(page);
-
     await page.goto(`${TEST_IDHUB_SITE}/admin/dashboard/`);
     await page.getByRole('link', { name: ' Data' }).click();
     await page.getByRole('link', { name: 'Import data ' }).click();
@@ -27,6 +26,4 @@ test('Create WIP Credential', async ({ page }) => {
     const cred_path = path.resolve(__dirname, '../examples/OrganizationMembershipDlt-credential.xlsx');
     await page.getByLabel('File to import').setInputFiles(cred_path);
     await page.getByRole('button', { name: 'Save' }).click();
-    // DEBUG
-    await page.pause();
 });
