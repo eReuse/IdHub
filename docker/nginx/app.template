@@ -53,9 +53,6 @@ server {
   server_name ${WEBSERVER_HOST};
   http2 on;
 
-  access_log /var/log/nginx/app.access.log; # reduce I/0 with buffer=10m flush=5m
-  error_log  /var/log/nginx/app.error.log;
-
   ##
   # Certificates
   # you need a certificate to run in production. see https://letsencrypt.org/
