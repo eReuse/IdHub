@@ -221,7 +221,7 @@ services:
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     volumes:
-      - ${IDHUB_VOLUME:-.:${IDHUB_ROOT_DIR}/idhub}
+      - ${IDHUB_VOLUME:-./idhub:${IDHUB_ROOT_DIR}/idhub}
 
   rproxy:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
