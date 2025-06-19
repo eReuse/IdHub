@@ -20,14 +20,8 @@ server {
 # THIRD PARTY MODULES:   None.
 
 server {
-  listen 80;
-  listen [::]:80;
+  listen 3000;
   server_name ${WEBSERVER_HOST};
-
-  location /.well-known/acme-challenge/ {
-    default_type "text/plain";
-    root /var/www/certbot;
-  }
 
   # search endpoints
   location / {
@@ -37,6 +31,22 @@ server {
     proxy_set_header X-Forwarded-Scheme http;
     proxy_set_header X-Forwarded-Proto  http;
     proxy_pass http://search:3000;
+  }
+}
+
+server {
+  listen 80;
+  listen [::]:80;
+  server_name ${WEBSERVER_HOST};
+
+  location /.well-known/acme-challenge/ {
+    default_type "text/plain";
+    root /var/www/certbot;
+  }
+
+  # search endpoints (the rest)
+  location / {
+    return 307 http://$host:3000;
   }
 
   # idhub endpoints
@@ -85,7 +95,7 @@ server {
   # Application
   ##
 
-  # search endpoints
+  # search endpoints (the rest)
   location / {
     return 307 http://$host:3000;
   }
