@@ -167,6 +167,9 @@ services:
       # src https://stackoverflow.com/questions/67986657/how-to-disable-eslint-during-build-phase-in-react
       - DISABLE_ESLINT_PLUGIN=true
 
+    ports:
+     - "3000:3000"
+
     volumes:
       # TODO env vars???
       - ./searchEngine/src:/home/node/searchEngine/src:ro
@@ -236,7 +239,6 @@ services:
     ports:
      - "80:80"
      - "443:443"
-     - "3000:3000"
     volumes:
       - type: bind
         source: docker/nginx/app.template
