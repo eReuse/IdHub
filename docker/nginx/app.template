@@ -35,14 +35,14 @@ server {
 }
 
 server {
-        listen              3000 ssl;
-        listen              [::]:3000 ssl;
-        server_name         ${WEBSERVER_HOST};
-        ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
-        ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
-        http2 on;
+  listen              3000 ssl;
+  listen              [::]:3000 ssl;
+  server_name         ${WEBSERVER_HOST};
+  ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
+  ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+  http2 on;
 
-        return              307 http://$host:3000;
+  return 307 http://$host:3000;
 }
 
 server {
