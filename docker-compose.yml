@@ -159,6 +159,7 @@ services:
     container_name: fuzzySearchEngine # name of the built image
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     environment:
+      - HTTPS=false
       - REACT_APP_CONNECTOR_API=${SEARCH_REACT_APP_CONNECTOR_API}
       - REACT_APP_DPP_INDEXER=${SEARCH_REACT_APP_DPP_INDEXER}
       - REACT_APP_EREUSE_DID_RESOLVER=${SEARCH_REACT_APP_EREUSE_DID_RESOLVER}
