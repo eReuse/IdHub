@@ -220,9 +220,8 @@ services:
       - API_DLT_TOKEN=${IDHUB_API_DLT_TOKEN}
     ports:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
-#    extra_hosts:
-#      # Allows routing from docker container to Host OS (see: https://stackoverflow.com/a/43541681)
-#      - ${IDHUB_DOMAIN}:host-gateway
+    volumes:
+      - ${IDHUB_VOLUME:-.:${IDHUB_ROOT_DIR}/idhub}
 
   rproxy:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
@@ -274,3 +273,4 @@ volumes:
   veramo_api__src:
   create_operator_user__src:
   certbot-www:
+  IDHUB_VOLUME:
