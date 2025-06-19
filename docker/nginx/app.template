@@ -28,7 +28,23 @@ server {
     default_type "text/plain";
     root /var/www/certbot;
   }
-  location / { return 301 https://$host$request_uri; }
+
+  # search endpoints
+  location / {
+    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+    proxy_set_header Host               $host;
+    proxy_set_header X-Real-IP          $remote_addr;
+    proxy_set_header X-Forwarded-Scheme http;
+    proxy_set_header X-Forwarded-Proto  http;
+    proxy_pass http://search:3000;
+  }
+
+  # idhub endpoints
+  #   ./manage.py show_urls | cut -f2 -d'/' | sort -u
+  # (plus static)
+  location ~ /(static|admin|auth|credentials|did-registry|login|logout|oidc4vp|promotion|public|user|waiting|webhook) {
+    return 307 https://$host$request_uri;
+  }
 }
 
 server {
@@ -73,26 +89,14 @@ server {
   ##
 
   # search endpoints
-
   location / {
     return 307 http://$host:3000;
   }
 
-  # idhub static
-
-  location /static {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
   # idhub endpoints
-  #   ./manage.py show_urls | cut -f1 -d'/' | sort -u
-
-  location /admin {
+  #   ./manage.py show_urls | cut -f2 -d'/' | sort -u
+  # (plus static)
+  location ~ /(static|admin|auth|credentials|did-registry|login|logout|oidc4vp|promotion|public|user|waiting|webhook) {
     proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
     proxy_set_header Host               $host;
     proxy_set_header X-Real-IP          $remote_addr;
@@ -100,106 +104,6 @@ server {
     proxy_set_header X-Forwarded-Proto  http;
     proxy_pass http://idhub:${IDHUB_PORT};
   }
-
-  location /auth {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /credentials {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /did-registry {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /login {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /logout {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /oidc4vp {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /promotion {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /public {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /user {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /waiting {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
-  location /webhook {
-    proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
-    proxy_set_header Host               $host;
-    proxy_set_header X-Real-IP          $remote_addr;
-    proxy_set_header X-Forwarded-Scheme http;
-    proxy_set_header X-Forwarded-Proto  http;
-    proxy_pass http://idhub:${IDHUB_PORT};
-  }
-
 
   ##
   # Performance optimizations

@@ -157,8 +157,6 @@ services:
       context: ./searchEngine/
       #dockerfile: ./Dockerfile
     container_name: fuzzySearchEngine # name of the built image
-    ports:
-      - "3000:3000"
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     environment:
       - REACT_APP_CONNECTOR_API=${SEARCH_REACT_APP_CONNECTOR_API}
@@ -239,6 +237,7 @@ services:
     ports:
      - "80:80"
      - "443:443"
+     - "3000:3000"
     volumes:
       - type: bind
         source: docker/nginx/app.template
