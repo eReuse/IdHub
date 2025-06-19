@@ -9,8 +9,8 @@ server {
         ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
         ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
         http2 on;
-        # return 204 "no content"
-        return              204;
+        # return "no content"
+        return 204;
 }
 
 
@@ -36,13 +36,15 @@ server {
 
 server {
   listen              3000 ssl;
-  listen              [::]:3000 ssl;
   server_name         ${WEBSERVER_HOST};
   ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
   ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
   http2 on;
 
-  return 307 http://$host:3000;
+  location / {
+    default_type text/html;
+    return 200 '<html><body><h1>Click below</h1><a href="http://$host:3000">Go to service</a></body></html>';
+  }
 }
 
 server {
@@ -108,7 +110,8 @@ server {
 
   # search endpoints (the rest)
   location / {
-    return 307 http://$host:3000;
+    default_type text/html;
+    return 200 '<html><body><h1>Click below</h1><a href="http://$host:3000">Go to service</a></body></html>';
   }
 
   # idhub endpoints
