@@ -225,6 +225,7 @@ services:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     volumes:
       - ${IDHUB_VOLUME:-.}:/opt/idhub
+      - ${idhub__vol__shared:-./shared}:/shared:rw
 
   rproxy:
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
