@@ -27,7 +27,7 @@ detect_app_version() {
 }
 
 gen_env_vars() {
-        INIT_ORG="${INIT_ORG:-example-org}"
+        INIT_ORGANIZATION="${INIT_ORG:-example-org}"
         INIT_ADMIN_USER="${INIT_ADMIN_EMAIL:-user@example.org}"
         INIT_ADMIN_PASSWD="${INIT_ADMIN_PASSWORD:-1234}"
 
@@ -60,7 +60,7 @@ init_db() {
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
                 gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
         else
-                gosu ${APP} ./manage.py init_org "${INIT_ORG}"
+                gosu ${APP} ./manage.py init_org "${INIT_ORGANIZATION}"
                 gosu ${APP} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
         fi
 
@@ -83,17 +83,26 @@ manage_db() {
                         sleep 1
                 done
         fi
+
         if [ "${REMOVE_DATA}" = "true" ]; then
                 echo "INFO: REMOVE IDHUB DATABASE (reason: IDHUB_REMOVE_DATA is equal to true)"
                 # https://django-extensions.readthedocs.io/en/latest/reset_db.html
                 # https://github.com/django-cms/django-cms/issues/5921#issuecomment-343658455
                 gosu ${APP} ./manage.py reset_db --close-sessions --noinput
-                init_db
         else
                 echo "INFO: PRESERVE IDHUB DATABASE"
+        fi
+
+        # detect if is an existing deployment
+        if ./manage.py showmigrations --plan \
+                        | grep -F -q '[X]  idhub_auth.0001_initial'; then
+                echo "INFO: detected EXISTING deployment"
                 gosu ${APP} ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
                 gosu ${APP} ./manage.py send_mail_admins
+        else
+                echo "INFO detected NEW deployment"
+                init_db
         fi
 }
 
@@ -144,7 +153,9 @@ config_oidc4vp() {
 runserver() {
         PORT="${PORT:-8000}"
 
-        if [ ! "${DEBUG:-}" = "true" ]; then
+        ./manage.py check --deploy
+
+        if [ "${DEBUG:-}" = "false" ]; then
                 gosu ${APP} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
                         # reloading on source code changing is a debugging future, maybe better then use debug
