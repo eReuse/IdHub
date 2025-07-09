@@ -17,7 +17,7 @@ END
 
 detect_app_version() {
         if [ -d "${APP_DIR}/.git" ]; then
-                git_commit_info="$(gosu ${APP} git log --pretty=format:'%h' -n 1)"
+                git_commit_info="$(gosu ${APP_USER} git log --pretty=format:'%h' -n 1)"
                 export COMMIT="version: commit ${git_commit_info}"
         else
                 # TODO if software is packaged in setup.py and/or pyproject.toml we can get from there the version
@@ -33,12 +33,10 @@ gen_env_vars() {
 
         detect_app_version
 
-        gosu ${APP} tee status_data <<END
+        gosu ${APP_USER} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
 
-        if [ "${DEBUG:-}" = 'true' ]; then
-                gosu ${APP} ./manage.py print_settings
         fi
 }
 
@@ -52,16 +50,16 @@ init_db() {
 
         # move the migrate thing in docker entrypoint
         #   inspired by https://medium.com/analytics-vidhya/django-with-docker-and-docker-compose-python-part-2-8415976470cc
-        gosu ${APP} ./manage.py migrate
+        gosu ${APP_USER} ./manage.py migrate
 
         # init data
         if [ "${DEMO:-}" = 'true' ]; then
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
         else
-                gosu ${APP} ./manage.py init_org "${INIT_ORGANIZATION}"
-                gosu ${APP} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
+                gosu ${APP_USER} ./manage.py init_org "${INIT_ORGANIZATION}"
+                gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
         fi
 
         if [ -f "${OIDC_ORGS:-}" ]; then
@@ -155,24 +153,28 @@ runserver() {
 
         ./manage.py check --deploy
 
+        if [ "${DEBUG:-}" = 'true' ]; then
+                gosu ${APP_USER} ./manage.py print_settings
+        fi
+
         if [ "${DEBUG:-}" = "false" ]; then
-                gosu ${APP} ./manage.py collectstatic
+                gosu ${APP_USER} ./manage.py collectstatic
                 if [ "${EXPERIMENTAL:-}" = "true" ]; then
                         # reloading on source code changing is a debugging future, maybe better then use debug
                         #   src https://stackoverflow.com/questions/12773763/gunicorn-autoreload-on-source-change/24893069#24893069
                         # gunicorn with 1 worker, with more than 1 worker this is not expected to work
                         gunicorn --access-logfile - --error-logfile - -b :${PORT} trustchain_idhub.wsgi:application
                 else
-                        gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
+                        gosu ${APP_USER} ./manage.py runserver 0.0.0.0:${PORT}
                 fi
         elif [ "${DEMO_AUTODECRYPT:-}" = 'true' ]; then
                 DEMO_VAULT_PASSWORD="DEMO"
                 # open_service: automatically unlocks the vault,
                 #   and runs the service
                 #   useful for debugging/dev/demo purposes ./manage.py
-                gosu ${APP} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
+                gosu ${APP_USER} ./manage.py open_service "${DEMO_VAULT_PASSWORD}" 0.0.0.0:${PORT}
         else
-                gosu ${APP} ./manage.py runserver 0.0.0.0:${PORT}
+                gosu ${APP_USER} ./manage.py runserver 0.0.0.0:${PORT}
         fi
 }
 
@@ -182,21 +184,27 @@ check_app_is_there() {
         fi
 }
 
-_prepare() {
-        APP=idhub
-        APP_DIR="/opt/${APP}"
+_detect_proper_user() {
         # src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
         #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
         #   related https://github.com/moby/moby/issues/2259
-        #USER_ID=${LOCAL_USER_ID:-9001}
-        # use USER_ID as the owner of idhub dir
-        USER_ID="$(stat --printf='%g' "${APP_DIR}")"
-        # TODO if user is 0, then use root user
-        #   idhub-1  | useradd warning: idhub's uid 0 outside of the UID_MIN 1000 and UID_MAX 60000 range.
-        #   use a env var similar to USER instead of APP, APP_USER ? DOCKER_APP_USER ?
-        if ! id -u "${APP}" >/dev/null 2>&1; then
-                useradd --shell /bin/bash -u ${USER_ID} -o -c "" -m ${APP}
+
+        # user of current dir
+        USER_ID="$(stat -c "%u" .)"
+        if [ "${USER_ID}" = "0" ]; then
+                APP_USER="root"
+        else
+                APP_USER="${APP}"
+                if ! id -u "${APP_USER}" >/dev/null 2>&1; then
+                        useradd --shell /bin/bash -u ${USER_ID} -o -c "" -m ${APP_USER}
+                fi
         fi
+}
+
+_prepare() {
+        APP=idhub
+        _detect_proper_user
+        APP_DIR="/opt/${APP}"
         cd "${APP_DIR}"
 }
 
