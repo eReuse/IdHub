@@ -57,19 +57,29 @@ class Command(BaseCommand):
         self.admin = User.objects.filter(email=admin_email).first()
         self.admin_did = self.create_did()
 
+        # TODO we could override the ADMIN TOKEN on admin user
+
         self.user1_email='user1@example.org'
         self.user1 = User.objects.filter(email=self.user1_email).first()
         self.user1_did = self.create_did(user=self.user1)
 
-        # override ADMIN_DLT_TOKEN in user1 did to orchestrate with
-        #   other dpp services
-        API_DLT_OPERATOR_TOKEN = settings.API_DLT_OPERATOR_TOKEN
+        # # override ADMIN_DLT_TOKEN in user1 did to orchestrate with
+        # #   other dpp services
+        # API_DLT_OPERATOR_TOKEN = settings.API_DLT_OPERATOR_TOKEN
+        # key_material = self.user1_did.get_key_material()
+        # key_material_json = json.loads(key_material)
+        # key_material_json['eth_api_token'] = API_DLT_OPERATOR_TOKEN
+        # key_material = json.dumps(key_material_json)
+        # self.user1_did.set_key_material(key_material)
+        # self.user1_did.save()
+
+
+        # write API_DLT_OPERATOR_TOKEN to file
         key_material = self.user1_did.get_key_material()
         key_material_json = json.loads(key_material)
-        key_material_json['eth_api_token'] = API_DLT_OPERATOR_TOKEN
-        key_material = json.dumps(key_material_json)
-        self.user1_did.set_key_material(key_material)
-        self.user1_did.save()
+
+        with open("/shared/" + os.environ["OPERATOR_TOKEN_FILE"], "w") as f:
+            f.write(key_material_json["eth_api_token"] + "\n")
 
         #   the secret from idhub to devicehub
         self.user1.accept_gdpr=True

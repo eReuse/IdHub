@@ -27,20 +27,16 @@ detect_app_version() {
 }
 
 wait_dpp_services() {
-        OPERATOR_TOKEN_FILE='operator-token.txt'
-        ADMIN_TOKEN_FILE=api-connector_admin-token.txt
-        VERAMO_API_CRED_FILE=pyvckit-api_credential.json
+        export OPERATOR_TOKEN_FILE='operator-token.txt'
+        export ADMIN_TOKEN_FILE=api-connector_admin-token.txt
         while true; do
-                # specially ensure VERAMO_API_CRED_FILE is not empty,
-                #   it takes some time to get data in
-                if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] && \
-                    [ -f "/shared/${VERAMO_API_CRED_FILE}" ] && \
-                    ! wc -l "/shared/${VERAMO_API_CRED_FILE}" | awk '{print $1;}' | grep -qE '^0$'; then
+                # ensure we have admin token
+                if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] ; then
                         sleep 5
                         echo "Files ready to process."
                         break
                 else
-                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}, (2) ${VERAMO_API_CRED_FILE}"
+                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}"
                         sleep 5
                 fi
         done
@@ -57,6 +53,9 @@ gen_env_vars() {
 DOMAIN=${DOMAIN}
 END
 
+        if [ "${DPP:-}" = 'true' ]; then
+                wait_dpp_services
+        fi
 
         if [ "${DEBUG:-}" = 'true' ]; then
                 gosu ${APP_USER} ./manage.py print_settings
@@ -88,7 +87,12 @@ init_db() {
                 gosu ${APP_USER} ./manage.py demo_data "${DEMO_PREDEFINED_TOKEN}"
                 if [ "${DPP:-}" = 'true' ]; then
                         # because of verification, we need to wait that the server is up
-                        ( sleep 20 && gosu ${APP_USER} ./manage.py demo_data_dpp ) &
+                        # TODO wait based on curl (idhub public endpoint?)
+                        (
+                                sleep 25 && \
+                                        gosu ${APP_USER} ./manage.py demo_data_dpp && \
+                                        gosu ${APP_USER} touch "/shared/create_user_operator_finished"
+                        ) &
                 fi
         else
                 gosu ${APP_USER} ./manage.py init_org "${INIT_ORGANIZATION}"
