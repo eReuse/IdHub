@@ -85,7 +85,7 @@ manage_db() {
                 echo "INFO: REMOVE IDHUB DATABASE (reason: IDHUB_REMOVE_DATA is equal to true)"
                 # https://django-extensions.readthedocs.io/en/latest/reset_db.html
                 # https://github.com/django-cms/django-cms/issues/5921#issuecomment-343658455
-                gosu ${APP} ./manage.py reset_db --close-sessions --noinput
+                gosu ${APP_USER} ./manage.py reset_db --close-sessions --noinput
         else
                 echo "INFO: PRESERVE IDHUB DATABASE"
         fi
@@ -94,9 +94,9 @@ manage_db() {
         if ./manage.py showmigrations --plan \
                         | grep -F -q '[X]  idhub_auth.0001_initial'; then
                 echo "INFO: detected EXISTING deployment"
-                gosu ${APP} ./manage.py migrate
+                gosu ${APP_USER} ./manage.py migrate
                 # warn admin that it should re-enter password to keep the service working
-                gosu ${APP} ./manage.py send_mail_admins
+                gosu ${APP_USER} ./manage.py send_mail_admins
         else
                 echo "INFO detected NEW deployment"
                 init_db
