@@ -19,6 +19,7 @@ services:
       - CREATE_TEST_USERS=${IDHUB_CREATE_TEST_USERS:-true}
       - INIT_ADMIN_EMAIL=${IDHUB_INIT_ADMIN_EMAIL}
       - INIT_ADMIN_PASSWORD=${IDHUB_INIT_ADMIN_PASSWORD}
+      - INIT_ORG=${IDHUB_INIT_ORG}
       - POLICY_PRIVACY=${IDHUB_POLICY_PRIVACY}
       - POLICY_LEGAL=${IDHUB_POLICY_LEGAL}
       - POLICY_COOKIES=${IDHUB_POLICY_COOKIES}
@@ -51,7 +52,7 @@ services:
       - ${IDHUB_PORT:-9001}:${IDHUB_PORT:-9001}
     # TODO review volumes
     volumes:
-      - ${IDHUB_VOLUME:-.:${IDHUB_ROOT_DIR}/idhub}
+      - ${IDHUB_VOLUME:-.}:/opt/idhub
       - ${IDHUB_ROOT_DIR}/${IDHUB_DOCKER_DIR}/${IDHUB_DOMAIN}/idhub-postgres:/idhub-postgres
 
   idhub-postgres:
