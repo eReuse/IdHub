@@ -26,6 +26,26 @@ detect_app_version() {
         fi
 }
 
+wait_dpp_services() {
+        OPERATOR_TOKEN_FILE='operator-token.txt'
+        ADMIN_TOKEN_FILE=api-connector_admin-token.txt
+        VERAMO_API_CRED_FILE=pyvckit-api_credential.json
+        while true; do
+                # specially ensure VERAMO_API_CRED_FILE is not empty,
+                #   it takes some time to get data in
+                if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] && \
+                    [ -f "/shared/${VERAMO_API_CRED_FILE}" ] && \
+                    ! wc -l "/shared/${VERAMO_API_CRED_FILE}" | awk '{print $1;}' | grep -qE '^0$'; then
+                        sleep 5
+                        echo "Files ready to process."
+                        break
+                else
+                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}, (2) ${VERAMO_API_CRED_FILE}"
+                        sleep 5
+                fi
+        done
+}
+
 gen_env_vars() {
         INIT_ORG="${INIT_ORG:-example-org}"
         INIT_ADMIN_USER="${INIT_ADMIN_EMAIL:-user@example.org}"
@@ -36,6 +56,11 @@ gen_env_vars() {
         gosu ${APP} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
+
+        if [ "${DPP:-}" = 'true' ]; then
+                wait_dpp_services
+                export API_DLT_OPERATOR_TOKEN="$(cat "/shared/${OPERATOR_TOKEN_FILE}")"
+        fi
 }
 
 init_db() {
@@ -54,7 +79,11 @@ init_db() {
         if [ "${DEMO:-}" = 'true' ]; then
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                gosu ${APP} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                if [ "${DPP:-}" = 'true' ]; then
+                        # because of verification, we need to wait that the server is up
+                        ( sleep 20 && gosu ${APP_USER} ./manage.py demo_data_dpp ) &
+                fi
         else
                 gosu ${APP} ./manage.py init_org "${INIT_ORG}"
                 gosu ${APP} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
