@@ -37,7 +37,6 @@ gen_env_vars() {
 DOMAIN=${DOMAIN}
 END
 
-        fi
 }
 
 init_db() {
