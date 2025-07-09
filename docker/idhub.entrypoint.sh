@@ -26,6 +26,22 @@ detect_app_version() {
         fi
 }
 
+wait_dpp_services() {
+        export OPERATOR_TOKEN_FILE='operator-token.txt'
+        export ADMIN_TOKEN_FILE=api-connector_admin-token.txt
+        while true; do
+                # ensure we have admin token
+                if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] ; then
+                        sleep 5
+                        echo "Files ready to process."
+                        break
+                else
+                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}"
+                        sleep 5
+                fi
+        done
+}
+
 gen_env_vars() {
         INIT_ORGANIZATION="${INIT_ORG:-example-org}"
         INIT_ADMIN_USER="${INIT_ADMIN_EMAIL:-user@example.org}"
@@ -36,6 +52,10 @@ gen_env_vars() {
         gosu ${APP_USER} tee status_data <<END
 DOMAIN=${DOMAIN}
 END
+
+        if [ "${DPP:-}" = 'true' ]; then
+                wait_dpp_services
+        fi
 
         if [ "${DEBUG:-}" = 'true' ]; then
                 gosu ${APP_USER} ./manage.py print_settings
@@ -59,6 +79,15 @@ init_db() {
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
                 gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                if [ "${DPP:-}" = 'true' ]; then
+                        # because of verification, we need to wait that the server is up
+                        # TODO wait based on curl (idhub public endpoint?)
+                        (
+                                sleep 25 && \
+                                        gosu ${APP_USER} ./manage.py demo_data_dpp && \
+                                        gosu ${APP_USER} touch "/shared/create_user_operator_finished"
+                        ) &
+                fi
         else
                 gosu ${APP_USER} ./manage.py init_org "${INIT_ORGANIZATION}"
                 gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"

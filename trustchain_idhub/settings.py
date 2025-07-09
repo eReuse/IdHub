@@ -67,6 +67,11 @@ ADMINS = config('ADMINS', default='[]', cast=literal_eval)
 
 MANAGERS = config('MANAGERS', default='[]', cast=literal_eval)
 
+DPP = config("DPP", default='false', cast=bool)
+API_DLT_URL = config("API_DLT_URL", default='')
+
+if DPP:
+    assert API_DLT_URL, "API_DLT_URL must be defined"
 
 # Application definition
 
@@ -257,4 +262,3 @@ POLICY_COOKIES = config(
     'POLICY_COOKIES',
     default="https://laweb.pangea.org/politica-de-de-cookies-2/"
 )
-

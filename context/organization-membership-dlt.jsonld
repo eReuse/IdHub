@@ -1,0 +1,6 @@
+{
+    "@context": {
+        "issuer_id": "https://idhub.pangea.org/context/#issuer_id",
+        "role": "https://idhub.pangea.org/context/#role"
+    }
+}

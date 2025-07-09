@@ -11,6 +11,7 @@ from pyhanko.sign import fields, signers
 from pyhanko import stamp
 from pyhanko.pdf_utils import text
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import (
@@ -116,7 +117,7 @@ class ProfileView(MyProfile, UpdateView, SingleTableView):
 
     def form_valid(self, form):
         return super().form_valid(form)
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -155,7 +156,7 @@ class CredentialsView(MyWallet, SingleTableView):
 
         return queryset
 
-    
+
 class TermsAndConditionsView(UserView, FormView):
     template_name = "idhub/user/terms_conditions.html"
     title = _("Data Protection")
@@ -215,10 +216,21 @@ class CredentialView(MyWallet, TemplateView):
         context = super().get_context_data(**kwargs)
         url_ca = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id, 'ca'])
         url_es = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id, 'es'])
+        API_DLT_URL = ''
+        API_DLT_TOKEN = ''
+
+        did = self.object.subject_did
+        if did and did.type == DID.Types.WEBETH:
+            key_material = json.loads(did.get_key_material())
+            API_DLT_URL = settings.API_DLT_URL
+            API_DLT_TOKEN = key_material.get('eth_api_token', 'error')
+
         context.update({
             'object': self.object,
             'url_ca': url_ca,
             'url_es': url_es,
+            'API_DLT_URL': API_DLT_URL,
+            'API_DLT_TOKEN': API_DLT_TOKEN,
         })
         return context
 
@@ -270,7 +282,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         return img_sig
 
     def get_img_header(self):
-        path_img_head = "idhub/static/images/4_Model_Certificat_html_7a0214c6fc8f2309.jpg" 
+        path_img_head = "idhub/static/images/4_Model_Certificat_html_7a0214c6fc8f2309.jpg"
         img_header= next(Path.cwd().glob(path_img_head))
         with open(img_header, 'rb') as _f:
             img_head = base64.b64encode(_f.read()).decode('utf-8')
@@ -341,7 +353,7 @@ class CredentialPdfView(MyWallet, TemplateView):
         if cert and passphrase:
             return base64.b64decode(cert), passphrase.encode('utf-8')
         return None, None
-        
+
 
     def signer_init(self):
         pfx_data, passphrase = self.get_pfx_data()
@@ -420,7 +432,7 @@ class CredentialsRequestView(MyWallet, FormView):
             return redirect(reverse_lazy('idhub:user_dids_new'))
 
         return response
-    
+
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -435,7 +447,7 @@ class CredentialsRequestView(MyWallet, FormView):
         kwargs['domain'] = domain
         kwargs['if_credentials'] = self.if_credentials
         return kwargs
-    
+
     def form_valid(self, form):
         try:
             cred = form.save()
@@ -469,7 +481,7 @@ class DemandAuthorizationView(MyWallet, FormView):
             user=self.request.user,
             status=VerificableCredential.Status.ENABLED.value,
         ).exists()
-        
+
         if not self.if_credentials and creds_enable:
             return redirect(reverse_lazy('idhub:user_credentials_request'))
         return response
@@ -480,11 +492,11 @@ class DemandAuthorizationView(MyWallet, FormView):
             user=self.request.user,
             status=VerificableCredential.Status.ISSUED.value,
         ).exists()
-        
+
         kwargs['user'] = self.request.user
         kwargs['if_credentials'] = self.if_credentials
         return kwargs
-    
+
     def form_valid(self, form):
         try:
             authorization = form.save()
@@ -501,7 +513,7 @@ class DemandAuthorizationView(MyWallet, FormView):
             messages.error(self.request, _("Error sending credential!"))
         return super().form_valid(form)
 
-    
+
 class DidsView(MyWallet, SingleTableView):
     template_name = "idhub/user/dids.html"
     table_class = DIDTable
@@ -578,3 +590,22 @@ class DidDeleteView(MyWallet, DeleteView):
 
         return redirect(self.success_url)
 
+
+class CallOracleView(MyWallet, View):
+    subtitle = _('Identities (DIDs)')
+    icon = 'bi bi-patch-check-fill'
+    wallet = True
+    model = VerificableCredential
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        Event.set_EV_USR_CRED_TO_DLT(self.object)
+        try:
+            self.object.call_oracle()
+            messages.success(self.request, _('Credential successfully presented to DLT'))
+        except Exception as err:
+            logger.error(f"Credential to DLT failed. Details: {err}")
+            messages.error(self.request, _('Credential could not be presented to DLT'))
+
+        return redirect(reverse_lazy('idhub:user_credential', args=[self.object.id]))
