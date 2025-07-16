@@ -37,6 +37,9 @@ gen_env_vars() {
 DOMAIN=${DOMAIN}
 END
 
+        if [ "${DEBUG:-}" = 'true' ]; then
+                gosu ${APP_USER} ./manage.py print_settings
+        fi
 }
 
 init_db() {
@@ -151,10 +154,6 @@ runserver() {
         PORT="${PORT:-8000}"
 
         ./manage.py check --deploy
-
-        if [ "${DEBUG:-}" = 'true' ]; then
-                gosu ${APP_USER} ./manage.py print_settings
-        fi
 
         if [ "${DEBUG:-}" = "false" ]; then
                 gosu ${APP_USER} ./manage.py collectstatic
