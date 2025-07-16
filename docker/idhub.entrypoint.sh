@@ -94,7 +94,7 @@ manage_db() {
         fi
 
         # detect if is an existing deployment
-        if ./manage.py showmigrations --plan \
+        if gosu ${APP_USER} ./manage.py showmigrations --plan \
                         | grep -F -q '[X]  idhub_auth.0001_initial'; then
                 echo "INFO: detected EXISTING deployment"
                 gosu ${APP_USER} ./manage.py migrate
@@ -153,7 +153,7 @@ config_oidc4vp() {
 runserver() {
         PORT="${PORT:-8000}"
 
-        ./manage.py check --deploy
+        gosu ${APP_USER} ./manage.py check --deploy
 
         if [ "${DEBUG:-}" = "false" ]; then
                 gosu ${APP_USER} ./manage.py collectstatic
