@@ -1,5 +1,7 @@
 import json
+import logging
 
+from datetime import datetime
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +19,9 @@ from idhub_auth.models import User
 from idhub.models import DID, Schemas, VerificableCredential
 from webhook.models import Token
 from webhook.tables import TokensTable
+
+
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -99,6 +104,38 @@ def webhook_issue(request):
         if not schema:
             return JsonResponse({'error': 'Invalid credential'}, status=400)
 
+        try:
+            jvc = json.loads(vc)
+            jvc["operatorId"] = jvc.get("operator_id", "--")
+            timestamp = jvc.get("timestamp", str(datetime.now()))
+            dmidecode = jvc.get("data", {}).get("dmidecode", '""')
+            inxi = jvc.get("data", {}).get("inxi", '""')
+            smartctl = jvc.get("data", {}).get("smartctl", '""')
+            evidence = [
+                {
+                  "type": "HardwareList",
+                  "operation": "dmidecode",
+                  "output": dmidecode,
+                  "timestamp": timestamp
+                },
+                {
+                  "type": "HardwareList",
+                  "operation": "smartctl",
+                  "output": smartctl,
+                  "timestamp": timestamp
+                },
+                {
+                  "type": "HardwareList",
+                  "operation": "inxi",
+                  "output": inxi,
+                  "timestamp": timestamp
+                }
+            ]
+            jvc["evidence"] = evidence
+            vc = json.dumps(jvc)
+        except Exception as err:
+            logger.error(err)
+
         cred = VerificableCredential(
             csv_data=vc,
             issuer_did=did,
@@ -107,7 +144,8 @@ def webhook_issue(request):
         )
 
         cred.set_type()
-        vc_signed = cred.issue(did, domain=request.get_host(), save=save)
+        domain = "{}://{}".format(request.scheme, request.get_host())
+        vc_signed = cred.issue(did, domain=domain, save=save)
 
         if not vc_signed:
             return JsonResponse({'error': 'Invalid credential'}, status=400)

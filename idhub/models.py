@@ -839,7 +839,7 @@ class VerificableCredential(models.Model):
             issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
-        sid = self.id
+        sid = self.id or 0
         if self.eidas1_did:
             cred_path = 'public/credentials'
             sid = self.hash
@@ -857,7 +857,7 @@ class VerificableCredential(models.Model):
             credential_status_id = self.issuer_did.did
 
         context = {
-            'id_credential': str(self.id),
+            'id_credential': str(sid),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
@@ -891,10 +891,13 @@ class VerificableCredential(models.Model):
             if sch_subj:
                 sch_values = sch_subj.get("properties", {}).keys()
 
-        for k, v in json.loads(self.csv_data).items():
+        csv_data = json.loads(self.csv_data)
+        for k, v in csv_data.items():
             if k in sch_values:
                 d_ordered["credentialSubject"][k] = v
 
+        if "evidence" in csv_data:
+            d_ordered["evidence"] = csv_data["evidence"].copy()
         d_minimum = self.filter_dict(d_ordered)
 
         # You can revoke only didweb
