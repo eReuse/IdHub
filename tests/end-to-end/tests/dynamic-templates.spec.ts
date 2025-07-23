@@ -39,19 +39,96 @@ async function accept_data_protection(page) {
     }
 }
 
-async function request_credential(page) {
-    // login as user
+async function initial_setup_html_eidas1(page) {
+    await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+
+    await set_org_key(page);
+
+    await accept_data_protection(page);
+
+    // upload HTML template (for course-credential)
     ////
+    await page.getByRole('link', { name: ' Credentials' }).click();
+    await page.getByRole('link', { name: 'Templates Pdf' }).click();
+    await page.getByRole('link', { name: 'Upload new template ' }).click();
+    await page.getByPlaceholder('Name').click();
+    await page.getByPlaceholder('Name').fill(`course-credential-template`);
+    const cred_path = path.resolve(__dirname, '../../../examples/course-credential_es.html');
+    await page.getByLabel('Data').setInputFiles(cred_path);
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('link', { name: 'View credentials' }).click();
+    await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
+
+    // upload eIDAS1 key
+    ////
+    await page.getByRole('link', { name: 'Manage Identities' }).click();
+    await page.getByRole('link', { name: 'Add identity eIDAS1 ' }).click();
+    await page.getByPlaceholder('Label').click();
+    await page.getByPlaceholder('Label').fill('mykey');
+    await page.getByPlaceholder('Password of certificate').click();
+    await page.getByPlaceholder('Password of certificate').fill('123456');
+    const eidas1_path = path.resolve(__dirname, '../../../examples/signerDNIe004.pfx');
+    await page.getByLabel('File import').setInputFiles(eidas1_path);
+    await page.getByRole('button', { name: 'Upload' }).click();
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+
+}
+
+async function enable_credential(page, credential) {
+    test.setTimeout(0)
+
+    await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+
+    // remove current schema if exists
+    await page.getByRole('link', { name: ' Templates' }).click();
+    const course_credential_visible = await page.getByRole('cell', { name: `${credential}.json` }).isVisible();
+    const delete_button = await page.getByRole('row', { name: credential }).getByRole('link').nth(2);
+    const delete_button_visible = await delete_button.isVisible();
+    if (course_credential_visible) {
+        if (delete_button_visible) {
+            await delete_button.click();
+            await page.getByRole('link', { name: 'Delete' }).click();
+        } else {
+            console.log(`${credential}.json cannot be removed. Test cannot continue. Reset instance.`)
+            skip_user_test = true
+            test.skip();
+        }
+    }
+
+    // upload schema by file
+    await page.getByRole('link', { name: 'Upload template ' }).click();
+    await page.getByRole('button', { name: 'Enable Schema from File' }).click();
+    const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
+    await page.getByLabel('Schema to import').setInputFiles(schema_path);
+    const context_path = path.resolve(__dirname, `../../../context/${credential}.jsonld`);
+    await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
+    await page.getByRole('button', { name: 'Save' }).click(context_path);
+
+    // import data
+    await page.getByRole('link', { name: ' Data' }).click();
+    await page.getByRole('link', { name: 'Import data ' }).click();
+    await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
+    await page.getByLabel('Select one template for').selectOption('1');
+    await page.getByLabel('Schema').selectOption('7');
+    const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
+    await page.getByLabel('File to import').setInputFiles(data_path);
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('link', { name: '', exact: true }).click();
+}
+
+async function request_credential(page) {
+    test.setTimeout(0)
+
+    // login as user
     await login(page, TEST_USER, TEST_USER_PASSWD);
     await accept_data_protection(page);
 
     // request credential
-    ////
     await page.getByRole('link', { name: 'Request a credential' }).click();
     await page.getByRole('button', { name: 'Request' }).click();
     await page.getByRole('link', { name: '' }).click();
-    // click pdf y click json
-    ////
+
+    // click json and pdf file results
     const download1Promise = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Download as JSON' }).click();
     const download1 = await download1Promise;
@@ -73,81 +150,12 @@ async function login(page, user, password) {
 
 test.describe.serial("dynamic template tour", ()=> {
     let skip_user_test = false;
-    test('admin', async ({ page }) => {
-        test.setTimeout(0)
-        await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
-
-        await set_org_key(page);
-
-        await accept_data_protection(page);
-
-        // remove current schema if exists
-        ////
-        await page.getByRole('link', { name: ' Templates' }).click();
-        const course_credential_visible = await page.getByRole('cell', { name: 'course-credential.json' }).isVisible();
-        const delete_button = await page.getByRole('row', { name: 'course-credential' }).getByRole('link').nth(2);
-        const delete_button_visible = await delete_button.isVisible();
-        if (course_credential_visible) {
-            if (delete_button_visible) {
-                await delete_button.click();
-                await page.getByRole('link', { name: 'Delete' }).click();
-            } else {
-                console.log('course-credential.json cannot be removed. Test cannot continue. Reset instance.')
-                skip_user_test = true
-                test.skip();
-            }
-        }
-
-        // upload schema by file
-        await page.getByRole('link', { name: 'Upload template ' }).click();
-        await page.getByRole('button', { name: 'Enable Schema from File' }).click();
-        const schema_path = path.resolve(__dirname, '../../../schemas/course-credential.json');
-        await page.getByLabel('Schema to import').setInputFiles(schema_path);
-        const context_path = path.resolve(__dirname, '../../../context/course-credential.jsonld');
-        await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
-        await page.getByRole('button', { name: 'Save' }).click(context_path);
-
-        // upload HTML template
-        ////
-        await page.getByRole('link', { name: ' Credentials' }).click();
-        await page.getByRole('link', { name: 'Templates Pdf' }).click();
-        await page.getByRole('link', { name: 'Upload new template ' }).click();
-        await page.getByPlaceholder('Name').click();
-        await page.getByPlaceholder('Name').fill('course-template');
-        const cred_path = path.resolve(__dirname, '../../../examples/course-credential_es.html');
-        await page.getByLabel('Data').setInputFiles(cred_path);
-        await page.getByRole('button', { name: 'Save' }).click();
-        await page.getByRole('link', { name: 'View credentials' }).click();
-        await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
-
-        // upload eIDAS1 key
-        ////
-        await page.getByRole('link', { name: 'Manage Identities' }).click();
-        await page.getByRole('link', { name: 'Add identity eIDAS1 ' }).click();
-        await page.getByPlaceholder('Label').click();
-        await page.getByPlaceholder('Label').fill('mykey');
-        await page.getByPlaceholder('Password of certificate').click();
-        await page.getByPlaceholder('Password of certificate').fill('123456');
-        const eidas1_path = path.resolve(__dirname, '../../../examples/signerDNIe004.pfx');
-        await page.getByLabel('File import').setInputFiles(eidas1_path);
-        await page.getByRole('button', { name: 'Upload' }).click();
-        await page.getByRole('link', { name: 'Dashboard' }).click();
-
-        // import data
-        ////
-        await page.getByRole('link', { name: ' Data' }).click();
-        await page.getByRole('link', { name: 'Import data ' }).click();
-        await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
-        await page.getByLabel('Select one template for').selectOption('1');
-        await page.getByLabel('Schema').selectOption('7');
-        const data_path = path.resolve(__dirname, '../../../examples/excel_examples/course-credential.xlsx');
-        await page.getByLabel('File to import').setInputFiles(data_path);
-        await page.getByRole('button', { name: 'Save' }).click();
-        await page.getByRole('link', { name: '', exact: true }).click();
+    test('[admin] enable course-credential by file with schema and context', async ({ page }) => {
+        await initial_setup_html_eidas1(page);
+        await enable_credential(page, 'course-credential');
     });
 
-    test('user', async ({ page }) => {
-        test.setTimeout(0)
+    test('[user] request course-credential by file with schema and context', async ({ page }) => {
         await request_credential(page);
     });
 });
