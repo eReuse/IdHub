@@ -60,9 +60,6 @@ test.describe.serial("dynamic template tour", ()=> {
 
         await accept_data_protection(page);
 
-        // DEBUG
-        await page.pause()
-
         // remove current schema if exists
         ////
         await page.getByRole('link', { name: ' Templates' }).click();
@@ -126,9 +123,6 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.getByLabel('File to import').setInputFiles(data_path);
         await page.getByRole('button', { name: 'Save' }).click();
         await page.getByRole('link', { name: '', exact: true }).click();
-
-        // DEBUG
-        await page.pause()
     });
 
     test('user', async ({ page }) => {
@@ -142,8 +136,6 @@ test.describe.serial("dynamic template tour", ()=> {
         // request credential
         ////
         await page.getByRole('link', { name: 'Request a credential' }).click();
-        // TODO hay un fallo aquí
-        await page.pause()
         await page.getByRole('button', { name: 'Request' }).click();
         await page.getByRole('link', { name: '' }).click();
         // click pdf y click json
