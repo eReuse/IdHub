@@ -63,7 +63,7 @@ test.describe.serial("dynamic template tour", ()=> {
         // DEBUG
         await page.pause()
 
-        // borra el esquema del curso si existe
+        // remove current schema if exists
         ////
         await page.getByRole('link', { name: ' Templates' }).click();
         const course_credential_visible = await page.getByRole('cell', { name: 'course-credential.json' }).isVisible();
@@ -80,7 +80,7 @@ test.describe.serial("dynamic template tour", ()=> {
             }
         }
 
-        // sube esquema curso por fichero
+        // upload schema by file
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from File' }).click();
         const schema_path = path.resolve(__dirname, '../../../schemas/course-credential.json');
@@ -89,12 +89,7 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
         await page.getByRole('button', { name: 'Save' }).click(context_path);
 
-
-        // esto fue un fallo
-        //await page.getByRole('link', { name: ' Data' }).click();
-        //await page.getByRole('link', { name: 'Import data ' }).click();
-
-        // subida de plantilla
+        // upload HTML template
         ////
         await page.getByRole('link', { name: ' Credentials' }).click();
         await page.getByRole('link', { name: 'Templates Pdf' }).click();
@@ -107,7 +102,7 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.getByRole('link', { name: 'View credentials' }).click();
         await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
 
-        // subida de plantilla
+        // upload eIDAS1 key
         ////
         await page.getByRole('link', { name: 'Manage Identities' }).click();
         await page.getByRole('link', { name: 'Add identity eIDAS1 ' }).click();
@@ -118,26 +113,10 @@ test.describe.serial("dynamic template tour", ()=> {
         const eidas1_path = path.resolve(__dirname, '../../../examples/signerDNIe004.pfx');
         await page.getByLabel('File import').setInputFiles(eidas1_path);
         await page.getByRole('button', { name: 'Upload' }).click();
-        await page.getByRole('link', { name: ' Credentials' }).click();
+        await page.getByRole('link', { name: 'Dashboard' }).click();
 
-        // // subida de eidas1
-        // ////
-        // await page.getByRole('link', { name: 'Data' }).click();
-        // await page.getByRole('link', { name: 'Import data' }).click();
-        // await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
-        // await page.getByLabel('Select one template for').selectOption('1');
-        // await page.getByLabel('Schema').selectOption('7');
-
-        // intento de descargar el excel, descartado
-        //await page.getByRole('link', { name: ' Templates' }).click();
-        //const downloadPromise = page.waitForEvent('download');
-        //await page.getByRole('row', { name: '07/09/2025 1 p.m. course-' }).getByRole('link').first().click();
-        //const download = await downloadPromise;
-
-        // data import con excel example
+        // import data
         ////
-
-        // visibility problem on small screens
         await page.getByRole('link', { name: ' Data' }).click();
         await page.getByRole('link', { name: 'Import data ' }).click();
         await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
@@ -152,9 +131,7 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.pause()
     });
 
-    // TEMP disable it
     test('user', async ({ page }) => {
-        test.skip( skip_user_test == true )
         test.setTimeout(0)
 
         // login como usuario
@@ -162,17 +139,11 @@ test.describe.serial("dynamic template tour", ()=> {
         await login(page, TEST_USER, TEST_USER_PASSWD);
         await accept_data_protection(page);
 
-        //await page.getByPlaceholder('Password').click();
-        //await page.getByPlaceholder('Password').fill('1234');
-        //await page.getByRole('button', { name: 'Log in' }).click();
-        //await page.locator('#id_accept_privacy').check();
-        //await page.locator('#id_accept_legal').check();
-        //await page.locator('#id_accept_cookies').check();
-        //await page.getByRole('link', { name: 'Confirm' }).click();
-
         // request credential
         ////
         await page.getByRole('link', { name: 'Request a credential' }).click();
+        // TODO hay un fallo aquí
+        await page.pause()
         await page.getByRole('button', { name: 'Request' }).click();
         await page.getByRole('link', { name: '' }).click();
         // click pdf y click json
