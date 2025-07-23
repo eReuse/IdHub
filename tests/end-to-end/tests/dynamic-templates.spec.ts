@@ -39,6 +39,27 @@ async function accept_data_protection(page) {
     }
 }
 
+async function request_credential(page) {
+    // login as user
+    ////
+    await login(page, TEST_USER, TEST_USER_PASSWD);
+    await accept_data_protection(page);
+
+    // request credential
+    ////
+    await page.getByRole('link', { name: 'Request a credential' }).click();
+    await page.getByRole('button', { name: 'Request' }).click();
+    await page.getByRole('link', { name: '' }).click();
+    // click pdf y click json
+    ////
+    const download1Promise = page.waitForEvent('download');
+    await page.getByRole('link', { name: 'Download as JSON' }).click();
+    const download1 = await download1Promise;
+    const download2Promise = page.waitForEvent('download');
+    await page.getByRole('link', { name: 'Download as PDF' }).click();
+    const download2 = await download2Promise;
+}
+
 
 async function login(page, user, password) {
     await page.goto(`${TEST_SITE}/login`);
@@ -127,24 +148,6 @@ test.describe.serial("dynamic template tour", ()=> {
 
     test('user', async ({ page }) => {
         test.setTimeout(0)
-
-        // login como usuario
-        ////
-        await login(page, TEST_USER, TEST_USER_PASSWD);
-        await accept_data_protection(page);
-
-        // request credential
-        ////
-        await page.getByRole('link', { name: 'Request a credential' }).click();
-        await page.getByRole('button', { name: 'Request' }).click();
-        await page.getByRole('link', { name: '' }).click();
-        // click pdf y click json
-        ////
-        const download1Promise = page.waitForEvent('download');
-        await page.getByRole('link', { name: 'Download as JSON' }).click();
-        const download1 = await download1Promise;
-        const download2Promise = page.waitForEvent('download');
-        await page.getByRole('link', { name: 'Download as PDF' }).click();
-        const download2 = await download2Promise;
+        await request_credential(page);
     });
 });
