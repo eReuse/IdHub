@@ -2,6 +2,8 @@
 
 import { test, expect } from '@playwright/test';
 
+import path from 'path';
+
 // TEMP
 //const TEST_SITE = process.env.TEST_SITE || 'http://127.0.0.1:9001'
 const TEST_SITE = process.env.TEST_SITE || 'https://lab7.ereuse.org'
@@ -81,13 +83,11 @@ test.describe.serial("dynamic template tour", ()=> {
         // sube esquema curso por fichero
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from File' }).click();
-        await page.getByLabel('Schema to import').click();
-        // TODO handle file appropriately
-        await page.getByLabel('Schema to import').setInputFiles('course-credential.json');
-        await page.getByLabel('Context to import (optional)').click();
-        // TODO handle file appropriately
-        await page.getByLabel('Context to import (optional)').setInputFiles('course-credential.jsonld');
-        await page.getByRole('button', { name: 'Save' }).click();
+        const schema_path = path.resolve(__dirname, '../../../schemas/course-credential.json');
+        await page.getByLabel('Schema to import').setInputFiles(schema_path);
+        const context_path = path.resolve(__dirname, '../../../context/course-credential.jsonld');
+        await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
+        await page.getByRole('button', { name: 'Save' }).click(context_path);
 
 
         // esto fue un fallo
@@ -101,12 +101,10 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.getByRole('link', { name: 'Upload new template ' }).click();
         await page.getByPlaceholder('Name').click();
         await page.getByPlaceholder('Name').fill('course-template');
-        await page.getByLabel('Data').click();
-        // TODO handle file appropriately
-        await page.getByLabel('Data').setInputFiles('course-credential_es.html');
+        const cred_path = path.resolve(__dirname, '../../../examples/course-credential_es.html');
+        await page.getByLabel('Data').setInputFiles(cred_path);
         await page.getByRole('button', { name: 'Save' }).click();
         await page.getByRole('link', { name: 'View credentials' }).click();
-        await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
         await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
 
         // subida de plantilla
@@ -117,19 +115,18 @@ test.describe.serial("dynamic template tour", ()=> {
         await page.getByPlaceholder('Label').fill('mykey');
         await page.getByPlaceholder('Password of certificate').click();
         await page.getByPlaceholder('Password of certificate').fill('123456');
-        await page.getByLabel('File import').click();
-        // TODO handle file appropriately
-        await page.getByLabel('File import').setInputFiles('signerDNIe004.pfx');
+        const eidas1_path = path.resolve(__dirname, '../../../examples/signerDNIe004.pfx');
+        await page.getByLabel('File import').setInputFiles(eidas1_path);
         await page.getByRole('button', { name: 'Upload' }).click();
         await page.getByRole('link', { name: ' Credentials' }).click();
 
-        // subida de eidas1
-        ////
-        await page.getByRole('link', { name: ' Data' }).click();
-        await page.getByRole('link', { name: 'Import data ' }).click();
-        await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
-        await page.getByLabel('Select one template for').selectOption('1');
-        await page.getByLabel('Schema').selectOption('7');
+        // // subida de eidas1
+        // ////
+        // await page.getByRole('link', { name: 'Data' }).click();
+        // await page.getByRole('link', { name: 'Import data' }).click();
+        // await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
+        // await page.getByLabel('Select one template for').selectOption('1');
+        // await page.getByLabel('Schema').selectOption('7');
 
         // intento de descargar el excel, descartado
         //await page.getByRole('link', { name: ' Templates' }).click();
@@ -139,14 +136,15 @@ test.describe.serial("dynamic template tour", ()=> {
 
         // data import con excel example
         ////
+
+        // visibility problem on small screens
         await page.getByRole('link', { name: ' Data' }).click();
         await page.getByRole('link', { name: 'Import data ' }).click();
         await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
         await page.getByLabel('Select one template for').selectOption('1');
         await page.getByLabel('Schema').selectOption('7');
-        await page.getByLabel('File to import').click();
-        // TODO handle file appropriately
-        await page.getByLabel('File to import').setInputFiles('course-credential.xlsx');
+        const data_path = path.resolve(__dirname, '../../../examples/excel_examples/course-credential.xlsx');
+        await page.getByLabel('File to import').setInputFiles(data_path);
         await page.getByRole('button', { name: 'Save' }).click();
         await page.getByRole('link', { name: '', exact: true }).click();
 
@@ -161,7 +159,7 @@ test.describe.serial("dynamic template tour", ()=> {
 
         // login como usuario
         ////
-        await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+        await login(page, TEST_USER, TEST_USER_PASSWD);
         await accept_data_protection(page);
 
         //await page.getByPlaceholder('Password').click();
