@@ -14,6 +14,7 @@ services:
       - DEBUG=${IDHUB_DEBUG:-true}
       - DEMO=${IDHUB_DEMO:-true}
       - DEMO_AUTODECRYPT=${IDHUB_DEMO_AUTODECRYPT:-false}
+      - DEMO_CREATE_SCHEMAS=${IDHUB_DEMO_CREATE_SCHEMAS:-false}
       - REMOVE_DATA=${IDHUB_REMOVE_DATA:-false}
       - DB_TYPE=${IDHUB_DB_TYPE:-postgres}
       - CREATE_TEST_USERS=${IDHUB_CREATE_TEST_USERS:-true}
