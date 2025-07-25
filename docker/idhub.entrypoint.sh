@@ -54,7 +54,7 @@ init_db() {
         # init data
         if [ "${DEMO:-}" = 'true' ]; then
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
-                DEMO_CREATE_SCHEMAS="${DEMO_CREATE_SCHEMAS:-false}"
+                DEMO_CREATE_SCHEMAS="${DEMO_CREATE_SCHEMAS:-true}"
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
                 gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
         else
