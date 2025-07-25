@@ -56,7 +56,7 @@ init_db() {
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
                 DEMO_CREATE_SCHEMAS="${DEMO_CREATE_SCHEMAS:-false}"
                 PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}""
+                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
         else
                 gosu ${APP_USER} ./manage.py init_org "${INIT_ORGANIZATION}"
                 gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
