@@ -261,4 +261,4 @@ POLICY_COOKIES = config(
     'POLICY_COOKIES',
     default="https://laweb.pangea.org/politica-de-de-cookies-2/"
 )
-
+DEMO_CREATE_SCHEMAS = config('DEMO_CREATE_SCHEMAS', default=False, cast=bool)
