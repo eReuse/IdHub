@@ -74,16 +74,13 @@ async function initial_setup_html_eidas1(page) {
 
 }
 
-async function enable_credential(page, credential) {
-    test.setTimeout(0)
-
-    await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
-
+async function remove_current_schema_if_exists(page, credential) {
     // remove current schema if exists
     await page.getByRole('link', { name: ' Templates' }).click();
     const course_credential_visible = await page.getByRole('cell', { name: `${credential}.json` }).isVisible();
     const delete_button = await page.getByRole('row', { name: credential }).getByRole('link').nth(2);
     const delete_button_visible = await delete_button.isVisible();
+
     if (course_credential_visible) {
         if (delete_button_visible) {
             await delete_button.click();
@@ -94,29 +91,10 @@ async function enable_credential(page, credential) {
             test.skip();
         }
     }
-
-    // upload schema by file
-    await page.getByRole('link', { name: 'Upload template ' }).click();
-    await page.getByRole('button', { name: 'Enable Schema from File' }).click();
-    const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
-    await page.getByLabel('Schema to import').setInputFiles(schema_path);
-    const context_path = path.resolve(__dirname, `../../../context/${credential}.jsonld`);
-    await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
-    await page.getByRole('button', { name: 'Save' }).click(context_path);
-
-    // import data
-    await page.getByRole('link', { name: ' Data' }).click();
-    await page.getByRole('link', { name: 'Import data ' }).click();
-    await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
-    await page.getByLabel('Select one template for').selectOption('1');
-    await page.getByLabel('Schema').selectOption('7');
-    const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
-    await page.getByLabel('File to import').setInputFiles(data_path);
-    await page.getByRole('button', { name: 'Save' }).click();
-    await page.getByRole('link', { name: '', exact: true }).click();
 }
 
 async function request_credential(page) {
+    test.skip( skip_user_test == true )
     test.setTimeout(0)
 
     // login as user
@@ -135,6 +113,8 @@ async function request_credential(page) {
     const download2Promise = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Download as PDF' }).click();
     const download2 = await download2Promise;
+
+    skip_user_test = false
 }
 
 
@@ -146,16 +126,84 @@ async function login(page, user, password) {
     await page.getByPlaceholder('Password').press('Enter');
 }
 
-// https://stackoverflow.com/questions/73338339/playwright-framework-is-there-a-way-we-can-execute-dependent-tests-in-playwrig
 
-test.describe.serial("dynamic template tour", ()=> {
-    let skip_user_test = false;
-    test('[admin] enable course-credential by file with schema and context', async ({ page }) => {
+// if test cannot enable credential, avoid the user requesting it
+let skip_user_test = false;
+
+// https://stackoverflow.com/questions/73338339/playwright-framework-is-there-a-way-we-can-execute-dependent-tests-in-playwrig
+test.describe.serial("dynamic template tour", () => {
+
+    test.beforeAll(async ({ browser }) => {
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
         await initial_setup_html_eidas1(page);
-        await enable_credential(page, 'course-credential');
+    });
+
+    test('[admin] enable course-credential by file with schema and context', async ({ page }) => {
+        const credential = 'course-credential'
+
+        await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+
+        remove_current_schema_if_exists(page, credential)
+
+        // upload schema by file
+        await page.getByRole('link', { name: 'Upload template ' }).click();
+        await page.getByRole('button', { name: 'Enable Schema from File' }).click();
+        const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
+        await page.getByLabel('Schema to import').setInputFiles(schema_path);
+        const context_path = path.resolve(__dirname, `../../../context/${credential}.jsonld`);
+        await page.getByLabel('Context to import (optional)').setInputFiles(context_path);
+        await page.getByRole('button', { name: 'Save' }).click();
+
+        // import data
+        await page.getByRole('link', { name: ' Data' }).click();
+        await page.getByRole('link', { name: 'Import data ' }).click();
+        await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
+        await page.getByLabel('Select one template for').selectOption('1');
+        await page.getByLabel('Schema').selectOption('NGO Course Credential for participants');
+        const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
+        await page.getByLabel('File to import').setInputFiles(data_path);
+        await page.getByRole('button', { name: 'Save' }).click();
+        await page.getByRole('link', { name: '', exact: true }).click();
     });
 
     test('[user] request course-credential by file with schema and context', async ({ page }) => {
+        await request_credential(page);
+    });
+
+    test('[admin] enable course-credential by file with schema (no context)', async ({ page }) => {
+        const credential = 'financial-vulnerability'
+        await page.pause();
+        test.setTimeout(0)
+
+        await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+
+        remove_current_schema_if_exists(page, credential)
+
+        // upload schema by file
+        await page.getByRole('link', { name: 'Upload template ' }).click();
+        await page.getByRole('button', { name: 'Enable Schema from File' }).click();
+        const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
+        await page.getByLabel('Schema to import').setInputFiles(schema_path);
+        await page.getByRole('button', { name: 'Save' }).click();
+
+        // import data
+        await page.getByRole('link', { name: ' Data' }).click();
+        await page.getByRole('link', { name: 'Import data ' }).click();
+        await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
+        // TODO template is only for course credential
+        //await page.getByLabel('Select one template for').selectOption('1');
+        await page.getByLabel('Schema').selectOption('Financial Vulnerability Credential');
+        const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
+        await page.getByLabel('File to import').setInputFiles(data_path);
+        await page.getByRole('button', { name: 'Save' }).click();
+        await page.getByRole('link', { name: '', exact: true }).click();
+    });
+
+    test('[user] request course-credential by file with schema and context', async ({ page }) => {
+        await page.pause();
+        test.setTimeout(0)
+
         await request_credential(page);
     });
 });
