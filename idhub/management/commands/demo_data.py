@@ -30,12 +30,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('predefined_token', nargs='?', default='', type=str, help='predefined token')
         parser.add_argument('predefined_did', nargs='?', default='', type=str, help='predefined did')
+        parser.add_argument('create_schemas_arg', nargs='?', default=True, type=str, help='create schemas')
 
     def handle(self, *args, **kwargs):
         ADMIN_EMAIL = settings.INIT_ADMIN_EMAIL
         ADMIN_PASSWORD = settings.INIT_ADMIN_PASSWORD
         self.predefined_token = kwargs['predefined_token']
         self.predefined_did = kwargs['predefined_did']
+        self.create_schemas_arg = kwargs['create_schemas_arg']
         # on demo situation, encrypted vault is hardcoded with password DEMO
         cache.set("KEY_DIDS", "DEMO", None)
 
@@ -56,7 +58,8 @@ class Command(BaseCommand):
         if self.OIDC_ORGS:
             self.create_organizations()
 
-        self.create_schemas()
+        if self.create_schemas_arg:
+            self.create_schemas()
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
