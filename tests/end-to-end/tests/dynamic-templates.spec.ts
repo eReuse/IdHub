@@ -74,25 +74,6 @@ async function initial_setup_html_eidas1(page) {
 
 }
 
-async function remove_current_schema_if_exists(page, credential) {
-    // remove current schema if exists
-    await page.getByRole('link', { name: ' Templates' }).click();
-    const course_credential_visible = await page.getByRole('cell', { name: `${credential}.json` }).isVisible();
-    const delete_button = await page.getByRole('row', { name: credential }).getByRole('link').nth(2);
-    const delete_button_visible = await delete_button.isVisible();
-
-    if (course_credential_visible) {
-        if (delete_button_visible) {
-            await delete_button.click();
-            await page.getByRole('link', { name: 'Delete' }).click();
-        } else {
-            console.log(`${credential}.json cannot be removed. Test cannot continue. Reset instance.`)
-            skip_user_test = true
-            test.skip();
-        }
-    }
-}
-
 async function request_credential(page) {
     test.skip( skip_user_test == true )
     test.setTimeout(0)
@@ -144,8 +125,6 @@ test.describe.serial("dynamic template tour", () => {
 
         await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
 
-        remove_current_schema_if_exists(page, credential)
-
         // upload schema by file
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from File' }).click();
@@ -177,8 +156,6 @@ test.describe.serial("dynamic template tour", () => {
         test.setTimeout(0)
 
         await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
-
-        remove_current_schema_if_exists(page, credential)
 
         // upload schema by file
         await page.getByRole('link', { name: 'Upload template ' }).click();
