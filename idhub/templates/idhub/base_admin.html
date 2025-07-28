@@ -140,7 +140,7 @@
                     <ul class="flex-column mb-2 accordion-collapse {% if wallet %}expanded{% else %}collapse{% endif %}" id="lwallet" data-bs-parent="#wallet">
                       <li class="nav-item">
                         <a class="nav-link{% if path == 'admin_dids' %} active2{% endif %}" href="{% url 'idhub:admin_dids' %}">
-                          {% trans 'Manage Identities (DIDs)' %}
+                          {% trans 'Manage Identities' %}
                         </a>
                       </li>
                       <li class="nav-item">
@@ -148,16 +148,16 @@
                           {% trans 'View org. credentials' %}
                         </a>
                       </li>
-                      <li class="nav-item">
-                        <a class="nav-link{% if path == 'admin_wallet_config_issue' %} active2{% endif %}" href="{% url 'idhub:admin_wallet_config_issue' %}">
-                          {% trans 'Configure credential issuance' %}
-                        </a>
-                      </li>
                     </ul>
                   </li>
                   <li class="nav-item">
                     <a id="wallet" class="nav-link{% if path == 'tokens' %} active2{% endif %}" href="{% url 'webhook:tokens' %}">
                       {% trans "Webhook Tokens" %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a id="wallet" class="nav-link{% if path == 'admin:templates_pdf' %} active2{% endif %}" href="{% url 'idhub:admin_templates_pdf' %}">
+                      {% trans "Templates PDF" %}
                     </a>
                   </li>
                 </ul>

@@ -57,8 +57,9 @@ init_db() {
         # init data
         if [ "${DEMO:-}" = 'true' ]; then
                 printf "This is DEVELOPMENT/PILOTS_EARLY DEPLOYMENT: including demo hardcoded data\n" >&2
-                PREDEFINED_TOKEN="${PREDEFINED_TOKEN:-}"
-                gosu ${APP_USER} ./manage.py demo_data "${PREDEFINED_TOKEN}"
+                DEMO_CREATE_SCHEMAS="${DEMO_CREATE_SCHEMAS:-true}"
+                DEMO_PREDEFINED_TOKEN="${DEMO_PREDEFINED_TOKEN:-}"
+                gosu ${APP_USER} ./manage.py demo_data "${DEMO_PREDEFINED_TOKEN}"
         else
                 gosu ${APP_USER} ./manage.py init_org "${INIT_ORGANIZATION}"
                 gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
@@ -202,6 +203,10 @@ _detect_proper_user() {
 _prepare() {
         APP=idhub
         _detect_proper_user
+        # docker create root owned volumes, it is our job to map it to
+        #   the right user
+        chown -R ${APP_USER}: "${MEDIA_ROOT}"
+        chown -R ${APP_USER}: "${STATIC_ROOT}"
         APP_DIR="/opt/${APP}"
         cd "${APP_DIR}"
 }

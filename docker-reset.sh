@@ -88,14 +88,8 @@ by default does not use rproxy nor letsencrypt"
         fi
         add_env_var IDHUB_FAKE_HTTP_CERT_REQUEST
 
-        # adapt docker user to your runtime needs -> src https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
-        #   via https://github.com/moby/moby/issues/22258#issuecomment-293664282
-        #   related https://github.com/moby/moby/issues/2259
-        export IDHUB_LOCAL_USER_ID_REQUEST="$(id -u "${USER}")"
-        add_env_var IDHUB_LOCAL_USER_ID_REQUEST
-
         # if user is root, place it in /opt
-        if [ "${IDHUB_LOCAL_USER_ID_REQUEST}" = 0 ]; then
+        if [ "$(id -u "${USER}")" = 0 ]; then
                 export IDHUB_ROOT_DIR_REQUEST='/opt'
         else
                 export IDHUB_ROOT_DIR_REQUEST="${HOME}"

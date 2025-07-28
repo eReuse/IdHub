@@ -56,7 +56,8 @@ class Command(BaseCommand):
         if self.OIDC_ORGS:
             self.create_organizations()
 
-        self.create_schemas()
+        if settings.DEMO_CREATE_SCHEMAS:
+            self.create_schemas()
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
@@ -68,6 +69,11 @@ class Command(BaseCommand):
                 Token.objects.create(token=self.predefined_token)
 
         self.create_default_did()
+
+    def create_default_user_did(self, user):
+        did = DID(user=user, type=DID.Types.WEB, label="Default")
+        did.set_did()
+        did.save()
 
     def create_default_did(self):
 
@@ -122,6 +128,7 @@ class Command(BaseCommand):
         u = User.objects.create(email=email, password=password)
         u.set_password(password)
         u.save()
+        self.create_default_user_did(u)
 
     def create_organizations(self):
         BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
