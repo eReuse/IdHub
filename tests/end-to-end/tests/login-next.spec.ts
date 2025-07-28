@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 
 const TEST_SITE = process.env.TEST_SITE || 'http://127.0.0.1:9001'
 
-const TEST_ADMIN_USER = process.env.TEST_USER || 'admin@example.org'
+const TEST_ADMIN_USER = process.env.TEST_ADMIN_USER || 'admin@example.org'
 const TEST_ADMIN_PASSWD = process.env.TEST_PASSWD || 'admin'
 
 const TEST_USER = process.env.TEST_USER || 'user1@example.org'

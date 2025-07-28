@@ -9,6 +9,12 @@ set -x
 
 main() {
         cd "$(dirname "${0}")"
+        if [ ! -f .env ]; then
+                echo "Detected .env file is missing, so let's initialize the config"
+                cp -v .env.example .env
+        fi
+        . ./.env
+
         VIDEO="${VIDEO:-no}"
         browser="${browser:-firefox}"
         project="${project:-firefox}"

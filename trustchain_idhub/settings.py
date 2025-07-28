@@ -177,9 +177,15 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 STATIC_ROOT = config('STATIC_ROOT')
-MEDIA_ROOT = config('MEDIA_ROOT', default="idhub/upload")
+MEDIA_ROOT = config('MEDIA_ROOT', default=os.path.join(BASE_DIR, 'idhub/upload'))
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 SCHEMAS_DIR = os.path.join(BASE_DIR, 'schemas')
+
+STATICFILES_DIRS = [
+    # following line was commented because caused a warning
+    #   for a docker deployment (and it does not make sense)
+    #os.path.join(BASE_DIR, 'static/'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -257,4 +263,4 @@ POLICY_COOKIES = config(
     'POLICY_COOKIES',
     default="https://laweb.pangea.org/politica-de-de-cookies-2/"
 )
-
+DEMO_CREATE_SCHEMAS = config('DEMO_CREATE_SCHEMAS', default=False, cast=bool)
