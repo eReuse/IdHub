@@ -29,15 +29,19 @@ detect_app_version() {
 wait_dpp_services() {
         export OPERATOR_TOKEN_FILE='operator-token.txt'
         export ADMIN_TOKEN_FILE=api-connector_admin-token.txt
+        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}"
+        set +x
         while true; do
                 # ensure we have admin token
                 if [ -f "/shared/${ADMIN_TOKEN_FILE}" ] ; then
                         sleep 5
                         echo "Files ready to process."
+                        set -x
                         break
                 else
-                        echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}"
                         sleep 5
+                        # DEBUG
+                        # echo "Waiting for files in shared: (1) ${ADMIN_TOKEN_FILE}"
                 fi
         done
 }
