@@ -228,7 +228,7 @@ class CredentialView(MyWallet, TemplateView):
 
         context.update({
             'object': self.object,
-            'url_pdf': url_pdf
+            'url_pdf': url_pdf,
             'API_DLT_URL': API_DLT_URL,
             'API_DLT_TOKEN': API_DLT_TOKEN,
         })
