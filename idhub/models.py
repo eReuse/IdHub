@@ -451,6 +451,7 @@ class Event(models.Model):
     def set_EV_SCHEME_UPLOAD(cls, msg):
         cls.objects.create(
             type=cls.Types.EV_SCHEME_UPLOAD,
+        )
 
     @classmethod
     def set_EV_USR_CRED_TO_DLT(cls, msg):
