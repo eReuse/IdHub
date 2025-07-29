@@ -10,13 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import logging
 
+from logging import NullHandler
 from ast import literal_eval
 from dj_database_url import parse as db_url
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from decouple import config, Csv
+
+
+# this is for hide messages of weasyprint
+logging.getLogger('fontTools').setLevel(logging.WARNING)
+logging.getLogger('PIL').setLevel(logging.WARNING)
+logging.getLogger('asyncio').setLevel(logging.WARNING)
+weasyprint_logger = logging.getLogger('weasyprint')
+weasyprint_logger.addHandler(NullHandler())
+weasyprint_logger.propagate = False
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
