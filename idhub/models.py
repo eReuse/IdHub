@@ -734,7 +734,7 @@ class VCTemplate(models.Model):
 
 
 class VCTemplatePdf(models.Model):
-    name = models.CharField(_("Name"), max_length=250)
+    name = models.CharField(_("Name"), max_length=250, unique=True)
     data = models.FileField(upload_to='pdftemplate/')
 
 
