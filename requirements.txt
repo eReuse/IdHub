@@ -35,8 +35,6 @@ jsonpath_ng==1.6.1
 pyroaring==0.4.5
 coverage==7.4.3
 gunicorn==21.2.0
-# TODO recover just pyvckit when finished the patch can get merged
-#pyvckit
-pyvckit @ git+https://github.com/ereuse/pyvckit.git@issue_261__dpp_v3
+pyvckit
 psycopg2-binary==2.9.10
 xlsxwriter==3.2.3
