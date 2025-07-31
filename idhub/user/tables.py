@@ -113,6 +113,11 @@ class DIDTable(tables.Table):
             orderable=False
     )
 
+    def render_did(self, record):
+        if record.has_link():
+            return format_html('<a href="{}" target="_blank">{}</a>', record.get_path(), record.did)
+        return record.did
+
     def render_edit(self):
         return format_html('<i class="bi bi-pencil-square"></i>')
 
