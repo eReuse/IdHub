@@ -7,10 +7,10 @@ import weasyprint
 from pathlib import Path
 from smtplib import SMTPException
 from django_tables2 import SingleTableView, RequestConfig
-
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import FormMixin
 from django.views.generic.edit import (
     CreateView,
     DeleteView,
@@ -37,7 +37,8 @@ from idhub.admin.forms import (
     TermsConditionsForm,
     SchemaForm,
     UserRolForm,
-    DIDForm
+    DIDForm,
+    ObjectDidImportForm
 )
 from idhub.admin.tables import (
         DashboardTable,
@@ -1274,3 +1275,31 @@ class VCTemplatePdfRenderView(AdminView, TemplateView):
         data = self.object.data.read()
         pdf = weasyprint.HTML(string=data)
         return pdf.write_pdf()
+
+
+class ObjectDidsView(AdminView, FormMixin, SingleTableView):
+    template_name = "idhub/admin/import_dids.html"
+    section = "Credential"
+    title = "Object DIDs"
+    subtitle = _('Identities (DIDs)')
+    icon = 'bi bi-patch-check-fill'
+    table_class = DIDTable
+    form_class = ObjectDidImportForm
+    success_url = reverse_lazy("idhub:admin_dids")
+
+    def get_queryset(self):
+        return DID.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, _("Evidence imported successfully."))
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
