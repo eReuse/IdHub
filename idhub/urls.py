@@ -194,6 +194,8 @@ urlpatterns = [
          views_admin.VCTemplatePdfDeleteView.as_view(), name='admin_template_pdf_del'),
     path('admin/templates_pdf/<int:pk>/render/',
          views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
+    path('admin/object_dids/',
+         views_admin.ObjectDidsView.as_view(), name='admin_object_dids'),
 
     path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did"),
     path('schema/<str:file_name>', SchemaView, name="schema"),
