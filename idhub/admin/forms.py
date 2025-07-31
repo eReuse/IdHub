@@ -660,7 +660,6 @@ class ImportCertificateForm(forms.Form):
             self.pfx_file, self._pss.encode('utf-8')
         )
 
-
 class DIDForm(forms.ModelForm):
     class Meta:
         model = DID
@@ -708,3 +707,54 @@ class DIDForm(forms.ModelForm):
             return self.instance
 
         return
+
+
+REQUIRED_FIELDS = {"id", "controller", "verificationmethod"}
+
+class ObjectDidImportForm(forms.Form):
+    did_method = forms.ChoiceField(choices=DID.Types.choices, label="Select your DID method")
+    file_import = forms.FileField(label=_("Upload object DIDs file"))
+
+    def __init__(self, *args, **kwargs):
+        self.rows = []
+        super().__init__(*args, **kwargs)
+
+    def clean_file_import(self):
+        data = self.cleaned_data["file_import"]
+        data = self.cleaned_data["did_method"]
+        self.file_name = data.name.lower()
+        #try all extensions to dataframe
+        try:
+            if self.file_name.endswith(".csv"):
+                df = pd.read_csv(data)
+            elif self.file_name.endswith(".xlsx") or self.file_name.endswith(".xls"):
+                df = pd.read_excel(data)
+            elif self.file_name.endswith(".ods"):
+                df = pd.read_excel(data, engine="odf")
+            else:
+                raise ValidationError(_("Unsupported file type: %(ext)s"), params={"ext": self.file_name})
+        except Exception as e:
+            raise ValidationError(
+                _("Error opening '%(file_name)s': %(error)s"),
+                params={"file_name": self.file_name, "error": str(e)}
+            )
+
+        if df.empty:
+            raise ValidationError(_("The file is empty.")) # :(
+
+
+        df.fillna("", inplace=True)
+        normalized_columns = [col.lower() for col in df.columns]
+
+        missing = REQUIRED_FIELDS - set(normalized_columns)
+        if missing:
+            raise ValidationError(
+                _("Missing required column(s): %(columns)s"),
+                params={"columns": ", ".join(missing)}
+            )
+
+        for i, row in df.iterrows():
+            row_dict = {k.lower(): v for k, v in row.items()}
+            self.rows.append(row_dict)
+
+        return self.rows
