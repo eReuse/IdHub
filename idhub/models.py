@@ -620,6 +620,9 @@ class DID(models.Model):
     def get_type(self):
         return self.Types(self.type)
 
+    def __str__(self):
+        return self.did
+
 
 class Context(models.Model):
     """

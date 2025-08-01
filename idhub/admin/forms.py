@@ -712,8 +712,10 @@ class DIDForm(forms.ModelForm):
 REQUIRED_FIELDS = {"id", "controller", "verificationmethod"}
 
 class ObjectDidImportForm(forms.Form):
-    did_method = forms.ChoiceField(choices=DID.Types.choices, label="Select your DID method")
+    did_method = forms.ChoiceField(choices=DID.Types.choices, label=_("Select DID method"))
+    issuer = forms.ModelChoiceField(queryset= DID.objects.filter(user__isnull=True), empty_label=_("Select one"), label=_("Select the DID which signs the DPP") )
     file_import = forms.FileField(label=_("Upload object DIDs file"))
+
 
     def __init__(self, *args, **kwargs):
         self.rows = []
@@ -721,7 +723,6 @@ class ObjectDidImportForm(forms.Form):
 
     def clean_file_import(self):
         data = self.cleaned_data["file_import"]
-        data = self.cleaned_data["did_method"]
         self.file_name = data.name.lower()
         #try all extensions to dataframe
         try:
