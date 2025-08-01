@@ -562,6 +562,10 @@ class DID(models.Model):
             return True
         return False
 
+    def __str__(self):
+        return self.did
+
+
 class Context(models.Model):
     """
     This context is linked to a schema and is not uploaded when upload a schema.
