@@ -727,11 +727,11 @@ class ObjectDidImportForm(forms.Form):
         #try all extensions to dataframe
         try:
             if self.file_name.endswith(".csv"):
-                df = pd.read_csv(data)
+                self.df = pd.read_csv(data)
             elif self.file_name.endswith(".xlsx") or self.file_name.endswith(".xls"):
-                df = pd.read_excel(data)
+                self.df = pd.read_excel(data)
             elif self.file_name.endswith(".ods"):
-                df = pd.read_excel(data, engine="odf")
+                self.df = pd.read_excel(data, engine="odf")
             else:
                 raise ValidationError(_("Unsupported file type: %(ext)s"), params={"ext": self.file_name})
         except Exception as e:
@@ -740,12 +740,12 @@ class ObjectDidImportForm(forms.Form):
                 params={"file_name": self.file_name, "error": str(e)}
             )
 
-        if df.empty:
+        if self.df.empty:
             raise ValidationError(_("The file is empty.")) # :(
 
 
-        df.fillna("", inplace=True)
-        normalized_columns = [col.lower() for col in df.columns]
+        self.df.fillna("", inplace=True)
+        normalized_columns = [col.lower() for col in self.df.columns]
 
         missing = REQUIRED_FIELDS - set(normalized_columns)
         if missing:
@@ -753,9 +753,20 @@ class ObjectDidImportForm(forms.Form):
                 _("Missing required column(s): %(columns)s"),
                 params={"columns": ", ".join(missing)}
             )
+        return data
 
-        for i, row in df.iterrows():
-            row_dict = {k.lower(): v for k, v in row.items()}
-            self.rows.append(row_dict)
+    def save(self):
+        dids = []
 
-        return self.rows
+
+        for row in self.df.iterrows():
+            #create object DID
+            obj_id = row[1].get("id")
+            #TODO:maybe fix this
+            did_method = DID.Types(int(self.cleaned_data["did_method"]))
+
+            obj_did = DID(label=obj_id, type=did_method, user=None)
+            obj_did.set_did()
+            obj_did.save()
+
+        return dids
