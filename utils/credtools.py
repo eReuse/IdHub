@@ -236,14 +236,17 @@ def schema_to_xls_comment(schema, xls_file_path):
   req_f = workbook.add_format({'border': 1})
   req_da = workbook.add_format({'border': 1, 'num_format': 'yyyy-mm-dd'})
   req_in = workbook.add_format({'border': 1, 'num_format': '0'})
+  req_num = workbook.add_format({'border': 1, 'num_format': '0.00'})
   req_st = workbook.add_format({'border': 1, 'num_format': '@'})
   opt_da = workbook.add_format({'num_format': 'yyyy-mm-dd'})
   opt_in = workbook.add_format({'num_format': '0'})
   opt_st = workbook.add_format({'num_format': '@'})
+  opt_num = workbook.add_format({'num_format': '0.00'})
   fmts = {
     'string' : {True: req_st, False: opt_st},
     'date' : {True: req_da, False: opt_da},
-    'integer' : {True: req_in, False: opt_in}
+    'integer' : {True: req_in, False: opt_in},
+    'number' : {True: req_num, False: opt_num}
   }
 
   # Write comments to the cells
