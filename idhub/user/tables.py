@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 import django_tables2 as tables
 from idhub.models import Event, Membership, UserRol, DID, VerificableCredential
@@ -23,6 +24,9 @@ class DashboardTable(tables.Table):
     type = tables.Column(verbose_name=_("Event"))
     message = tables.Column(verbose_name=_("Description"))
     created = tables.Column(verbose_name=_("Date"))
+
+    def render_message(self, value):
+        return mark_safe(value)
 
     class Meta:
         model = Event

@@ -250,12 +250,13 @@ class Event(models.Model):
 
     @classmethod
     def set_EV_CREDENTIAL_ISSUED(cls, cred):
-        msg = _("The credential of type '{type}' and ID: '{id}' was issued and stored in your wallet").format(
+        msg = _("The credential of type <a href='{url}'>'{type}'</a> and ID: '{id}' was issued and stored in your wallet").format(
             type=cred.type,
             id=cred.id
         )
         cls.objects.create(
             type=cls.Types.EV_CREDENTIAL_ISSUED,
+            url=reverse('idhub:user_credential', args=[cred.id]),
             message=msg,
             user=cred.user
         )
@@ -303,7 +304,8 @@ class Event(models.Model):
 
     @classmethod
     def set_EV_CREDENTIAL_CAN_BE_REQUESTED(cls, cred):
-        msg = _("You can request the '{type}' credential").format(
+        msg = _("You can request the <a href='{url}'>'{type}'</a> credential").format(
+            url=reverse('idhub:user_credentials_request'),
             type=cred.type
         )
         cls.objects.create(
