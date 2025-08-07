@@ -76,6 +76,8 @@ urlpatterns = [
         name='user_credentials'),
     path('user/credentials/<int:pk>', views_user.CredentialView.as_view(),
         name='user_credential'),
+    path('user/credentials/<int:pk>/html/', views_user.CredentialHTMLView.as_view(),
+        name='user_credential_html'),
     path('user/credentials/<int:pk>/pdf/', views_user.CredentialPdfView.as_view(),
         name='user_credential_pdf'),
     path('user/credentials/<int:pk>/call_oracle', views_user.CallOracleView.as_view(),
