@@ -20,7 +20,8 @@ from django.views.generic.edit import (
     DeleteView,
     FormView
 )
-from django.template import RequestContext, Template
+from django.template import RequestContext, Template, Context
+from django.template.loader import get_template
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.core.cache import cache
@@ -197,6 +198,62 @@ class WaitingView(UserView, TemplateView):
         return super().get(request, *args, **kwargs)
 
 
+class CredentialHTMLView(MyWallet, TemplateView):
+    template_name = "certificates/base.html"
+    subtitle = ""
+    section = ""
+    icon = ""
+
+    def get(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(
+            VerificableCredential,
+            pk=self.pk,
+            user=self.request.user
+        )
+        self.url_id = "{}://{}/public/credentials/{}".format(
+            self.request.scheme,
+            self.request.get_host(),
+            self.object.hash
+        )
+        if self.object.template_pdf:
+            template_pdf = self.object.template_pdf.data.read().decode()
+            template = Template(template_pdf)
+            context = Context(self.get_context_data())
+            html_content = template.render(context)
+            return HttpResponse(html_content, content_type='text/html')
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qr = self.generate_qr_code(self.url_id)
+        context.update(json.loads(self.object.csv_data))
+        context.update(dict(self.object.get_datas()))
+        context.update({
+            'object': self.object,
+            'domain': settings.DOMAIN,
+            'qr': qr,
+        })
+
+        return context
+        return RequestContext(self.request, context)
+
+    def generate_qr_code(self, data):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        img_buffer = BytesIO()
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save(img_buffer, format="PNG")
+
+        return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+
 
 class CredentialView(MyWallet, TemplateView):
     template_name = "idhub/user/credential.html"
@@ -216,6 +273,7 @@ class CredentialView(MyWallet, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         url_pdf = reverse_lazy('idhub:user_credential_pdf', args=[self.object.id])
+        url_html = reverse_lazy('idhub:user_credential_html', args=[self.object.id])
 
         API_DLT_URL = ''
         API_DLT_TOKEN = ''
@@ -229,6 +287,7 @@ class CredentialView(MyWallet, TemplateView):
         context.update({
             'object': self.object,
             'url_pdf': url_pdf,
+            'url_html': url_html,
             'API_DLT_URL': API_DLT_URL,
             'API_DLT_TOKEN': API_DLT_TOKEN,
         })
@@ -236,7 +295,7 @@ class CredentialView(MyWallet, TemplateView):
 
 
 class CredentialPdfView(MyWallet, TemplateView):
-    template_name = "certificates/{}.html"
+    template_name = "certificates/base.html"
     subtitle = _('Credential management')
     icon = 'bi bi-patch-check-fill'
     file_name = "certificate.pdf"
@@ -249,8 +308,6 @@ class CredentialPdfView(MyWallet, TemplateView):
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
-            eidas1_did__isnull=False,
-            template_pdf__isnull=False,
             user=self.request.user
         )
         self.credential_type = self.object.schema.file_schema.split(".json")[0]
@@ -263,7 +320,8 @@ class CredentialPdfView(MyWallet, TemplateView):
 
         try:
             data = self.build_certificate()
-            data = self.insert_signature(data)
+            if self.object.eidas1_did:
+                data = self.insert_signature(data)
         except Exception:
             messages.error(self.request, _("Error rendering this credencial"))
             url_success = reverse_lazy('idhub:user_credential', args=[self.object.id,])
@@ -297,8 +355,12 @@ class CredentialPdfView(MyWallet, TemplateView):
         return RequestContext(self.request, context)
 
     def build_certificate(self):
-        template_pdf = self.object.template_pdf.data.read().decode()
-        doc = Template(template_pdf).render(self.get_context_data())
+        if self.object.template_pdf:
+            self.template_pdf = self.object.template_pdf.data.read().decode()
+        else:
+            self.template_pdf = get_template(self.template_name).template.source
+
+        doc = Template(self.template_pdf).render(self.get_context_data())
         pdf = weasyprint.HTML(string=doc)
         return pdf.write_pdf()
 
@@ -346,23 +408,30 @@ class CredentialPdfView(MyWallet, TemplateView):
         _buffer = BytesIO()
         _buffer.write(doc)
         w = IncrementalPdfFileWriter(_buffer)
-        fields.append_signature_field(
-            w, sig_field_spec=fields.SigFieldSpec(
-                'Signature', box=(150, 75, 450, 100)
-            )
-        )
 
         meta = signers.PdfSignatureMetadata(field_name='Signature')
-        pdf_signer = signers.PdfSigner(
-            meta, signer=sig, stamp_style=stamp.TextStampStyle(
-                stamp_text='Signed by: %(signer)s\nTime: %(ts)s\nURL: %(url)s',
-                text_box_style=text.TextBoxStyle()
+        if "{{ qr }}" not in self.template_pdf:
+            fields.append_signature_field(
+                w, sig_field_spec=fields.SigFieldSpec(
+                    'Signature', box=(1, 1, 350, 25),
+                )
             )
-        )
-        _bf_out = BytesIO()
-        pdf_signer.sign_pdf(w, output=_bf_out, appearance_text_params={'url': self.url_id})
-        return _bf_out.read()
 
+            pdf_signer = signers.PdfSigner(
+                meta, signer=sig, stamp_style=stamp.TextStampStyle(
+                    stamp_text=self.url_id,
+                    text_box_style=text.TextBoxStyle(
+                        font_size=8,
+                        border_width=0
+                    )
+                )
+            )
+        else:
+            pdf_signer = signers.PdfSigner(meta, signer=sig)
+
+        _bf_out = BytesIO()
+        pdf_signer.sign_pdf(w, output=_bf_out)
+        return _bf_out.read()
 
 
 class CredentialJsonView(MyWallet, TemplateView):
@@ -380,18 +449,67 @@ class CredentialJsonView(MyWallet, TemplateView):
         return response
 
 
-class PublicCredentialJsonView(View):
+class PublicCredentialJsonView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
             hash=pk,
-            eidas1_did__isnull=False,
         )
+        headers = self.request.headers
+        if headers.get('Accept') != 'application/json' and self.object.template_pdf:
+            template_pdf = self.object.template_pdf.data.read().decode()
+            template = Template(template_pdf)
+            context = Context(self.get_context_data())
+            html_content = template.render(context)
+            return HttpResponse(html_content, content_type='text/html')
+
         response = HttpResponse(self.object.get_data(), content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
         return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get the excel datas
+        context.update(json.loads(self.object.csv_data))
+        # get the credentialSubject datas
+        context.update(dict(self.object.get_datas()))
+
+        self.url_id = "{}://{}/public/credentials/{}".format(
+            self.request.scheme,
+            self.request.get_host(),
+            self.object.hash
+        )
+
+        qr = self.generate_qr_code(self.url_id)
+        issue_date = context.get('certificationDate', '')
+        membership_since = context.get('membershipSince', '')
+        membership_type = context.get('membershipType', '').lower()
+
+        context.update({
+            'object': self.object,
+            "issue_date": issue_date,
+            "membership_since": membership_since,
+            "membership_type": membership_type,
+            "qr": qr,
+        })
+        return RequestContext(self.request, context)
+
+    def generate_qr_code(self, data):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        img_buffer = BytesIO()
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save(img_buffer, format="PNG")
+
+        return base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
 
 class CredentialsRequestView(MyWallet, FormView):
