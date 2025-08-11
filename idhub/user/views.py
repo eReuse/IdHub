@@ -90,6 +90,16 @@ class DashboardView(UserView, SingleTableView):
         ]
         return events_for_users
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cred_available = list(VerificableCredential.objects.filter(
+            user=self.request.user,
+            status=VerificableCredential.Status.ENABLED
+        ).all())
+        context.update({
+            'credential_available': cred_available
+        })
+        return context
 
 class ProfileView(MyProfile, UpdateView, SingleTableView):
     template_name = "idhub/user/profile.html"

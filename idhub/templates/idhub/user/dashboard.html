@@ -7,6 +7,36 @@
   <i class="{{ icon }}"></i>
   {{ subtitle }}
 </h3>
+{% if credential_available %}
+<div class="container pb-4">
+  {% trans 'You have a new credential available, click for go to issue' %}:<br />
+   <ul class="list-group list-group-flush">
+     {% for c in credential_available %}
+     <a href="{% url 'idhub:user_credentials_request' %}" class="list-group-item list-group-item-action py-2 border btn-green-admin mb-3">
+         <div class="d-flex justify-content-between align-items-center">
+           <div>
+             <strong class="h6">{{ c.type }}</strong>
+             {% if c.code %}<span class="text-muted ms-2">({{ c.code }})</span>{% endif %}
+             {% if c.description %}<div class="text-muted small">{{ c.description }}</div>{% endif %}
+           </div>
+           <div class="d-flex align-items-center">
+              <span class="badge rounded-pill bg-success">
+               {% trans "issue" %}
+             </span>
+
+             <div class="text-end ms-3">
+                 <i class="far fa-calendar-alt text-muted me-1 small"></i>
+                 <span class="text-muted small">{% trans "Enabled" %}</span>
+               <div class="small text-muted">{{ c.created_on|date:"Y-m-d" }}</div>
+             </div>
+           </div>
+         </div>
+       </a>
+     {% endfor %}
+   </ul>
+</div>
+{% endif %}
+
 {% render_table table %}
 
 {% endblock %}

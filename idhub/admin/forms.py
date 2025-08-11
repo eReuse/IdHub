@@ -487,9 +487,11 @@ class ImportForm(forms.Form):
         did.save()
 
     def create_credential(self, user, row):
-        logger.error('##############')
-        logger.error(row)
-        logger.error('##############')
+        if settings.DEBUG:
+            logger.error('##############')
+            logger.error(row)
+            logger.error('##############')
+
         bcred = VerificableCredential.objects.filter(
             user=user,
             schema=self._schema,
