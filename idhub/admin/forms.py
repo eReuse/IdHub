@@ -1,8 +1,8 @@
 import json
 import base64
 import logging
-import jsonschema
 import requests
+import jsonschema
 import pandas as pd
 
 from nacl.exceptions import CryptoError
@@ -15,6 +15,7 @@ from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from utils import certs, credtools
+from utils.sanitize_did import sanitize_didweb
 from idhub.models import (
     DID,
     ContextFile,
@@ -299,7 +300,7 @@ class ImportForm(forms.Form):
         self.properties = {}
         self.users = []
         super().__init__(*args, **kwargs)
-        dids = DID.objects.filter(user__isnull=True)
+        dids = DID.objects.filter(user__isnull=True, available=True)
         self.fields['did'].choices = [
             (x.did, x.label) for x in dids.filter(eidas1=False)
         ]
@@ -658,3 +659,52 @@ class ImportCertificateForm(forms.Form):
         self._s = certs.load_cert(
             self.pfx_file, self._pss.encode('utf-8')
         )
+
+
+class DIDForm(forms.ModelForm):
+    class Meta:
+        model = DID
+        fields = ['label', 'type', 'did']
+
+    def clean(self):
+        data = self.cleaned_data
+        label = data.get("label")
+        typ = DID.Types(int(data.get("type")))
+        self._did = data.get("did")
+
+        if typ in [DID.Types.WEB, DID.Types.WEBETH]:
+            self._did = sanitize_didweb(self._did)
+
+        if DID.objects.filter(did=self._did).first():
+            raise ValidationError(_("This DID exist already"))
+
+        if DID.objects.filter(label=label, user__isnull=True).first():
+            raise ValidationError(_("This Label exist already"))
+
+        if not self.instance.is_web:
+            self.instance = DID(
+                type=typ,
+                label=label
+            )
+            return data
+
+        self.instance.label = label
+        if self.instance.did != self._did:
+            self.instance.did = self._did
+            self.instance.get_did_document()
+            if settings.DOMAIN != self._did.split(":")[2]:
+                self.instance.available = False
+
+        return data
+
+    def save(self, commit=True):
+
+        self.instance.did = self._did
+        if not self.instance.is_web:
+           self.instance.set_did()
+
+        if commit:
+            self.instance.save()
+            return self.instance
+
+        return

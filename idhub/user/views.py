@@ -1,4 +1,5 @@
 import json
+import pickle
 import base64
 import qrcode
 import logging
@@ -16,7 +17,6 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import (
     UpdateView,
-    CreateView,
     DeleteView,
     FormView
 )
@@ -39,7 +39,8 @@ from idhub.user.tables import (
 from idhub.user.forms import (
     RequestCredentialForm,
     DemandAuthorizationForm,
-    TermsConditionsForm
+    TermsConditionsForm,
+    DIDForm
 )
 from utils import certs
 from idhub.mixins import UserView
@@ -626,21 +627,37 @@ class DidsView(MyWallet, SingleTableView):
         return queryset
 
 
-class DidRegisterView(MyWallet, CreateView):
+class DidRegisterView(MyWallet, FormView):
     template_name = "idhub/user/did_register.html"
     subtitle = _('Add a new Identity (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
+    form_class = DIDForm
     fields = ('label', 'type')
     success_url = reverse_lazy('idhub:user_dids')
     object = None
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        serialized_did = self.request.session.get('pre_generated_did')
+        if serialized_did:
+            instance = pickle.loads(serialized_did)
+        else:
+            instance = DID(user=self.request.user, type=DID.Types.WEB)
+            instance.set_did()
+            self.request.session['pre_generated_did'] = pickle.dumps(instance)
+
+        kwargs['instance'] = instance
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.set_did()
         form.save()
         messages.success(self.request, _('DID created successfully'))
+        if 'pre_generated_did' in self.request.session:
+            del self.request.session['pre_generated_did']
 
         Event.set_EV_DID_CREATED(form.instance)
         Event.set_EV_DID_CREATED_BY_USER(form.instance)
@@ -658,7 +675,11 @@ class DidEditView(MyWallet, UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object = get_object_or_404(
+            self.model,
+            pk=self.pk,
+            user=self.request.user,
+        )
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
