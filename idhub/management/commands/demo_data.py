@@ -61,6 +61,7 @@ class Command(BaseCommand):
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
+        su.set_encrypted_sensitive_data()
         su.save()
 
         if self.predefined_token:
