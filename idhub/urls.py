@@ -18,10 +18,12 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.urls import path, reverse_lazy
 from .views import (
+    AvailableDidView,
     LoginView,
     PasswordResetView,
     PasswordResetConfirmView,
     ServeDidView,
+    ServeDidRegistryView,
     SchemaView,
     ContextView,
     ContextFileView,
@@ -199,7 +201,9 @@ urlpatterns = [
     path('admin/templates_pdf/<int:pk>/render/',
          views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
 
-    path('did-registry/<str:did_id>/did.json', ServeDidView, name="serve_did"),
+    path('did-registry/<str:did_id>/did.json', ServeDidRegistryView, name="serve_registry_did"),
+    path('.well-known/<str:did_id>/did.json', ServeDidView, name="serve_did"),
+    path('available/<str:did_id>/', AvailableDidView.as_view(), name="available_did"),
     path('schema/<str:file_name>', SchemaView, name="schema"),
     path('context/base.jsonld', ContextView, name="context"),
     path('context/<str:file_name>', ContextFileView, name="context_file")

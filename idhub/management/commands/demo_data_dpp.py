@@ -55,6 +55,8 @@ class Command(BaseCommand):
         # get user1@example.org and create dpp did
         admin_email='admin@example.org'
         self.admin = User.objects.filter(email=admin_email).first()
+        self.admin.set_encrypted_sensitive_data()
+        self.admin.save()
         self.admin_did = self.create_did()
 
         # TODO we could override the ADMIN TOKEN on admin user

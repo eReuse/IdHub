@@ -161,7 +161,7 @@ class WebHookTokenView(AdminView, SingleTableView):
     template_name = "token.html"
     title = _("Credential management")
     section = "Credential"
-    subtitle = _('Managament Tokens')
+    subtitle = _('Management Tokens')
     icon = 'bi bi-key'
     model = Token
     table_class = TokensTable

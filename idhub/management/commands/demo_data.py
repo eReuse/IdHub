@@ -61,6 +61,7 @@ class Command(BaseCommand):
 
     def create_admin_users(self, email, password):
         su = User.objects.create_superuser(email=email, password=password)
+        su.set_encrypted_sensitive_data()
         su.save()
 
         if self.predefined_token:
@@ -92,20 +93,7 @@ class Command(BaseCommand):
         if label:
             did.label = label
 
-        if did.type == did.Types.KEY:
-            did.did = generate_did(new_key_material)
-        elif did.type == did.Types.WEB:
-            url = "https://{}".format(settings.DOMAIN)
-            path = reverse("idhub:serve_did", args=["a"])
-
-            if path:
-                path = path.split("/a/did.json")[0]
-                url = "https://{}/{}".format(settings.DOMAIN, path)
-
-            did.did = generate_did(new_key_material, url)
-            key = json.loads(new_key_material)
-            url, did.didweb_document = gen_did_document(did.did, key)
-
+        did.set_did(new_key_material=new_key_material)
         did.save()
 
     def open_example_did(self):

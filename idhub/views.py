@@ -5,6 +5,7 @@ import logging
 import zlib
 
 import pyroaring
+from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
@@ -96,9 +97,42 @@ class PasswordResetView(auth_views.PasswordResetView):
         return HttpResponseRedirect(self.success_url)
 
 
-def ServeDidView(request, did_id):
+def ServeDidRegistryView(request, did_id):
     domain = settings.DOMAIN
     id_did = f'did:web:{domain}:did-registry:{did_id}'
+    did = get_object_or_404(DID, did=id_did)
+    # Deserialize the base DID from JSON storage
+    document = json.loads(did.didweb_document)
+    # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
+    #  entry to the DID document.
+    revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
+    revoked_credential_indexes = []
+    for credential in revoked_credentials:
+        revoked_credential_indexes.append(credential.id)
+        # revoked_credential_indexes.append(credential.revocationBitmapIndex)
+    # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
+    revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
+    encoded_revocation_bitmap = base64.b64encode(
+        zlib.compress(
+            revocation_bitmap.serialize()
+        )
+    ).decode('utf-8')
+    revocation_service = [{  # This is an object within a list.
+        "id": f"{id_did}#revocation",
+        "type": "RevocationBitmap2022",
+        "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
+    }]
+    document["service"] = revocation_service
+    # Serialize the DID + Revocation list in preparation for sending
+    document = json.dumps(document)
+    retval = HttpResponse(document)
+    retval.headers["Content-Type"] = "application/json"
+    return retval
+
+
+def ServeDidView(request, did_id):
+    domain = settings.DOMAIN
+    id_did = f'did:web:{domain}:{did_id}'
     did = get_object_or_404(DID, did=id_did)
     # Deserialize the base DID from JSON storage
     document = json.loads(did.didweb_document)
@@ -145,6 +179,42 @@ class DobleFactorSendView(LoginRequiredMixin, NotifyActivateUserByEmail, Templat
 
         self.send_email(self.request.user, token=f2auth)
         return super().get(request, *args, **kwargs)
+
+
+class AvailableDidView(LoginRequiredMixin, TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        did_id = kwargs['did_id']
+        if self.request.user.is_admin:
+            self.object = DID.objects.filter(did=did_id).filter(
+                Q(user=self.request.user) | Q(user__isnull=True)
+            ).first()
+
+            if not self.object:
+                 raise Http404
+        else:
+            self.object = get_object_or_404(
+                DID,
+                did=did_id,
+                user=self.request.user
+            )
+
+        if self.object.is_web:
+            if not self.object.available:
+                if self.object.check_remote_did():
+                    self.object.available = True
+                    self.object.save()
+                else:
+                    return self.get_did()
+
+            return redirect(self.object.get_path())
+
+        raise Http404
+
+    def get_did(self):
+        response = HttpResponse(self.object.didweb_document, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}'.format("did.json")
+        return response
 
 
 def SchemaView(request, file_name):
