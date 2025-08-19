@@ -155,18 +155,25 @@
                       {% trans "Webhook Tokens" %}
                     </a>
                   </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="admin nav-link {% if section == 'Templates' %}active {% endif %}fw-bold" data-bs-toggle="collapse" data-bs-target="#templates" aria-expanded="false" aria-controls="templates" href="javascript:void()">
+                  <i class="bi bi-file-earmark-text icon_sidebar"></i>
+                  {% trans 'Templates' %}
+                </a>
+                <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Templates' %}expanded{% else %}collapse{% endif %}" id="templates" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
-                    <a id="wallet" class="nav-link{% if path == 'admin:templates_pdf' %} active2{% endif %}" href="{% url 'idhub:admin_templates_pdf' %}">
+                    <a class="admin nav-link {% if 'admin_schemas' in path %}active2{% endif %}" href="{% url 'idhub:admin_schemas' %}">
+                      {% trans 'Schemas' %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a id="wallet" class="nav-link{% if path == 'admin_templates_pdf' or path == 'admin_new_template_pdf' %} active2{% endif %}" href="{% url 'idhub:admin_templates_pdf' %}">
                       {% trans "Templates PDF" %}
                     </a>
                   </li>
                 </ul>
-              </li>
-              <li class="nav-item">
-                <a class="admin nav-link {% if section == 'Templates' %}active {% endif %}fw-bold" href="{% url 'idhub:admin_schemas' %}">
-                  <i class="bi bi-file-earmark-text icon_sidebar"></i>
-                  {% trans 'Templates' %}
-                </a>
               </li>
               <li class="nav-item">
                 <a class="admin nav-link {% if section == 'ImportExport' %}active {% endif %}fw-bold" href="{% url 'idhub:admin_import' %}">
