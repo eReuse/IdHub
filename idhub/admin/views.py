@@ -884,6 +884,7 @@ class SchemasView(SchemasMix, SingleTableView):
     subtitle = _('View credential templates')
     icon = ''
     model = Schemas
+    section = 'Templates'
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
@@ -951,6 +952,7 @@ class SchemasNewView(SchemasMix):
     subtitle = _('Upload template')
     icon = ''
     success_url = reverse_lazy('idhub:admin_schemas')
+    section = 'Templates'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1000,6 +1002,7 @@ class SchemasUploadView(SchemasMix, ImportExport, FormView):
     icon = ''
     form_class = ImportSchemaForm
     success_url = reverse_lazy('idhub:admin_schemas')
+    section = 'Templates'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1036,6 +1039,7 @@ class SchemasEnableView(SchemasMix):
     template_name = "idhub/admin/schemas_enable.html"
     subtitle = _('Import template')
     icon = ''
+    section = 'Templates'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1052,6 +1056,7 @@ class SchemasEnableView(SchemasMix):
 
 
 class SchemasEnableAddView(SchemasMix):
+    section = 'Templates'
 
     def get(self, request, *args, **kwargs):
         self.check_valid_user()
@@ -1174,7 +1179,7 @@ class VCTemplatesPdfView(AdminView, SingleTableView):
     # template_name = "token.html"
     template_name = "idhub/admin/templates_pdf.html"
     title = _("Credential management")
-    section = "Credential"
+    section = "Templates"
     subtitle = _('VCTemplatePDF management')
     icon = 'bi bi-filetype-pdf'
     model = VCTemplatePdf
@@ -1196,7 +1201,7 @@ class VCTemplatesPdfView(AdminView, SingleTableView):
 
 class VCTemplatePdfNewView(AdminView, CreateView):
     title = _("VctemplatePDF management")
-    section = "Credential"
+    section = "Templates"
     subtitle = _('New VctemplatePDF')
     icon = 'bi bi-filetype-pdf'
     title = "VctemplatePDF"
