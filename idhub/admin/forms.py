@@ -18,6 +18,7 @@ from utils import certs, credtools
 from utils.sanitize_did import sanitize_didweb
 from idhub.models import (
     DID,
+    Schemas,
     ContextFile,
     File_datas,
     Membership,
@@ -162,6 +163,7 @@ class ImportSchemaForm(forms.Form):
         data = self.cleaned_data["schema_import"]
         context = self.cleaned_data["context_import"]
         self.context = {}
+        self.context_instance = {}
 
         try:
             self.file_name = data.name
@@ -169,20 +171,22 @@ class ImportSchemaForm(forms.Form):
         except Exception:
              raise ValidationError(_("This schema not is a json file"))
 
-        if context and ContextFile.objects.filter(file_name=context.name).exists():
-            raise ValidationError(_("This context exist"))
-
-        try:
-            self.context["file_name"] = context.name
-            self.context["data"] = context.read()
-        except Exception:
-            pass
-
-        try:
-            if context:
-                self.context["data"] = json.dumps(json.loads(self.context["data"]))
-        except Exception:
-            raise ValidationError(_("This context is no a valid jsonld"))
+        #TODO: multiple schemas can have same context.
+        if context:
+            exists = ContextFile.objects.filter(file_name=context.name).first()
+            if exists:
+                self.context_instance = exists
+                logger.info(_("Context already exists"))
+            else:
+                try:
+                    self.context["file_name"] = context.name
+                    self.context["data"] = context.read()
+                except Exception:
+                    pass
+                try:
+                    self.context["data"] = json.dumps(json.loads(self.context["data"]))
+                except Exception:
+                    raise ValidationError(_("This context is no a valid jsonld"))
 
         try:
             assert credtools.validate_schema(self.schema)
@@ -203,8 +207,13 @@ class ImportSchemaForm(forms.Form):
         data = json.dumps(self.schema)
         url_context = None
 
-        if self.context and domain:
-            file_name = self.context["file_name"]
+        if (self.context or self.context_instance) and domain:
+            file_name = (
+                self.context_instance.file_name
+                if self.context_instance
+                else self.context["file_name"]
+            )
+
             url_context = urljoin(domain, reverse("idhub:context_file", args=[file_name]))
 
         schema = Schemas.objects.create(
