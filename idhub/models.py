@@ -480,6 +480,7 @@ class DID(models.Model):
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
     key_material = models.TextField()
     eidas1 = models.BooleanField(default=False)
+    is_product = models.BooleanField(default=False)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -767,6 +768,9 @@ class Schemas(models.Model):
     def get_data(self):
         return json.loads(self.data)
 
+    def __str__(self):
+        return self.file_schema
+
 
 class ContextFile(models.Model):
     """
@@ -808,7 +812,9 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(_("Issued on"), null=True)
     data = models.TextField()
     csv_data = models.TextField()
+    json_data = models.TextField(blank=True, null=True)
     hash = models.CharField(max_length=260)
+    subject_id = models.CharField(max_length=250, null=True)
     status = models.PositiveSmallIntegerField(
         _("Status"),
         choices=Status.choices,
@@ -865,6 +871,18 @@ class VerificableCredential(models.Model):
 
     def get_description(self):
         return self.schema._description or ''
+
+    def is_untp(self):
+        d = json.loads(self.csv_data)
+        _vc_types = d.get("type") or []
+        _untp_types= [
+            "DigitalConformityCredential",
+            "DigitalProductPassport",
+            "DigitalFacilityRecord",
+            "DigitalTraceabilityEvent"
+        ]
+
+        return set(filter(lambda x: x in _vc_types, _untp_types ))
 
     def description(self):
         return self.schema.get_schema.get("description")
@@ -1012,8 +1030,62 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
+    def get_context_untp(self, domain):
+        d = json.loads(self.csv_data)
+        issuance_date = ''
+        if self.issued_on:
+            format = "%Y-%m-%dT%H:%M:%SZ"
+            issuance_date = self.issued_on.strftime(format)
+
+        cred_path = 'credentials'
+        sid = self.id or 0
+        if self.eidas1_did:
+            cred_path = 'public/credentials'
+            sid = self.hash
+
+        url_id = "{}/{}/{}".format(
+            domain,
+            cred_path,
+            sid
+        )
+
+        org = Organization.objects.get(main=True)
+
+        # TODO support revocation
+        credential_status_id = 'https://revocation.not.supported/'
+        if self.issuer_did.type == DID.Types.WEB:
+            credential_status_id = self.issuer_did.did
+
+        context = {
+            'id_credential': str(sid),
+            'vc_id': url_id,
+            'issuer_did': self.issuer_did.did,
+            'subject_did': self.subject_did.did if self.subject_did else d["credentialSubject"]["id"],
+            'issuance_date': issuance_date,
+            'firstName': getattr(getattr(self, 'user', None), 'first_name', '') or '',
+            'lastName': getattr(getattr(self, 'user', None), 'last_name', '') or '',
+            'email': getattr(getattr(self, 'user', None), 'email', ''),
+            'organisation': getattr(org, 'name', '') or '',
+            'organisation': org.name or '',
+            'credential_status_id': credential_status_id,
+            'type': self.schema.get_type
+        }
+
+        if self.issuer_did.type == DID.Types.WEBETH:
+            issuer_key = json.loads(self.issuer_did.get_key_material())
+            context['issuer_id'] = issuer_key['eth_issuer_pub_key']
+
+        if self.subject_did and self.subject_did.type == DID.Types.WEBETH:
+            subject_key = json.loads(self.subject_did.get_key_material())
+            context['subject_did'] = subject_key['eth_subject_pub_key']
+
+        context.update(d)
+        return context
 
     def render(self, domain=""):
+        if (_untp_type := self.is_untp()) is not None:
+            return self.render_untp(_untp_type, domain)
+
         context = self.get_context(domain)
         tmpl = get_template('credentials/base.json')
         d_ordered = ujson.loads(tmpl.render(context))
@@ -1040,6 +1112,56 @@ class VerificableCredential(models.Model):
             d_ordered["evidence"] = csv_data["evidence"].copy()
         d_minimum = self.filter_dict(d_ordered)
 
+        # You can revoke only didweb
+        if not self.is_didweb:
+            d_minimum.pop("credentialStatus", None)
+
+        return ujson.dumps(d_minimum)
+
+
+    def render_untp(self, untp_type, domain=""):
+        context = self.get_context(domain)
+        context.update({
+            "type": untp_type,
+            "schema_id": self.schema.url,
+        })
+
+        tmpl = get_template('credentials/base_untp.json')
+        d_ordered = ujson.loads(tmpl.render(context))
+
+        if self.schema.context:
+            d_ordered["@context"].append(self.schema.context)
+        else:
+            url_context = urljoin(domain, reverse("idhub:context"))
+            d_ordered["@context"].append(url_context)
+
+
+        csv_data = json.loads(self.csv_data)
+        object_id = d_ordered["credentialSubject"]["id"]
+        issuer_id = d_ordered["issuer"]["id"]
+
+        d_ordered["credentialSubject"] = csv_data.get("credentialSubject", {})
+        d_ordered["issuer"] = csv_data.get("issuer", {})
+
+        d_ordered["issuer"]["id"] = issuer_id
+        d_ordered["credentialSubject"]["id"] = object_id
+
+        sch_values = []
+        for c in self.schema.get_schema.get("allOf", []):
+            sch_subj = c.get("properties", {}).get("credentialSubject", {})
+            if sch_subj:
+                sch_values = sch_subj.get("properties", {}).keys()
+
+        for k, v in csv_data.items():
+            if k in sch_values:
+                d_ordered["credentialSubject"][k] = v
+
+        # d_ordered["credentialSubject"]= csv_data.get("credentialSubject")
+        # d_ordered["issuer"]= csv_data.get("issuer")
+        # d_ordered["issuer"]["id"] = issuer_id
+        # d_ordered["credentialSubject"]["id"] = object_id
+
+        d_minimum = self.filter_dict(d_ordered)
         # You can revoke only didweb
         if not self.is_didweb:
             d_minimum.pop("credentialStatus", None)
