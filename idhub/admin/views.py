@@ -6,7 +6,7 @@ import logging
 import weasyprint
 from pathlib import Path
 from smtplib import SMTPException
-from django_tables2 import SingleTableView, RequestConfig
+from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
@@ -1277,7 +1277,7 @@ class VCTemplatePdfRenderView(AdminView, TemplateView):
         return pdf.write_pdf()
 
 
-class ObjectDidsView(AdminView, FormMixin, SingleTableView):
+class ObjectDidsView(AdminView, SingleTableMixin, FormView):
     template_name = "idhub/admin/import_dids.html"
     section = "Credential"
     title = "Object DIDs"
@@ -1287,19 +1287,14 @@ class ObjectDidsView(AdminView, FormMixin, SingleTableView):
     form_class = ObjectDidImportForm
     success_url = reverse_lazy("idhub:admin_dids")
 
-    def get_queryset(self):
-        return DID.objects.filter(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form()
-        return context
-
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
-            form.save()
-            messages.success(self.request, _("Evidence imported successfully."))
+            form.save(self.request.user)
+            messages.success(self.request, _("Object DPP created succesfuly."))
             return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+
+        return self.form_invalid(form)
+
+    def get_queryset(self):
+        return DID.objects.filter(user__isnull=True, is_product=True)
