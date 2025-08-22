@@ -718,49 +718,87 @@ class DIDForm(forms.ModelForm):
         return
 
 
-REQUIRED_FIELDS = {"id", "controller", "verificationmethod"}
-
 class ObjectDidImportForm(forms.Form):
-    did_method = forms.ChoiceField(choices=DID.Types.choices, label=_("Select DID method"))
-    issuer = forms.ModelChoiceField(queryset= DID.objects.filter(user__isnull=True), empty_label=_("Select one"), label=_("Select the DID which signs the DPP") )
-    file_import = forms.FileField(label=_("Upload object DIDs file"))
-
-
-    def __init__(self, *args, **kwargs):
-        self.rows = []
-        super().__init__(*args, **kwargs)
+    did_method = forms.ChoiceField(
+        choices=DID.Types.choices,
+        label=_("Select DID method"),
+        help_text=_("Choose the DID method to be used when creating new object DIDs.")
+    )
+    create_did = forms.BooleanField(
+        label=_("Create object DID?"),
+        required=False,
+        help_text=_("Check this if a new DID should be generated for the object.")
+    )
+    issuer = forms.ModelChoiceField(
+        queryset=DID.objects.filter(user__isnull=True, is_product=False),
+        empty_label=_("Select one"),
+        label=_("Issuer DID"),
+        help_text=_("Select the DID that will sign the Digital Product Passport (DPP).")
+    )
+    schema = forms.ModelChoiceField(
+        queryset=Schemas.objects.filter(
+            type__in=[
+                "DigitalConformityCredential",
+                "DigitalProductPassport",
+                "DigitalFacilityRecord",
+                "DigitalTraceabilityEvent",
+            ]
+        ),
+        empty_label=_("Select one"),
+        label=_("UNTP schema"),
+        help_text=_("Select which UNTP schema this credential must comply with.")
+    )
+    file_import = forms.FileField(
+        label=_("Upload object DIDs file"),
+        help_text=_("Upload a JSON file containing the object DIDs to be imported.")
+    )
 
     def clean_file_import(self):
         data = self.cleaned_data["file_import"]
+        self._schema = self.cleaned_data["schema"]
         self.file_name = data.name.lower()
-        #try all extensions to dataframe
+
         try:
-            if self.file_name.endswith(".csv"):
-                self.df = pd.read_csv(data)
-            elif self.file_name.endswith(".xlsx") or self.file_name.endswith(".xls"):
-                self.df = pd.read_excel(data)
-            elif self.file_name.endswith(".ods"):
-                self.df = pd.read_excel(data, engine="odf")
-            else:
-                raise ValidationError(_("Unsupported file type: %(ext)s"), params={"ext": self.file_name})
+            #validate input json without context
+            self.file_data = json.loads(data.read())
+            schema_data=json.loads(self._schema.data)
+            if "@context" in schema_data.get("required", []):
+                schema_data["required"].remove("@context")
+            jsonschema.validate(
+                instance=self.file_data,
+                schema=schema_data,
+                format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
+            )
+
+        except jsonschema.exceptions.ValidationError as err:
+            msg = "{}".format(err.message)
         except Exception as e:
             raise ValidationError(
                 _("Error opening '%(file_name)s': %(error)s"),
                 params={"file_name": self.file_name, "error": str(e)}
             )
 
-        if self.df.empty:
-            raise ValidationError(_("The file is empty.")) # :(
+        #TODO: check if hash comparison is better
+        exists = VerificableCredential.objects.filter(
+            schema=self._schema,
+            issuer_did=self.cleaned_data["issuer"],
+            status=VerificableCredential.Status.ISSUED,
+            subject_id=self.file_data["credentialSubject"]["id"]
+        ).exists()
 
+        if exists and not self.cleaned_data.get("create_did"):
+            raise ValidationError(_("A credential for this subject already exists."))
+        breakpoint()
 
-        self.df.fillna("", inplace=True)
-        normalized_columns = [col.lower() for col in self.df.columns]
+        return self.file_data
 
-        missing = REQUIRED_FIELDS - set(normalized_columns)
-        if missing:
-            raise ValidationError(
-                _("Missing required column(s): %(columns)s"),
-                params={"columns": ", ".join(missing)}
+    def save(self, user):
+        if self.cleaned_data["create_did"]:
+            label = self.file_data.get("id") or self.file_data.get("name") or "object-did"
+            obj_did = DID(
+                label=label,
+                type=DID.Types(int(self.cleaned_data["did_method"])),
+                is_product=True
             )
         return data
 
@@ -777,5 +815,35 @@ class ObjectDidImportForm(forms.Form):
             obj_did = DID(label=obj_id, type=did_method, user=None)
             obj_did.set_did()
             obj_did.save()
+            self._subject_did = obj_did
+            self.file_data["credentialSubject"]["id"] = obj_did.did
+        else:
+            self._subject_did = None
 
-        return dids
+        self._did = self.cleaned_data["issuer"]
+        self._eidas1 = None
+        self._template_pdf = None
+
+        cred = self.create_credential(user, self.file_data)
+        cred.save()
+
+        return cred
+
+    def create_credential(self, user, row):
+        domain = f"https://{settings.DOMAIN}/"
+        _subject_id = self._subject_did.did if self._subject_did else self.file_data["credentialSubject"]["id"]
+
+        cred = VerificableCredential(
+            verified=True,
+            user=user,
+            csv_data=json.dumps(row, default=str),
+            subject_id = _subject_id,
+            issuer_did=self._did,
+            schema=self._schema,
+            eidas1_did=self._eidas1,
+            template_pdf=self._template_pdf
+        )
+        cred.set_type()
+        cred.issue(self._subject_did, domain)
+
+        return cred
