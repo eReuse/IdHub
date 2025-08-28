@@ -788,7 +788,6 @@ class ObjectDidImportForm(forms.Form):
 
         if exists and not self.cleaned_data.get("create_did"):
             raise ValidationError(_("A credential for this subject already exists."))
-        breakpoint()
 
         return self.file_data
 
@@ -836,7 +835,7 @@ class ObjectDidImportForm(forms.Form):
         cred = VerificableCredential(
             verified=True,
             user=user,
-            csv_data=json.dumps(row, default=str),
+            json_data=row,
             subject_id = _subject_id,
             issuer_did=self._did,
             schema=self._schema,
