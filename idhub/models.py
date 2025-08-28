@@ -812,7 +812,7 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(_("Issued on"), null=True)
     data = models.TextField()
     csv_data = models.TextField()
-    json_data = models.TextField(blank=True, null=True)
+    json_data = models.JSONField(null=False, default=dict)
     hash = models.CharField(max_length=260)
     subject_id = models.CharField(max_length=250, null=True)
     status = models.PositiveSmallIntegerField(
@@ -873,8 +873,7 @@ class VerificableCredential(models.Model):
         return self.schema._description or ''
 
     def is_untp(self):
-        d = json.loads(self.csv_data)
-        _vc_types = d.get("type") or []
+        _vc_types = self.json_data.get("type", [])
         _untp_types= [
             "DigitalConformityCredential",
             "DigitalProductPassport",
@@ -882,7 +881,10 @@ class VerificableCredential(models.Model):
             "DigitalTraceabilityEvent"
         ]
 
-        return set(filter(lambda x: x in _vc_types, _untp_types ))
+        _untp_type = next(filter(lambda x: x in _vc_types, _untp_types), None)
+        if _untp_type:
+            self.type = _untp_type
+        return _untp_type
 
     def description(self):
         return self.schema.get_schema.get("description")
@@ -958,7 +960,11 @@ class VerificableCredential(models.Model):
 
         key = self.issuer_did.get_key_material()
         credential = self.render(domain)
+
         verify = not settings.DEBUG
+        logger.error(verify)
+        logger.error("#######################3")
+
         vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
 
@@ -971,9 +977,6 @@ class VerificableCredential(models.Model):
 
         if not valid:
             raise Exception(_("The credential is not valid"))
-
-        if not save:
-            return vc_str
 
         self.data = self.user.encrypt_data(vc_str)
 
@@ -1031,7 +1034,6 @@ class VerificableCredential(models.Model):
         return context
 
     def get_context_untp(self, domain):
-        d = json.loads(self.csv_data)
         issuance_date = ''
         if self.issued_on:
             format = "%Y-%m-%dT%H:%M:%SZ"
@@ -1060,15 +1062,12 @@ class VerificableCredential(models.Model):
             'id_credential': str(sid),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
-            'subject_did': self.subject_did.did if self.subject_did else d["credentialSubject"]["id"],
-            'issuance_date': issuance_date,
-            'firstName': getattr(getattr(self, 'user', None), 'first_name', '') or '',
-            'lastName': getattr(getattr(self, 'user', None), 'last_name', '') or '',
-            'email': getattr(getattr(self, 'user', None), 'email', ''),
-            'organisation': getattr(org, 'name', '') or '',
-            'organisation': org.name or '',
-            'credential_status_id': credential_status_id,
-            'type': self.schema.get_type
+            "issuance_date": issuance_date,
+            "name": getattr(org, "name", "") or "",
+            "credential_status_id": credential_status_id,
+            "schema_id": self.schema.url,
+            "subject_id": self.id_string,
+            "type": self.type,
         }
 
         if self.issuer_did.type == DID.Types.WEBETH:
@@ -1079,7 +1078,6 @@ class VerificableCredential(models.Model):
             subject_key = json.loads(self.subject_did.get_key_material())
             context['subject_did'] = subject_key['eth_subject_pub_key']
 
-        context.update(d)
         return context
 
     def render(self, domain=""):
@@ -1120,46 +1118,17 @@ class VerificableCredential(models.Model):
 
 
     def render_untp(self, untp_type, domain=""):
-        context = self.get_context(domain)
-        context.update({
-            "type": untp_type,
-            "schema_id": self.schema.url,
-        })
+        context = self.get_context_untp(domain)
 
         tmpl = get_template('credentials/base_untp.json')
         d_ordered = ujson.loads(tmpl.render(context))
-
         if self.schema.context:
             d_ordered["@context"].append(self.schema.context)
         else:
             url_context = urljoin(domain, reverse("idhub:context"))
             d_ordered["@context"].append(url_context)
 
-
-        csv_data = json.loads(self.csv_data)
-        object_id = d_ordered["credentialSubject"]["id"]
-        issuer_id = d_ordered["issuer"]["id"]
-
-        d_ordered["credentialSubject"] = csv_data.get("credentialSubject", {})
-        d_ordered["issuer"] = csv_data.get("issuer", {})
-
-        d_ordered["issuer"]["id"] = issuer_id
-        d_ordered["credentialSubject"]["id"] = object_id
-
-        sch_values = []
-        for c in self.schema.get_schema.get("allOf", []):
-            sch_subj = c.get("properties", {}).get("credentialSubject", {})
-            if sch_subj:
-                sch_values = sch_subj.get("properties", {}).keys()
-
-        for k, v in csv_data.items():
-            if k in sch_values:
-                d_ordered["credentialSubject"][k] = v
-
-        # d_ordered["credentialSubject"]= csv_data.get("credentialSubject")
-        # d_ordered["issuer"]= csv_data.get("issuer")
-        # d_ordered["issuer"]["id"] = issuer_id
-        # d_ordered["credentialSubject"]["id"] = object_id
+        d_ordered["credentialSubject"]= self.json_data.get("credentialSubject", {} )
 
         d_minimum = self.filter_dict(d_ordered)
         # You can revoke only didweb
