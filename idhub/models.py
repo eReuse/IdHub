@@ -699,7 +699,27 @@ class Schemas(models.Model):
     @property
     def get_type(self):
         sh = self.get_schema
-        return sh.get("title", "").title().replace(" ", "")
+        return self.is_untp if self.is_untp else sh.get("title", "").title().replace(" ", "")
+
+    @property
+    def get_schema_types(self):
+        sh = self.get_schema
+        return sh.get("properties", "").get("type", "").get("default", [])
+
+    @property
+    def is_untp(self):
+        _vc_types = self.get_schema_types
+        _untp_types= [
+            "DigitalConformityCredential",
+            "DigitalProductPassport",
+            "DigitalFacilityRecord",
+            "DigitalTraceabilityEvent"
+        ]
+
+        _untp_type = next(filter(lambda x: x in _vc_types, _untp_types), None)
+        if _untp_type:
+            self.type = _untp_type
+        return _untp_type
 
     @property
     def name(self, request=None):
@@ -875,18 +895,7 @@ class VerificableCredential(models.Model):
         return self.schema._description or ''
 
     def is_untp(self):
-        _vc_types = self.json_data.get("type", [])
-        _untp_types= [
-            "DigitalConformityCredential",
-            "DigitalProductPassport",
-            "DigitalFacilityRecord",
-            "DigitalTraceabilityEvent"
-        ]
-
-        _untp_type = next(filter(lambda x: x in _vc_types, _untp_types), None)
-        if _untp_type:
-            self.type = _untp_type
-        return _untp_type
+        return self.schema.is_untp
 
     def description(self):
         return self.schema.get_schema.get("description")
