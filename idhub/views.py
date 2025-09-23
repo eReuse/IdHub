@@ -122,6 +122,14 @@ def ServeDidRegistryView(request, did_id):
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
     }]
+
+    if did.is_product:
+        revocation_service.append({
+            "id": f"{id_did}#product",
+            "type": "ProductPassport",
+            "serviceEndpoint": did.service_endpoint
+        })
+
     document["service"] = revocation_service
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
