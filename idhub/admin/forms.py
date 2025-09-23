@@ -729,6 +729,11 @@ class ObjectDidImportForm(forms.Form):
         required=False,
         help_text=_("Check this if a new DID should be generated for the object.")
     )
+    service_endpoint = forms.CharField(
+        label=_("Service Endpoint"),
+        required=False,
+        help_text=_("Enter a valid URI for the service endpoint.")
+    )
     issuer = forms.ModelChoiceField(
         queryset=DID.objects.filter(user__isnull=True, is_product=False),
         empty_label=_("Select one"),
@@ -753,32 +758,48 @@ class ObjectDidImportForm(forms.Form):
         help_text=_("Upload a JSON file containing the object DIDs to be imported.")
     )
 
+    def clean_service_endpoint(self):
+        value = self.cleaned_data.get('service_endpoint')
+
+        if value:
+            validator = URLValidator()
+            try:
+                validator(value)
+            except ValidationError:
+                raise ValidationError(_("Please enter a valid URI."))
+
+        return value
+
     def clean_file_import(self):
         data = self.cleaned_data["file_import"]
         self._schema = self.cleaned_data["schema"]
         self.file_name = data.name.lower()
 
         try:
-            #validate input json without context
             self.file_data = json.loads(data.read())
-            schema_data=json.loads(self._schema.data)
-            if "@context" in schema_data.get("required", []):
-                schema_data["required"].remove("@context")
+            schema_data = json.loads(self._schema.data)
+
+            credential_subject_schema = schema_data["properties"]["credentialSubject"]
+            credential_subject_data = self.file_data.get("credentialSubject")
             jsonschema.validate(
-                instance=self.file_data,
-                schema=schema_data,
+                instance=credential_subject_data,
+                schema=credential_subject_schema,
                 format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
             )
 
         except jsonschema.exceptions.ValidationError as err:
             msg = "{}".format(err.message)
+            raise forms.ValidationError(
+                _("JSON validation failed for '%(file_name)s': %(error)s"),
+                params={"file_name": self.file_name, "error": msg}
+            )
         except Exception as e:
             raise ValidationError(
                 _("Error opening '%(file_name)s': %(error)s"),
                 params={"file_name": self.file_name, "error": str(e)}
             )
 
-        #TODO: check if hash comparison is better
+        # TODO: check better way?
         exists = VerificableCredential.objects.filter(
             schema=self._schema,
             issuer_did=self.cleaned_data["issuer"],
@@ -813,6 +834,7 @@ class ObjectDidImportForm(forms.Form):
 
             obj_did = DID(label=obj_id, type=did_method, user=None)
             obj_did.set_did()
+            obj_did.service_endpoint = self.cleaned_data["service_endpoint"]
             obj_did.save()
             self._subject_did = obj_did
             self.file_data["credentialSubject"]["id"] = obj_did.did
