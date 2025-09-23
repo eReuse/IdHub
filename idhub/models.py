@@ -481,6 +481,7 @@ class DID(models.Model):
     key_material = models.TextField()
     eidas1 = models.BooleanField(default=False)
     is_product = models.BooleanField(default=False)
+    service_endpoint = models.CharField(_('Service URI endpoint'), blank=True, max_length=250)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
