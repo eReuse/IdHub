@@ -778,7 +778,8 @@ class ContextFile(models.Model):
     This context is linked to a schema and is uploaded when upload a schema
     """
     data = models.TextField(max_length=250)
-    file_name = models.CharField(max_length=250, unique=True)
+    #TODO:could two schemas have same context?
+    file_name = models.CharField(max_length=250, unique=False)
     schema = models.ForeignKey(
         Schemas,
         on_delete=models.CASCADE,
