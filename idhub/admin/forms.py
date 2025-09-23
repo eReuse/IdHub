@@ -11,6 +11,7 @@ from urllib.parse import urlparse, urljoin
 from django.conf import settings
 from django.urls import reverse
 from django import forms
+from django.core.validators import URLValidator
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -203,7 +204,6 @@ class ImportSchemaForm(forms.Form):
     def save(self, domain=None, commit=True):
         _name = json.dumps(self.schema.get("name"))
         _description = json.dumps(self.schema.get("description"))
-        title = self.schema.get("title")
         data = json.dumps(self.schema)
         url_context = None
 
@@ -215,16 +215,16 @@ class ImportSchemaForm(forms.Form):
             )
 
             url_context = urljoin(domain, reverse("idhub:context_file", args=[file_name]))
-
-        schema = Schemas.objects.create(
+        schema = Schemas(
             file_schema=self.file_name,
             data=data,
             _name=_name,
             _description=_description,
-            type=title,
             template_description=_description,
             context=url_context
         )
+        schema.type = schema.get_type
+        schema.save()
 
         if url_context:
             ContextFile.objects.create(schema=schema, **self.context)
