@@ -1069,6 +1069,8 @@ class VerificableCredential(models.Model):
         if self.issuer_did.type == DID.Types.WEB:
             credential_status_id = self.issuer_did.did
 
+        _vc_type= self.schema.get_schema_types
+
         context = {
             'id_credential': str(sid),
             'vc_id': url_id,
@@ -1078,7 +1080,7 @@ class VerificableCredential(models.Model):
             "credential_status_id": credential_status_id,
             "schema_id": self.schema.url,
             "subject_id": self.id_string,
-            "type": self.type,
+            "type": json.dumps(_vc_type)
         }
 
         if self.issuer_did.type == DID.Types.WEBETH:
