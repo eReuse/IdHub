@@ -240,7 +240,7 @@ class DIDTable(tables.Table):
     class Meta:
         model = DID
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "label", "did", "edit_did", "delete_did")
+        fields = ("created_at", "label", "did", "edit_did", "delete_did", "service_endpoint")
 
 
 class DataTable(tables.Table):
