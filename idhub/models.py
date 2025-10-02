@@ -902,6 +902,33 @@ class VerificableCredential(models.Model):
 
         self.status = self.Status.ISSUED
 
+    def transaction_issue(self, did, save=True, verify=True):
+        if self.status == self.Status.ISSUED:
+            return
+
+        self.subject_did = did
+        self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
+
+        # hash of credential without sign
+        self.hash = hashlib.sha3_256(self.csv_data.encode()).hexdigest()
+
+        key = self.issuer_did.get_key_material()
+        credential = self.csv_data
+
+        vc = sign(credential, key, self.issuer_did.did)
+        vc_str = json.dumps(vc)
+        valid = verify_vc(vc_str, verify=verify)
+
+        if not valid:
+            raise Exception(_("The credential is not valid"))
+
+        if not save:
+            return vc_str
+
+        self.data = self.user.encrypt_data(vc_str)
+
+        self.status = self.Status.ISSUED
+
     def get_context(self, domain):
         d = json.loads(self.csv_data)
         issuance_date = ''

@@ -157,6 +157,32 @@ def webhook_issue(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+@csrf_exempt
+def transaction_issue(request):
+    if request.method == 'POST':
+
+        try:
+            vc = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        did = DID.objects.filter(user__isnull=True).first()
+
+        cred = VerificableCredential(
+            csv_data=request.body.decode(),
+            issuer_did=did,
+        )
+
+        vc_signed = cred.transaction_issue(did, save=False, verify=False)
+
+        if not vc_signed:
+            return JsonResponse({'error': 'Invalid credential'}, status=400)
+
+        return JsonResponse({'status': 'success', "data": vc_signed}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
 class WebHookTokenView(AdminView, SingleTableView):
     template_name = "token.html"
     title = _("Credential management")
