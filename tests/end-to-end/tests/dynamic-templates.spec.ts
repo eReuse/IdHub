@@ -46,7 +46,7 @@ async function initial_setup_html_eidas1(page) {
 
     // upload HTML template (for course-credential)
     ////
-    await page.getByRole('link', { name: ' Credentials' }).click();
+    await page.getByRole('link', { name: ' Templates' }).click();
     await page.getByRole('link', { name: 'Templates PDF' }).click();
     await page.getByRole('link', { name: 'Upload new template ' }).click();
     await page.getByPlaceholder('Name').click();
@@ -54,6 +54,7 @@ async function initial_setup_html_eidas1(page) {
     const cred_path = path.resolve(__dirname, '../../../examples/course-credential_es.html');
     await page.getByLabel('Data').setInputFiles(cred_path);
     await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('link', { name: ' Credentials' }).click();
     await page.getByRole('link', { name: 'View credentials' }).click();
     await page.getByRole('link', { name: 'Organization\'s wallet' }).click();
 
@@ -123,6 +124,7 @@ test.describe.serial("dynamic template tour", () => {
 
         // upload schema by file
         await page.getByRole('link', { name: ' Templates' }).click();
+        await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from File' }).click();
         const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
@@ -135,7 +137,7 @@ test.describe.serial("dynamic template tour", () => {
         await page.getByRole('link', { name: ' Data' }).click();
         await page.getByRole('link', { name: 'Import data ' }).click();
         await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
-        await page.getByLabel('Select one template for').selectOption('1');
+        await page.getByLabel('Select one template for render to Pdf').selectOption('1');
         await page.getByLabel('Schema').selectOption('NGO Course Credential for participants');
         const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
         await page.getByLabel('File to import').setInputFiles(data_path);
@@ -154,6 +156,7 @@ test.describe.serial("dynamic template tour", () => {
 
         // upload schema by file
         await page.getByRole('link', { name: ' Templates' }).click();
+        await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from File' }).click();
         const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
@@ -165,7 +168,7 @@ test.describe.serial("dynamic template tour", () => {
         await page.getByRole('link', { name: 'Import data ' }).click();
         //await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
         // TODO template is only for course credential
-        //await page.getByLabel('Select one template for').selectOption('1');
+        //await page.getByLabel('Select one template for render to Pdf').selectOption('1');
         await page.getByLabel('Schema').selectOption('Financial Vulnerability Credential');
         const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
         await page.getByLabel('File to import').setInputFiles(data_path);
@@ -187,6 +190,7 @@ test.describe.serial("dynamic template tour", () => {
 
         // upload schema by URL
         await page.getByRole('link', { name: ' Templates' }).click();
+        await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
         await page.getByRole('button', { name: 'Enable Schema from URL' }).click();
 
@@ -200,7 +204,7 @@ test.describe.serial("dynamic template tour", () => {
         //await page.getByLabel('Signature with Eidas1').selectOption('signerDNIe004.pfx');
         // TODO template is only for course credential
         //   TODO this is wrong!!
-        //await page.getByLabel('Select one template for').selectOption('1');
+        //await page.getByLabel('Select one template for render to Pdf').selectOption('1');
         // TODO verify
         await page.getByLabel('Schema').selectOption('Membership Card');
         const data_path = path.resolve(__dirname, `../../../examples/excel_examples/${credential}.xlsx`);
