@@ -7,6 +7,9 @@ set -u
 # DEBUG
 set -x
 
+# use this to general debug
+# PWDEBUG=1 ./run.sh (...)
+
 main() {
         cd "$(dirname "${0}")"
         if [ ! -f .env ]; then
