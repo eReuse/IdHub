@@ -123,7 +123,7 @@ def ServeDidRegistryView(request, did_id):
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
     }]
 
-    if did.is_product:
+    if did.is_product and did.service_endpoint:
         revocation_service.append({
             "id": f"{id_did}#product",
             "type": "ProductPassport",
