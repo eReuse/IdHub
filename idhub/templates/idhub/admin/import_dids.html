@@ -31,4 +31,25 @@
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const createDidCheckbox = document.getElementById('id_create_did');
+    const didMethodField = document.getElementById('id_did_method').closest('.mb-3');
+    const serviceEndpointField = document.getElementById('id_service_endpoint').closest('.mb-3');
+
+    function toggleDependentFields() {
+      const shouldShow = createDidCheckbox.checked;
+      if (didMethodField) {
+          didMethodField.style.display = shouldShow ? 'block' : 'none';
+      }
+      if (serviceEndpointField) {
+          serviceEndpointField.style.display = shouldShow ? 'block' : 'none';
+      }
+    }
+
+    toggleDependentFields();
+
+    createDidCheckbox.addEventListener('change', toggleDependentFields);
+  });
+</script>
 {% endblock %}
