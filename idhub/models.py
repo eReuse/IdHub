@@ -704,7 +704,17 @@ class Schemas(models.Model):
     @property
     def get_schema_types(self):
         sh = self.get_schema
-        return sh.get("properties", "").get("type", "").get("default", [])
+        properties = sh.get("properties", {})
+        type_info = properties.get("type", {}) if isinstance(properties, dict) else {}
+        if isinstance(type_info, dict):
+            return type_info.get("default", [])
+        return []
+
+    @property
+    def get_context_uris(self):
+        sh = self.get_schema
+        if sh:
+            return sh.get("properties", "").get("@context", "").get("default", [])
 
     @property
     def is_untp(self):
@@ -1070,8 +1080,10 @@ class VerificableCredential(models.Model):
             credential_status_id = self.issuer_did.did
 
         _vc_type= self.schema.get_schema_types
+        _context_urls = self.schema.get_context_uris
 
         context = {
+            'context': json.dumps(_context_urls),
             'id_credential': str(sid),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
@@ -1132,23 +1144,28 @@ class VerificableCredential(models.Model):
 
     def render_untp(self, untp_type, domain=""):
         context = self.get_context_untp(domain)
-
         tmpl = get_template('credentials/base_untp.json')
         d_ordered = ujson.loads(tmpl.render(context))
+        url_context = urljoin(domain, reverse("idhub:context"))
+
+        subject_data = self.json_data.copy()
+        if '@context' in subject_data:
+            del subject_data['@context']
+
         if self.schema.context:
             d_ordered["@context"].append(self.schema.context)
         else:
             url_context = urljoin(domain, reverse("idhub:context"))
             d_ordered["@context"].append(url_context)
 
-        d_ordered["credentialSubject"]= self.json_data.get("credentialSubject", {} )
+        d_ordered["credentialSubject"] = subject_data
 
         d_minimum = self.filter_dict(d_ordered)
         # You can revoke only didweb
         if not self.is_didweb:
             d_minimum.pop("credentialStatus", None)
 
-        return ujson.dumps(d_minimum)
+        return ujson.dumps(d_minimum,  escape_forward_slashes=False)
 
     def get_issued_on(self):
         if self.issued_on:
