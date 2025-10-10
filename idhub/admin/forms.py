@@ -718,21 +718,24 @@ class DIDForm(forms.ModelForm):
         return
 
 
+logger = logging.getLogger(__name__)
+
 class ObjectDidImportForm(forms.Form):
-    did_method = forms.ChoiceField(
-        choices=DID.Types.choices,
-        label=_("Select DID method"),
-        help_text=_("Choose the DID method to be used when creating new object DIDs.")
-    )
     create_did = forms.BooleanField(
         label=_("Create object DID?"),
         required=False,
         help_text=_("Check this if a new DID should be generated for the object.")
     )
+    did_method = forms.ChoiceField(
+        choices=DID.Types.choices,
+        label=_("Select DID method"),
+        required=False, # Not required if not creating a new DID
+        help_text=_("Choose the DID method to be used when creating new object DIDs.")
+    )
     service_endpoint = forms.CharField(
         label=_("Service Endpoint"),
         required=False,
-        help_text=_("Enter a valid URI for the service endpoint.")
+        help_text=_("Enter a valid URI for the DPP service endpoint (optional).")
     )
     issuer = forms.ModelChoiceField(
         queryset=DID.objects.filter(user__isnull=True, is_product=False),
@@ -760,111 +763,128 @@ class ObjectDidImportForm(forms.Form):
 
     def clean_service_endpoint(self):
         value = self.cleaned_data.get('service_endpoint')
-
         if value:
             validator = URLValidator()
             try:
                 validator(value)
             except ValidationError:
                 raise ValidationError(_("Please enter a valid URI."))
-
         return value
 
     def clean_file_import(self):
-        data = self.cleaned_data["file_import"]
-        self._schema = self.cleaned_data["schema"]
-        self.file_name = data.name.lower()
+        uploaded_file = self.cleaned_data.get("file_import")
+        if not uploaded_file:
+            return None
 
         try:
-            self.file_data = json.loads(data.read())
-            schema_data = json.loads(self._schema.data)
+            file_content = uploaded_file.read().decode('utf-8')
+            return json.loads(file_content)
+        except json.JSONDecodeError:
+            raise ValidationError(_("Invalid JSON file. Please ensure the file is correctly formatted."))
+        except UnicodeDecodeError:
+            raise ValidationError(_("File is not UTF-8 encoded. Please save the file as UTF-8."))
 
-            credential_subject_schema = schema_data["properties"]["credentialSubject"]
-            credential_subject_data = self.file_data.get("credentialSubject")
-            jsonschema.validate(
-                instance=credential_subject_data,
-                schema=credential_subject_schema,
-                format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
-            )
 
-        except jsonschema.exceptions.ValidationError as err:
-            msg = "{}".format(err.message)
-            raise forms.ValidationError(
-                _("JSON validation failed for '%(file_name)s': %(error)s"),
-                params={"file_name": self.file_name, "error": msg}
-            )
-        except Exception as e:
-            raise ValidationError(
-                _("Error opening '%(file_name)s': %(error)s"),
-                params={"file_name": self.file_name, "error": str(e)}
-            )
+    def clean(self):
+        cleaned_data = super().clean()
+        file_data = cleaned_data.get('file_import')
+        schema = cleaned_data.get('schema')
+        issuer = cleaned_data.get('issuer')
+        create_did = cleaned_data.get('create_did')
 
-        # TODO: check better way?
+        if not file_data or not schema or not issuer:
+            return cleaned_data
+
+        # Check for existing credentials if not creating a new DID
+        subject_id = file_data.get("credentialSubject", {}).get("id")
+        if not subject_id:
+             raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject' with an 'id'."))
+
         exists = VerificableCredential.objects.filter(
-            schema=self._schema,
-            issuer_did=self.cleaned_data["issuer"],
+            schema=schema,
+            issuer_did=issuer,
             status=VerificableCredential.Status.ISSUED,
-            subject_id=self.file_data["credentialSubject"]["id"]
+            subject_id=subject_id
         ).exists()
 
-        if exists and not self.cleaned_data.get("create_did"):
+        if exists and not create_did:
             raise ValidationError(_("A credential for this subject already exists."))
 
-        return self.file_data
+        # If creating a DID, ensure a method is selected
+        if create_did and not cleaned_data.get('did_method'):
+            self.add_error('did_method', _("This field is required when creating a new DID."))
 
-    def save(self, user):
-        if self.cleaned_data["create_did"]:
-            label = self.file_data.get("id") or self.file_data.get("name") or "object-did"
-            obj_did = DID(
-                label=label,
-                type=DID.Types(int(self.cleaned_data["did_method"])),
-                is_product=True
-            )
-        return data
-
-    def save(self):
-        dids = []
+        return cleaned_data
 
 
-        for row in self.df.iterrows():
-            #create object DID
-            obj_id = row[1].get("id")
-            #TODO:maybe fix this
-            did_method = DID.Types(int(self.cleaned_data["did_method"]))
+    def _create_did_if_needed(self):
+        if not self.cleaned_data.get("create_did"):
+            return None
 
-            obj_did = DID(label=obj_id, type=did_method, user=None)
-            obj_did.set_did()
-            obj_did.service_endpoint = self.cleaned_data["service_endpoint"]
-            obj_did.save()
-            self._subject_did = obj_did
-            self.file_data["credentialSubject"]["id"] = obj_did.did
-        else:
-            self._subject_did = None
+        file_data = self.cleaned_data["file_import"]
+        label = file_data.get("id") or file_data.get("name") or "object-did"
 
-        self._did = self.cleaned_data["issuer"]
-        self._eidas1 = None
-        self._template_pdf = None
+        obj_did = DID(
+            label=label,
+            type=DID.Types(int(self.cleaned_data["did_method"])),
+            is_product=True,
+            service_endpoint=self.cleaned_data["service_endpoint"]
+        )
+        obj_did.set_did()
+        obj_did.save()
 
-        cred = self.create_credential(user, self.file_data)
-        cred.save()
+        return obj_did
 
-        return cred
 
-    def create_credential(self, user, row):
-        domain = f"https://{settings.DOMAIN}/"
-        _subject_id = self._subject_did.did if self._subject_did else self.file_data["credentialSubject"]["id"]
+    def _create_credential(self, user, file_data, subject_did, issuer_did, schema, domain):
+        subject_id = subject_did.did if subject_did else file_data["credentialSubject"]["id"]
+        credential_subject = file_data.get('credentialSubject', file_data)
 
         cred = VerificableCredential(
             verified=True,
             user=user,
-            json_data=row,
-            subject_id = _subject_id,
-            issuer_did=self._did,
-            schema=self._schema,
-            eidas1_did=self._eidas1,
-            template_pdf=self._template_pdf
+            json_data=credential_subject,
+            subject_id=subject_id,
+            issuer_did=issuer_did,
+            schema=schema,
         )
         cred.set_type()
-        cred.issue(self._subject_did, domain)
+
+        # Validate Credential against schema once it is fully formed, and then save
+        try:
+            rendered_json = cred.render(domain)
+            instance_to_validate = json.loads(rendered_json)
+            jsonschema.validate(
+                instance=instance_to_validate,
+                schema=json.loads(schema.data),
+                format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
+            )
+        except jsonschema.exceptions.ValidationError as err:
+            raise ValidationError(
+                _("JSON validation failed for the generated credential: %(error)s on path '%(path)s'"),
+                params={"error": err.message, "path": "/".join(map(str, err.path))}
+            )
+        except Exception as e:
+            logger.error(f"An unexpected error occurred during validation: {e}")
+            raise ValidationError(_("An unexpected error occurred during credential validation."))
+
+        return cred
+
+    def save(self, user):
+        obj_did = self._create_did_if_needed()
+
+        file_data = self.cleaned_data["file_import"]
+        issuer_did = self.cleaned_data["issuer"]
+        schema = self.cleaned_data["schema"]
+
+        if obj_did:
+            # If a new DID was created, update the subject ID in the data.
+            file_data["credentialSubject"]["id"] = obj_did.did
+
+        # Create and issue the credential.
+        domain = f"https://{settings.DOMAIN}/"
+        cred = self._create_credential(user, file_data, obj_did, issuer_did, schema, domain)
+        cred.issue(obj_did, domain)
+        cred.save()
 
         return cred
