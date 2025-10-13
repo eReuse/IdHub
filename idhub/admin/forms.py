@@ -317,7 +317,7 @@ class ImportForm(forms.Form):
         else:
           self.fields.pop('eidas1')
 
-        if self.fields.get('eidas1') and VCTemplatePdf.objects.filter().exists():
+        if VCTemplatePdf.objects.filter().exists():
             choices = [("", "")]
             choices.extend([
                 (x.id, x.name) for x in VCTemplatePdf.objects.all()
@@ -348,7 +348,7 @@ class ImportForm(forms.Form):
 
         template_pdf = self.cleaned_data.get('template_pdf')
         self._template_pdf = None
-        if template_pdf and eidas1:
+        if template_pdf:
             self._template_pdf = VCTemplatePdf.objects.filter(
                 id=template_pdf
             ).first()

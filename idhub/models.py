@@ -887,10 +887,10 @@ class VerificableCredential(models.Model):
 
         key = self.issuer_did.get_key_material()
         credential = self.render(domain)
-
-        vc = sign(credential, key, self.issuer_did.did)
+        verify = not settings.DEBUG
+        vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
-        valid = verify_vc(vc_str)
+        valid = verify_vc(vc_str, verify=verify)
 
         if not valid:
             raise Exception(_("The credential is not valid"))
