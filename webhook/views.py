@@ -13,6 +13,7 @@ from django_tables2 import SingleTableView
 from pyvckit.verify import verify_vp, verify_vc
 from uuid import uuid4
 from django.urls import reverse_lazy
+from django.conf import settings
 
 from idhub.mixins import AdminView
 from idhub_auth.models import User
@@ -160,20 +161,46 @@ def webhook_issue(request):
 @csrf_exempt
 def transaction_issue(request):
     if request.method == 'POST':
+        user = User.objects.filter(is_admin=True).first()
+        if not cache.get("KEY_DIDS") or not user.accept_gdpr:
+            return JsonResponse({'error': 'Temporary out of service'}, status=400)
+
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return JsonResponse({'error': 'Invalid or missing token'}, status=401)
+
+        token = auth_header.split(' ')[1].strip("'").strip('"')
+        try:
+            tk = Token.objects.filter(token=token, active=True).first()
+            if not tk:
+                return JsonResponse({'error': 'Invalid or missing token'}, status=401)
+        except Exception:
+            return JsonResponse({'error': 'Invalid or missing token'}, status=401)
 
         try:
             vc = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-        did = DID.objects.filter(user__isnull=True).first()
+        issuer_did = vc.get("issuer", {}).get("id")
+        did = DID.objects.filter(did=issuer_did, user__isnull=True).first()
+        if not did:
+            return JsonResponse({'error': 'Invalid or missing issuer'}, status=401)
+
+        schema = Schemas.objects.filter(type='DigitalTraceabilityEvent').first()
+        if not schema:
+            return JsonResponse({'error': 'missing Schema'}, status=401)
 
         cred = VerificableCredential(
             csv_data=request.body.decode(),
             issuer_did=did,
+            schema=schema,
+            user=user
         )
 
-        vc_signed = cred.transaction_issue(did, save=False, verify=False)
+        domain = "{}://{}".format(request.scheme, request.get_host())
+        verify = not settings.DEBUG
+        vc_signed = cred.transaction_issue(did, domain=domain, save=False, verify=verify)
 
         if not vc_signed:
             return JsonResponse({'error': 'Invalid credential'}, status=400)

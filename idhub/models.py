@@ -902,7 +902,7 @@ class VerificableCredential(models.Model):
 
         self.status = self.Status.ISSUED
 
-    def transaction_issue(self, did, save=True, verify=True):
+    def transaction_issue(self, did, domain, save=True, verify=True):
         if self.status == self.Status.ISSUED:
             return
 
@@ -913,9 +913,13 @@ class VerificableCredential(models.Model):
         self.hash = hashlib.sha3_256(self.csv_data.encode()).hexdigest()
 
         key = self.issuer_did.get_key_material()
-        credential = self.csv_data
+        credential = self.render(domain)
+        data = json.loads(self.csv_data)
+        cred = ujson.loads(credential)
+        cred.update(data)
+        credential = ujson.dumps(cred)
 
-        vc = sign(credential, key, self.issuer_did.did)
+        vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
         valid = verify_vc(vc_str, verify=verify)
 
@@ -960,10 +964,10 @@ class VerificableCredential(models.Model):
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             'subject_did': self.subject_did and self.subject_did.did or '',
-            'issuance_date': issuance_date,
             'firstName': self.user.first_name or "",
             'lastName': self.user.last_name or "",
             'email': self.user.email,
+            'issuance_date': issuance_date,
             'organisation': org.name or '',
             'credential_status_id': credential_status_id,
             'type': self.schema.get_type
@@ -980,11 +984,11 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
-
-    def render(self, domain=""):
+    def render(self, domain="", template='credentials/base.json'):
         context = self.get_context(domain)
-        tmpl = get_template('credentials/base.json')
+        tmpl = get_template(template)
         d_ordered = ujson.loads(tmpl.render(context))
+
         if self.schema.context:
             d_ordered["@context"].append(self.schema.context)
         else:
