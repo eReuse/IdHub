@@ -17,6 +17,7 @@ Including another URLconf
 
 # from django.contrib import admin
 from django.urls import path, include
+from idhub.api.api import api_v1
 
 from django.contrib.auth import views as auth_views
 
@@ -27,4 +28,6 @@ urlpatterns = [
     path('oidc4vp/', include('oidc4vp.urls')),
     path('promotion/', include('promotion.urls')),
     path('webhook/', include('webhook.urls')),
+    # Ninja Api endpoints
+    path("api/v1/", api_v1.urls),
 ]
