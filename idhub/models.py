@@ -973,7 +973,8 @@ class VerificableCredential(models.Model):
         if self.status == self.Status.ISSUED:
             return
 
-        self.subject_did = did
+        if did:
+            self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
         # hash of credential without sign
