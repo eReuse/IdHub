@@ -2,6 +2,7 @@
 
 import json
 import logging
+import jsonschema
 from ninja import NinjaAPI
 from django.core.cache import cache
 from django.conf import settings
@@ -47,7 +48,7 @@ class DatabaseTokenAuth(HttpBearer):
 def issue_credential(request, payload: IssueCredentialPayload):
 
     api_user = request.auth
-    if not api_user or not api_user.is_authenticated:
+    if not api_user:
         return 401, {'error': 'Authentication failed or user not active.'}
 
     if not cache.get("KEY_DIDS"):
