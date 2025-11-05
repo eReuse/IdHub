@@ -41,7 +41,7 @@ class DatabaseTokenAuth(HttpBearer):
                        404: ErrorResponse, 409: ErrorResponse, 422: ErrorResponse,
                        500: ErrorResponse
                        },
-             summary="Create and Issue a Digital Product Passport"
+             summary="Create and Issue a Digital Product Passport",
              auth=DatabaseTokenAuth()
              )
 def issue_credential(request, payload: IssueCredentialPayload):
@@ -103,7 +103,7 @@ def issue_credential(request, payload: IssueCredentialPayload):
             verified=True,
             user=api_user,
             json_data=cleaned_subject,
-            subject_id=subject_id
+            subject_id=subject_id,
             issuer_did=issuer_did,
             schema=schema,
         )
