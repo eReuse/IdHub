@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @api_v1.post("issue-credential/",
              response={201: dict,
                        400: ErrorResponse,
-                       404: ErrorResponse, 409: ErrorResponse,
+                       404: ErrorResponse, 409: ErrorResponse, 422: ErrorResponse,
                        500: ErrorResponse
                        },
              summary="Create and Issue a Digital Product Passport"
