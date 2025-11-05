@@ -1,42 +1,65 @@
 #!/usr/bin/env python3
 
 import json
-import jsonschema
 import logging
 from ninja import NinjaAPI
 from django.core.cache import cache
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from idhub.models import DID, Schemas, VerificableCredential
-from idhub_auth.models import User
-from .schemas import IssueCredentialPayload, SignedCredentialResponse, ErrorResponse
+from .schemas import IssueCredentialPayload, ErrorResponse
+from ninja.security import HttpBearer
+from webhook.models import Token
 
 api_v1 = NinjaAPI(version='1.0.0', title="IdHub v1 API")
 
 logger = logging.getLogger(__name__)
 
+class DatabaseTokenAuth(HttpBearer):
+    def authenticate(self, request, token_string):
+        try:
+            token_obj = Token.objects.select_related('owner').get(
+                token=token_string,
+                active=True
+            )
+            return token_obj.owner
+
+        except Token.DoesNotExist:
+            logger.warning(f"Authentication failed: Token not found or inactive.")
+            return None
+        except (ValueError, TypeError):
+            logger.warning(f"Authentication failed: Invalid token format.")
+            return None
+        except Exception as e:
+            logger.error(f"An unexpected error occurred during authentication: {e}", exc_info=True)
+            return None
+
+
 @api_v1.post("issue-credential/",
              response={201: dict,
                        400: ErrorResponse,
+                       401: ErrorResponse,
                        404: ErrorResponse, 409: ErrorResponse, 422: ErrorResponse,
                        500: ErrorResponse
                        },
              summary="Create and Issue a Digital Product Passport"
-)
+             auth=DatabaseTokenAuth()
+             )
 def issue_credential(request, payload: IssueCredentialPayload):
+
+    api_user = request.auth
+    if not api_user or not api_user.is_authenticated:
+        return 401, {'error': 'Authentication failed or user not active.'}
+
     if not cache.get("KEY_DIDS"):
         logger.error("Server configuration error: The 'KEY_DIDS' encryption key is not available in the cache.")
         return 500, {'error': "Server configuration error: The encryption key required for DID creation is not set up."}
     try:
 
-        api_user = User.objects.get(email='admin@example.org')
         issuer_did = DID.objects.filter(user__isnull=True, is_product=False).first()
         if not issuer_did:
             raise DID.DoesNotExist("No organizational issuer DID found.")
         schema = Schemas.objects.get(file_schema=payload.schema_name)
 
-    except User.DoesNotExist:
-        return 500, {'error': 'API user "admin@example.org" not found. Please configure the user.'}
     except Schemas.DoesNotExist:
         return 422, {'error': f"Schema with type or filename '{payload.schema_name}' not found."}
     except DID.DoesNotExist as e:
@@ -80,7 +103,7 @@ def issue_credential(request, payload: IssueCredentialPayload):
             verified=True,
             user=api_user,
             json_data=cleaned_subject,
-            subject_id=subject_id,
+            subject_id=subject_id
             issuer_did=issuer_did,
             schema=schema,
         )
