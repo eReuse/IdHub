@@ -135,7 +135,7 @@ class Command(BaseCommand):
 
         if settings.SYNC_ORG_DEV == 'y':
             self.sync_credentials_organizations("pangea.org", "somconnexio.coop")
-            self.sync_credentials_organizations("local 8000", "local 9000")
+            #self.sync_credentials_organizations("local 8000", "local 9000")
 
     def create_one_organization(self, name, url, domain):
         if self.DOMAIN == domain:
