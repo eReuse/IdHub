@@ -14,18 +14,14 @@
 
 <p>
 {% block reset_link %}
-<a href="{{ protocol }}://{{ domain }}{% url 'idhub:password_reset_confirm' uidb64=uid token=token %}">
-{{ protocol }}://{{ domain }}{% url 'idhub:password_reset_confirm' uidb64=uid token=token %}
+<a href="https://{{ domain }}{% url 'idhub:password_reset_confirm' uidb64=uid token=token %}">
+https://{{ domain }}{% url 'idhub:password_reset_confirm' uidb64=uid token=token %}
 </a>
 {% endblock %}
 </p>
 
 <p>
-{% trans "Thanks for using our site!" %}
-</p>
-
-<p>
-{% blocktrans %}The {{site}} team{% endblocktrans %}
+{% blocktrans %}Signed by {{site}}{% endblocktrans %}
 </p>
 
 {% endautoescape %}

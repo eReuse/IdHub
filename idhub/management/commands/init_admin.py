@@ -16,4 +16,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         email = kwargs['email']
         password = kwargs['password']
-        User.objects.create_superuser(email=email, password=password)
+        u = User.objects.create_superuser(email=email, password=password)
+        u.set_encrypted_sensitive_data()
+        u.save()

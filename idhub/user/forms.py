@@ -2,10 +2,13 @@ import logging
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 from idhub.models import DID, VerificableCredential
 from oidc4vp.models import Organization
 from idhub_auth.models import User
+from utils.sanitize_did import sanitize_didweb
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +92,7 @@ class RequestCredentialForm(forms.Form):
         self.if_credentials = kwargs.pop('if_credentials', None)
         super().__init__(*args, **kwargs)
         self.fields['did'].choices = [
-            (x.did, x.label) for x in DID.objects.filter(user=self.user)
+            (x.did, x.label) for x in DID.objects.filter(user=self.user, available=True)
         ]
         self.fields['credential'].choices = [
             (x.id, x.get_type(lang=self.lang)) for x in VerificableCredential.objects.filter(
@@ -151,5 +154,59 @@ class DemandAuthorizationForm(forms.Form):
             url = self.org.demand_authorization()
             if url.status_code == 200:
                 return url.json().get('redirect_uri')
+
+        return
+
+
+class DIDForm(forms.ModelForm):
+    class Meta:
+        model = DID
+        fields = ['label', 'type', 'did']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        data = self.cleaned_data
+        label = data.get("label")
+        typ = DID.Types(int(data.get("type")))
+        self._did = data.get("did").lower()
+
+        if typ in [DID.Types.WEB, DID.Types.WEBETH]:
+            self._did = sanitize_didweb(self._did)
+
+        if DID.objects.filter(did=self._did).first():
+            raise ValidationError(_("This DID exist already"))
+
+        if DID.objects.filter(label=label, user=self.user).first():
+            raise ValidationError(_("This Label exist already"))
+
+        if not self.instance.is_web:
+            self.instance = DID(
+                user=self.user,
+                type=typ,
+                label=label
+            )
+            return data
+
+        self.instance.label = label
+        if self.instance.did != self._did:
+            self.instance.did = self._did
+            self.instance.get_did_document()
+            if settings.DOMAIN != self._did.split(":")[2]:
+                self.instance.available = False
+
+        return data
+
+    def save(self, commit=True):
+
+        self.instance.did = self._did
+        if not self.instance.is_web:
+            self.instance.set_did()
+
+        if commit:
+            self.instance.save()
+            return self.instance
 
         return

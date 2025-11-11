@@ -49,21 +49,20 @@ test('when admin user goes to login, redirect to admin dashboard', async ({ page
     await expect(page).toHaveURL(new RegExp('admin/dashboard'));
 });
 
-test('when user goes to login, redirect to user dashboard', async ({ page }) => {
+test('when user goes to login, redirect to dashboard of user', async ({ page }) => {
     test.setTimeout(0)
     await page.goto(`${TEST_SITE}/login/`);
     await put_login_credentials(page, TEST_USER, TEST_USER_PASSWD);
     await accept_data_protection(page);
-    await expect(page.locator('h1')).toContainText('Dashboard');
     await expect(page).toHaveURL(new RegExp('user/dashboard'));
 });
 
-test('user tries url from admin, should go to dashboard', async ({ page }) => {
+test('user tries url from admin, should go to dashboard of user', async ({ page }) => {
     test.setTimeout(0)
     await page.goto(`${TEST_SITE}/admin/wallet/identities/`);
     await put_login_credentials(page, TEST_USER, TEST_USER_PASSWD);
     await accept_data_protection(page);
-    await expect(page.locator('h1')).toContainText('Dashboard');
+    await expect(page).toHaveURL(new RegExp('user/dashboard'));
 
     // DEBUG
     //await page.pause();

@@ -17,19 +17,20 @@
   </div>
 </div>
 {% endif %}
+    <h4>{% trans 'Enable Credential Type' %}</h4>
 
-<div class="nav">
-    <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#profile" type="button" aria-selected="false">{% trans 'Enable Schema from File' %}</button>
+<div class="nav mt-3">
+    <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#profile" type="button" aria-selected="false">{% trans 'Enable from File' %}</button>
 
   <div class="btn">
   </div>
 
-  <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#contact" type="button" aria-selected="false">{% trans 'Enable Schema from URL' %}</button>
+  <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#contact" type="button" aria-selected="false">{% trans 'Enable from URL' %}</button>
 </div>
 
 <div class="tab-content mt-5">
   <div class="tab-pane fade" id="profile" tabindex="0">
-    <h4>{% trans 'Enable Schema from File' %}</h4>
+    <h4>{% trans 'Enable from File' %}</h4>
     <div>
       <form role="form" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -42,7 +43,7 @@
     </div>
   </div>
   <div class="tab-pane fade" id="contact" tabindex="0">
-   <h4>{% trans 'Enable Schema from URL' %}</h4>
+   <h4>{% trans 'Enable from URL' %}</h4>
    <div>
       <form role="form" method="post">
       {% csrf_token %}
