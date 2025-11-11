@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 17:44+0100\n"
+"POT-Creation-Date: 2025-08-29 12:34+0200\n"
 "PO-Revision-Date: 2024-03-26 18:46+0100\n"
 "Last-Translator: Leandro Navarro <leandro@ac.upc.edu>\n"
 "Language-Team: \n"
@@ -18,919 +18,195 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.4.1\n"
 
-#: env/lib/python3.11/site-packages/click/_termui_impl.py:518
-#, python-brace-format
-msgid "{editor}: Editing failed"
-msgstr "{editor}: Error en l'edició"
+#: idhub/admin/forms.py:36
+msgid "Accept terms and conditions of the service"
+msgstr "Acceptar els termes i condicions del servei"
 
-#: env/lib/python3.11/site-packages/click/_termui_impl.py:522
-#, python-brace-format
-msgid "{editor}: Editing failed: {e}"
-msgstr "{editor}: Error en l'edició: {e}"
+#: idhub/admin/forms.py:63
+msgid "Key for encrypt the secrets of all system"
+msgstr "Clau per xifrar els secrets de tot el sistema"
 
-#: env/lib/python3.11/site-packages/click/core.py:1120
-msgid "Aborted!"
-msgstr "Interromput!"
+#: idhub/admin/forms.py:79
+msgid "Key no valid!"
+msgstr "Clau no vàlida!"
 
-#: env/lib/python3.11/site-packages/click/core.py:1309
-#: env/lib/python3.11/site-packages/click/decorators.py:559
-msgid "Show this message and exit."
-msgstr "Mostra aquest missatge i surt."
+#: idhub/admin/forms.py:116 idhub/user/forms.py:42
+msgid "I read and accepted the"
+msgstr "Vaig llegir i acceptar el"
 
-#: env/lib/python3.11/site-packages/click/core.py:1340
-#: env/lib/python3.11/site-packages/click/core.py:1370
-#, python-brace-format
-msgid "(Deprecated) {text}"
-msgstr "(Obsolet) {text}"
+#: idhub/admin/forms.py:123 idhub/user/forms.py:49
+msgid "Privacy policy"
+msgstr "Política de privadesa"
 
-#: env/lib/python3.11/site-packages/click/core.py:1387
-msgid "Options"
-msgstr "Opcions"
+#: idhub/admin/forms.py:128 idhub/user/forms.py:54
+msgid "Legal policy"
+msgstr "Política legal"
 
-#: env/lib/python3.11/site-packages/click/core.py:1413
-#, python-brace-format
-msgid "Got unexpected extra argument ({args})"
-msgid_plural "Got unexpected extra arguments ({args})"
-msgstr[0] "S'ha trobat un argument addicional inesperat ({args})"
-msgstr[1] "S'han trobat uns arguments addicionals inesperats ({args})"
+#: idhub/admin/forms.py:133 idhub/user/forms.py:59
+msgid "Cookies policy"
+msgstr "Política de galetes"
 
-#: env/lib/python3.11/site-packages/click/core.py:1429
-msgid "DeprecationWarning: The command {name!r} is deprecated."
-msgstr "Advertència obsolescència: l'ordre {name!r} està obsoleta."
+#: idhub/admin/forms.py:157
+#, fuzzy
+#| msgid "File to import"
+msgid "Schema to import"
+msgstr "Fitxer a importar"
 
-#: env/lib/python3.11/site-packages/click/core.py:1636
-msgid "Commands"
-msgstr "Ordres"
-
-#: env/lib/python3.11/site-packages/click/core.py:1668
-msgid "Missing command."
-msgstr "Falta l'ordre."
-
-#: env/lib/python3.11/site-packages/click/core.py:1746
-msgid "No such command {name!r}."
-msgstr "No hi ha aquesta comanda {name!r}."
-
-#: env/lib/python3.11/site-packages/click/core.py:2310
-msgid "Value must be an iterable."
-msgstr "El valor ha de ser iterable."
-
-#: env/lib/python3.11/site-packages/click/core.py:2331
-#, python-brace-format
-msgid "Takes {nargs} values but 1 was given."
-msgid_plural "Takes {nargs} values but {len} were given."
-msgstr[0] "Pren {nargs} valors però s'ha donat 1."
-msgstr[1] "Pren {nargs} valors però s'han donat {len}."
-
-#: env/lib/python3.11/site-packages/click/core.py:2778
-#, python-brace-format
-msgid "env var: {var}"
-msgstr "env var: {var}"
-
-#: env/lib/python3.11/site-packages/click/core.py:2808
-msgid "(dynamic)"
-msgstr "(dinàmic)"
-
-#: env/lib/python3.11/site-packages/click/core.py:2821
-#, python-brace-format
-msgid "default: {default}"
-msgstr "per defecte: {default}"
-
-#: env/lib/python3.11/site-packages/click/core.py:2834
-msgid "required"
-msgstr "obligatori"
-
-#: env/lib/python3.11/site-packages/click/decorators.py:465
-#, python-format
-msgid "%(prog)s, version %(version)s"
-msgstr "%(prog)s, versió %(version)s"
-
-#: env/lib/python3.11/site-packages/click/decorators.py:528
-msgid "Show the version and exit."
-msgstr "Mostra la versió i surt."
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:44
-#: env/lib/python3.11/site-packages/click/exceptions.py:80
-#, python-brace-format
-msgid "Error: {message}"
-msgstr "Error: {message}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:72
-#, python-brace-format
-msgid "Try '{command} {option}' for help."
-msgstr "Proveu ‘{command} {option}’ per obtenir ajuda."
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:121
-#, python-brace-format
-msgid "Invalid value: {message}"
-msgstr "Valor no vàlid: {message}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:123
-#, python-brace-format
-msgid "Invalid value for {param_hint}: {message}"
-msgstr "Valor no vàlid per a {param_hint}: {message}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:179
-msgid "Missing argument"
-msgstr "Manca l'argument"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:181
-msgid "Missing option"
-msgstr "Falta opció"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:183
-msgid "Missing parameter"
-msgstr "Falta un paràmetre"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:185
-#, python-brace-format
-msgid "Missing {param_type}"
-msgstr "Falta {param_type}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:192
-#, python-brace-format
-msgid "Missing parameter: {param_name}"
-msgstr "Falta el paràmetre: {param_name}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:212
-#, python-brace-format
-msgid "No such option: {name}"
-msgstr "No hi ha aquesta opció: {name}"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:224
-#, python-brace-format
-msgid "Did you mean {possibility}?"
-msgid_plural "(Possible options: {possibilities})"
-msgstr[0] "Voleu dir {possibility}?"
-msgstr[1] "(Opcions possibles: {possibilities})"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:262
-msgid "unknown error"
-msgstr "error desconegut"
-
-#: env/lib/python3.11/site-packages/click/exceptions.py:269
-msgid "Could not open file {filename!r}: {message}"
-msgstr "No s'ha pogut obrir el fitxer {filename!r}: {message}"
-
-#: env/lib/python3.11/site-packages/click/parser.py:231
-msgid "Argument {name!r} takes {nargs} values."
-msgstr "L'argument {name!r} pren {nargs} valors."
-
-#: env/lib/python3.11/site-packages/click/parser.py:413
-msgid "Option {name!r} does not take a value."
-msgstr "L'opció {name!r} no pren cap valor."
-
-#: env/lib/python3.11/site-packages/click/parser.py:474
-msgid "Option {name!r} requires an argument."
-msgid_plural "Option {name!r} requires {nargs} arguments."
-msgstr[0] "L'opció {name!r} requereix un argument."
-msgstr[1] "L'opció {name!r} requereix {nargs} arguments."
-
-#: env/lib/python3.11/site-packages/click/shell_completion.py:319
-msgid "Shell completion is not supported for Bash versions older than 4.4."
+#: idhub/admin/forms.py:158
+msgid "Context to import (optional)"
 msgstr ""
-"La finalització de l'intèrpret d'ordres no és compatible amb les versions de "
-"Bash anteriors a la 4.4."
 
-#: env/lib/python3.11/site-packages/click/shell_completion.py:326
-msgid "Couldn't detect Bash version, shell completion is not supported."
+#: idhub/admin/forms.py:169 idhub/admin/forms.py:240
+msgid "This schema not is a json file"
 msgstr ""
-"No s'ha pogut detectar la versió de Bash, la finalització de l'intèrpret "
-"d'ordres no és compatible."
 
-#: env/lib/python3.11/site-packages/click/termui.py:158
-msgid "Repeat for confirmation"
-msgstr "Repetiu per confirmar"
+#: idhub/admin/forms.py:172
+#, fuzzy
+#| msgid "The user does not exist!"
+msgid "This context exist"
+msgstr "L'usuari no existeix!"
 
-#: env/lib/python3.11/site-packages/click/termui.py:174
-msgid "Error: The value you entered was invalid."
-msgstr "Error: el valor que heu introduït no és vàlid."
+#: idhub/admin/forms.py:184
+#, fuzzy
+#| msgid "This is not a valid schema!"
+msgid "This context is no a valid jsonld"
+msgstr "Aquest no és un esquema vàlid!"
 
-#: env/lib/python3.11/site-packages/click/termui.py:176
-#, python-brace-format
-msgid "Error: {e.message}"
-msgstr "Error: {e.message}"
+#: idhub/admin/forms.py:191 idhub/admin/forms.py:254 idhub/admin/views.py:1009
+#: idhub/admin/views.py:1099
+msgid "This is not a valid schema!"
+msgstr "Aquest no és un esquema vàlid!"
 
-#: env/lib/python3.11/site-packages/click/termui.py:187
-msgid "Error: The two entered values do not match."
-msgstr "Error: els dos valors introduïts no coincideixen."
+#: idhub/admin/forms.py:194 idhub/admin/forms.py:257
+#, fuzzy
+#| msgid "Schema is not valid!"
+msgid "Schema exist!"
+msgstr "L'esquema no és vàlid!"
 
-#: env/lib/python3.11/site-packages/click/termui.py:243
-msgid "Error: invalid input"
-msgstr "Error: entrada no vàlida"
-
-#: env/lib/python3.11/site-packages/click/termui.py:773
-msgid "Press any key to continue..."
-msgstr "Premeu qualsevol tecla per continuar..."
-
-#: env/lib/python3.11/site-packages/click/types.py:266
-#, python-brace-format
-msgid ""
-"Choose from:\n"
-"\t{choices}"
+#: idhub/admin/forms.py:226
+msgid "Schema url reference"
 msgstr ""
-"Trieu entre:\n"
-"\t{choices}"
 
-#: env/lib/python3.11/site-packages/click/types.py:298
-msgid "{value!r} is not {choice}."
-msgid_plural "{value!r} is not one of {choices}."
-msgstr[0] "{value!r} no és {choice}."
-msgstr[1] "{value!r} no és un dels {choices}."
-
-#: env/lib/python3.11/site-packages/click/types.py:392
-msgid "{value!r} does not match the format {format}."
-msgid_plural "{value!r} does not match the formats {formats}."
-msgstr[0] "{value!r} no coincideix amb el format {format}."
-msgstr[1] "{value!r} no coincideix amb els formats {formats}."
-
-#: env/lib/python3.11/site-packages/click/types.py:414
-msgid "{value!r} is not a valid {number_type}."
-msgstr "{value!r} no és un {number_type} vàlid."
-
-#: env/lib/python3.11/site-packages/click/types.py:470
-#, python-brace-format
-msgid "{value} is not in the range {range}."
-msgstr "{value} no es troba a l'interval {range}."
-
-#: env/lib/python3.11/site-packages/click/types.py:611
-msgid "{value!r} is not a valid boolean."
-msgstr "{value!r} no és un booleà vàlid."
-
-#: env/lib/python3.11/site-packages/click/types.py:635
-msgid "{value!r} is not a valid UUID."
-msgstr "{value!r} no és un UUID vàlid."
-
-#: env/lib/python3.11/site-packages/click/types.py:822
-msgid "file"
-msgstr "arxiu"
-
-#: env/lib/python3.11/site-packages/click/types.py:824
-msgid "directory"
-msgstr "directori"
-
-#: env/lib/python3.11/site-packages/click/types.py:826
-msgid "path"
-msgstr "ruta"
-
-#: env/lib/python3.11/site-packages/click/types.py:877
-msgid "{name} {filename!r} does not exist."
-msgstr "{name} {filename!r} no existeix."
-
-#: env/lib/python3.11/site-packages/click/types.py:886
-msgid "{name} {filename!r} is a file."
-msgstr "{name} {filename!r} és un fitxer."
-
-#: env/lib/python3.11/site-packages/click/types.py:894
-#, python-brace-format
-msgid "{name} '{filename}' is a directory."
-msgstr "{name} '{filename}' és un directori."
-
-#: env/lib/python3.11/site-packages/click/types.py:903
-msgid "{name} {filename!r} is not readable."
-msgstr "{name} {filename!r} no es pot llegir."
-
-#: env/lib/python3.11/site-packages/click/types.py:912
-msgid "{name} {filename!r} is not writable."
-msgstr "{name} {filename!r} no es pot escriure."
-
-#: env/lib/python3.11/site-packages/click/types.py:921
-msgid "{name} {filename!r} is not executable."
-msgstr "{name} {filename!r} no és executable."
-
-#: env/lib/python3.11/site-packages/click/types.py:988
-#, python-brace-format
-msgid "{len_type} values are required, but {len_value} was given."
-msgid_plural "{len_type} values are required, but {len_value} were given."
-msgstr[0] "Es requereixen {len_type} valors, però s'ha donat {len_value}."
-msgstr[1] "Es requereixen {len_type} valors, però s'han donat {len_value}."
-
-#: env/lib/python3.11/site-packages/django/contrib/messages/apps.py:15
-msgid "Messages"
-msgstr "Missatges"
-
-#: env/lib/python3.11/site-packages/django/contrib/sitemaps/apps.py:8
-msgid "Site Maps"
-msgstr "Mapes del lloc"
-
-#: env/lib/python3.11/site-packages/django/contrib/staticfiles/apps.py:9
-msgid "Static Files"
-msgstr "Fitxers estàtics"
-
-#: env/lib/python3.11/site-packages/django/contrib/syndication/apps.py:7
-msgid "Syndication"
-msgstr "Sindicació"
-
-#. Translators: String used to replace omitted page numbers in elided page
-#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
-#: env/lib/python3.11/site-packages/django/core/paginator.py:30
-msgid "…"
-msgstr "…"
-
-#: env/lib/python3.11/site-packages/django/core/paginator.py:50
-msgid "That page number is not an integer"
-msgstr "Aquest número de pàgina no és un nombre enter"
-
-#: env/lib/python3.11/site-packages/django/core/paginator.py:52
-msgid "That page number is less than 1"
-msgstr "Aquest número de pàgina és inferior a 1"
-
-#: env/lib/python3.11/site-packages/django/core/paginator.py:54
-msgid "That page contains no results"
-msgstr "Aquesta pàgina no conté cap resultat"
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:22
-msgid "Enter a valid value."
-msgstr "Introduïu un valor vàlid."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:104
-#: env/lib/python3.11/site-packages/django/forms/fields.py:752
-msgid "Enter a valid URL."
-msgstr "Introduïu un URL vàlid."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:165
-msgid "Enter a valid integer."
-msgstr "Introduïu un nombre enter vàlid."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:176
-msgid "Enter a valid email address."
-msgstr "Introduïu una adreça electrònica vàlida."
-
-#. Translators: "letters" means latin letters: a-z and A-Z.
-#: env/lib/python3.11/site-packages/django/core/validators.py:259
-msgid ""
-"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
+#: idhub/admin/forms.py:227
+msgid "Context url reference"
 msgstr ""
-"Introduïu un \"slug\" vàlid format per lletres, números, guions baixos o "
-"guions."
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:267
-msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
+#: idhub/admin/forms.py:247
+msgid "This context is not accessible"
 msgstr ""
-"Introduïu un \"slug\" vàlid format per lletres Unicode, números, guions "
-"baixos o guions."
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:279
-#: env/lib/python3.11/site-packages/django/core/validators.py:287
-#: env/lib/python3.11/site-packages/django/core/validators.py:316
-msgid "Enter a valid IPv4 address."
-msgstr "Introduïu una adreça IPv4 vàlida."
+#: idhub/admin/forms.py:280 idhub/user/forms.py:83
+msgid "Did"
+msgstr "DID"
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:296
-#: env/lib/python3.11/site-packages/django/core/validators.py:317
-msgid "Enter a valid IPv6 address."
-msgstr "Introduïu una adreça IPv6 vàlida."
+#: idhub/admin/forms.py:282
+msgid "Signature with Eidas1"
+msgstr "Signatura amb Eidas1"
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:308
-#: env/lib/python3.11/site-packages/django/core/validators.py:315
-msgid "Enter a valid IPv4 or IPv6 address."
-msgstr "Introduïu una adreça IPv4 o IPv6 vàlida."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:351
-msgid "Enter only digits separated by commas."
-msgstr "Introduïu només els dígits separats per comes."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:357
-#, python-format
-msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+#: idhub/admin/forms.py:287
+msgid "Select one template for render to Pdf"
 msgstr ""
-"Assegureu-vos que aquest valor sigui %(limit_value)s (és %(show_value)s)."
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:392
-#, python-format
-msgid "Ensure this value is less than or equal to %(limit_value)s."
+#: idhub/admin/forms.py:291 idhub/models.py:653
+msgid "Schema"
+msgstr "Esquema"
+
+#: idhub/admin/forms.py:292
+msgid "File to import"
+msgstr "Fitxer a importar"
+
+#: idhub/admin/forms.py:306
+msgid "Please choose a data schema ..."
+msgstr "Trieu un esquema de dades …"
+
+#: idhub/admin/forms.py:337
+msgid "Did not valid!"
+msgstr "DID no vàlid!"
+
+#: idhub/admin/forms.py:364
+msgid "Schema is not valid!"
+msgstr "L'esquema no és vàlid!"
+
+#: idhub/admin/forms.py:370
+msgid "Schema not valid!"
+msgstr "L'esquema no és vàlid!"
+
+#: idhub/admin/forms.py:392
+#, fuzzy
+#| msgid "This is not a valid schema!"
+msgid "This file does not a excel valid!"
+msgstr "Aquest no és un esquema vàlid!"
+
+#: idhub/admin/forms.py:404
+msgid "This File does not correspond to this scheme!"
+msgstr "Aquest fitxer no correspon a aquest esquema!"
+
+#: idhub/admin/forms.py:431
+msgid "The file you try to import is empty!"
+msgstr "El fitxer que intenteu importar està buit!"
+
+#: idhub/admin/forms.py:524
+msgid "File template"
+msgstr "Plantilla d'arxiu"
+
+#: idhub/admin/forms.py:545 idhub/admin/forms.py:559 idhub/admin/forms.py:568
+msgid "This membership already exists!"
+msgstr "Aquesta subscripció ja existeix!"
+
+#: idhub/admin/forms.py:550
+msgid "The end date is less than the start date"
+msgstr "La data de finalització és inferior a la data d'inici"
+
+#: idhub/admin/forms.py:597
+msgid "Is not possible to have a duplicate role"
+msgstr "No és possible tenir una funció duplicada"
+
+#: idhub/admin/forms.py:604 idhub/models.py:476 webhook/models.py:9
+#: webhook/tables.py:46
+msgid "Label"
+msgstr "Etiqueta"
+
+#: idhub/admin/forms.py:606
+msgid "Password of certificate"
+msgstr "Contrasenya del certificat"
+
+#: idhub/admin/forms.py:609
+msgid "File import"
+msgstr "Importa fitxer"
+
+#: idhub/admin/forms.py:625 idhub/admin/forms.py:630
+msgid "Is not a valid certificate"
+msgstr "No és un certificat vàlid"
+
+#: idhub/admin/forms.py:678 idhub/user/forms.py:175
+msgid "This DID exist already"
 msgstr ""
-"Assegureu-vos que aquest valor sigui inferior o igual a %(limit_value)s."
 
-#: env/lib/python3.11/site-packages/django/core/validators.py:401
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-"Assegureu-vos que aquest valor sigui superior o igual a %(limit_value)s."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:410
-#, python-format
-msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
-"Assegureu-vos que aquest valor sigui un múltiple de la mida del pas "
-"%(limit_value)s."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:420
-#, python-format
-msgid ""
-"Ensure this value has at least %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at least %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-"Assegureu-vos que aquest valor tingui com a mínim %(limit_value)d caràcter "
-"(té %(show_value)d)."
-msgstr[1] ""
-"Assegureu-vos que aquest valor tingui com a mínim %(limit_value)d caràcters "
-"(té %(show_value)d)."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:438
-#, python-format
-msgid ""
-"Ensure this value has at most %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at most %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-"Assegureu-vos que aquest valor tingui com a màxim %(limit_value)d caràcters "
-"(té %(show_value)d)."
-msgstr[1] ""
-"Assegureu-vos que aquest valor tingui com a màxim %(limit_value)d caràcters "
-"(té %(show_value)d)."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:461
-#: env/lib/python3.11/site-packages/django/forms/fields.py:347
-#: env/lib/python3.11/site-packages/django/forms/fields.py:386
-msgid "Enter a number."
-msgstr "Introduïu una xifra."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:463
-#, python-format
-msgid "Ensure that there are no more than %(max)s digit in total."
-msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] "Assegureu-vos que no hi hagi més de %(max)s dígits en total."
-msgstr[1] "Assegureu-vos que no hi hagi més de %(max)s dígits en total."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:468
-#, python-format
-msgid "Ensure that there are no more than %(max)s decimal place."
-msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] "Assegureu-vos que no hi hagi més de %(max)s decimals."
-msgstr[1] "Assegureu-vos que no hi hagi més de %(max)s decimals."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:473
-#, python-format
-msgid ""
-"Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural ""
-"Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-"Assegureu-vos que no hi hagi més de %(max)s dígits abans del punt decimal."
-msgstr[1] ""
-"Assegureu-vos que no hi hagi més de %(max)s dígits abans del punt decimal."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:544
-#, python-format
-msgid ""
-"File extension “%(extension)s” is not allowed. Allowed extensions are: "
-"%(allowed_extensions)s."
-msgstr ""
-"L'extensió de fitxer “%(extension)s” no està permesa. Les extensions "
-"permeses són: %(allowed_extensions)s."
-
-#: env/lib/python3.11/site-packages/django/core/validators.py:605
-msgid "Null characters are not allowed."
-msgstr "No es permeten caràcters nuls."
-
-#: env/lib/python3.11/site-packages/django/db/models/base.py:1423
-#: env/lib/python3.11/site-packages/django/forms/models.py:893
-msgid "and"
-msgstr "i"
-
-#: env/lib/python3.11/site-packages/django/db/models/base.py:1425
-#, python-format
-msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr "%(model_name)s amb aquest %(field_labels)s ja existeix."
-
-#: env/lib/python3.11/site-packages/django/db/models/constraints.py:17
-#, python-format
-msgid "Constraint “%(name)s” is violated."
-msgstr "S'ha incomplert la restricció \"%(name)s\"."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:128
-#, python-format
-msgid "Value %(value)r is not a valid choice."
-msgstr "El valor %(value)r no és una opció vàlida."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:129
-msgid "This field cannot be null."
-msgstr "Aquest camp no pot ser nul."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:130
-msgid "This field cannot be blank."
-msgstr "Aquest camp no pot estar en blanc."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:131
-#, python-format
-msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr "%(model_name)s amb aquest %(field_label)s ja existeix."
-
-#. Translators: The 'lookup_type' is one of 'date', 'year' or
-#. 'month'. Eg: "Title must be unique for pub_date year"
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:135
-#, python-format
-msgid ""
-"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
-"%(field_label)s ha de ser únic per a %(date_field_label)s %(lookup_type)s."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:173
-#, python-format
-msgid "Field of type: %(field_type)s"
-msgstr "Camp de tipus: %(field_type)s"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1094
-#, python-format
-msgid "“%(value)s” value must be either True or False."
-msgstr "El valor \"%(value)s\" ha de ser Cert o Fals."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1095
-#, python-format
-msgid "“%(value)s” value must be either True, False, or None."
-msgstr "El valor \"%(value)s\" ha de ser Cert, Fals o Cap."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1097
-msgid "Boolean (Either True or False)"
-msgstr "Booleà (cert o fals)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1147
-#, python-format
-msgid "String (up to %(max_length)s)"
-msgstr "Cadena (fins a %(max_length)s)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1149
-msgid "String (unlimited)"
-msgstr "Cadena (il·limitada)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1253
-msgid "Comma-separated integers"
-msgstr "Nombres enters separats per comes"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1354
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
-"format."
-msgstr ""
-"El valor \"%(value)s\" té un format de data no vàlid. Ha de tenir el format "
-"AAAA-MM-DD."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1358
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1493
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
-"date."
-msgstr ""
-"El valor \"%(value)s\" té el format correcte (AAAA-MM-DD), però no és una "
-"data vàlida."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1362
-msgid "Date (without time)"
-msgstr "Data (sense hora)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1489
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD HH:MM[:ss[."
-"uuuuuu]][TZ] format."
-msgstr ""
-"El valor \"%(value)s\" té un format no vàlid. Ha de tenir el format AAAA-MM-"
-"DD HH:MM[:ss[.uuuuuu]][TZ]."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1497
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
-msgstr ""
-"El valor “%(value)s” té el format correcte (AAAA-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]), però no és una data/hora vàlida."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1502
-msgid "Date (with time)"
-msgstr "Data (amb hora)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1626
-#, python-format
-msgid "“%(value)s” value must be a decimal number."
-msgstr "El valor “%(value)s” ha de ser un nombre decimal."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1628
-msgid "Decimal number"
-msgstr "Nombre decimal"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1789
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] [[HH:]MM:]ss[."
-"uuuuuu] format."
-msgstr ""
-"El valor \"%(value)s\" té un format no vàlid. Ha d'estar en format [DD] "
-"[[HH:]MM:]ss[.uuuuuu]."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1793
-msgid "Duration"
-msgstr "Durada"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1845
-#: idhub/templates/idhub/admin/user.html:40 idhub_auth/models.py:44
-msgid "Email address"
-msgstr "Adreça de correu electrònic"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1870
-msgid "File path"
-msgstr "Ruta al document"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1948
-#, python-format
-msgid "“%(value)s” value must be a float."
-msgstr "El valor “%(value)s” ha de ser un valor flotant."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1950
-msgid "Floating point number"
-msgstr "Nombre de coma flotant"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1990
-#, python-format
-msgid "“%(value)s” value must be an integer."
-msgstr "El valor “%(value)s” ha de ser un nombre enter."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:1992
-msgid "Integer"
-msgstr "Enter"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2088
-msgid "Big (8 byte) integer"
-msgstr "Enter gran (8 bytes)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2105
-msgid "Small integer"
-msgstr "Enter petit"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2113
-msgid "IPv4 address"
-msgstr "Adreça IPv4"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2144
-msgid "IP address"
-msgstr "Adreça IP"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2237
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2238
-#, python-format
-msgid "“%(value)s” value must be either None, True or False."
-msgstr "El valor \"%(value)s\" ha de ser Cap, Cert o Fals."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2240
-msgid "Boolean (Either True, False or None)"
-msgstr "Booleà (cert, fals o cap)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2291
-msgid "Positive big integer"
-msgstr "Enter gran positiu"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2306
-msgid "Positive integer"
-msgstr "Enter positiu"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2321
-msgid "Positive small integer"
-msgstr "Enter petit positiu"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2337
-#, python-format
-msgid "Slug (up to %(max_length)s)"
-msgstr "Slug (fins a %(max_length)s)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2373
-msgid "Text"
-msgstr "Text"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2448
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
-"format."
-msgstr ""
-"El valor \"%(value)s\" té un format no vàlid. Ha d'estar en format HH:MM[:"
-"ss[.uuuuuu]]."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2452
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
-"invalid time."
-msgstr ""
-"El valor \"%(value)s\" té el format correcte (HH:MM[:ss[.uuuuuu]]), però no "
-"és una hora vàlida."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2456
-msgid "Time"
-msgstr "Hora"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2564
-msgid "URL"
-msgstr "URL"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2588
-msgid "Raw binary data"
-msgstr "Dades binàries en brut"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2653
-#, python-format
-msgid "“%(value)s” is not a valid UUID."
-msgstr "“%(value)s” no és un UUID vàlid."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2655
-msgid "Universally unique identifier"
-msgstr "Identificador únic universal"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/files.py:232
-#: idhub/admin/tables.py:220 idhub/models.py:784
-msgid "File"
-msgstr "Fitxer"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/files.py:393
-msgid "Image"
-msgstr "Imatge"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/json.py:26
-msgid "A JSON object"
-msgstr "Un objecte JSON"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/json.py:28
-msgid "Value must be valid JSON."
-msgstr "El valor ha de ser un JSON vàlid."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:919
-#, python-format
-msgid "%(model)s instance with %(field)s %(value)r does not exist."
-msgstr "%(model)s instància amb %(field)s %(value)r no existeix."
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:921
-msgid "Foreign Key (type determined by related field)"
-msgstr "Clau externa (tipus determinat pel camp relacionat)"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1212
-msgid "One-to-one relationship"
-msgstr "Relació un a un"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1269
-#, python-format
-msgid "%(from)s-%(to)s relationship"
-msgstr "relació %(from)s-%(to)s"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1271
-#, python-format
-msgid "%(from)s-%(to)s relationships"
-msgstr "relacions %(from)s-%(to)s"
-
-#: env/lib/python3.11/site-packages/django/db/models/fields/related.py:1319
-msgid "Many-to-many relationship"
-msgstr "Relació de molts a molts"
-
-#. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
-#: env/lib/python3.11/site-packages/django/forms/boundfield.py:184
-msgid ":?.!"
-msgstr ":?.!"
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:91
-msgid "This field is required."
-msgstr "Aquest camp és obligatori."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:298
-msgid "Enter a whole number."
-msgstr "Introduïu un número sencer."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:467
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1241
-msgid "Enter a valid date."
-msgstr "Introduïu una data vàlida."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:490
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1242
-msgid "Enter a valid time."
-msgstr "Introduïu una hora vàlida."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:517
-msgid "Enter a valid date/time."
-msgstr "Introduïu una data/hora vàlida."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:551
-msgid "Enter a valid duration."
-msgstr "Introduïu una durada vàlida."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:552
-#, python-brace-format
-msgid "The number of days must be between {min_days} and {max_days}."
-msgstr "El nombre de dies ha d'estar entre {min_days} i {max_days}."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:621
-msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
-"No s'ha enviat cap fitxer. Comproveu el tipus de codificació al formulari."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:622
-msgid "No file was submitted."
-msgstr "No s'ha enviat cap fitxer."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:623
-msgid "The submitted file is empty."
-msgstr "El fitxer enviat està buit."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:625
-#, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural ""
-"Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-"Assegureu-vos que aquest nom de fitxer tingui com a màxim %(max)d caràcter "
-"(té %(length)d)."
-msgstr[1] ""
-"Assegureu-vos que aquest nom de fitxer tingui com a màxim %(max)d caràcters "
-"(té %(length)d)."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:630
-msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr "Envieu un fitxer o marqueu la casella de selecció clara, no tots dos."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:694
-msgid ""
-"Upload a valid image. The file you uploaded was either not an image or a "
-"corrupted image."
-msgstr ""
-"Carregueu una imatge vàlida. El fitxer que heu penjat no era una imatge o "
-"una imatge malmesa."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:857
-#: env/lib/python3.11/site-packages/django/forms/fields.py:949
-#: env/lib/python3.11/site-packages/django/forms/models.py:1566
-#, python-format
-msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
-"Seleccioneu una opció vàlida. %(value)s no és una de les opcions disponibles."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:951
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1070
-#: env/lib/python3.11/site-packages/django/forms/models.py:1564
-msgid "Enter a list of values."
-msgstr "Introduïu una llista de valors."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1071
-msgid "Enter a complete value."
-msgstr "Introduïu un valor complet."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1310
-msgid "Enter a valid UUID."
-msgstr "Introduïu un UUID vàlid."
-
-#: env/lib/python3.11/site-packages/django/forms/fields.py:1340
-msgid "Enter a valid JSON."
-msgstr "Introduïu un JSON vàlid."
-
-#. Translators: This is the default suffix added to form field labels
-#: env/lib/python3.11/site-packages/django/forms/forms.py:98
-msgid ":"
-msgstr ":"
-
-#: env/lib/python3.11/site-packages/django/forms/forms.py:244
-#: env/lib/python3.11/site-packages/django/forms/forms.py:328
-#, python-format
-msgid "(Hidden field %(name)s) %(error)s"
-msgstr "(Camp ocult %(name)s) %(error)s"
-
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:63
-#, python-format
-msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: "
-"%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
-"Les dades del Fomulario de Gestión falten o s'han manipulat. Camps que "
-"falten: %(field_names)s. És possible que hàgiu de presentar un informe "
-"d'error si el problema persisteix."
-
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:67
-#, python-format
-msgid "Please submit at most %(num)d form."
-msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] "Envieu com a màxim %(num)d formulari."
-msgstr[1] "Envieu com a màxim %(num)d formularis."
-
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:72
-#, python-format
-msgid "Please submit at least %(num)d form."
-msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] "Envieu almenys %(num)d formulari."
-msgstr[1] "Envieu almenys %(num)d formularis."
-
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:484
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:491
-msgid "Order"
-msgstr "Ordre"
-
-#: env/lib/python3.11/site-packages/django/forms/formsets.py:499
-#: idhub/admin/tables.py:90 idhub/admin/tables.py:123 idhub/admin/tables.py:227
-#: idhub/admin/tables.py:252 idhub/templates/idhub/admin/dids.html:59
+#: idhub/admin/forms.py:681 idhub/user/forms.py:178
+#, fuzzy
+#| msgid "This template already exists!"
+msgid "This Label exist already"
+msgstr "Aquesta plantilla ja existeix!"
+
+#: idhub/admin/tables.py:53 idhub/admin/tables.py:97 idhub/admin/tables.py:184
+#: idhub/admin/tables.py:273 idhub/user/tables.py:142
+#: oidc4vp/templates/credentials_presentation.html:52
+msgid "View"
+msgstr "Vista"
+
+#: idhub/admin/tables.py:61 idhub/templates/idhub/admin/user.html:71
+#: idhub/templates/idhub/admin/user_edit.html:41 idhub/user/tables.py:36
+msgid "Membership"
+msgstr "Afiliació"
+
+#: idhub/admin/tables.py:62 idhub/templates/idhub/admin/user.html:96
+#: idhub/templates/idhub/admin/user_edit.html:73 idhub/user/tables.py:54
+msgid "Role"
+msgstr "Càrrec"
+
+#: idhub/admin/tables.py:106 idhub/admin/tables.py:139
+#: idhub/admin/tables.py:255 idhub/admin/tables.py:288
+#: idhub/admin/tables.py:334 idhub/templates/idhub/admin/dids.html:57
 #: idhub/templates/idhub/admin/issue_credentials.html:18
 #: idhub/templates/idhub/admin/issue_credentials.html:85
 #: idhub/templates/idhub/admin/schemas.html:29
@@ -938,1091 +214,367 @@ msgstr "Ordre"
 #: idhub/templates/idhub/admin/user.html:129
 #: idhub/templates/idhub/admin/user_edit.html:55
 #: idhub/templates/idhub/admin/user_edit.html:87
-#: idhub/templates/idhub/user/dids.html:28 idhub/user/tables.py:111
+#: idhub/templates/idhub/user/dids.html:28 idhub/user/tables.py:113
+#: webhook/tables.py:30
 msgid "Delete"
 msgstr "Esborrar"
 
-#: env/lib/python3.11/site-packages/django/forms/models.py:886
-#, python-format
-msgid "Please correct the duplicate data for %(field)s."
-msgstr "Corregiu les dades duplicades de %(field)s."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:891
-#, python-format
-msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr "Corregiu les dades duplicades de %(field)s, que han de ser úniques."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:898
-#, python-format
-msgid ""
-"Please correct the duplicate data for %(field_name)s which must be unique "
-"for the %(lookup)s in %(date_field)s."
-msgstr ""
-"Corregiu les dades duplicades per a %(field_name)s que han de ser úniques "
-"per a %(lookup)s a %(date_field)s."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:907
-msgid "Please correct the duplicate values below."
-msgstr "Corregiu els valors duplicats a continuació."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:1338
-msgid "The inline value did not match the parent instance."
-msgstr "El valor en línia no coincideix amb la instància principal."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:1429
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-"Seleccioneu una opció vàlida. Aquesta elecció no és una de les opcions "
-"disponibles."
-
-#: env/lib/python3.11/site-packages/django/forms/models.py:1568
-#, python-format
-msgid "“%(pk)s” is not a valid value."
-msgstr "\"%(pk)s\" no és un valor vàlid."
-
-#: env/lib/python3.11/site-packages/django/forms/utils.py:226
-#, python-format
-msgid ""
-"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
-"may be ambiguous or it may not exist."
-msgstr ""
-"%(datetime)s no s'ha pogut interpretar a la zona horària "
-"%(current_timezone)s; pot ser ambigu o pot no existir."
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:463
-msgid "Clear"
-msgstr "Neteja"
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:464
-msgid "Currently"
-msgstr "Actualment"
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:465
-msgid "Change"
-msgstr "Canviar"
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:794
-msgid "Unknown"
-msgstr "Desconeguda"
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:795
-#: idhub/templates/idhub/admin/terms_conditions.html:63
-#: idhub/templates/idhub/user/terms_conditions.html:63
-msgid "Yes"
-msgstr "Yes"
-
-#: env/lib/python3.11/site-packages/django/forms/widgets.py:796
-#: idhub/templates/idhub/admin/terms_conditions.html:62
-#: idhub/templates/idhub/user/terms_conditions.html:62
-msgid "No"
-msgstr "No"
-
-#. Translators: Please do not add spaces around commas.
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:861
-msgid "yes,no,maybe"
-msgstr "sí,no,potser"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:891
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:908
-#, python-format
-msgid "%(size)d byte"
-msgid_plural "%(size)d bytes"
-msgstr[0] "%(size)d byte"
-msgstr[1] "%(size)d bytes"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:910
-#, python-format
-msgid "%s KB"
-msgstr "%s KB"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:912
-#, python-format
-msgid "%s MB"
-msgstr "%s MB"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:914
-#, python-format
-msgid "%s GB"
-msgstr "%s GB"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:916
-#, python-format
-msgid "%s TB"
-msgstr "%s TB"
-
-#: env/lib/python3.11/site-packages/django/template/defaultfilters.py:918
-#, python-format
-msgid "%s PB"
-msgstr "%s PB"
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:73
-msgid "p.m."
-msgstr "p.m."
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:74
-msgid "a.m."
-msgstr "a.m."
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:79
-msgid "PM"
-msgstr "PM"
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:80
-msgid "AM"
-msgstr "AM"
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:152
-msgid "midnight"
-msgstr "mitjanit"
-
-#: env/lib/python3.11/site-packages/django/utils/dateformat.py:154
-msgid "noon"
-msgstr "migdia"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:7
-msgid "Monday"
-msgstr "Dilluns"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:8
-msgid "Tuesday"
-msgstr "Dimarts"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:9
-msgid "Wednesday"
-msgstr "Dimecres"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:10
-msgid "Thursday"
-msgstr "Dijous"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:11
-msgid "Friday"
-msgstr "Divendres"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:12
-msgid "Saturday"
-msgstr "Dissabte"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:13
-msgid "Sunday"
-msgstr "Diumenge"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:16
-msgid "Mon"
-msgstr "Dl"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:17
-msgid "Tue"
-msgstr "Dt"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:18
-msgid "Wed"
-msgstr "Dx"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:19
-msgid "Thu"
-msgstr "Dj"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:20
-msgid "Fri"
-msgstr "Dv"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:21
-msgid "Sat"
-msgstr "Ds"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:22
-msgid "Sun"
-msgstr "Dg"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:25
-msgid "January"
-msgstr "Gener"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:26
-msgid "February"
-msgstr "Febrer"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:27
-msgid "March"
-msgstr "Març"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:28
-msgid "April"
-msgstr "Abril"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:29
-msgid "May"
-msgstr "Maig"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:30
-msgid "June"
-msgstr "Juny"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:31
-msgid "July"
-msgstr "Juliol"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:32
-msgid "August"
-msgstr "Agost"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:33
-msgid "September"
-msgstr "Setembre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:34
-msgid "October"
-msgstr "Octubre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:35
-msgid "November"
-msgstr "Novembre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:36
-msgid "December"
-msgstr "Desembre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:39
-msgid "jan"
-msgstr "gen"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:40
-msgid "feb"
-msgstr "feb"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:41
-msgid "mar"
-msgstr "mar"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:42
-msgid "apr"
-msgstr "apr"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:43
-msgid "may"
-msgstr "mai"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:44
-msgid "jun"
-msgstr "jun"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:45
-msgid "jul"
-msgstr "jul"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:46
-msgid "aug"
-msgstr "ago"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:47
-msgid "sep"
-msgstr "set"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:48
-msgid "oct"
-msgstr "oct"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:49
-msgid "nov"
-msgstr "nov"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:50
-msgid "dec"
-msgstr "des"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:53
-msgctxt "abbrev. month"
-msgid "Jan."
-msgstr "Gen."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:54
-msgctxt "abbrev. month"
-msgid "Feb."
-msgstr "Febr."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:55
-msgctxt "abbrev. month"
-msgid "March"
-msgstr "Març"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:56
-msgctxt "abbrev. month"
-msgid "April"
-msgstr "Abril"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:57
-msgctxt "abbrev. month"
-msgid "May"
-msgstr "Maig"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:58
-msgctxt "abbrev. month"
-msgid "June"
-msgstr "Juny"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:59
-msgctxt "abbrev. month"
-msgid "July"
-msgstr "Juliol"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:60
-msgctxt "abbrev. month"
-msgid "Aug."
-msgstr "Ago."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:61
-msgctxt "abbrev. month"
-msgid "Sept."
-msgstr "Sept."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:62
-msgctxt "abbrev. month"
-msgid "Oct."
-msgstr "Oct."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:63
-msgctxt "abbrev. month"
-msgid "Nov."
-msgstr "Nov."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:64
-msgctxt "abbrev. month"
-msgid "Dec."
-msgstr "Des."
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:67
-msgctxt "alt. month"
-msgid "January"
-msgstr "Gener"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:68
-msgctxt "alt. month"
-msgid "February"
-msgstr "Febrer"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:69
-msgctxt "alt. month"
-msgid "March"
-msgstr "Març"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:70
-msgctxt "alt. month"
-msgid "April"
-msgstr "Abril"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:71
-msgctxt "alt. month"
-msgid "May"
-msgstr "Maig"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:72
-msgctxt "alt. month"
-msgid "June"
-msgstr "Juny"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:73
-msgctxt "alt. month"
-msgid "July"
-msgstr "Juliol"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:74
-msgctxt "alt. month"
-msgid "August"
-msgstr "Agost"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:75
-msgctxt "alt. month"
-msgid "September"
-msgstr "Setembre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:76
-msgctxt "alt. month"
-msgid "October"
-msgstr "Octubre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:77
-msgctxt "alt. month"
-msgid "November"
-msgstr "Novembre"
-
-#: env/lib/python3.11/site-packages/django/utils/dates.py:78
-msgctxt "alt. month"
-msgid "December"
-msgstr "Desembre"
-
-#: env/lib/python3.11/site-packages/django/utils/ipv6.py:8
-msgid "This is not a valid IPv6 address."
-msgstr "Aquesta adreça IPv6 no és vàlida."
-
-#: env/lib/python3.11/site-packages/django/utils/text.py:78
-#, python-format
-msgctxt "String to return when truncating text"
-msgid "%(truncated_text)s…"
-msgstr "%(truncated_text)s…"
-
-#: env/lib/python3.11/site-packages/django/utils/text.py:254
-msgid "or"
-msgstr "o"
-
-#. Translators: This string is used as a separator between list elements
-#: env/lib/python3.11/site-packages/django/utils/text.py:273
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:135
-msgid ", "
-msgstr ", "
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:8
-#, python-format
-msgid "%(num)d year"
-msgid_plural "%(num)d years"
-msgstr[0] "%(num)d any"
-msgstr[1] "%(num)d anys"
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:9
-#, python-format
-msgid "%(num)d month"
-msgid_plural "%(num)d months"
-msgstr[0] "%(num)d mes"
-msgstr[1] "%(num)d mesos"
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:10
-#, python-format
-msgid "%(num)d week"
-msgid_plural "%(num)d weeks"
-msgstr[0] "%(num)d setmana"
-msgstr[1] "%(num)d setmanes"
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:11
-#, python-format
-msgid "%(num)d day"
-msgid_plural "%(num)d days"
-msgstr[0] "%(num)d dia"
-msgstr[1] "%(num)d dies"
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:12
-#, python-format
-msgid "%(num)d hour"
-msgid_plural "%(num)d hours"
-msgstr[0] "%(num)d hora"
-msgstr[1] "%(num)d hores"
-
-#: env/lib/python3.11/site-packages/django/utils/timesince.py:13
-#, python-format
-msgid "%(num)d minute"
-msgid_plural "%(num)d minutes"
-msgstr[0] "%(num)d minut"
-msgstr[1] "%(num)d minuts"
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:111
-msgid "Forbidden"
-msgstr "Prohibit"
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:112
-msgid "CSRF verification failed. Request aborted."
-msgstr "La verificació CSRF ha fallat. Sol·licitud avortada."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:116
-msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer "
-"header” to be sent by your web browser, but none was sent. This header is "
-"required for security reasons, to ensure that your browser is not being "
-"hijacked by third parties."
-msgstr ""
-"Esteu veient aquest missatge perquè aquest lloc HTTPS requereix que el "
-"vostre navegador web enviï una “Referer header”, però no se n'ha enviat cap. "
-"Aquesta capçalera és necessària per motius de seguretat, per garantir que el "
-"vostre navegador no sigui segrestat per tercers."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:122
-msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-"
-"enable them, at least for this site, or for HTTPS connections, or for “same-"
-"origin” requests."
-msgstr ""
-"Si heu configurat el vostre navegador per desactivar les capçaleres "
-"\"Referer\", si us plau, torneu a habilitar-les, almenys per a aquest lloc, "
-"o per a connexions HTTPS, o per a sol·licituds del \"mateix origen\"."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:127
-msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
-"rel=\"noreferrer\" …> for links to third-party sites."
-msgstr ""
-"Si utilitzeu el <meta name=\"referrer\" content=\"no-referrer\"> etiqueteu o "
-"inclogueu la capçalera \"Política de referència: no-referrer\", traieu-les. "
-"La protecció CSRF requereix que la capçalera \"Referer\" faci una "
-"comprovació estricta de referència. Si us preocupa la privadesa, utilitzeu "
-"alternatives, com ara <a rel=\"noreferrer\" …> enllaços a llocs de tercers."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:136
-msgid ""
-"You are seeing this message because this site requires a CSRF cookie when "
-"submitting forms. This cookie is required for security reasons, to ensure "
-"that your browser is not being hijacked by third parties."
-msgstr ""
-"Esteu veient aquest missatge perquè aquest lloc requereix una galeta CSRF a "
-"l'hora d'enviar formularis. Aquesta galeta és necessària per motius de "
-"seguretat, per garantir que el vostre navegador no sigui segrestat per "
-"tercers."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:142
-msgid ""
-"If you have configured your browser to disable cookies, please re-enable "
-"them, at least for this site, or for “same-origin” requests."
-msgstr ""
-"Si heu configurat el vostre navegador per desactivar les galetes, torneu-les "
-"a habilitar, almenys per a aquest lloc, o per a sol·licituds del \"mateix "
-"origen\"."
-
-#: env/lib/python3.11/site-packages/django/views/csrf.py:148
-msgid "More information is available with DEBUG=True."
-msgstr "Hi ha més informació disponible amb DEBUG=True."
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:44
-msgid "No year specified"
-msgstr "Cap any especificat"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:64
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:115
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:214
-msgid "Date out of range"
-msgstr "Data fora d'interval"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:94
-msgid "No month specified"
-msgstr "Sense mes especificat"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:147
-msgid "No day specified"
-msgstr "Sense dia especificat"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:194
-msgid "No week specified"
-msgstr "Cap setmana especificada"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:349
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:380
-#, python-format
-msgid "No %(verbose_name_plural)s available"
-msgstr "No hi ha %(verbose_name_plural)s disponible"
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:652
-#, python-format
-msgid ""
-"Future %(verbose_name_plural)s not available because %(class_name)s."
-"allow_future is False."
-msgstr ""
-"Futur %(verbose_name_plural)s no disponible perquè %(class_name)s."
-"allow_future és fals."
-
-#: env/lib/python3.11/site-packages/django/views/generic/dates.py:692
-#, python-format
-msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
-msgstr ""
-"La cadena de data \"%(datestr)s\" no és vàlida amb el format \"%(format)s\""
-
-#: env/lib/python3.11/site-packages/django/views/generic/detail.py:56
-#, python-format
-msgid "No %(verbose_name)s found matching the query"
-msgstr "No s'ha trobat cap %(verbose_name)s que coincideixi amb la consulta"
-
-#: env/lib/python3.11/site-packages/django/views/generic/list.py:70
-msgid "Page is not “last”, nor can it be converted to an int."
-msgstr "La pàgina no és \"última\", ni es pot convertir a int."
-
-#: env/lib/python3.11/site-packages/django/views/generic/list.py:77
-#, python-format
-msgid "Invalid page (%(page_number)s): %(message)s"
-msgstr "Pàgina no vàlida (%(page_number)s): %(message)s"
-
-#: env/lib/python3.11/site-packages/django/views/generic/list.py:169
-#, python-format
-msgid "Empty list and “%(class_name)s.allow_empty” is False."
-msgstr "Llista buida i \"%(class_name)s.allow_empty\" és Fals."
-
-#: env/lib/python3.11/site-packages/django/views/static.py:38
-msgid "Directory indexes are not allowed here."
-msgstr "Els índexs de directoris no es permeten aquí."
-
-#: env/lib/python3.11/site-packages/django/views/static.py:40
-#, python-format
-msgid "“%(path)s” does not exist"
-msgstr "“%(path)s” no existeix"
-
-#: env/lib/python3.11/site-packages/django/views/static.py:79
-#, python-format
-msgid "Index of %(directory)s"
-msgstr "Índex de %(directory)s"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:7
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:220
-msgid "The install worked successfully! Congratulations!"
-msgstr "La instal·lació ha funcionat correctament! Felicitats!"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:206
-#, python-format
-msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
-msgstr ""
-"Consulta <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">les notes de la versió</a> de Django "
-"%(version)s"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:221
-#, python-format
-msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
-msgstr ""
-"Esteu veient aquesta pàgina perquè <a href=\"https://docs.djangoproject.com/"
-"en/%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> és al vostre fitxer de configuració i no heu "
-"configurat cap URL."
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:229
-msgid "Django Documentation"
-msgstr "Documentació de Django"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:230
-msgid "Topics, references, &amp; how-to’s"
-msgstr "Temes, referències, &amp; com fer-ho"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:238
-msgid "Tutorial: A Polling App"
-msgstr "Tutorial: una aplicació de votació"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:239
-msgid "Get started with Django"
-msgstr "Comença amb Django"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:247
-msgid "Django Community"
-msgstr "Comunitat Django"
-
-#: env/lib/python3.11/site-packages/django/views/templates/default_urlconf.html:248
-msgid "Connect, get help, or contribute"
-msgstr "Connecteu-vos, obteniu ajuda o contribuïu"
-
-#: env/lib/python3.11/site-packages/django_bootstrap5/components.py:26
-msgid "close"
-msgstr "tanca"
-
-#: idhub/admin/forms.py:26
-msgid "Accept terms and conditions of the service"
-msgstr "Acceptar els termes i condicions del servei"
-
-#: idhub/admin/forms.py:53
-msgid "Key for encrypt the secrets of all system"
-msgstr "Clau per xifrar els secrets de tot el sistema"
-
-#: idhub/admin/forms.py:69
-msgid "Key no valid!"
-msgstr "Clau no vàlida!"
-
-#: idhub/admin/forms.py:106 idhub/user/forms.py:41
-msgid "I read and accepted the"
-msgstr "Vaig llegir i acceptar el"
-
-#: idhub/admin/forms.py:113 idhub/user/forms.py:48
-msgid "Privacy policy"
-msgstr "Política de privadesa"
-
-#: idhub/admin/forms.py:118 idhub/user/forms.py:53
-msgid "Legal policy"
-msgstr "Política legal"
-
-#: idhub/admin/forms.py:123 idhub/user/forms.py:58
-msgid "Cookies policy"
-msgstr "Política de galetes"
-
-#: idhub/admin/forms.py:147 idhub/user/forms.py:82
-msgid "Did"
-msgstr "DID"
-
-#: idhub/admin/forms.py:149
-msgid "Signature with Eidas1"
-msgstr "Signatura amb Eidas1"
-
-#: idhub/admin/forms.py:153 idhub/models.py:490
-msgid "Schema"
-msgstr "Esquema"
-
-#: idhub/admin/forms.py:154
-msgid "File to import"
-msgstr "Fitxer a importar"
-
-#: idhub/admin/forms.py:168
-msgid "Please choose a data schema ..."
-msgstr "Trieu un esquema de dades …"
-
-#: idhub/admin/forms.py:189
-msgid "Did not valid!"
-msgstr "DID no vàlid!"
-
-#: idhub/admin/forms.py:209
-msgid "Schema is not valid!"
-msgstr "L'esquema no és vàlid!"
-
-#: idhub/admin/forms.py:215
-msgid "Schema not valid!"
-msgstr "L'esquema no és vàlid!"
-
-#: idhub/admin/forms.py:245
-msgid "This File does not correspond to this scheme!"
-msgstr "Aquest fitxer no correspon a aquest esquema!"
-
-#: idhub/admin/forms.py:272
-msgid "The file you try to import is empty!"
-msgstr "El fitxer que intenteu importar està buit!"
-
-#: idhub/admin/forms.py:356
-msgid "File template"
-msgstr "Plantilla d'arxiu"
-
-#: idhub/admin/forms.py:377 idhub/admin/forms.py:391 idhub/admin/forms.py:400
-msgid "This membership already exists!"
-msgstr "Aquesta subscripció ja existeix!"
-
-#: idhub/admin/forms.py:382
-msgid "The end date is less than the start date"
-msgstr "La data de finalització és inferior a la data d'inici"
-
-#: idhub/admin/forms.py:429
-msgid "Is not possible to have a duplicate role"
-msgstr "No és possible tenir una funció duplicada"
-
-#: idhub/admin/forms.py:436 idhub/models.py:438
-msgid "Label"
-msgstr "Etiqueta"
-
-#: idhub/admin/forms.py:438
-msgid "Password of certificate"
-msgstr "Contrasenya del certificat"
-
-#: idhub/admin/forms.py:441
-msgid "File import"
-msgstr "Importa fitxer"
-
-#: idhub/admin/forms.py:457 idhub/admin/forms.py:462
-msgid "Is not a valid certificate"
-msgstr "No és un certificat vàlid"
-
-#: idhub/admin/tables.py:37 idhub/admin/tables.py:81 idhub/admin/tables.py:168
-#: idhub/admin/tables.py:237 idhub/user/tables.py:128
-#: oidc4vp/templates/credentials_presentation.html:52
-msgid "View"
-msgstr "Vista"
-
-#: idhub/admin/tables.py:45 idhub/templates/idhub/admin/user.html:71
-#: idhub/templates/idhub/admin/user_edit.html:41 idhub/user/tables.py:35
-msgid "Membership"
-msgstr "Afiliació"
-
-#: idhub/admin/tables.py:46 idhub/templates/idhub/admin/user.html:96
-#: idhub/templates/idhub/admin/user_edit.html:73 idhub/user/tables.py:53
-msgid "Role"
-msgstr "Càrrec"
-
-#: idhub/admin/tables.py:114 idhub/templates/idhub/admin/user_edit.html:54
-#: idhub/templates/idhub/admin/user_edit.html:86 idhub/user/tables.py:97
+#: idhub/admin/tables.py:130 idhub/templates/idhub/admin/user_edit.html:54
+#: idhub/templates/idhub/admin/user_edit.html:86 idhub/user/tables.py:98
 msgid "Edit"
 msgstr "Editar"
 
-#: idhub/admin/tables.py:163 idhub/models.py:434 idhub/models.py:598
+#: idhub/admin/tables.py:179 idhub/models.py:472 idhub/models.py:799
 #: oidc4vp/templates/credentials_presentation.html:38
 msgid "Type"
 msgstr "Tipus"
 
-#: idhub/admin/tables.py:165 idhub/user/tables.py:126
+#: idhub/admin/tables.py:181 idhub/user/tables.py:140
 #: oidc4vp/templates/credentials_presentation.html:39
 msgid "Details"
 msgstr "Detalls"
 
-#: idhub/admin/tables.py:166 idhub/models.py:594
+#: idhub/admin/tables.py:182 idhub/models.py:795
 #: oidc4vp/templates/credentials_presentation.html:40
 msgid "Issued"
 msgstr "Emès"
 
-#: idhub/admin/tables.py:219 idhub/models.py:59 idhub/models.py:492
-#: idhub/models.py:786 idhub/user/tables.py:25 idhub/user/tables.py:94
+#: idhub/admin/tables.py:247 idhub/models.py:82 idhub/models.py:655
+#: idhub/models.py:1062 idhub/user/tables.py:26 idhub/user/tables.py:95
 msgid "Date"
 msgstr "Data"
 
-#: idhub/admin/tables.py:254 idhub/models.py:493
+#: idhub/admin/tables.py:248 idhub/models.py:1060
+msgid "File"
+msgstr "Fitxer"
+
+#: idhub/admin/tables.py:265
+msgid "Excel"
+msgstr ""
+
+#: idhub/admin/tables.py:290 idhub/models.py:656 idhub/models.py:785
 msgid "Name"
 msgstr "Name"
 
-#: idhub/admin/tables.py:255 idhub/models.py:60 idhub/models.py:494
-#: idhub/models.py:824 idhub/models.py:832
+#: idhub/admin/tables.py:291 idhub/models.py:83 idhub/models.py:657
+#: idhub/models.py:1100 idhub/models.py:1108
 #: idhub/templates/idhub/admin/user.html:97
-#: idhub/templates/idhub/admin/user_edit.html:74 idhub/user/tables.py:24
-#: idhub/user/tables.py:54
+#: idhub/templates/idhub/admin/user_edit.html:74 idhub/user/tables.py:25
+#: idhub/user/tables.py:55
 msgid "Description"
 msgstr "Descripción"
 
-#: idhub/admin/views.py:61 idhub/templates/idhub/admin/terms_conditions.html:51
+#: idhub/admin/tables.py:326
+msgid "Render"
+msgstr ""
+
+#: idhub/admin/views.py:72 idhub/templates/idhub/admin/terms_conditions.html:51
 #: idhub/templates/idhub/base.html:107
-#: idhub/templates/idhub/user/terms_conditions.html:50 idhub/user/views.py:139
+#: idhub/templates/idhub/user/terms_conditions.html:50 idhub/user/views.py:145
 msgid "Data protection"
 msgstr "Protecció de dades"
 
-#: idhub/admin/views.py:63 idhub/user/views.py:160
+#: idhub/admin/views.py:74 idhub/user/views.py:166
 msgid "Terms and Conditions"
 msgstr "Termes i condicions"
 
-#: idhub/admin/views.py:86 idhub/admin/views.py:88
+#: idhub/admin/views.py:97 idhub/admin/views.py:99
 msgid "Encryption Key"
 msgstr "Clau de xifratge"
 
-#: idhub/admin/views.py:124 idhub/templates/idhub/base.html:85
-#: idhub/templates/idhub/base_admin.html:85 idhub/user/views.py:60
+#: idhub/admin/views.py:135 idhub/templates/idhub/base.html:85
+#: idhub/templates/idhub/base_admin.html:85 idhub/user/views.py:66
 msgid "Dashboard"
 msgstr "Panell de control"
 
-#: idhub/admin/views.py:125 idhub/user/views.py:61
+#: idhub/admin/views.py:136 idhub/user/views.py:67
 msgid "Events"
 msgstr "Esdeveniments"
 
-#: idhub/admin/views.py:162
+#: idhub/admin/views.py:173
 msgid "User management"
 msgstr "Configuració de gestió d'usuaris"
 
-#: idhub/admin/views.py:167
+#: idhub/admin/views.py:178
 msgid "Access control management"
 msgstr "Gestió del control d'accés"
 
-#: idhub/admin/views.py:172 idhub/user/views.py:146 idhub/user/views.py:226
+#: idhub/admin/views.py:183 idhub/admin/views.py:1195 idhub/user/views.py:152
+#: idhub/user/views.py:241 webhook/views.py:162
 msgid "Credential management"
 msgstr "Gestió de credencials"
 
-#: idhub/admin/views.py:177
+#: idhub/admin/views.py:188
 msgid "Template management"
 msgstr "Gestió de plantilles"
 
-#: idhub/admin/views.py:182
+#: idhub/admin/views.py:193
 msgid "Data file management"
 msgstr "Gestió de fitxers de dades"
 
-#: idhub/admin/views.py:188 idhub/templates/idhub/base_admin.html:97
+#: idhub/admin/views.py:199 idhub/templates/idhub/base_admin.html:97
 msgid "View users"
 msgstr "Veure usuaris"
 
-#: idhub/admin/views.py:208
+#: idhub/admin/views.py:219
 msgid "User personal information"
 msgstr "Informació personal de l'usuari"
 
-#: idhub/admin/views.py:233
+#: idhub/admin/views.py:244
 msgid "It is not possible deactivate your account!"
 msgstr "No és possible desactivar el teu compte!"
 
-#: idhub/admin/views.py:258
+#: idhub/admin/views.py:269
 msgid "It is not possible delete your account!"
 msgstr "No és possible esborrar el teu compte!"
 
-#: idhub/admin/views.py:265
+#: idhub/admin/views.py:276
 msgid "Update user"
 msgstr "Actualitza l'usuari"
 
-#: idhub/admin/views.py:294
+#: idhub/admin/views.py:305
 msgid "The account was updated successfully"
 msgstr "El compte s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:303 idhub/templates/idhub/base_admin.html:102
+#: idhub/admin/views.py:314 idhub/templates/idhub/base_admin.html:102
 msgid "Add user"
 msgstr "Afegeix usuari"
 
-#: idhub/admin/views.py:321
+#: idhub/admin/views.py:332
 msgid "The account was created successfully"
 msgstr "El compte s'ha creat correctament"
 
-#: idhub/admin/views.py:340 idhub/admin/views.py:384
+#: idhub/admin/views.py:351 idhub/admin/views.py:395
 msgid "Associate a membership to the user"
 msgstr "Associar una pertinença a l'usuari"
 
-#: idhub/admin/views.py:371 idhub/admin/views.py:462
+#: idhub/admin/views.py:382 idhub/admin/views.py:473
 msgid "Membership created successfully"
 msgstr "Membre creat amb èxit"
 
-#: idhub/admin/views.py:416 idhub/admin/views.py:497
+#: idhub/admin/views.py:427 idhub/admin/views.py:508
 msgid "Membership updated successfully"
 msgstr "Membre s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:432
+#: idhub/admin/views.py:443
 msgid "Is not possible delete your account!"
 msgstr "No és possible eliminar el teu compte!"
 
-#: idhub/admin/views.py:439
+#: idhub/admin/views.py:450
 msgid "Add a user role to access a service"
 msgstr "Afegiu un rol d'usuari per accedir a un servei"
 
-#: idhub/admin/views.py:475
+#: idhub/admin/views.py:486
 msgid "Modify a user role to access a service"
 msgstr "Modificar un rol d'usuari per accedir a un servei"
 
-#: idhub/admin/views.py:524 idhub/templates/idhub/base_admin.html:115
+#: idhub/admin/views.py:535 idhub/templates/idhub/base_admin.html:115
 msgid "Manage roles"
 msgstr "Administrar rols"
 
-#: idhub/admin/views.py:539
+#: idhub/admin/views.py:550
 msgid "Add role"
 msgstr "Afegeix un rol"
 
-#: idhub/admin/views.py:548
+#: idhub/admin/views.py:559
 msgid "Role created successfully"
 msgstr "Rol creat correctament"
 
-#: idhub/admin/views.py:555
+#: idhub/admin/views.py:566
 msgid "Edit role"
 msgstr "Edita rol"
 
-#: idhub/admin/views.py:570
+#: idhub/admin/views.py:581
 msgid "Role updated successfully"
 msgstr "El rol s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:584
+#: idhub/admin/views.py:595
 msgid "Role deleted successfully"
 msgstr "El rol s'ha suprimit correctament"
 
-#: idhub/admin/views.py:592 idhub/templates/idhub/base_admin.html:120
+#: idhub/admin/views.py:603 idhub/templates/idhub/base_admin.html:120
 msgid "Manage services"
 msgstr "Gestionar els serveis"
 
-#: idhub/admin/views.py:606 idhub/templates/idhub/admin/services.html:14
+#: idhub/admin/views.py:617 idhub/templates/idhub/admin/services.html:14
 msgid "Add service"
 msgstr "Afegeix un servei"
 
-#: idhub/admin/views.py:620
+#: idhub/admin/views.py:631
 msgid "Service created successfully"
 msgstr "Servei creat correctament"
 
-#: idhub/admin/views.py:627
+#: idhub/admin/views.py:638
 msgid "Modify service"
 msgstr "Modificar servei"
 
-#: idhub/admin/views.py:647
+#: idhub/admin/views.py:658
 msgid "Service updated successfully"
 msgstr "Servei actualitzat correctament"
 
-#: idhub/admin/views.py:661
+#: idhub/admin/views.py:672
 msgid "Service deleted successfully"
 msgstr "El servei s'ha suprimit correctament"
 
-#: idhub/admin/views.py:669 idhub/templates/idhub/base_admin.html:133
+#: idhub/admin/views.py:680 idhub/templates/idhub/base_admin.html:133
 msgid "View credentials"
 msgstr "Veure credencials"
 
-#: idhub/admin/views.py:683 idhub/user/forms.py:83 idhub/user/tables.py:37
-#: idhub/user/views.py:198
+#: idhub/admin/views.py:694 idhub/user/forms.py:84 idhub/user/tables.py:38
+#: idhub/user/views.py:204
 msgid "Credential"
 msgstr "Credencial"
 
-#: idhub/admin/views.py:728
+#: idhub/admin/views.py:739
 msgid "Credential revoked successfully"
 msgstr "La credencial s'ha revocat correctament"
 
-#: idhub/admin/views.py:746
+#: idhub/admin/views.py:757
 msgid "Credential deleted successfully"
 msgstr "La credencial s'ha suprimit correctament"
 
-#: idhub/admin/views.py:756
-msgid "Manage identities (DID)"
+#: idhub/admin/views.py:767
+#, fuzzy
+#| msgid "Manage identities (DID)"
+msgid "Manage identities"
 msgstr "Gestiona les identitats (DID)"
 
-#: idhub/admin/views.py:776
+#: idhub/admin/views.py:797
 msgid "Add a new organizational identity (DID)"
 msgstr "Afegeix una identitat organitzativa nova (DID)"
 
-#: idhub/admin/views.py:787 idhub/user/views.py:527
+#: idhub/admin/views.py:828
+#, python-format
+msgid "DID could not be created: %(reason)s"
+msgstr ""
+
+#: idhub/admin/views.py:833 idhub/user/views.py:540
 msgid "DID created successfully"
 msgstr "DID creat correctament"
 
-#: idhub/admin/views.py:794 idhub/admin/views.py:813
+#: idhub/admin/views.py:840 idhub/admin/views.py:859
 msgid "Organization Identities (DID)"
 msgstr "Identitats de l'organització (DID)"
 
-#: idhub/admin/views.py:808 idhub/user/views.py:550
+#: idhub/admin/views.py:854 idhub/user/views.py:569
 msgid "DID updated successfully"
 msgstr "DID s'ha actualitzat correctament"
 
-#: idhub/admin/views.py:825 idhub/user/views.py:566
+#: idhub/admin/views.py:871 idhub/user/views.py:585
 msgid "DID delete successfully"
 msgstr "DID s’ha suprimit correctament"
 
-#: idhub/admin/views.py:831 idhub/templates/idhub/base_admin.html:148
+#: idhub/admin/views.py:877 idhub/templates/idhub/base_admin.html:148
 msgid "View org. credentials"
 msgstr "Veure org. credencials"
 
-#: idhub/admin/views.py:838 idhub/templates/idhub/base_admin.html:153
-msgid "Configure credential issuance"
+#: idhub/admin/views.py:884
+#, fuzzy
+#| msgid "Configure credential issuance"
+msgid "Configure identity eIDAS1"
 msgstr "Configura l'emissió de credencials"
 
-#: idhub/admin/views.py:847
-msgid "The credential was imported successfully!"
+#: idhub/admin/views.py:893
+#, fuzzy
+#| msgid "The credential was imported successfully!"
+msgid "The eIDAS1 identity was created successfully!"
 msgstr "La credencial s'ha importat correctament!"
 
-#: idhub/admin/views.py:850
-msgid "Error importing the credential!"
+#: idhub/admin/views.py:896
+#, fuzzy
+#| msgid "Error importing the credential!"
+msgid "Error creating eIDAS1 identity!"
 msgstr "S'ha produït un error en importar la credencial."
 
-#: idhub/admin/views.py:857
+#: idhub/admin/views.py:903
 msgid "View credential templates"
 msgstr "Veure plantilles de credencials"
 
-#: idhub/admin/views.py:898
+#: idhub/admin/views.py:952
+msgid "You cannot download an excel template of this scheme."
+msgstr ""
+
+#: idhub/admin/views.py:953
+msgid "Remember that we have an API to interact with this type of schemes"
+msgstr ""
+
+#: idhub/admin/views.py:970 idhub/templates/idhub/admin/schemas.html:12
 msgid "Upload template"
 msgstr "Carrega la plantilla"
 
-#: idhub/admin/views.py:914
+#: idhub/admin/views.py:986
 msgid "There are some errors in the file"
 msgstr "Hi ha alguns errors al fitxer"
 
-#: idhub/admin/views.py:928
+#: idhub/admin/views.py:1000
 msgid "This template already exists!"
 msgstr "Aquesta plantilla ja existeix!"
 
-#: idhub/admin/views.py:937 idhub/admin/views.py:989
-msgid "This is not a valid schema!"
-msgstr "Aquest no és un esquema vàlid!"
+#: idhub/admin/views.py:1018
+#, fuzzy
+#| msgid "Upload template"
+msgid "Upload Schema"
+msgstr "Carrega la plantilla"
 
-#: idhub/admin/views.py:946
-msgid "Import template"
-msgstr "Importa plantilla"
-
-#: idhub/admin/views.py:976
-msgid "The schema was added sucessfully"
-msgstr "L'esquema s'ha afegit correctament"
-
-#: idhub/admin/views.py:1036
-msgid "Imported data"
-msgstr "Dades importades"
-
-#: idhub/admin/views.py:1050 idhub/admin/views.py:1063
-msgid "Import"
-msgstr "Importa"
-
-#: idhub/admin/views.py:1071
+#: idhub/admin/views.py:1046 idhub/admin/views.py:1164
 msgid "The file was imported successfully!"
 msgstr "El fitxer s'ha importat correctament!"
 
-#: idhub/admin/views.py:1076
+#: idhub/admin/views.py:1049 idhub/admin/views.py:1169
 msgid "Error importing the file!"
 msgstr "S'ha produït un error en importar el fitxer!"
 
-#: idhub/mixins.py:12
+#: idhub/admin/views.py:1056
+msgid "Import template"
+msgstr "Importa plantilla"
+
+#: idhub/admin/views.py:1086
+msgid "The schema was added sucessfully"
+msgstr "L'esquema s'ha afegit correctament"
+
+#: idhub/admin/views.py:1129
+msgid "Imported data"
+msgstr "Dades importades"
+
+#: idhub/admin/views.py:1143 idhub/admin/views.py:1156
+msgid "Import"
+msgstr "Importa"
+
+#: idhub/admin/views.py:1197
+#, fuzzy
+#| msgid "Template management"
+msgid "VCTemplatePDF management"
+msgstr "Gestió de plantilles"
+
+#: idhub/admin/views.py:1217
+#, fuzzy
+#| msgid "Template management"
+msgid "VctemplatePDF management"
+msgstr "Gestió de plantilles"
+
+#: idhub/admin/views.py:1219
+#, fuzzy
+#| msgid "File template"
+msgid "New VctemplatePDF"
+msgstr "Plantilla d'arxiu"
+
+#: idhub/admin/views.py:1259
+msgid "Some thing is wrong with this template"
+msgstr ""
+
+#: idhub/mixins.py:14
 msgid "Permission denied. User is not authenticated"
 msgstr "Permís denegat. L'usuari no està autenticat"
 
-#: idhub/models.py:62 idhub/user/tables.py:23
+#: idhub/mixins.py:112
+msgid "User is not authorized to see admin pages, redirected to user dashboard"
+msgstr ""
+
+#: idhub/models.py:85 idhub/user/tables.py:24
 msgid "Event"
 msgstr "Esdeveniment"
 
-#: idhub/models.py:77
+#: idhub/models.py:100
 #, python-brace-format
 msgid ""
 "The user {username} was registered: name: {first_name}, last name: "
@@ -2030,13 +582,13 @@ msgid ""
 msgstr ""
 "L'usuari {username} estava registrat: nom: {first_name}, cognom: {last_name}"
 
-#: idhub/models.py:89
+#: idhub/models.py:112
 #, python-brace-format
 msgid ""
 "Welcome. You has been registered: name: {first_name}, last name: {last_name}"
 msgstr "Benvingut. Has estat registrat: nom: {first_name}, cognom: {last_name}"
 
-#: idhub/models.py:102
+#: idhub/models.py:125
 #, python-brace-format
 msgid ""
 "The user '{username}' has request the update of the following information: "
@@ -2044,26 +596,26 @@ msgstr ""
 "L'usuari '{username}' ha sol·licitat l'actualització de la informació "
 "següent: "
 
-#: idhub/models.py:113
+#: idhub/models.py:136
 msgid "You have requested the update of the following information: "
 msgstr "Heu sol·licitat l'actualització de la informació següent: "
 
-#: idhub/models.py:150
+#: idhub/models.py:173
 #, python-brace-format
 msgid "The admin has deleted the user: username: {username}"
 msgstr "L'administrador ha suprimit l'usuari: nom d'usuari: {username}"
 
-#: idhub/models.py:160
+#: idhub/models.py:183
 #, python-brace-format
 msgid "New DID with DID-ID: '{did}' created by user '{username}'"
 msgstr "DID nou amb DID-ID: '{did}' creat per l'usuari '{username}'"
 
-#: idhub/models.py:171
+#: idhub/models.py:194
 #, python-brace-format
 msgid "New DID with label: '{label}' and DID-ID: '{did}' was created'"
 msgstr "S'ha creat un DID nou amb l'etiqueta: '{label}' i l'ID-DID: '{did}''"
 
-#: idhub/models.py:183
+#: idhub/models.py:206
 #, python-brace-format
 msgid ""
 "The DID with label '{label}' and DID-ID: '{did}' was deleted from your wallet"
@@ -2071,12 +623,12 @@ msgstr ""
 "El DID amb l'etiqueta \"{label}\" i el DID-ID: \"{did}\" s'ha suprimit de la "
 "vostra cartera"
 
-#: idhub/models.py:195
+#: idhub/models.py:218
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was deleted"
 msgstr "S'ha suprimit la credencial del tipus \"{type}\" i ID: \"{id}\""
 
-#: idhub/models.py:206
+#: idhub/models.py:229
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was deleted from your wallet"
@@ -2084,7 +636,7 @@ msgstr ""
 "La credencial del tipus \"{type}\" i ID: \"{id}\" s'han suprimit de la "
 "vostra cartera"
 
-#: idhub/models.py:218
+#: idhub/models.py:241
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued for user {username}"
@@ -2092,7 +644,7 @@ msgstr ""
 "S'ha emès la credencial del tipus \"{type}\" i ID: \"{id}\" per a l'usuari "
 "{username}"
 
-#: idhub/models.py:230
+#: idhub/models.py:253
 #, python-brace-format
 msgid ""
 "The credential of type '{type}' and ID: '{id}' was issued and stored in your "
@@ -2101,53 +653,53 @@ msgstr ""
 "La credencial del tipus \"{type}\" i ID: \"{id}\" s'ha emès i s'ha "
 "emmagatzemat a la vostra cartera"
 
-#: idhub/models.py:272
+#: idhub/models.py:295
 #, python-brace-format
 msgid "The credential of type '{type}' was enabled for user {username}"
 msgstr ""
 "La credencial del tipus \"{type}\" s'ha habilitat per a l'usuari {username}"
 
-#: idhub/models.py:283
+#: idhub/models.py:306
 #, python-brace-format
 msgid "You can request the '{type}' credential"
 msgstr "Podeu sol·licitar la credencial '{type}'"
 
-#: idhub/models.py:294
+#: idhub/models.py:317
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked for "
 msgstr "S'ha revocat la credencial del tipus \"{type}\" i ID: \"{id}\" per "
 
-#: idhub/models.py:305
+#: idhub/models.py:328
 #, python-brace-format
 msgid "The credential of type '{type}' and ID: '{id}' was revoked by admin"
 msgstr ""
 "L'administrador ha revocat la credencial del tipus \"{type}\" i ID: \"{id}\""
 
-#: idhub/models.py:317
+#: idhub/models.py:340
 msgid "A new role was created by admin"
 msgstr "Un nou rol va ser creat per l'administrador"
 
-#: idhub/models.py:325
+#: idhub/models.py:348
 msgid "The role was modified by admin"
 msgstr "El rol va ser modificat per l'administrador"
 
-#: idhub/models.py:333
+#: idhub/models.py:356
 msgid "The role was removed by admin"
 msgstr "L'administrador ha eliminat el rol"
 
-#: idhub/models.py:341
+#: idhub/models.py:364
 msgid "A new service was created by admin"
 msgstr "Un nou servei ha estat creat per l'administrador"
 
-#: idhub/models.py:349
+#: idhub/models.py:372
 msgid "The service was modified by admin"
 msgstr "El servei ha estat modificat per l'administrador"
 
-#: idhub/models.py:357
+#: idhub/models.py:380
 msgid "The service was removed by admin"
 msgstr "El servei va ser eliminat per l'administrador"
 
-#: idhub/models.py:365
+#: idhub/models.py:388
 #, python-brace-format
 msgid ""
 "New Organisational DID with label: '{label}' and DID-ID: '{did}' was created"
@@ -2155,7 +707,7 @@ msgstr ""
 "S'ha creat un DID organitzatiu nou amb l'etiqueta: '{label}' i l'ID-DID: "
 "'{did}'"
 
-#: idhub/models.py:376
+#: idhub/models.py:399
 #, python-brace-format
 msgid ""
 "Organisational DID with label: '{label}' and DID-ID: '{did}' was removed"
@@ -2163,81 +715,93 @@ msgstr ""
 "S'ha eliminat el DID de l'organització amb l'etiqueta \"{label}\" i l'ID-"
 "DID: \"{did}\""
 
-#: idhub/models.py:593
+#: idhub/models.py:659
+#, fuzzy
+#| msgid "Continue"
+msgid "Context"
+msgstr "Continua"
+
+#: idhub/models.py:794
 msgid "Enabled"
 msgstr "Habilitat"
 
-#: idhub/models.py:595
+#: idhub/models.py:796
 msgid "Revoked"
 msgstr "Revocat"
 
-#: idhub/models.py:596
+#: idhub/models.py:797
 msgid "Expired"
 msgstr "Caducat"
 
-#: idhub/models.py:602
+#: idhub/models.py:803
 msgid "Issued on"
 msgstr "Emès a"
 
-#: idhub/models.py:607 idhub/templates/idhub/admin/issue_credentials.html:46
-#: idhub/templates/idhub/user/credential.html:57
+#: idhub/models.py:808 idhub/templates/idhub/admin/issue_credentials.html:46
+#: idhub/templates/idhub/user/credential.html:62
 msgid "Status"
 msgstr "Status"
 
-#: idhub/models.py:615
+#: idhub/models.py:816
 msgid "User"
 msgstr "Usuaris"
 
-#: idhub/models.py:785
+#: idhub/models.py:944
+#, fuzzy
+#| msgid "The credential does not exist!"
+msgid "The credential is not valid"
+msgstr "La credencial no existeix!"
+
+#: idhub/models.py:1061
 msgid "Success"
 msgstr "Ha tingut èxit"
 
-#: idhub/models.py:794
+#: idhub/models.py:1070
 msgid "Beneficiary"
 msgstr "Beneficiari"
 
-#: idhub/models.py:795
+#: idhub/models.py:1071
 msgid "Employee"
 msgstr "Empleat"
 
-#: idhub/models.py:796
+#: idhub/models.py:1072
 msgid "Member"
 msgstr "Membre"
 
-#: idhub/models.py:798
+#: idhub/models.py:1074
 msgid "Type of membership"
 msgstr "Tipus de pertinença"
 
-#: idhub/models.py:800
+#: idhub/models.py:1076
 msgid "Start date"
 msgstr "Data d'inici"
 
-#: idhub/models.py:801
+#: idhub/models.py:1077
 msgid "What date did the membership start?"
 msgstr "Quina data va començar la subscripció?"
 
-#: idhub/models.py:806
+#: idhub/models.py:1082
 msgid "End date"
 msgstr "Data final"
 
-#: idhub/models.py:807
+#: idhub/models.py:1083
 msgid "What date will the membership end?"
 msgstr "Quina data finalitzarà la subscripció?"
 
-#: idhub/models.py:823
+#: idhub/models.py:1099
 msgid "name"
 msgstr "nom"
 
-#: idhub/models.py:831
+#: idhub/models.py:1107
 msgid "Domain"
 msgstr "Domini"
 
-#: idhub/models.py:840
+#: idhub/models.py:1116
 msgid "None"
 msgstr "Sense"
 
-#: idhub/models.py:854 idhub/templates/idhub/admin/user.html:98
-#: idhub/templates/idhub/admin/user_edit.html:75 idhub/user/tables.py:55
+#: idhub/models.py:1130 idhub/templates/idhub/admin/user.html:98
+#: idhub/templates/idhub/admin/user_edit.html:75 idhub/user/tables.py:56
 msgid "Service"
 msgstr "Servei"
 
@@ -2268,8 +832,6 @@ msgstr "Si us plau, aneu a la pàgina següent"
 #: idhub/templates/auth/2fadmin_email.txt:10
 #: idhub/templates/auth/password_reset_email.html:23
 #: idhub/templates/auth/password_reset_email.txt:10
-#: idhub/templates/idhub/admin/registration/activate_user_email.html:24
-#: idhub/templates/idhub/admin/registration/activate_user_email.txt:15
 msgid "Thanks for using our site!"
 msgstr "Gràcies per utilitzar el nostre lloc!"
 
@@ -2300,11 +862,11 @@ msgstr "Entra"
 msgid "Forgot your password? Click here to recover"
 msgstr "Has oblidat la teva contrasenya? Feu clic aquí per recuperar-la"
 
-#: idhub/templates/auth/login_base.html:101
+#: idhub/templates/auth/login_base.html:103
 msgid "Forgot your password?"
 msgstr "Heu oblidat la contrasenya?"
 
-#: idhub/templates/auth/login_base.html:107
+#: idhub/templates/auth/login_base.html:109
 #, python-format
 msgid ""
 "Send an email to <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
@@ -2339,7 +901,7 @@ msgstr "S'ha completat la reinicialització de la contrasenya"
 msgid "Your password has been set. You may go ahead and log in now."
 msgstr "S'ha establert la vostra contrasenya. Ara podeu entrar."
 
-#: idhub/templates/auth/password_reset_complete.html:11 idhub/views.py:28
+#: idhub/templates/auth/password_reset_complete.html:11 idhub/views.py:35
 msgid "Login"
 msgstr "Inicia la sessió"
 
@@ -2417,56 +979,69 @@ msgid "Password reset on %(site_name)s"
 msgstr "Restabliment de la contrasenya a %(site_name)s"
 
 #: idhub/templates/idhub/admin/did_register.html:29
-#: idhub/templates/idhub/admin/dids.html:58
+#: idhub/templates/idhub/admin/dids.html:56
 #: idhub/templates/idhub/admin/import_add.html:27
 #: idhub/templates/idhub/admin/issue_credentials.html:66
 #: idhub/templates/idhub/admin/issue_credentials.html:84
+#: idhub/templates/idhub/admin/new_template_pdf.html:29
 #: idhub/templates/idhub/admin/people_membership_register.html:29
 #: idhub/templates/idhub/admin/people_register.html:25
 #: idhub/templates/idhub/admin/people_rol_register.html:29
 #: idhub/templates/idhub/admin/rol_register.html:29
 #: idhub/templates/idhub/admin/schemas.html:28
 #: idhub/templates/idhub/admin/schemas_new.html:27
+#: idhub/templates/idhub/admin/schemas_upload.html:39
+#: idhub/templates/idhub/admin/schemas_upload.html:52
 #: idhub/templates/idhub/admin/service_register.html:29
 #: idhub/templates/idhub/admin/user.html:128
 #: idhub/templates/idhub/admin/user_edit.html:27
-#: idhub/templates/idhub/admin/wallet_issues.html:27
+#: idhub/templates/idhub/admin/wallet_eidas1.html:27
 #: idhub/templates/idhub/user/credentials_presentation.html:30
 #: idhub/templates/idhub/user/credentials_request.html:30
 #: idhub/templates/idhub/user/did_register.html:29
 #: idhub/templates/idhub/user/dids.html:27
 #: oidc4vp/templates/credentials_presentation.html:68
-#: promotion/templates/select_wallet_somconnexio.html:552
-#: promotion/templates/somconnexio_contract-original.html:553
 #: promotion/templates/somconnexio_contract.html:68
+#: webhook/templates/new_token.html:29
 msgid "Cancel"
 msgstr "Cancel·lar"
 
 #: idhub/templates/idhub/admin/did_register.html:30
 #: idhub/templates/idhub/admin/encryption_key.html:29
 #: idhub/templates/idhub/admin/import_add.html:28
+#: idhub/templates/idhub/admin/new_template_pdf.html:30
 #: idhub/templates/idhub/admin/people_membership_register.html:30
 #: idhub/templates/idhub/admin/people_register.html:26
 #: idhub/templates/idhub/admin/people_rol_register.html:30
 #: idhub/templates/idhub/admin/rol_register.html:30
 #: idhub/templates/idhub/admin/schemas_new.html:28
+#: idhub/templates/idhub/admin/schemas_upload.html:40
+#: idhub/templates/idhub/admin/schemas_upload.html:53
 #: idhub/templates/idhub/admin/service_register.html:30
 #: idhub/templates/idhub/admin/user_edit.html:28
 #: idhub/templates/idhub/user/did_register.html:30
-#: promotion/templates/select_wallet_somconnexio.html:553
+#: webhook/templates/new_token.html:30
 msgid "Save"
 msgstr "Desar"
 
-#: idhub/templates/idhub/admin/dids.html:40
-msgid "Add identity"
+#: idhub/templates/idhub/admin/dids.html:19
+#, fuzzy
+#| msgid "Add identity"
+msgid "Add DID identity"
 msgstr "Afegeix identitat"
 
-#: idhub/templates/idhub/admin/dids.html:51
+#: idhub/templates/idhub/admin/dids.html:33
+#, fuzzy
+#| msgid "Add identity"
+msgid "Add identity eIDAS1"
+msgstr "Afegeix identitat"
+
+#: idhub/templates/idhub/admin/dids.html:49
 #: idhub/templates/idhub/user/dids.html:20
 msgid "Delete DID"
 msgstr "Suprimeix DID"
 
-#: idhub/templates/idhub/admin/dids.html:55
+#: idhub/templates/idhub/admin/dids.html:53
 #: idhub/templates/idhub/user/dids.html:24
 msgid "Are you sure that you want delete this DID?"
 msgstr "Esteu segur que voleu suprimir aquest DID?"
@@ -2476,7 +1051,7 @@ msgid "Import data"
 msgstr "Importa les dades"
 
 #: idhub/templates/idhub/admin/issue_credentials.html:14
-#: idhub/templates/idhub/user/credential.html:26
+#: idhub/templates/idhub/user/credential.html:28
 msgid "Download as JSON"
 msgstr "Descarrega com a JSON"
 
@@ -2486,7 +1061,7 @@ msgid "Revoke"
 msgstr "Revoca"
 
 #: idhub/templates/idhub/admin/issue_credentials.html:38
-#: idhub/templates/idhub/user/credential.html:49
+#: idhub/templates/idhub/user/credential.html:54
 msgid "Issuance date"
 msgstr "Data d'emissió"
 
@@ -2507,7 +1082,6 @@ msgid "Are you sure that you want delete this Credential?"
 msgstr "Esteu segur que voleu suprimir aquesta credencial?"
 
 #: idhub/templates/idhub/admin/registration/activate_user_email.html:2
-#: idhub/templates/idhub/admin/registration/activate_user_subject.txt:2
 msgid "IdHub"
 msgstr "IdHub"
 
@@ -2531,29 +1105,31 @@ msgstr "El teu nom d'usuari és:"
 msgid "Please go to the following page and choose a password:"
 msgstr "Aneu a la pàgina següent i trieu una contrasenya:"
 
-#: idhub/templates/idhub/admin/registration/activate_user_email.html:28
-#: idhub/templates/idhub/admin/registration/activate_user_email.txt:17
+#: idhub/templates/idhub/admin/registration/activate_user_email.html:24
 #, python-format
-msgid "The %(site)s team"
-msgstr "L'equip de %(site)s"
+msgid "Signed by %(site)s"
+msgstr ""
 
 #: idhub/templates/idhub/admin/registration/activate_user_email.txt:3
 msgid "Idhub"
 msgstr "Idhub"
 
-#: idhub/templates/idhub/admin/registration/activate_user_subject.txt:3
-#, python-format
-msgid "User activation on %(site)s"
+#: idhub/templates/idhub/admin/registration/activate_user_email.txt:15
+#, fuzzy, python-format
+#| msgid "The %(site)s team"
+msgid "Signed by %(site)s team"
+msgstr "L'equip de %(site)s"
+
+#: idhub/templates/idhub/admin/registration/activate_user_subject.txt:2
+#, fuzzy, python-format
+#| msgid "User activation on %(site)s"
+msgid "User activation on IdHub %(site)s"
 msgstr "Activació d'usuari a %(site)s"
 
 #: idhub/templates/idhub/admin/roles.html:14
 #: idhub/templates/idhub/admin/user_edit.html:93
 msgid "Add Role"
 msgstr "Afegeix un rol"
-
-#: idhub/templates/idhub/admin/schemas.html:12
-msgid "Add template"
-msgstr "Afegeix plantilla"
 
 #: idhub/templates/idhub/admin/schemas.html:21
 msgid "Delete template"
@@ -2563,13 +1139,39 @@ msgstr "Suprimeix la plantilla"
 msgid "Are you sure that you want delete this template?"
 msgstr "Segur que voleu suprimir aquesta plantilla?"
 
-#: idhub/templates/idhub/admin/schemas_import.html:15
+#: idhub/templates/idhub/admin/schemas_enable.html:15
 msgid "Available templates"
 msgstr "Plantilles disponibles"
 
-#: idhub/templates/idhub/admin/schemas_import.html:23
+#: idhub/templates/idhub/admin/schemas_enable.html:24
 msgid "Add"
 msgstr "Afegeix"
+
+#: idhub/templates/idhub/admin/schemas_enable.html:29
+msgid "All templates are enabled"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas_upload.html:20
+#, fuzzy
+#| msgid "Credential"
+msgid "Enable Credential Type"
+msgstr "Credencial"
+
+#: idhub/templates/idhub/admin/schemas_upload.html:23
+#: idhub/templates/idhub/admin/schemas_upload.html:33
+msgid "Enable from File"
+msgstr ""
+
+#: idhub/templates/idhub/admin/schemas_upload.html:28
+#: idhub/templates/idhub/admin/schemas_upload.html:46
+msgid "Enable from URL"
+msgstr ""
+
+#: idhub/templates/idhub/admin/templates_pdf.html:13
+#, fuzzy
+#| msgid "Upload template"
+msgid "Upload new template"
+msgstr "Carrega la plantilla"
 
 #: idhub/templates/idhub/admin/terms_conditions.html:43
 #: idhub/templates/idhub/user/terms_conditions.html:42
@@ -2596,6 +1198,16 @@ msgstr ""
 "termes i condicions.</p>\n"
 "      "
 
+#: idhub/templates/idhub/admin/terms_conditions.html:62
+#: idhub/templates/idhub/user/terms_conditions.html:62
+msgid "No"
+msgstr "No"
+
+#: idhub/templates/idhub/admin/terms_conditions.html:63
+#: idhub/templates/idhub/user/terms_conditions.html:63
+msgid "Yes"
+msgstr "Yes"
+
 #: idhub/templates/idhub/admin/user.html:13
 msgid "Modify"
 msgstr "Modifica"
@@ -2617,6 +1229,10 @@ msgstr "Nom"
 #: idhub_auth/models.py:51
 msgid "Last name"
 msgstr "Cognoms"
+
+#: idhub/templates/idhub/admin/user.html:40 idhub_auth/models.py:44
+msgid "Email address"
+msgstr "Adreça de correu electrònic"
 
 #: idhub/templates/idhub/admin/user.html:49
 msgid "Is Admin"
@@ -2644,7 +1260,7 @@ msgstr "Esteu segur que voleu suprimir aquest usuari?"
 msgid "Add membership"
 msgstr "Afegeix membres"
 
-#: idhub/templates/idhub/admin/wallet_issues.html:28
+#: idhub/templates/idhub/admin/wallet_eidas1.html:28
 msgid "Upload"
 msgstr "Pujada"
 
@@ -2656,17 +1272,17 @@ msgstr "La meva informació"
 msgid "My personal information"
 msgstr "La meva informació personal"
 
-#: idhub/templates/idhub/base.html:102 idhub/user/views.py:128
+#: idhub/templates/idhub/base.html:102 idhub/user/views.py:134
 msgid "My roles"
 msgstr "Els meus rols"
 
-#: idhub/templates/idhub/base.html:115 idhub/user/views.py:53
+#: idhub/templates/idhub/base.html:115 idhub/user/views.py:59
 #: oidc4vp/views.py:32
 msgid "My wallet"
 msgstr "La meva cartera"
 
-#: idhub/templates/idhub/base.html:120 idhub/user/views.py:497
-#: idhub/user/views.py:536 idhub/user/views.py:555
+#: idhub/templates/idhub/base.html:120 idhub/user/views.py:496
+#: idhub/user/views.py:551 idhub/user/views.py:574 idhub/user/views.py:591
 msgid "Identities (DIDs)"
 msgstr "Identitats (DID)"
 
@@ -2699,14 +1315,26 @@ msgid "Organization's wallet"
 msgstr "Cartera de l'organització"
 
 #: idhub/templates/idhub/base_admin.html:143
-msgid "Manage Identities (DIDs)"
+#, fuzzy
+#| msgid "Manage Identities (DIDs)"
+msgid "Manage Identities"
 msgstr "Gestionar identitats (DID)"
 
-#: idhub/templates/idhub/base_admin.html:163
+#: idhub/templates/idhub/base_admin.html:155
+msgid "Webhook Tokens"
+msgstr ""
+
+#: idhub/templates/idhub/base_admin.html:160
+#, fuzzy
+#| msgid "Templates"
+msgid "Templates PDF"
+msgstr "Plantilles"
+
+#: idhub/templates/idhub/base_admin.html:168
 msgid "Templates"
 msgstr "Plantilles"
 
-#: idhub/templates/idhub/base_admin.html:169
+#: idhub/templates/idhub/base_admin.html:174
 msgid "Data"
 msgstr "Dades"
 
@@ -2719,16 +1347,28 @@ msgid "Next"
 msgstr "Següent"
 
 #: idhub/templates/idhub/user/credential.html:15
-msgid "Download as PDF (Catalan)"
-msgstr "Descarregar com a PDF (català)"
+#, fuzzy
+#| msgid "Download as JSON"
+msgid "Download as PDF"
+msgstr "Descarrega com a JSON"
 
-#: idhub/templates/idhub/user/credential.html:18
-msgid "Download as PDF (Spanish)"
-msgstr "Descarregar com a PDF (castellà)"
+#: idhub/templates/idhub/user/credential.html:20
+msgid "Publish to DLT"
+msgstr ""
 
-#: idhub/templates/idhub/user/credential.html:29
+#: idhub/templates/idhub/user/credential.html:31
 msgid "Request credential"
 msgstr "Sol·licita credencial"
+
+#: idhub/templates/idhub/user/credential.html:37
+#, fuzzy
+#| msgid "Credential request"
+msgid "Credential Subject Properties"
+msgstr "Sol·licitar una credencial"
+
+#: idhub/templates/idhub/user/credential.html:73
+msgid "Secrets"
+msgstr ""
 
 #: idhub/templates/idhub/user/credentials_presentation.html:31
 msgid "Send"
@@ -2743,7 +1383,9 @@ msgid "Request"
 msgstr "Sol·licitud"
 
 #: idhub/templates/idhub/user/credentials_request.html:36
-msgid "Sorry no there are credentials enabled"
+#, fuzzy
+#| msgid "Sorry no there are credentials enabled"
+msgid "Sorry, there are no pending credentials enabled"
 msgstr "Ho sento, no hi ha credencials activades"
 
 #: idhub/templates/idhub/user/dids.html:12
@@ -2783,54 +1425,72 @@ msgstr "Poseu-vos en contacte amb l'administrador per obrir el servei."
 msgid "Organization"
 msgstr "Organització"
 
-#: idhub/user/views.py:48
+#: idhub/user/views.py:54
 msgid "My profile"
 msgstr "El meu perfil"
 
-#: idhub/user/views.py:92
+#: idhub/user/views.py:98
 msgid "My personal data"
 msgstr "Les meves dades personals"
 
-#: idhub/user/views.py:158
+#: idhub/user/views.py:164
 msgid "Data Protection"
 msgstr "Protecció de dades"
 
-#: idhub/user/views.py:183
+#: idhub/user/views.py:189
 msgid "Comunication with admin required"
 msgstr "Es requereix comunicació amb l'admin"
 
-#: idhub/user/views.py:184
+#: idhub/user/views.py:190
 msgid "Service temporarily closed"
 msgstr "Tancament temporal del servei"
 
-#: idhub/user/views.py:407
+#: idhub/user/views.py:269
+#, fuzzy
+#| msgid "Error sending credential!"
+msgid "Error rendering this credencial"
+msgstr "S'ha produït un error en enviar la credencial!"
+
+#: idhub/user/views.py:400
 msgid "Credential request"
 msgstr "Sol·licitar una credencial"
 
-#: idhub/user/views.py:437
+#: idhub/user/views.py:436
 msgid "The credential was issued successfully!"
 msgstr "La credencial s'ha emès correctament!"
 
-#: idhub/user/views.py:444
+#: idhub/user/views.py:443
 msgid "The credential does not exist!"
 msgstr "La credencial no existeix!"
 
-#: idhub/user/views.py:450 oidc4vp/views.py:35
+#: idhub/user/views.py:449 oidc4vp/views.py:35
 msgid "Credential presentation"
 msgstr "Presentació de credencials"
 
-#: idhub/user/views.py:481
+#: idhub/user/views.py:480
 #, python-brace-format
 msgid "Problems connecting with {url}"
 msgstr "Problemes de connexió amb {url}"
 
-#: idhub/user/views.py:490 oidc4vp/views.py:67 oidc4vp/views.py:72
+#: idhub/user/views.py:489 oidc4vp/views.py:67 oidc4vp/views.py:72
 msgid "Error sending credential!"
 msgstr "S'ha produït un error en enviar la credencial!"
 
-#: idhub/user/views.py:515
+#: idhub/user/views.py:514
 msgid "Add a new Identity (DID)"
 msgstr "Afegeix una nova identitat (DID)"
+
+#: idhub/user/views.py:602
+#, fuzzy
+#| msgid "Credential deleted successfully"
+msgid "Credential successfully presented to DLT"
+msgstr "La credencial s'ha suprimit correctament"
+
+#: idhub/user/views.py:605
+#, fuzzy
+#| msgid "Credential presentation"
+msgid "Credential could not be presented to DLT"
+msgstr "Presentació de credencials"
 
 #: idhub_auth/forms.py:20 idhub_auth/forms.py:29
 msgid "The string must contain only characters and spaces"
@@ -2844,11 +1504,11 @@ msgstr "està actiu"
 msgid "is admin"
 msgstr "És admin"
 
-#: oidc4vp/forms.py:47
+#: oidc4vp/forms.py:48
 msgid "There are some problems with this credentials"
 msgstr "Hi ha alguns problemes amb aquestes credencials"
 
-#: oidc4vp/forms.py:57
+#: oidc4vp/forms.py:58
 msgid "There isn't code in request"
 msgstr "No hi ha codi a la sol·licitud"
 
@@ -2856,11 +1516,11 @@ msgstr "No hi ha codi a la sol·licitud"
 msgid "Url where to send the verificable presentation"
 msgstr "URL on enviar la presentació verificable"
 
-#: oidc4vp/models.py:289
+#: oidc4vp/models.py:288
 msgid "Failed verification"
 msgstr "La verificació ha fallat"
 
-#: oidc4vp/models.py:292
+#: oidc4vp/models.py:291
 msgid "Correct verification"
 msgstr "Verificació correcta"
 
@@ -2901,32 +1561,1297 @@ msgstr "Vulnerabilitat financera"
 msgid "Go"
 msgstr "Vés"
 
-#: promotion/templates/somconnexio_contract-original.html:554
 #: promotion/templates/somconnexio_contract.html:69
 msgid "Continue"
 msgstr "Continua"
 
-#: trustchain_idhub/settings.py:203
+#: trustchain_idhub/settings.py:218
 msgid "German"
 msgstr "Alemany"
 
-#: trustchain_idhub/settings.py:204
+#: trustchain_idhub/settings.py:219
 msgid "English"
 msgstr "Anglès"
 
-#: trustchain_idhub/settings.py:205
+#: trustchain_idhub/settings.py:220
 msgid "Catalan"
 msgstr "Català"
 
-#: trustchain_idhub/settings.py:206
+#: trustchain_idhub/settings.py:221
 msgid "Spanish"
 msgstr "Castellà"
 
+#: webhook/models.py:10
+msgid "Active"
+msgstr "Actiu"
+
+#: webhook/tables.py:45
+msgid "Token"
+msgstr ""
+
+#: webhook/templates/token.html:12
+msgid "Generate a new token"
+msgstr ""
+
+#: webhook/views.py:164
+#, fuzzy
+#| msgid "Manage roles"
+msgid "Management Tokens"
+msgstr "Administrar rols"
+
+#: webhook/views.py:212
+#, fuzzy
+#| msgid "User management"
+msgid "Token management"
+msgstr "Configuració de gestió d'usuaris"
+
+#: webhook/views.py:214
+msgid "New Tokens"
+msgstr ""
+
+#, python-brace-format
+#~ msgid "{editor}: Editing failed"
+#~ msgstr "{editor}: Error en l'edició"
+
+#, python-brace-format
+#~ msgid "{editor}: Editing failed: {e}"
+#~ msgstr "{editor}: Error en l'edició: {e}"
+
+#~ msgid "Aborted!"
+#~ msgstr "Interromput!"
+
+#~ msgid "Show this message and exit."
+#~ msgstr "Mostra aquest missatge i surt."
+
+#, python-brace-format
+#~ msgid "(Deprecated) {text}"
+#~ msgstr "(Obsolet) {text}"
+
+#~ msgid "Options"
+#~ msgstr "Opcions"
+
+#, python-brace-format
+#~ msgid "Got unexpected extra argument ({args})"
+#~ msgid_plural "Got unexpected extra arguments ({args})"
+#~ msgstr[0] "S'ha trobat un argument addicional inesperat ({args})"
+#~ msgstr[1] "S'han trobat uns arguments addicionals inesperats ({args})"
+
+#~ msgid "DeprecationWarning: The command {name!r} is deprecated."
+#~ msgstr "Advertència obsolescència: l'ordre {name!r} està obsoleta."
+
+#~ msgid "Commands"
+#~ msgstr "Ordres"
+
+#~ msgid "Missing command."
+#~ msgstr "Falta l'ordre."
+
+#~ msgid "No such command {name!r}."
+#~ msgstr "No hi ha aquesta comanda {name!r}."
+
+#~ msgid "Value must be an iterable."
+#~ msgstr "El valor ha de ser iterable."
+
+#, python-brace-format
+#~ msgid "Takes {nargs} values but 1 was given."
+#~ msgid_plural "Takes {nargs} values but {len} were given."
+#~ msgstr[0] "Pren {nargs} valors però s'ha donat 1."
+#~ msgstr[1] "Pren {nargs} valors però s'han donat {len}."
+
+#, python-brace-format
+#~ msgid "env var: {var}"
+#~ msgstr "env var: {var}"
+
+#~ msgid "(dynamic)"
+#~ msgstr "(dinàmic)"
+
+#, python-brace-format
+#~ msgid "default: {default}"
+#~ msgstr "per defecte: {default}"
+
+#~ msgid "required"
+#~ msgstr "obligatori"
+
+#, python-format
+#~ msgid "%(prog)s, version %(version)s"
+#~ msgstr "%(prog)s, versió %(version)s"
+
+#~ msgid "Show the version and exit."
+#~ msgstr "Mostra la versió i surt."
+
+#, python-brace-format
+#~ msgid "Error: {message}"
+#~ msgstr "Error: {message}"
+
+#, python-brace-format
+#~ msgid "Try '{command} {option}' for help."
+#~ msgstr "Proveu ‘{command} {option}’ per obtenir ajuda."
+
+#, python-brace-format
+#~ msgid "Invalid value: {message}"
+#~ msgstr "Valor no vàlid: {message}"
+
+#, python-brace-format
+#~ msgid "Invalid value for {param_hint}: {message}"
+#~ msgstr "Valor no vàlid per a {param_hint}: {message}"
+
+#~ msgid "Missing argument"
+#~ msgstr "Manca l'argument"
+
+#~ msgid "Missing option"
+#~ msgstr "Falta opció"
+
+#~ msgid "Missing parameter"
+#~ msgstr "Falta un paràmetre"
+
+#, python-brace-format
+#~ msgid "Missing {param_type}"
+#~ msgstr "Falta {param_type}"
+
+#, python-brace-format
+#~ msgid "Missing parameter: {param_name}"
+#~ msgstr "Falta el paràmetre: {param_name}"
+
+#, python-brace-format
+#~ msgid "No such option: {name}"
+#~ msgstr "No hi ha aquesta opció: {name}"
+
+#, python-brace-format
+#~ msgid "Did you mean {possibility}?"
+#~ msgid_plural "(Possible options: {possibilities})"
+#~ msgstr[0] "Voleu dir {possibility}?"
+#~ msgstr[1] "(Opcions possibles: {possibilities})"
+
+#~ msgid "unknown error"
+#~ msgstr "error desconegut"
+
+#~ msgid "Could not open file {filename!r}: {message}"
+#~ msgstr "No s'ha pogut obrir el fitxer {filename!r}: {message}"
+
+#~ msgid "Argument {name!r} takes {nargs} values."
+#~ msgstr "L'argument {name!r} pren {nargs} valors."
+
+#~ msgid "Option {name!r} does not take a value."
+#~ msgstr "L'opció {name!r} no pren cap valor."
+
+#~ msgid "Option {name!r} requires an argument."
+#~ msgid_plural "Option {name!r} requires {nargs} arguments."
+#~ msgstr[0] "L'opció {name!r} requereix un argument."
+#~ msgstr[1] "L'opció {name!r} requereix {nargs} arguments."
+
+#~ msgid "Shell completion is not supported for Bash versions older than 4.4."
+#~ msgstr ""
+#~ "La finalització de l'intèrpret d'ordres no és compatible amb les versions "
+#~ "de Bash anteriors a la 4.4."
+
+#~ msgid "Couldn't detect Bash version, shell completion is not supported."
+#~ msgstr ""
+#~ "No s'ha pogut detectar la versió de Bash, la finalització de l'intèrpret "
+#~ "d'ordres no és compatible."
+
+#~ msgid "Repeat for confirmation"
+#~ msgstr "Repetiu per confirmar"
+
+#~ msgid "Error: The value you entered was invalid."
+#~ msgstr "Error: el valor que heu introduït no és vàlid."
+
+#, python-brace-format
+#~ msgid "Error: {e.message}"
+#~ msgstr "Error: {e.message}"
+
+#~ msgid "Error: The two entered values do not match."
+#~ msgstr "Error: els dos valors introduïts no coincideixen."
+
+#~ msgid "Error: invalid input"
+#~ msgstr "Error: entrada no vàlida"
+
+#~ msgid "Press any key to continue..."
+#~ msgstr "Premeu qualsevol tecla per continuar..."
+
+#, python-brace-format
+#~ msgid ""
+#~ "Choose from:\n"
+#~ "\t{choices}"
+#~ msgstr ""
+#~ "Trieu entre:\n"
+#~ "\t{choices}"
+
+#~ msgid "{value!r} is not {choice}."
+#~ msgid_plural "{value!r} is not one of {choices}."
+#~ msgstr[0] "{value!r} no és {choice}."
+#~ msgstr[1] "{value!r} no és un dels {choices}."
+
+#~ msgid "{value!r} does not match the format {format}."
+#~ msgid_plural "{value!r} does not match the formats {formats}."
+#~ msgstr[0] "{value!r} no coincideix amb el format {format}."
+#~ msgstr[1] "{value!r} no coincideix amb els formats {formats}."
+
+#~ msgid "{value!r} is not a valid {number_type}."
+#~ msgstr "{value!r} no és un {number_type} vàlid."
+
+#, python-brace-format
+#~ msgid "{value} is not in the range {range}."
+#~ msgstr "{value} no es troba a l'interval {range}."
+
+#~ msgid "{value!r} is not a valid boolean."
+#~ msgstr "{value!r} no és un booleà vàlid."
+
+#~ msgid "{value!r} is not a valid UUID."
+#~ msgstr "{value!r} no és un UUID vàlid."
+
+#~ msgid "file"
+#~ msgstr "arxiu"
+
+#~ msgid "directory"
+#~ msgstr "directori"
+
+#~ msgid "path"
+#~ msgstr "ruta"
+
+#~ msgid "{name} {filename!r} does not exist."
+#~ msgstr "{name} {filename!r} no existeix."
+
+#~ msgid "{name} {filename!r} is a file."
+#~ msgstr "{name} {filename!r} és un fitxer."
+
+#, python-brace-format
+#~ msgid "{name} '{filename}' is a directory."
+#~ msgstr "{name} '{filename}' és un directori."
+
+#~ msgid "{name} {filename!r} is not readable."
+#~ msgstr "{name} {filename!r} no es pot llegir."
+
+#~ msgid "{name} {filename!r} is not writable."
+#~ msgstr "{name} {filename!r} no es pot escriure."
+
+#~ msgid "{name} {filename!r} is not executable."
+#~ msgstr "{name} {filename!r} no és executable."
+
+#, python-brace-format
+#~ msgid "{len_type} values are required, but {len_value} was given."
+#~ msgid_plural "{len_type} values are required, but {len_value} were given."
+#~ msgstr[0] "Es requereixen {len_type} valors, però s'ha donat {len_value}."
+#~ msgstr[1] "Es requereixen {len_type} valors, però s'han donat {len_value}."
+
+#~ msgid "Messages"
+#~ msgstr "Missatges"
+
+#~ msgid "Site Maps"
+#~ msgstr "Mapes del lloc"
+
+#~ msgid "Static Files"
+#~ msgstr "Fitxers estàtics"
+
+#~ msgid "Syndication"
+#~ msgstr "Sindicació"
+
+#~ msgid "…"
+#~ msgstr "…"
+
+#~ msgid "That page number is not an integer"
+#~ msgstr "Aquest número de pàgina no és un nombre enter"
+
+#~ msgid "That page number is less than 1"
+#~ msgstr "Aquest número de pàgina és inferior a 1"
+
+#~ msgid "That page contains no results"
+#~ msgstr "Aquesta pàgina no conté cap resultat"
+
+#~ msgid "Enter a valid value."
+#~ msgstr "Introduïu un valor vàlid."
+
+#~ msgid "Enter a valid URL."
+#~ msgstr "Introduïu un URL vàlid."
+
+#~ msgid "Enter a valid integer."
+#~ msgstr "Introduïu un nombre enter vàlid."
+
+#~ msgid "Enter a valid email address."
+#~ msgstr "Introduïu una adreça electrònica vàlida."
+
+#~ msgid ""
+#~ "Enter a valid “slug” consisting of letters, numbers, underscores or "
+#~ "hyphens."
+#~ msgstr ""
+#~ "Introduïu un \"slug\" vàlid format per lletres, números, guions baixos o "
+#~ "guions."
+
+#~ msgid ""
+#~ "Enter a valid “slug” consisting of Unicode letters, numbers, underscores, "
+#~ "or hyphens."
+#~ msgstr ""
+#~ "Introduïu un \"slug\" vàlid format per lletres Unicode, números, guions "
+#~ "baixos o guions."
+
+#~ msgid "Enter a valid IPv4 address."
+#~ msgstr "Introduïu una adreça IPv4 vàlida."
+
+#~ msgid "Enter a valid IPv6 address."
+#~ msgstr "Introduïu una adreça IPv6 vàlida."
+
+#~ msgid "Enter a valid IPv4 or IPv6 address."
+#~ msgstr "Introduïu una adreça IPv4 o IPv6 vàlida."
+
+#~ msgid "Enter only digits separated by commas."
+#~ msgstr "Introduïu només els dígits separats per comes."
+
+#, python-format
+#~ msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+#~ msgstr ""
+#~ "Assegureu-vos que aquest valor sigui %(limit_value)s (és %(show_value)s)."
+
+#, python-format
+#~ msgid "Ensure this value is less than or equal to %(limit_value)s."
+#~ msgstr ""
+#~ "Assegureu-vos que aquest valor sigui inferior o igual a %(limit_value)s."
+
+#, python-format
+#~ msgid "Ensure this value is greater than or equal to %(limit_value)s."
+#~ msgstr ""
+#~ "Assegureu-vos que aquest valor sigui superior o igual a %(limit_value)s."
+
+#, python-format
+#~ msgid "Ensure this value is a multiple of step size %(limit_value)s."
+#~ msgstr ""
+#~ "Assegureu-vos que aquest valor sigui un múltiple de la mida del pas "
+#~ "%(limit_value)s."
+
+#, python-format
+#~ msgid ""
+#~ "Ensure this value has at least %(limit_value)d character (it has "
+#~ "%(show_value)d)."
+#~ msgid_plural ""
+#~ "Ensure this value has at least %(limit_value)d characters (it has "
+#~ "%(show_value)d)."
+#~ msgstr[0] ""
+#~ "Assegureu-vos que aquest valor tingui com a mínim %(limit_value)d "
+#~ "caràcter (té %(show_value)d)."
+#~ msgstr[1] ""
+#~ "Assegureu-vos que aquest valor tingui com a mínim %(limit_value)d "
+#~ "caràcters (té %(show_value)d)."
+
+#, python-format
+#~ msgid ""
+#~ "Ensure this value has at most %(limit_value)d character (it has "
+#~ "%(show_value)d)."
+#~ msgid_plural ""
+#~ "Ensure this value has at most %(limit_value)d characters (it has "
+#~ "%(show_value)d)."
+#~ msgstr[0] ""
+#~ "Assegureu-vos que aquest valor tingui com a màxim %(limit_value)d "
+#~ "caràcters (té %(show_value)d)."
+#~ msgstr[1] ""
+#~ "Assegureu-vos que aquest valor tingui com a màxim %(limit_value)d "
+#~ "caràcters (té %(show_value)d)."
+
+#~ msgid "Enter a number."
+#~ msgstr "Introduïu una xifra."
+
+#, python-format
+#~ msgid "Ensure that there are no more than %(max)s digit in total."
+#~ msgid_plural "Ensure that there are no more than %(max)s digits in total."
+#~ msgstr[0] "Assegureu-vos que no hi hagi més de %(max)s dígits en total."
+#~ msgstr[1] "Assegureu-vos que no hi hagi més de %(max)s dígits en total."
+
+#, python-format
+#~ msgid "Ensure that there are no more than %(max)s decimal place."
+#~ msgid_plural "Ensure that there are no more than %(max)s decimal places."
+#~ msgstr[0] "Assegureu-vos que no hi hagi més de %(max)s decimals."
+#~ msgstr[1] "Assegureu-vos que no hi hagi més de %(max)s decimals."
+
+#, python-format
+#~ msgid ""
+#~ "Ensure that there are no more than %(max)s digit before the decimal point."
+#~ msgid_plural ""
+#~ "Ensure that there are no more than %(max)s digits before the decimal "
+#~ "point."
+#~ msgstr[0] ""
+#~ "Assegureu-vos que no hi hagi més de %(max)s dígits abans del punt decimal."
+#~ msgstr[1] ""
+#~ "Assegureu-vos que no hi hagi més de %(max)s dígits abans del punt decimal."
+
+#, python-format
+#~ msgid ""
+#~ "File extension “%(extension)s” is not allowed. Allowed extensions are: "
+#~ "%(allowed_extensions)s."
+#~ msgstr ""
+#~ "L'extensió de fitxer “%(extension)s” no està permesa. Les extensions "
+#~ "permeses són: %(allowed_extensions)s."
+
+#~ msgid "Null characters are not allowed."
+#~ msgstr "No es permeten caràcters nuls."
+
+#~ msgid "and"
+#~ msgstr "i"
+
+#, python-format
+#~ msgid "%(model_name)s with this %(field_labels)s already exists."
+#~ msgstr "%(model_name)s amb aquest %(field_labels)s ja existeix."
+
+#, python-format
+#~ msgid "Constraint “%(name)s” is violated."
+#~ msgstr "S'ha incomplert la restricció \"%(name)s\"."
+
+#, python-format
+#~ msgid "Value %(value)r is not a valid choice."
+#~ msgstr "El valor %(value)r no és una opció vàlida."
+
+#~ msgid "This field cannot be null."
+#~ msgstr "Aquest camp no pot ser nul."
+
+#~ msgid "This field cannot be blank."
+#~ msgstr "Aquest camp no pot estar en blanc."
+
+#, python-format
+#~ msgid "%(model_name)s with this %(field_label)s already exists."
+#~ msgstr "%(model_name)s amb aquest %(field_label)s ja existeix."
+
+#, python-format
+#~ msgid ""
+#~ "%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+#~ msgstr ""
+#~ "%(field_label)s ha de ser únic per a %(date_field_label)s %(lookup_type)s."
+
+#, python-format
+#~ msgid "Field of type: %(field_type)s"
+#~ msgstr "Camp de tipus: %(field_type)s"
+
+#, python-format
+#~ msgid "“%(value)s” value must be either True or False."
+#~ msgstr "El valor \"%(value)s\" ha de ser Cert o Fals."
+
+#, python-format
+#~ msgid "“%(value)s” value must be either True, False, or None."
+#~ msgstr "El valor \"%(value)s\" ha de ser Cert, Fals o Cap."
+
+#~ msgid "Boolean (Either True or False)"
+#~ msgstr "Booleà (cert o fals)"
+
+#, python-format
+#~ msgid "String (up to %(max_length)s)"
+#~ msgstr "Cadena (fins a %(max_length)s)"
+
+#~ msgid "String (unlimited)"
+#~ msgstr "Cadena (il·limitada)"
+
+#~ msgid "Comma-separated integers"
+#~ msgstr "Nombres enters separats per comes"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+#~ "format."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té un format de data no vàlid. Ha de tenir el "
+#~ "format AAAA-MM-DD."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (YYYY-MM-DD) but it is an "
+#~ "invalid date."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té el format correcte (AAAA-MM-DD), però no és una "
+#~ "data vàlida."
+
+#~ msgid "Date (without time)"
+#~ msgstr "Data (sense hora)"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+#~ "HH:MM[:ss[.uuuuuu]][TZ] format."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té un format no vàlid. Ha de tenir el format AAAA-"
+#~ "MM-DD HH:MM[:ss[.uuuuuu]][TZ]."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+#~ "[TZ]) but it is an invalid date/time."
+#~ msgstr ""
+#~ "El valor “%(value)s” té el format correcte (AAAA-MM-DD HH:MM[:ss[.uuuuuu]]"
+#~ "[TZ]), però no és una data/hora vàlida."
+
+#~ msgid "Date (with time)"
+#~ msgstr "Data (amb hora)"
+
+#, python-format
+#~ msgid "“%(value)s” value must be a decimal number."
+#~ msgstr "El valor “%(value)s” ha de ser un nombre decimal."
+
+#~ msgid "Decimal number"
+#~ msgstr "Nombre decimal"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in [DD] "
+#~ "[[HH:]MM:]ss[.uuuuuu] format."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té un format no vàlid. Ha d'estar en format [DD] "
+#~ "[[HH:]MM:]ss[.uuuuuu]."
+
+#~ msgid "Duration"
+#~ msgstr "Durada"
+
+#~ msgid "File path"
+#~ msgstr "Ruta al document"
+
+#, python-format
+#~ msgid "“%(value)s” value must be a float."
+#~ msgstr "El valor “%(value)s” ha de ser un valor flotant."
+
+#~ msgid "Floating point number"
+#~ msgstr "Nombre de coma flotant"
+
+#, python-format
+#~ msgid "“%(value)s” value must be an integer."
+#~ msgstr "El valor “%(value)s” ha de ser un nombre enter."
+
+#~ msgid "Integer"
+#~ msgstr "Enter"
+
+#~ msgid "Big (8 byte) integer"
+#~ msgstr "Enter gran (8 bytes)"
+
+#~ msgid "Small integer"
+#~ msgstr "Enter petit"
+
+#~ msgid "IPv4 address"
+#~ msgstr "Adreça IPv4"
+
+#~ msgid "IP address"
+#~ msgstr "Adreça IP"
+
+#, python-format
+#~ msgid "“%(value)s” value must be either None, True or False."
+#~ msgstr "El valor \"%(value)s\" ha de ser Cap, Cert o Fals."
+
+#~ msgid "Boolean (Either True, False or None)"
+#~ msgstr "Booleà (cert, fals o cap)"
+
+#~ msgid "Positive big integer"
+#~ msgstr "Enter gran positiu"
+
+#~ msgid "Positive integer"
+#~ msgstr "Enter positiu"
+
+#~ msgid "Positive small integer"
+#~ msgstr "Enter petit positiu"
+
+#, python-format
+#~ msgid "Slug (up to %(max_length)s)"
+#~ msgstr "Slug (fins a %(max_length)s)"
+
+#~ msgid "Text"
+#~ msgstr "Text"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in "
+#~ "HH:MM[:ss[.uuuuuu]] format."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té un format no vàlid. Ha d'estar en format "
+#~ "HH:MM[:ss[.uuuuuu]]."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is "
+#~ "an invalid time."
+#~ msgstr ""
+#~ "El valor \"%(value)s\" té el format correcte (HH:MM[:ss[.uuuuuu]]), però "
+#~ "no és una hora vàlida."
+
+#~ msgid "Time"
+#~ msgstr "Hora"
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "Raw binary data"
+#~ msgstr "Dades binàries en brut"
+
+#, python-format
+#~ msgid "“%(value)s” is not a valid UUID."
+#~ msgstr "“%(value)s” no és un UUID vàlid."
+
+#~ msgid "Universally unique identifier"
+#~ msgstr "Identificador únic universal"
+
+#~ msgid "Image"
+#~ msgstr "Imatge"
+
+#~ msgid "A JSON object"
+#~ msgstr "Un objecte JSON"
+
+#~ msgid "Value must be valid JSON."
+#~ msgstr "El valor ha de ser un JSON vàlid."
+
+#, python-format
+#~ msgid "%(model)s instance with %(field)s %(value)r does not exist."
+#~ msgstr "%(model)s instància amb %(field)s %(value)r no existeix."
+
+#~ msgid "Foreign Key (type determined by related field)"
+#~ msgstr "Clau externa (tipus determinat pel camp relacionat)"
+
+#~ msgid "One-to-one relationship"
+#~ msgstr "Relació un a un"
+
+#, python-format
+#~ msgid "%(from)s-%(to)s relationship"
+#~ msgstr "relació %(from)s-%(to)s"
+
+#, python-format
+#~ msgid "%(from)s-%(to)s relationships"
+#~ msgstr "relacions %(from)s-%(to)s"
+
+#~ msgid "Many-to-many relationship"
+#~ msgstr "Relació de molts a molts"
+
+#~ msgid ":?.!"
+#~ msgstr ":?.!"
+
+#~ msgid "This field is required."
+#~ msgstr "Aquest camp és obligatori."
+
+#~ msgid "Enter a whole number."
+#~ msgstr "Introduïu un número sencer."
+
+#~ msgid "Enter a valid date."
+#~ msgstr "Introduïu una data vàlida."
+
+#~ msgid "Enter a valid time."
+#~ msgstr "Introduïu una hora vàlida."
+
+#~ msgid "Enter a valid date/time."
+#~ msgstr "Introduïu una data/hora vàlida."
+
+#~ msgid "Enter a valid duration."
+#~ msgstr "Introduïu una durada vàlida."
+
+#, python-brace-format
+#~ msgid "The number of days must be between {min_days} and {max_days}."
+#~ msgstr "El nombre de dies ha d'estar entre {min_days} i {max_days}."
+
+#~ msgid "No file was submitted. Check the encoding type on the form."
+#~ msgstr ""
+#~ "No s'ha enviat cap fitxer. Comproveu el tipus de codificació al formulari."
+
+#~ msgid "No file was submitted."
+#~ msgstr "No s'ha enviat cap fitxer."
+
+#~ msgid "The submitted file is empty."
+#~ msgstr "El fitxer enviat està buit."
+
+#, python-format
+#~ msgid ""
+#~ "Ensure this filename has at most %(max)d character (it has %(length)d)."
+#~ msgid_plural ""
+#~ "Ensure this filename has at most %(max)d characters (it has %(length)d)."
+#~ msgstr[0] ""
+#~ "Assegureu-vos que aquest nom de fitxer tingui com a màxim %(max)d "
+#~ "caràcter (té %(length)d)."
+#~ msgstr[1] ""
+#~ "Assegureu-vos que aquest nom de fitxer tingui com a màxim %(max)d "
+#~ "caràcters (té %(length)d)."
+
+#~ msgid "Please either submit a file or check the clear checkbox, not both."
+#~ msgstr ""
+#~ "Envieu un fitxer o marqueu la casella de selecció clara, no tots dos."
+
+#~ msgid ""
+#~ "Upload a valid image. The file you uploaded was either not an image or a "
+#~ "corrupted image."
+#~ msgstr ""
+#~ "Carregueu una imatge vàlida. El fitxer que heu penjat no era una imatge o "
+#~ "una imatge malmesa."
+
+#, python-format
+#~ msgid ""
+#~ "Select a valid choice. %(value)s is not one of the available choices."
+#~ msgstr ""
+#~ "Seleccioneu una opció vàlida. %(value)s no és una de les opcions "
+#~ "disponibles."
+
+#~ msgid "Enter a list of values."
+#~ msgstr "Introduïu una llista de valors."
+
+#~ msgid "Enter a complete value."
+#~ msgstr "Introduïu un valor complet."
+
+#~ msgid "Enter a valid UUID."
+#~ msgstr "Introduïu un UUID vàlid."
+
+#~ msgid "Enter a valid JSON."
+#~ msgstr "Introduïu un JSON vàlid."
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#, python-format
+#~ msgid "(Hidden field %(name)s) %(error)s"
+#~ msgstr "(Camp ocult %(name)s) %(error)s"
+
+#, python-format
+#~ msgid ""
+#~ "ManagementForm data is missing or has been tampered with. Missing fields: "
+#~ "%(field_names)s. You may need to file a bug report if the issue persists."
+#~ msgstr ""
+#~ "Les dades del Fomulario de Gestión falten o s'han manipulat. Camps que "
+#~ "falten: %(field_names)s. És possible que hàgiu de presentar un informe "
+#~ "d'error si el problema persisteix."
+
+#, python-format
+#~ msgid "Please submit at most %(num)d form."
+#~ msgid_plural "Please submit at most %(num)d forms."
+#~ msgstr[0] "Envieu com a màxim %(num)d formulari."
+#~ msgstr[1] "Envieu com a màxim %(num)d formularis."
+
+#, python-format
+#~ msgid "Please submit at least %(num)d form."
+#~ msgid_plural "Please submit at least %(num)d forms."
+#~ msgstr[0] "Envieu almenys %(num)d formulari."
+#~ msgstr[1] "Envieu almenys %(num)d formularis."
+
+#~ msgid "Order"
+#~ msgstr "Ordre"
+
+#, python-format
+#~ msgid "Please correct the duplicate data for %(field)s."
+#~ msgstr "Corregiu les dades duplicades de %(field)s."
+
+#, python-format
+#~ msgid ""
+#~ "Please correct the duplicate data for %(field)s, which must be unique."
+#~ msgstr "Corregiu les dades duplicades de %(field)s, que han de ser úniques."
+
+#, python-format
+#~ msgid ""
+#~ "Please correct the duplicate data for %(field_name)s which must be unique "
+#~ "for the %(lookup)s in %(date_field)s."
+#~ msgstr ""
+#~ "Corregiu les dades duplicades per a %(field_name)s que han de ser úniques "
+#~ "per a %(lookup)s a %(date_field)s."
+
+#~ msgid "Please correct the duplicate values below."
+#~ msgstr "Corregiu els valors duplicats a continuació."
+
+#~ msgid "The inline value did not match the parent instance."
+#~ msgstr "El valor en línia no coincideix amb la instància principal."
+
+#~ msgid ""
+#~ "Select a valid choice. That choice is not one of the available choices."
+#~ msgstr ""
+#~ "Seleccioneu una opció vàlida. Aquesta elecció no és una de les opcions "
+#~ "disponibles."
+
+#, python-format
+#~ msgid "“%(pk)s” is not a valid value."
+#~ msgstr "\"%(pk)s\" no és un valor vàlid."
+
+#, python-format
+#~ msgid ""
+#~ "%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; "
+#~ "it may be ambiguous or it may not exist."
+#~ msgstr ""
+#~ "%(datetime)s no s'ha pogut interpretar a la zona horària "
+#~ "%(current_timezone)s; pot ser ambigu o pot no existir."
+
+#~ msgid "Clear"
+#~ msgstr "Neteja"
+
+#~ msgid "Currently"
+#~ msgstr "Actualment"
+
+#~ msgid "Change"
+#~ msgstr "Canviar"
+
+#~ msgid "Unknown"
+#~ msgstr "Desconeguda"
+
+#~ msgid "yes,no,maybe"
+#~ msgstr "sí,no,potser"
+
+#, python-format
+#~ msgid "%(size)d byte"
+#~ msgid_plural "%(size)d bytes"
+#~ msgstr[0] "%(size)d byte"
+#~ msgstr[1] "%(size)d bytes"
+
+#, python-format
+#~ msgid "%s KB"
+#~ msgstr "%s KB"
+
+#, python-format
+#~ msgid "%s MB"
+#~ msgstr "%s MB"
+
+#, python-format
+#~ msgid "%s GB"
+#~ msgstr "%s GB"
+
+#, python-format
+#~ msgid "%s TB"
+#~ msgstr "%s TB"
+
+#, python-format
+#~ msgid "%s PB"
+#~ msgstr "%s PB"
+
+#~ msgid "p.m."
+#~ msgstr "p.m."
+
+#~ msgid "a.m."
+#~ msgstr "a.m."
+
+#~ msgid "PM"
+#~ msgstr "PM"
+
+#~ msgid "AM"
+#~ msgstr "AM"
+
+#~ msgid "midnight"
+#~ msgstr "mitjanit"
+
+#~ msgid "noon"
+#~ msgstr "migdia"
+
+#~ msgid "Monday"
+#~ msgstr "Dilluns"
+
+#~ msgid "Tuesday"
+#~ msgstr "Dimarts"
+
+#~ msgid "Wednesday"
+#~ msgstr "Dimecres"
+
+#~ msgid "Thursday"
+#~ msgstr "Dijous"
+
+#~ msgid "Friday"
+#~ msgstr "Divendres"
+
+#~ msgid "Saturday"
+#~ msgstr "Dissabte"
+
+#~ msgid "Sunday"
+#~ msgstr "Diumenge"
+
+#~ msgid "Mon"
+#~ msgstr "Dl"
+
+#~ msgid "Tue"
+#~ msgstr "Dt"
+
+#~ msgid "Wed"
+#~ msgstr "Dx"
+
+#~ msgid "Thu"
+#~ msgstr "Dj"
+
+#~ msgid "Fri"
+#~ msgstr "Dv"
+
+#~ msgid "Sat"
+#~ msgstr "Ds"
+
+#~ msgid "Sun"
+#~ msgstr "Dg"
+
+#~ msgid "January"
+#~ msgstr "Gener"
+
+#~ msgid "February"
+#~ msgstr "Febrer"
+
+#~ msgid "March"
+#~ msgstr "Març"
+
+#~ msgid "April"
+#~ msgstr "Abril"
+
+#~ msgid "May"
+#~ msgstr "Maig"
+
+#~ msgid "June"
+#~ msgstr "Juny"
+
+#~ msgid "July"
+#~ msgstr "Juliol"
+
+#~ msgid "August"
+#~ msgstr "Agost"
+
+#~ msgid "September"
+#~ msgstr "Setembre"
+
+#~ msgid "October"
+#~ msgstr "Octubre"
+
+#~ msgid "November"
+#~ msgstr "Novembre"
+
+#~ msgid "December"
+#~ msgstr "Desembre"
+
+#~ msgid "jan"
+#~ msgstr "gen"
+
+#~ msgid "feb"
+#~ msgstr "feb"
+
+#~ msgid "mar"
+#~ msgstr "mar"
+
+#~ msgid "apr"
+#~ msgstr "apr"
+
+#~ msgid "may"
+#~ msgstr "mai"
+
+#~ msgid "jun"
+#~ msgstr "jun"
+
+#~ msgid "jul"
+#~ msgstr "jul"
+
+#~ msgid "aug"
+#~ msgstr "ago"
+
+#~ msgid "sep"
+#~ msgstr "set"
+
+#~ msgid "oct"
+#~ msgstr "oct"
+
+#~ msgid "nov"
+#~ msgstr "nov"
+
+#~ msgid "dec"
+#~ msgstr "des"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Jan."
+#~ msgstr "Gen."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Feb."
+#~ msgstr "Febr."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "March"
+#~ msgstr "Març"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "April"
+#~ msgstr "Abril"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "May"
+#~ msgstr "Maig"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "June"
+#~ msgstr "Juny"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "July"
+#~ msgstr "Juliol"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Aug."
+#~ msgstr "Ago."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Sept."
+#~ msgstr "Sept."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Oct."
+#~ msgstr "Oct."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Nov."
+#~ msgstr "Nov."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Dec."
+#~ msgstr "Des."
+
+#~ msgctxt "alt. month"
+#~ msgid "January"
+#~ msgstr "Gener"
+
+#~ msgctxt "alt. month"
+#~ msgid "February"
+#~ msgstr "Febrer"
+
+#~ msgctxt "alt. month"
+#~ msgid "March"
+#~ msgstr "Març"
+
+#~ msgctxt "alt. month"
+#~ msgid "April"
+#~ msgstr "Abril"
+
+#~ msgctxt "alt. month"
+#~ msgid "May"
+#~ msgstr "Maig"
+
+#~ msgctxt "alt. month"
+#~ msgid "June"
+#~ msgstr "Juny"
+
+#~ msgctxt "alt. month"
+#~ msgid "July"
+#~ msgstr "Juliol"
+
+#~ msgctxt "alt. month"
+#~ msgid "August"
+#~ msgstr "Agost"
+
+#~ msgctxt "alt. month"
+#~ msgid "September"
+#~ msgstr "Setembre"
+
+#~ msgctxt "alt. month"
+#~ msgid "October"
+#~ msgstr "Octubre"
+
+#~ msgctxt "alt. month"
+#~ msgid "November"
+#~ msgstr "Novembre"
+
+#~ msgctxt "alt. month"
+#~ msgid "December"
+#~ msgstr "Desembre"
+
+#~ msgid "This is not a valid IPv6 address."
+#~ msgstr "Aquesta adreça IPv6 no és vàlida."
+
+#, python-format
+#~ msgctxt "String to return when truncating text"
+#~ msgid "%(truncated_text)s…"
+#~ msgstr "%(truncated_text)s…"
+
+#~ msgid "or"
+#~ msgstr "o"
+
+#~ msgid ", "
+#~ msgstr ", "
+
+#, python-format
+#~ msgid "%(num)d year"
+#~ msgid_plural "%(num)d years"
+#~ msgstr[0] "%(num)d any"
+#~ msgstr[1] "%(num)d anys"
+
+#, python-format
+#~ msgid "%(num)d month"
+#~ msgid_plural "%(num)d months"
+#~ msgstr[0] "%(num)d mes"
+#~ msgstr[1] "%(num)d mesos"
+
+#, python-format
+#~ msgid "%(num)d week"
+#~ msgid_plural "%(num)d weeks"
+#~ msgstr[0] "%(num)d setmana"
+#~ msgstr[1] "%(num)d setmanes"
+
+#, python-format
+#~ msgid "%(num)d day"
+#~ msgid_plural "%(num)d days"
+#~ msgstr[0] "%(num)d dia"
+#~ msgstr[1] "%(num)d dies"
+
+#, python-format
+#~ msgid "%(num)d hour"
+#~ msgid_plural "%(num)d hours"
+#~ msgstr[0] "%(num)d hora"
+#~ msgstr[1] "%(num)d hores"
+
+#, python-format
+#~ msgid "%(num)d minute"
+#~ msgid_plural "%(num)d minutes"
+#~ msgstr[0] "%(num)d minut"
+#~ msgstr[1] "%(num)d minuts"
+
+#~ msgid "Forbidden"
+#~ msgstr "Prohibit"
+
+#~ msgid "CSRF verification failed. Request aborted."
+#~ msgstr "La verificació CSRF ha fallat. Sol·licitud avortada."
+
+#~ msgid ""
+#~ "You are seeing this message because this HTTPS site requires a “Referer "
+#~ "header” to be sent by your web browser, but none was sent. This header is "
+#~ "required for security reasons, to ensure that your browser is not being "
+#~ "hijacked by third parties."
+#~ msgstr ""
+#~ "Esteu veient aquest missatge perquè aquest lloc HTTPS requereix que el "
+#~ "vostre navegador web enviï una “Referer header”, però no se n'ha enviat "
+#~ "cap. Aquesta capçalera és necessària per motius de seguretat, per "
+#~ "garantir que el vostre navegador no sigui segrestat per tercers."
+
+#~ msgid ""
+#~ "If you have configured your browser to disable “Referer” headers, please "
+#~ "re-enable them, at least for this site, or for HTTPS connections, or for "
+#~ "“same-origin” requests."
+#~ msgstr ""
+#~ "Si heu configurat el vostre navegador per desactivar les capçaleres "
+#~ "\"Referer\", si us plau, torneu a habilitar-les, almenys per a aquest "
+#~ "lloc, o per a connexions HTTPS, o per a sol·licituds del \"mateix "
+#~ "origen\"."
+
+#~ msgid ""
+#~ "If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag "
+#~ "or including the “Referrer-Policy: no-referrer” header, please remove "
+#~ "them. The CSRF protection requires the “Referer” header to do strict "
+#~ "referer checking. If you’re concerned about privacy, use alternatives "
+#~ "like <a rel=\"noreferrer\" …> for links to third-party sites."
+#~ msgstr ""
+#~ "Si utilitzeu el <meta name=\"referrer\" content=\"no-referrer\"> "
+#~ "etiqueteu o inclogueu la capçalera \"Política de referència: no-"
+#~ "referrer\", traieu-les. La protecció CSRF requereix que la capçalera "
+#~ "\"Referer\" faci una comprovació estricta de referència. Si us preocupa "
+#~ "la privadesa, utilitzeu alternatives, com ara <a rel=\"noreferrer\" …> "
+#~ "enllaços a llocs de tercers."
+
+#~ msgid ""
+#~ "You are seeing this message because this site requires a CSRF cookie when "
+#~ "submitting forms. This cookie is required for security reasons, to ensure "
+#~ "that your browser is not being hijacked by third parties."
+#~ msgstr ""
+#~ "Esteu veient aquest missatge perquè aquest lloc requereix una galeta CSRF "
+#~ "a l'hora d'enviar formularis. Aquesta galeta és necessària per motius de "
+#~ "seguretat, per garantir que el vostre navegador no sigui segrestat per "
+#~ "tercers."
+
+#~ msgid ""
+#~ "If you have configured your browser to disable cookies, please re-enable "
+#~ "them, at least for this site, or for “same-origin” requests."
+#~ msgstr ""
+#~ "Si heu configurat el vostre navegador per desactivar les galetes, torneu-"
+#~ "les a habilitar, almenys per a aquest lloc, o per a sol·licituds del "
+#~ "\"mateix origen\"."
+
+#~ msgid "More information is available with DEBUG=True."
+#~ msgstr "Hi ha més informació disponible amb DEBUG=True."
+
+#~ msgid "No year specified"
+#~ msgstr "Cap any especificat"
+
+#~ msgid "Date out of range"
+#~ msgstr "Data fora d'interval"
+
+#~ msgid "No month specified"
+#~ msgstr "Sense mes especificat"
+
+#~ msgid "No day specified"
+#~ msgstr "Sense dia especificat"
+
+#~ msgid "No week specified"
+#~ msgstr "Cap setmana especificada"
+
+#, python-format
+#~ msgid "No %(verbose_name_plural)s available"
+#~ msgstr "No hi ha %(verbose_name_plural)s disponible"
+
+#, python-format
+#~ msgid ""
+#~ "Future %(verbose_name_plural)s not available because "
+#~ "%(class_name)s.allow_future is False."
+#~ msgstr ""
+#~ "Futur %(verbose_name_plural)s no disponible perquè "
+#~ "%(class_name)s.allow_future és fals."
+
+#, python-format
+#~ msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+#~ msgstr ""
+#~ "La cadena de data \"%(datestr)s\" no és vàlida amb el format "
+#~ "\"%(format)s\""
+
+#, python-format
+#~ msgid "No %(verbose_name)s found matching the query"
+#~ msgstr "No s'ha trobat cap %(verbose_name)s que coincideixi amb la consulta"
+
+#~ msgid "Page is not “last”, nor can it be converted to an int."
+#~ msgstr "La pàgina no és \"última\", ni es pot convertir a int."
+
+#, python-format
+#~ msgid "Invalid page (%(page_number)s): %(message)s"
+#~ msgstr "Pàgina no vàlida (%(page_number)s): %(message)s"
+
+#, python-format
+#~ msgid "Empty list and “%(class_name)s.allow_empty” is False."
+#~ msgstr "Llista buida i \"%(class_name)s.allow_empty\" és Fals."
+
+#~ msgid "Directory indexes are not allowed here."
+#~ msgstr "Els índexs de directoris no es permeten aquí."
+
+#, python-format
+#~ msgid "“%(path)s” does not exist"
+#~ msgstr "“%(path)s” no existeix"
+
+#, python-format
+#~ msgid "Index of %(directory)s"
+#~ msgstr "Índex de %(directory)s"
+
+#~ msgid "The install worked successfully! Congratulations!"
+#~ msgstr "La instal·lació ha funcionat correctament! Felicitats!"
+
+#, python-format
+#~ msgid ""
+#~ "View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+#~ "target=\"_blank\" rel=\"noopener\">release notes</a> for Django "
+#~ "%(version)s"
+#~ msgstr ""
+#~ "Consulta <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/"
+#~ "\" target=\"_blank\" rel=\"noopener\">les notes de la versió</a> de "
+#~ "Django %(version)s"
+
+#, python-format
+#~ msgid ""
+#~ "You are seeing this page because <a href=\"https://docs.djangoproject.com/"
+#~ "en/%(version)s/ref/settings/#debug\" target=\"_blank\" "
+#~ "rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+#~ "configured any URLs."
+#~ msgstr ""
+#~ "Esteu veient aquesta pàgina perquè <a href=\"https://"
+#~ "docs.djangoproject.com/en/%(version)s/ref/settings/#debug\" "
+#~ "target=\"_blank\" rel=\"noopener\">DEBUG=True</a> és al vostre fitxer de "
+#~ "configuració i no heu configurat cap URL."
+
+#~ msgid "Django Documentation"
+#~ msgstr "Documentació de Django"
+
+#~ msgid "Topics, references, &amp; how-to’s"
+#~ msgstr "Temes, referències, &amp; com fer-ho"
+
+#~ msgid "Tutorial: A Polling App"
+#~ msgstr "Tutorial: una aplicació de votació"
+
+#~ msgid "Get started with Django"
+#~ msgstr "Comença amb Django"
+
+#~ msgid "Django Community"
+#~ msgstr "Comunitat Django"
+
+#~ msgid "Connect, get help, or contribute"
+#~ msgstr "Connecteu-vos, obteniu ajuda o contribuïu"
+
+#~ msgid "close"
+#~ msgstr "tanca"
+
+#~ msgid "Add template"
+#~ msgstr "Afegeix plantilla"
+
+#~ msgid "Download as PDF (Catalan)"
+#~ msgstr "Descarregar com a PDF (català)"
+
+#~ msgid "Download as PDF (Spanish)"
+#~ msgstr "Descarregar com a PDF (castellà)"
+
 #~ msgid "show this help message and exit"
 #~ msgstr "mostra aquest missatge d'ajuda i surt"
-
-#~ msgid "The user does not exist!"
-#~ msgstr "L'usuari no existeix!"
 
 #~ msgid "Change credential status"
 #~ msgstr "Canvia l'estat de la credencial"
@@ -3117,9 +3042,6 @@ msgstr "Castellà"
 
 #~ msgid "New mailbox"
 #~ msgstr "Nova bústia"
-
-#~ msgid "Active"
-#~ msgstr "Actiu"
 
 #~ msgid "Inactive"
 #~ msgstr "Inactiu"
