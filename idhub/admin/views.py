@@ -1,6 +1,7 @@
 import os
 import io
 import json
+import pickle
 import logging
 import weasyprint
 from pathlib import Path
@@ -35,7 +36,8 @@ from idhub.admin.forms import (
     MembershipForm,
     TermsConditionsForm,
     SchemaForm,
-    UserRolForm
+    UserRolForm,
+    DIDForm
 )
 from idhub.admin.tables import (
         DashboardTable,
@@ -790,26 +792,43 @@ class DidsView(Credentials, SingleTableView):
         return context
 
 
-class DidRegisterView(Credentials, CreateView):
+class DidRegisterView(Credentials, FormView):
     template_name = "idhub/admin/did_register.html"
     subtitle = _('Add a new organizational identity (DID)')
     icon = 'bi bi-patch-check-fill'
     wallet = True
     model = DID
+    form_class = DIDForm
     fields = ('label', 'type')
     success_url = reverse_lazy('idhub:admin_dids')
     object = None
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        serialized_did = self.request.session.get('pre_generated_did')
+        if serialized_did:
+            instance = pickle.loads(serialized_did)
+        else:
+            instance = DID(type=DID.Types.WEB)
+            instance.set_did()
+            self.request.session['pre_generated_did'] = pickle.dumps(instance)
+
+        kwargs['instance'] = instance
+        return kwargs
+
+
     def form_valid(self, form):
         try:
-            form.instance.set_did()
+            form.save()
+            if 'pre_generated_did' in self.request.session:
+                del self.request.session['pre_generated_did']
         except Exception as err:
             logger.error(err)
             err_msg = _('DID could not be created: %(reason)s')
             messages.error(self.request, err_msg % {'reason': str(err)})
             return self.form_invalid(form)
 
-        form.save()
         Event.set_EV_ORG_DID_CREATED_BY_ADMIN(form.instance)
         messages.success(self.request, _('DID created successfully'))
 

@@ -61,7 +61,7 @@ class Event(models.Model):
         EV_CREDENTIAL_PRESENTED_BY_USER = 16, "Credential presented by user"
         EV_CREDENTIAL_PRESENTED = 17, "Credential presented"
         EV_CREDENTIAL_ENABLED = 18, "Credential enabled"
-        EV_CREDENTIAL_CAN_BE_REQUESTED = 19, "Credential available"
+        EV_CREDENTIAL_CAN_BE_REQUESTED = 19, "Credential enabled"
         EV_CREDENTIAL_REVOKED_BY_ADMIN = 20, "Credential revoked by admin"
         EV_CREDENTIAL_REVOKED = 21, "Credential revoked"
         EV_ROLE_CREATED_BY_ADMIN = 22, "Role created by admin"
@@ -467,6 +467,7 @@ class DID(models.Model):
         WEB = 1, "Web"
         KEY = 2, "Key"
         WEBETH = 3, "Web+Ether"
+
     type = models.PositiveSmallIntegerField(
         _("Type"),
         choices=Types.choices,
@@ -487,12 +488,41 @@ class DID(models.Model):
     )
     # JSON-serialized DID document
     didweb_document = models.TextField()
+    available = models.BooleanField(default=True)
+
+    def check_remote_did(self):
+        if self.get_type() != self.Types.WEB:
+            return True
+
+        sdid = self.did[8:].split(":")
+        if len(sdid) > 2:
+            url = "://{}/did.json".format("/".join(sdid))
+        elif len(sdid) == 2:
+            url = "://{}/.well-known/{}/did.json".format(*sdid)
+        try:
+            try:
+                verify = not settings.DEBUG
+                response = requests.get("https"+url, verify=verify)
+            except Exception:
+                response = requests.get("http"+url)
+
+            if 200 <= response.status_code < 300:
+                return response.text == self.didweb_document
+        except Exception:
+            return False
+
+        return False
 
     @property
     def is_organization_did(self):
         if not self.user:
             return True
         return False
+
+    @property
+    def is_web(self):
+      typ = self.Types(self.type)
+      return typ in [self.Types.WEB, self.Types.WEBETH]
 
     def get_key_material(self):
         user = self.user or self.get_organization()
@@ -505,16 +535,17 @@ class DID(models.Model):
             user.save()
         self.key_material = user.encrypt_data(value)
 
-    def set_did(self):
-        new_key_material = generate_keys()
+    def set_did(self, new_key_material=None):
+        if not new_key_material:
+            new_key_material = generate_keys()
 
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
-        elif self.type == self.Types.WEB or self.type == self.Types.WEBETH:
+        elif self.is_web:
             url = "https://{}".format(settings.DOMAIN)
             path = reverse("idhub:serve_did", args=["a"])
 
-            if path:
+            if path and ".well-known" not in path:
                 path = path.split("/a/did.json")[0]
                 url = "https://{}/{}".format(settings.DOMAIN, path)
 
@@ -540,11 +571,17 @@ class DID(models.Model):
                 new_key_material_json['eth_issuer_pub_key'] = ether_tao_data['data']['root_pub_key']
                 new_key_material_json['eth_chainid'] = ether_chainid_data['data']['chain_id']
                 new_key_material = json.dumps(new_key_material_json)
-            self.did = generate_did(new_key_material, url)
+
+            did = generate_did(new_key_material, url)
+            self.did = ":".join(did.split(":")[0:-1]) + ":" + did[-6:]
             key = json.loads(new_key_material)
             url, self.didweb_document = gen_did_document(self.did, key)
 
         self.set_key_material(new_key_material)
+
+    def get_did_document(self):
+        key = json.loads(self.get_key_material())
+        url, self.didweb_document = gen_did_document(self.did, key)
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -553,14 +590,27 @@ class DID(models.Model):
         return Organization.objects.get(main=True)
 
     def get_path(self):
-        did_id = self.did.split(':')[-1]
-        return reverse("idhub:serve_did", args=[did_id])
+        if settings.DOMAIN == self.did.split(":")[2]:
+            did_id = self.did.split(':')[-1]
+            if "registry" in self.did:
+                return reverse("idhub:serve_registry_did", args=[did_id])
+            return reverse("idhub:serve_did", args=[did_id])
+
+        sdid = self.did[8:].split(":")
+        if len(sdid) == 2:
+            return "https://{}/.well-known/{}/did.json".format(*sdid)
+
+        return "https://{}/did.json".format("/".join(sdid))
 
     def has_link(self):
         linked_types = [self.Types.WEB, self.Types.WEBETH]
-        if self.type in linked_types:
+        if self.get_type() in linked_types:
             return True
         return False
+
+    def get_type(self):
+        return self.Types(self.type)
+
 
 class Context(models.Model):
     """

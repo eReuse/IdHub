@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.utils.html import format_html
 import django_tables2 as tables
 from idhub.models import Event, Membership, UserRol, DID, VerificableCredential
@@ -101,6 +102,7 @@ class DIDTable(tables.Table):
             },
             orderable=False
     )
+
     delete_template_code = """<a class="text-danger"
                             href="javascript:void()"
                             data-bs-toggle="modal"
@@ -115,7 +117,14 @@ class DIDTable(tables.Table):
 
     def render_did(self, record):
         if record.has_link():
-            return format_html('<a href="{}" target="_blank">{}</a>', record.get_path(), record.did)
+            txt = '<a href="{}" target="_blank">{}</a>'
+            r_path = record.get_path()
+            if not record.available:
+                txt = '<a href="{}" target="_blank" class="text-danger">{}</a>'
+                r_path = reverse("idhub:available_did", args=[record.did])
+
+            return format_html(txt, r_path, record.did)
+
         return record.did
 
     def render_edit(self):

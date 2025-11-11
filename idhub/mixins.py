@@ -98,17 +98,20 @@ class UserView(LoginRequiredMixin):
 class AdminView(UserView):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
+        if self.check_valid_user():
+            return redirect(reverse_lazy('idhub:user_dashboard'))
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.check_valid_user()
+        if self.check_valid_user():
+            return redirect(reverse_lazy('idhub:user_dashboard'))
         return super().post(request, *args, **kwargs)
 
     def check_valid_user(self):
         if not self.request.user.is_admin:
-            messages.error(self.request, _("User is not authorized to see admin pages, redirected to user dashboard"))
-            return redirect(reverse_lazy('idhub:user_dashboard'))
+            txt = _("User is not authorized to see admin pages, redirected to user dashboard")
+            messages.error(self.request, txt)
+            return True
 
         if self.request.session.get("2fauth"):
             raise Http403()
