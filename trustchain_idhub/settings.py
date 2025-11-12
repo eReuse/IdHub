@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_bootstrap5',
     'django_tables2',
+    'dbbackup',
     'idhub_auth',
     'oidc4vp',
     'idhub',
