@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_bootstrap5',
     'django_tables2',
+    'dbbackup',
     'idhub_auth',
     'oidc4vp',
     'idhub',
@@ -158,6 +159,20 @@ else:
             cast=db_url)
     }
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'
+   },
+    "dbbackup": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": os.path.join(BASE_DIR, "backups"),  # Secure folder custom
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
