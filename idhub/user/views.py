@@ -654,13 +654,19 @@ class DidRegisterView(MyWallet, FormView):
         return kwargs
 
     def form_valid(self, form):
-        form.save()
-        messages.success(self.request, _('DID created successfully'))
-        if 'pre_generated_did' in self.request.session:
-            del self.request.session['pre_generated_did']
+        try:
+            form.save()
+            if 'pre_generated_did' in self.request.session:
+                del self.request.session['pre_generated_did']
+        except Exception as err:
+            logger.error(err)
+            err_msg = _('DID could not be created: %(reason)s')
+            messages.error(self.request, err_msg % {'reason': str(err)})
+            return self.form_invalid(form)
 
         Event.set_EV_DID_CREATED(form.instance)
         Event.set_EV_DID_CREATED_BY_USER(form.instance)
+        messages.success(self.request, _('DID created successfully'))
         return super().form_valid(form)
 
 

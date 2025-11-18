@@ -202,8 +202,7 @@ class DIDForm(forms.ModelForm):
     def save(self, commit=True):
 
         self.instance.did = self._did
-        if not self.instance.is_web:
-            self.instance.set_did()
+        self.instance.set_did()
 
         if commit:
             self.instance.save()

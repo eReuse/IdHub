@@ -542,12 +542,13 @@ class DID(models.Model):
         if self.type == self.Types.KEY:
             self.did = generate_did(new_key_material)
         elif self.is_web:
-            url = "https://{}".format(settings.DOMAIN)
-            path = reverse("idhub:serve_did", args=["a"])
+            if not self.did:
+                url = "https://{}".format(settings.DOMAIN)
+                path = reverse("idhub:serve_did", args=["a"])
 
-            if path and ".well-known" not in path:
-                path = path.split("/a/did.json")[0]
-                url = "https://{}/{}".format(settings.DOMAIN, path)
+                if path and ".well-known" not in path:
+                    path = path.split("/a/did.json")[0]
+                    url = "https://{}/{}".format(settings.DOMAIN, path)
 
             if self.type == self.Types.WEBETH:
                 register_user_url = f"{settings.API_DLT_URL}/registerUser"
@@ -572,8 +573,10 @@ class DID(models.Model):
                 new_key_material_json['eth_chainid'] = ether_chainid_data['data']['chain_id']
                 new_key_material = json.dumps(new_key_material_json)
 
-            did = generate_did(new_key_material, url)
-            self.did = ":".join(did.split(":")[0:-1]) + ":" + did[-6:]
+            if not self.did:
+                did = generate_did(new_key_material, url)
+                self.did = ":".join(did.split(":")[0:-1]) + ":" + did[-6:]
+
             key = json.loads(new_key_material)
             url, self.didweb_document = gen_did_document(self.did, key)
 
