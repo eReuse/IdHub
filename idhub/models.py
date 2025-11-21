@@ -975,8 +975,7 @@ class VerificableCredential(models.Model):
 
         if did:
             self.subject_did = did
-        self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
-
+        self.set_issue_date()
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
 
@@ -1003,6 +1002,10 @@ class VerificableCredential(models.Model):
         self.data = self.user.encrypt_data(vc_str)
 
         self.status = self.Status.ISSUED
+
+    def set_issue_date(self):
+        if not self.issued_on:
+            self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
     def get_context(self, domain):
         d = json.loads(self.csv_data)
@@ -1056,10 +1059,9 @@ class VerificableCredential(models.Model):
         return context
 
     def get_context_untp(self, domain):
-        issuance_date = ''
-        if self.issued_on:
-            format = "%Y-%m-%dT%H:%M:%SZ"
-            issuance_date = self.issued_on.strftime(format)
+        self.set_issue_date()
+        format = "%Y-%m-%dT%H:%M:%SZ"
+        issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
         sid = self.id or 0
@@ -1083,6 +1085,10 @@ class VerificableCredential(models.Model):
         _vc_type= self.schema.get_schema_types
         _context_urls = self.schema.get_context_uris
 
+        cred_subject = self.json_data.copy()
+        if '@context' in cred_subject:
+            del cred_subject['@context']
+
         context = {
             'context': json.dumps(_context_urls),
             'id_credential': str(sid),
@@ -1093,6 +1099,7 @@ class VerificableCredential(models.Model):
             "credential_status_id": credential_status_id,
             "schema_id": self.schema.url,
             "subject_id": self.id_string,
+            "credential_subject": json.dumps(cred_subject),
             "type": json.dumps(_vc_type)
         }
 
@@ -1149,17 +1156,11 @@ class VerificableCredential(models.Model):
         d_ordered = ujson.loads(tmpl.render(context))
         url_context = urljoin(domain, reverse("idhub:context"))
 
-        subject_data = self.json_data.copy()
-        if '@context' in subject_data:
-            del subject_data['@context']
-
         if self.schema.context:
             d_ordered["@context"].append(self.schema.context)
         else:
             url_context = urljoin(domain, reverse("idhub:context"))
             d_ordered["@context"].append(url_context)
-
-        d_ordered["credentialSubject"] = subject_data
 
         d_minimum = self.filter_dict(d_ordered)
         # You can revoke only didweb
@@ -1178,13 +1179,15 @@ class VerificableCredential(models.Model):
         self.type = self.schema.get_type
 
     def filter_dict(self, dic):
+        #Quotes "", or '' are giving some trouble in jsonschema.validate
+        filtered_cases = [False, 0]
         new_dict = OrderedDict()
         for key, value in dic.items():
             if isinstance(value, dict):
                 new_value = self.filter_dict(value)
                 if new_value:
                     new_dict[key] = new_value
-            elif value:
+            elif value or value in filtered_cases:
                 new_dict[key] = value
         return new_dict
 
