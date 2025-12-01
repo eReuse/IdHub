@@ -19,7 +19,7 @@ from pyvckit.did import (
     gen_did_document,
 )
 from pyvckit.sign import sign
-from pyvckit.verify import verify_vc
+from pyvckit.verify import verify_signature
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
@@ -940,7 +940,7 @@ class VerificableCredential(models.Model):
         verify = not settings.DEBUG
         vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
-        valid = verify_vc(vc_str, verify=verify)
+        valid, _ = verify_signature(vc_str, verify=verify)
 
         if not valid:
             raise Exception(_("The credential is not valid"))
