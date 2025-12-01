@@ -10,7 +10,7 @@ from django.views.generic.base import View
 from django.core.cache import cache
 from django.http import JsonResponse
 from django_tables2 import SingleTableView
-from pyvckit.verify import verify_vp, verify_vc
+from pyvckit.verify import verify_vp_signature, verify_signature
 from uuid import uuid4
 from django.urls import reverse_lazy
 
@@ -52,14 +52,15 @@ def webhook_verify(request):
         except Exception:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-        func = verify_vp
+        func = verify_vp_signature
         if typ == "credential":
-            func = verify_vc
+            func = verify_signature
 
-        if func(vc):
+        valid, error_message = func(vc)
+        if valid:
             return JsonResponse({'status': 'success'}, status=200)
 
-        return JsonResponse({'status': 'fail'}, status=200)
+        return JsonResponse({'status': error_message }, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
