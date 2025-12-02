@@ -909,14 +909,18 @@ class VerificableCredential(models.Model):
 
         self.subject_did = did
         self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
+        format = "%Y-%m-%dT%H:%M:%SZ"
+        issuance_date = self.issued_on.strftime(format)
 
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.csv_data.encode()).hexdigest()
 
         key = self.issuer_did.get_key_material()
-        credential = self.render(domain)
+
+        context = {"issuance_date": issuance_date, "issuer_did": self.issuer_did.did}
+        tmpl = get_template("credentials/transaction.json")
+        cred = ujson.loads(tmpl.render(context))
         data = json.loads(self.csv_data)
-        cred = ujson.loads(credential)
         cred.update(data)
         credential = ujson.dumps(cred)
 
