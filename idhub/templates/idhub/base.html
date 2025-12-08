@@ -49,6 +49,27 @@
       footer {
         width: 100%;
       }
+
+      #navbar-brand-sm > .navbar-brand {
+          padding-top: .75rem;
+          padding-bottom: .5rem;
+      }
+      #navbar-brand-sm > .navbar-sub-brand {
+          font-size: 1.2rem;
+          padding-top: 0;
+          padding-bottom: .5rem;
+      }
+      /* Remove bullets from all sidebar <ul> */
+      #sidebarMenu ul {
+          list-style: none; /* removes bullets */
+          padding-left: 0;  /* removes indentation */
+          margin: 0;        /* optional: removes extra spacing */
+      }
+
+      /* Optional: adjust nested ul spacing */
+      #sidebarMenu ul ul {
+          padding-left: 2.60rem; /* indent nested items slightly */
+      }
     </style>
 
 
@@ -58,26 +79,38 @@
   {% endblock %}
   </head>
   <body>
-    <header class="navbar navbar-dark sticky-top bg-green flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">ID HUB</a>
-      <div class="navbar-nav navbar-sub-brand">
-         {{ org.name }}
-      </div>
-      <div class="navbar-nav">
-        <div class="nav-item text-nowrap">
-            <i id="user-avatar" class="bi bi-person-circle"></i>
-            <a class="navbar-sub-brand px-3" href="#">{{ user.username }}</a>
-            <a class="logout" href="{% url 'idhub:logout' %}">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </a>
-        </div>
-      </div>
+      <header class="navbar navbar-dark sticky-top bg-green flex-md-nowrap p-0 shadow">
+          <button class="btn d-md-none" type="button" id="sidebarToggle"
+                  data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+                  style="color: #fff; font-size: 1.5rem; border: none; background: none; padding: 0.5rem 1rem;">
+              <i class="bi bi-list"></i>
+          </button>
+          <div id="navbar-brand-sm" class="d-sm-none px-3">
+              <a class="navbar-brand " href="#">ID HUB</a>
+              <div class="navbar-nav navbar-sub-brand text-truncate" style="max-width: 300px;">
+                  {{ org.name }}
+              </div>
+          </div>
+          <a class="d-none d-sm-block navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">ID HUB</a>
+          <div class="d-none d-sm-block navbar-nav navbar-sub-brand text-truncate ms-auto" style="max-width: 300px;">
+              {{ org.name }}
+          </div>
+          <div class="ms-auto d-flex align-items-center gap-3 nav-link">
+              <a class="navbar-sub-brand d-flex align-items-center text-decoration-none bg-hover"
+                 href="#" aria-expanded="false">
+                  <i class="bi bi-person-circle me-2"></i>
+                  <span class="d-none d-md-inline">{{ user.username }}</span>
+              </a>
+              <a class="logout" href="{% url 'idhub:logout' %}">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              </a>
+          </div>
     </header>
 
     <div class="container-fluid">
       <div class="row">
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-          <div class="position-sticky pt-5">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse collapse-horizontal">
+          <div class="position-sticky pt-md-5">
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a class="nav-link {% if section == 'Home' %}active {% endif %}fw-bold" aria-current="page" href="{% url 'idhub:user_dashboard' %}">
