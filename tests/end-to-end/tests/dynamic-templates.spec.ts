@@ -126,7 +126,7 @@ test.describe.serial("dynamic template tour", () => {
         await page.getByRole('link', { name: ' Templates' }).click();
         await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
-        await page.getByRole('button', { name: 'Enable Schema from File' }).click();
+        await page.getByRole('button', { name: 'Enable from File' }).click();
         const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
         await page.getByLabel('Schema to import').setInputFiles(schema_path);
         const context_path = path.resolve(__dirname, `../../../context/${credential}.jsonld`);
@@ -158,7 +158,7 @@ test.describe.serial("dynamic template tour", () => {
         await page.getByRole('link', { name: ' Templates' }).click();
         await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
-        await page.getByRole('button', { name: 'Enable Schema from File' }).click();
+        await page.getByRole('button', { name: 'Enable from File' }).click();
         const schema_path = path.resolve(__dirname, `../../../schemas/${credential}.json`);
         await page.getByLabel('Schema to import').setInputFiles(schema_path);
         await page.getByRole('button', { name: 'Save' }).click();
@@ -192,7 +192,7 @@ test.describe.serial("dynamic template tour", () => {
         await page.getByRole('link', { name: ' Templates' }).click();
         await page.getByRole('link', { name: 'Schemas' }).click();
         await page.getByRole('link', { name: 'Upload template ' }).click();
-        await page.getByRole('button', { name: 'Enable Schema from URL' }).click();
+        await page.getByRole('button', { name: 'Enable from URL' }).click();
 
         await page.getByLabel('Schema url reference').fill(`https://idhub.pangea.org/vc_schemas/${credential}.json`);
         await page.getByLabel('Context url reference').fill(`https://idhub.pangea.org/context/${credential}.jsonld`);
