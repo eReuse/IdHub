@@ -19,7 +19,7 @@ test('credential without html template', async ({ page }) => {
     await page.getByRole('link', { name: ' Templates' }).click();
     await page.getByRole('link', { name: 'Schemas' }).click();
     await page.getByRole('link', { name: 'Upload template ' }).click();
-    await page.getByRole('button', { name: 'Enable Schema from URL' }).click();
+    await page.getByRole('button', { name: 'Enable from URL' }).click();
     await page.getByRole('textbox', { name: 'Schema url reference' }).fill('https://idhub.pangea.org/vc_schemas/course-credential.json');
     await page.getByRole('textbox', { name: 'Context url reference' }).click();
     await page.getByRole('textbox', { name: 'Context url reference' }).fill('https://idhub.pangea.org/context/course-credential.jsonld');
