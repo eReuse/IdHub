@@ -12,7 +12,7 @@ from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
 from idhub_auth.models import User
 from django.db import models
-from pyvckit.verify import verify_vp
+from pyvckit.verify import verify_vp_signature
 
 
 SALT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -271,7 +271,7 @@ class OAuth2VPToken(models.Model):
         return self.authorization.code
 
     def verifing(self):
-        self.result_verify = verify_vp(self.vp_token)
+        self.result_verify, _ = verify_vp_signature(self.vp_token)
 
     def get_result_verify(self):
         if not self.result_verify:
