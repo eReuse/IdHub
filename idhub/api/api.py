@@ -10,6 +10,7 @@ from idhub.models import DID, Schemas, VerificableCredential
 from .schemas import IssueCredentialPayload, ErrorResponse
 from ninja.security import HttpBearer
 from webhook.models import Token
+from pyvckit.verify import verify_schema
 
 api_v1 = NinjaAPI(version='1.0.0', title="IdHub v1 API")
 
@@ -73,7 +74,9 @@ def issue_credential(request, payload: IssueCredentialPayload):
 
     obj_did = None
     # Check for existing credentials to prevent duplicates
-    if VerificableCredential.objects.filter(schema=schema, issuer_did=issuer_did, status=VerificableCredential.Status.ISSUED, subject_id=subject_id).exists():
+    if VerificableCredential.objects.filter(schema=schema, issuer_did=issuer_did, status=VerificableCredential.Status.ISSUED,
+                                            subject_id=subject_id).exists():
+
         return 409, {'error': 'A credential for this subject already exists.'}
 
     if payload.create_did:
@@ -93,10 +96,6 @@ def issue_credential(request, payload: IssueCredentialPayload):
         cleaned_subject["id"] = obj_did.did
         subject_id = obj_did.did
 
-    if VerificableCredential.objects.filter(
-        schema=schema, issuer_did=issuer_did, status=VerificableCredential.Status.ISSUED, subject_id=subject_id
-    ).exists():
-        return 409, {'error': 'A credential for this subject already exists.'}
 
     try:
         domain = f"https://{settings.DOMAIN}/"
@@ -111,14 +110,12 @@ def issue_credential(request, payload: IssueCredentialPayload):
         cred.set_type()
 
 
+        verify = not settings.DEBUG
         # Validate the final rendered JSON against the schema before signing
         rendered_json_str = cred.render(domain)
-        instance_to_validate = json.loads(rendered_json_str)
-        jsonschema.validate(
-            instance=instance_to_validate,
-            schema=json.loads(schema.data),
-            format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
-        )
+        valid, _ = verify_schema(rendered_json_str, verify=verify)
+        if not valid:
+            return 400, {'error': 'Schema validation failed.', 'details': e.message, 'path': list(e.path)}
 
         cred.issue(did=obj_did, domain=domain)
         cred.save()
