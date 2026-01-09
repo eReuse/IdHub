@@ -67,7 +67,7 @@ class Command(BaseCommand):
         if self.predefined_token:
             tk = Token.objects.filter(token=self.predefined_token).first()
             if not tk:
-                Token.objects.create(token=self.predefined_token)
+                Token.objects.create(token=self.predefined_token, owner = su)
 
         self.create_default_did()
 
