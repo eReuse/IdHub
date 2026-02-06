@@ -1,4 +1,5 @@
 import json
+import hashlib
 import logging
 
 from datetime import datetime
@@ -107,7 +108,7 @@ def webhook_issue(request):
 
         try:
             jvc = json.loads(vc)
-            jvc["operatorId"] = jvc.get("operator_id", "--")
+            jvc["operatorId"] = jvc.get("token_hash", "--")
             timestamp = jvc.get("timestamp", str(datetime.now()))
             dmidecode = jvc.get("data", {}).get("dmidecode", '""')
             inxi = jvc.get("data", {}).get("inxi", '""')
@@ -226,6 +227,8 @@ class TokenNewView(AdminView, CreateView):
     #     return redirect('webhook:tokens')
 
     def form_valid(self, form):
-        form.instance.token = uuid4()
+        token = uuid4()
+        form.instance.token = token
+        form.instance.token = hashlib.sha3_256(token).hexdigest()
         form.save()
         return super().form_valid(form)

@@ -7,4 +7,5 @@ from django.utils.translation import gettext_lazy as _
 class Token(models.Model):
     token = models.UUIDField()
     label = models.CharField(_("Label"), max_length=250, default="")
+    hash = models.CharField(_("Hash"), max_length=355, default="")
     active = models.BooleanField(_("Active"), default=True)
