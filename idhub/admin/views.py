@@ -777,8 +777,8 @@ class DidsView(Credentials, SingleTableView):
             self.object_list = dids.filter(eidas1=False)
 
         context = super().get_context_data(**kwargs)
-        eidas1 = dids.filter(eidas1=True)
-        eidas2 = dids.filter(eidas1=False)
+        eidas1 = dids.filter(eidas1=True, is_product=False)
+        eidas2 = dids.filter(eidas1=False, is_product=False)
         table_eidas1 = DIDTable(eidas1)
         table_eidas2 = DIDTable(eidas2)
 
@@ -1286,6 +1286,7 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
     table_class = DIDTable
     form_class = ObjectDidImportForm
     success_url = reverse_lazy("idhub:admin_dids")
+    paginate_by = 5
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -1297,4 +1298,4 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
         return self.form_invalid(form)
 
     def get_queryset(self):
-        return DID.objects.filter(user__isnull=True, is_product=True)
+        return DID.objects.filter(user__isnull=True, is_product=True).order_by("created_at")
