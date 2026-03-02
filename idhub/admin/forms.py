@@ -699,7 +699,8 @@ class DIDForm(forms.ModelForm):
         self.instance.label = label
         if self.instance.did != self._did:
             self.instance.did = self._did
-            self.instance.get_did_document()
+            if self.instance.key_material:
+                self.instance.get_did_document()
             if settings.DOMAIN != self._did.split(":")[2]:
                 self.instance.available = False
 

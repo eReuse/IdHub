@@ -1,13 +1,27 @@
 from ninja import Schema
 from typing import Dict, List, Any, Optional
 
+class CreateObjectDIDPayload(Schema):
+    suffix_did_id: str
+    service_endpoint: Optional[str] = ""
+    label: Optional[str] = None
+
+class CreateObjectDIDResponse(Schema):
+    did: str
+    did_document: Dict[str, Any]
+
+class UpdateServiceEndpointPayload(Schema):
+    did: str
+    service_endpoint: str
+
+class UpdateServiceEndpointResponse(Schema):
+    success: bool
+    did: str
+    service_endpoint: str
 
 class IssueDPPayload(Schema):
     schema_name: str
-    create_did: bool = False
-    subject_did_suffix: Optional[str] = None
     issuer_did: str
-    service_endpoint: Optional[str] = None
     credentialSubject: Dict[str, Any]
 
 class IssueFacilityPayload(Schema):
@@ -17,7 +31,6 @@ class IssueFacilityPayload(Schema):
 
 class IssueTraceabilityPayload(Schema):
     schema_name: str
-    subject_did_suffix: str
     issuer_did: str
     credentialSubject: List[Dict[str, Any]]
 

@@ -1298,4 +1298,4 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
         return self.form_invalid(form)
 
     def get_queryset(self):
-        return DID.objects.filter(user__isnull=True, is_product=True).order_by("created_at")
+        return DID.objects.filter(is_product=True).order_by("created_at")
