@@ -54,12 +54,25 @@ def _find_issuer_did(requested_did: str, user):
 
 
 @api_v1.post("object-did/create/",
-             response={201: CreateObjectDIDResponse, 400: ErrorResponse, 500: ErrorResponse},
+             response={200: CreateObjectDIDResponse, 201: CreateObjectDIDResponse, 400: ErrorResponse, 500: ErrorResponse},
              summary="Create a new Object DID",
              auth=DatabaseTokenAuth())
 def create_object_did(request, payload: CreateObjectDIDPayload):
     try:
         expected_did = f"did:web:{settings.DOMAIN}:{payload.suffix_did_id}"
+        existing_did = DID.objects.filter(did=expected_did, is_product=True).first()
+
+        if existing_did:
+            if payload.service_endpoint and existing_did.service_endpoint != payload.service_endpoint:
+                existing_did.service_endpoint = payload.service_endpoint
+                existing_did.save(update_fields=['service_endpoint', ])
+
+            doc_json = json.loads(existing_did.didweb_document) if existing_did.didweb_document else {}
+            return 200, {
+                "did": existing_did.did,
+                "did_document": doc_json
+            }
+
         form_data = {
             'label': payload.label or f"device-{payload.suffix_did_id}",
             'type': DID.Types.WEB.value,
