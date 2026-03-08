@@ -131,7 +131,8 @@ def update_did_service_endpoint(request, payload: UpdateServiceEndpointPayload):
 
     
 
-@api_v1.post("issue-dpp/", response={201: SignedCredentialResponse},
+@api_v1.post("issue-dpp/",
+             response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
              summary="Issue Digital Product Passport", auth=DatabaseTokenAuth())
 def issue_dpp_credential(request, payload: IssueDPPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
@@ -142,8 +143,6 @@ def issue_dpp_credential(request, payload: IssueDPPayload):
     did_obj = DID.objects.filter(did=subject_did_str, is_product=True).first()
 
 
-
-
     return process_credential_issuance(
         request, payload.schema_name, cleaned_subject,
         ["VerifiableCredential", "DigitalProductPassport"],
@@ -151,7 +150,9 @@ def issue_dpp_credential(request, payload: IssueDPPayload):
     )
 
 
-@api_v1.post("issue-facility/", response={201: SignedCredentialResponse}, summary="Issue Digital Facility Record", auth=DatabaseTokenAuth())
+@api_v1.post("issue-facility/",
+    response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
+    summary="Issue Digital Facility Record", auth=DatabaseTokenAuth())
 def issue_facility_credential(request, payload: IssueFacilityPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
 
@@ -163,8 +164,9 @@ def issue_facility_credential(request, payload: IssueFacilityPayload):
     )
 
 
-@api_v1.post("issue-traceability/", response={201: SignedCredentialResponse},
-             summary="Issue Traceability Event Batch", auth=DatabaseTokenAuth())
+@api_v1.post("issue-traceability/",
+    response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
+    summary="Issue Traceability Event Batch", auth=DatabaseTokenAuth())
 def issue_traceability_credential(request, payload: IssueTraceabilityPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
     events_list = payload.credentialSubject
