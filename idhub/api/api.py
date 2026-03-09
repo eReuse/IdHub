@@ -93,6 +93,8 @@ def create_object_did(request, payload: CreateObjectDIDPayload):
         form.instance.service_endpoint = payload.service_endpoint
 
         obj_did = form.save(commit=True)
+        obj_did.set_did()
+        obj_did.save()
         doc_json = json.loads(obj_did.didweb_document) if obj_did.didweb_document else {}
 
         return 201, {
