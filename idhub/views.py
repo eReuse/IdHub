@@ -14,7 +14,7 @@ from django.contrib.auth import login as auth_login
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 
 from idhub.models import DID, VerificableCredential, Schemas, Context, ContextFile
 from idhub.email.views import NotifyActivateUserByEmail
@@ -148,6 +148,22 @@ def ServeDidView(request, did_id):
         id_did = f'did:web:{domain}:{did_path}'
 
     did = get_object_or_404(DID, did=id_did)
+
+    if not did.didweb_document:
+        if did.key_material:
+            try:
+                document = did.get_did_document()
+            except Exception as e:
+                return JsonResponse({"error": "DID keys exist but document generation failed."}, status=500)
+        else:
+            return JsonResponse({"error": "DID exists but no document or keys have been generated."}, status=404)
+    else:
+        try:
+            document = json.loads(did.didweb_document)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "DID Document in database is corrupt or invalid JSON."}, status=500)
+
+
     # Deserialize the base DID from JSON storage
     document = json.loads(did.didweb_document)
     # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
