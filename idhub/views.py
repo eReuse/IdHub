@@ -132,7 +132,13 @@ def ServeDidRegistryView(request, did_id):
 
 def ServeDidView(request, did_id):
     domain = settings.DOMAIN
-    id_did = f'did:web:{domain}:{did_id}'
+
+    if not did_id or did_id == ".well-known":
+        id_did = f'did:web:{domain}'
+    else:
+        did_path = did_id.replace("/", ":")
+        id_did = f'did:web:{domain}:{did_path}'
+
     did = get_object_or_404(DID, did=id_did)
     # Deserialize the base DID from JSON storage
     document = json.loads(did.didweb_document)
@@ -159,7 +165,7 @@ def ServeDidView(request, did_id):
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
     retval = HttpResponse(document)
-    retval.headers["Content-Type"] = "application/json"
+    retval.headers["Content-Type"] = "application/did+ld+json"
     return retval
 
 

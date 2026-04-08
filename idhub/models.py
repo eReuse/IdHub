@@ -590,17 +590,26 @@ class DID(models.Model):
         return Organization.objects.get(main=True)
 
     def get_path(self):
-        if settings.DOMAIN == self.did.split(":")[2]:
-            did_id = self.did.split(':')[-1]
-            if "registry" in self.did:
-                return reverse("idhub:serve_registry_did", args=[did_id])
-            return reverse("idhub:serve_did", args=[did_id])
 
-        sdid = self.did[8:].split(":")
-        if len(sdid) == 2:
-            return "https://{}/.well-known/{}/did.json".format(*sdid)
+        didp = self.did.split(":")
+        domain = didp[2]
+        did_path = didp[3:]
 
-        return "https://{}/did.json".format("/".join(sdid))
+        if settings.DOMAIN == domain:
+            if not did_path:
+                return reverse("idhub:serve_root_did")
+            else:
+                path_str = "/".join(did_path)
+                if "registry" in self.did:
+                    return reverse("idhub:serve_registry_did", args=[path_str])
+            return reverse("idhub:serve_did", args=[path_str])
+
+        protocol = "https"
+        if not did_path:
+            return f"{protocol}://{domain}/.well-known/did.json"
+
+        url_path = "/".join(did_path)
+        return f"{protocol}://{domain}/{url_path}/did.json"
 
     def has_link(self):
         linked_types = [self.Types.WEB, self.Types.WEBETH]
