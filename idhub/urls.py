@@ -202,7 +202,10 @@ urlpatterns = [
          views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
 
     path('did-registry/<str:did_id>/did.json', ServeDidRegistryView, name="serve_registry_did"),
-    path('.well-known/<str:did_id>/did.json', ServeDidView, name="serve_did"),
+
+    path('.well-known/did.json', ServeDidView, kwargs={'did_id': None}, name='serve_root_did'),
+    path('<path:did_id>/did.json', ServeDidView, name='serve_did'),
+
     path('available/<str:did_id>/', AvailableDidView.as_view(), name="available_did"),
     path('schema/<str:file_name>', SchemaView, name="schema"),
     path('context/base.jsonld', ContextView, name="context"),
