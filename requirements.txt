@@ -7,14 +7,14 @@ django-ninja==1.4.3
 black==23.9.1
 python-decouple==3.8
 jsonschema[format]==4.19.1
-pandas==2.1.1
+pandas==2.3.3
 numpy>=1.21,<2.0
 xlrd==2.0.1
 odfpy==1.4.1
 requests==2.31.0
 jinja2==3.1.2
 jsonref==1.1.0
-lxml==5.1.0
+lxml==5.4.0
 pyld==2.0.3
 pynacl==1.5.0
 more-itertools==10.1.0
@@ -37,6 +37,6 @@ jsonpath_ng==1.6.1
 pyroaring==0.4.5
 coverage==7.4.3
 gunicorn==21.2.0
-pyvckit
+git+https://github.com/ereuse/pyvckit.git@path_level_did_resolver
 psycopg2-binary==2.9.10
 xlsxwriter==3.2.3
