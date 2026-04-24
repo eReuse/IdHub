@@ -719,10 +719,33 @@ class CredentialJsonView(Credentials):
             VerificableCredential,
             pk=pk,
         )
-        response = HttpResponse(self.object.get_data(), content_type="application/json")
-        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
-        return response
 
+        raw_data = self.object.get_data()
+        if request.GET.get('format') == 'jwt':
+            try:
+                cred_dict = json.loads(raw_data)
+                jwt_string = ""
+
+                vc_wrapper = cred_dict.get("verifiableCredential", {})
+                if vc_wrapper.get("type") == "EnvelopedVerifiableCredential":
+                    data_uri = vc_wrapper.get("id", "")
+                    if "data:application/vc+jwt," in data_uri:
+                        jwt_string = data_uri.split("data:application/vc+jwt,")[1]
+
+                if not jwt_string:
+                    domain = f"https://{request.get_host()}"
+                    jwt_string = self.object.generate_enveloped_jwt(domain)
+
+                response = HttpResponse(jwt_string, content_type="application/jwt")
+                response['Content-Disposition'] = 'attachment; filename="credential_jwt.json"'
+                return response
+
+            except Exception as e:
+                pass
+
+        response = HttpResponse(raw_data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename="credential.json"'
+        return response
 
 class RevokeCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
