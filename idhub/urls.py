@@ -28,6 +28,7 @@ from .views import (
     ContextView,
     ContextFileView,
     DobleFactorSendView,
+    PublicVerificationView,
 )
 from .admin import views as views_admin
 from .user import views as views_user
@@ -211,8 +212,8 @@ urlpatterns = [
     path('available/<str:did_id>/', AvailableDidView.as_view(), name="available_did"),
     path('schema/<str:file_name>', SchemaView, name="schema"),
     path('context/base.jsonld', ContextView, name="context"),
-    path('context/<str:file_name>', ContextFileView, name="context_file")
+    path('context/<str:file_name>', ContextFileView, name="context_file"),
 
-    # path('verification_portal/verify/', views_verification_portal.verify,
-    #      name="verification_portal_verify")
+    path('verify/', PublicVerificationView.as_view(),
+         name="verification_portal_verify")
 ]
