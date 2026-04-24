@@ -40,3 +40,4 @@ gunicorn==21.2.0
 git+https://github.com/ereuse/pyvckit.git@path_level_did_resolver
 psycopg2-binary==2.9.10
 xlsxwriter==3.2.3
+pyjwt==2.12.1

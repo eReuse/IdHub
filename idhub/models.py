@@ -6,6 +6,8 @@ import hashlib
 import logging
 import datetime
 import requests
+import jwt
+from jwt.algorithms import get_default_algorithms
 from collections import OrderedDict
 from urllib.parse import urljoin
 from django.db import models
@@ -19,6 +21,7 @@ from pyvckit.did import (
     gen_did_document,
 )
 from pyvckit.sign import sign
+from idhub.credential_renderer import generate_universal_template
 from pyvckit.verify import verify_signature, verify_schema
 
 from oidc4vp.models import Organization
@@ -1194,6 +1197,91 @@ class VerificableCredential(models.Model):
 
         return ujson.dumps(d_minimum, escape_forward_slashes=False)
 
+
+    def generate_enveloped_jwt(self, domain=""):
+        """
+        Experimental: grabs the raw UNTP credential, formats it into a W3C Enveloped VC payload,
+        and returns the fully signed JWT string.
+        """
+        untp_type = self.is_untp()
+        if not untp_type:
+            raise ValueError("This credential is not a UNTP type.")
+
+        raw_vc_str = self.render_untp(untp_type, domain)
+        raw_vc = ujson.loads(raw_vc_str)
+
+        dynamic_html = generate_universal_template(raw_vc)
+        raw_vc["renderMethod"] = [
+            {
+                "type": "WebRenderingTemplate2022",
+                "template": dynamic_html
+            }
+        ]
+
+        vc_id = raw_vc.pop("id", "")
+
+        issuer_obj = raw_vc.pop("issuer", {})
+        iss = issuer_obj.get("id") if isinstance(issuer_obj, dict) else self.issuer_did.did
+
+        valid_from_str = raw_vc.pop("validFrom", raw_vc.pop("issuanceDate", None))
+        if not valid_from_str:
+             valid_from_str = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        nbf_timestamp = int(datetime.datetime.strptime(valid_from_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
+
+        jwt_payload = {
+            "jti": vc_id,
+            "iss": iss,
+            "nbf": nbf_timestamp,
+            "iat": nbf_timestamp,
+            "vc": raw_vc
+        }
+
+        valid_until_str = raw_vc.pop("validUntil", raw_vc.pop("expirationDate", None))
+        if valid_until_str:
+            exp_timestamp = int(datetime.datetime.strptime(valid_until_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
+            jwt_payload["exp"] = exp_timestamp
+
+        raw_jwk_str = self.issuer_did.get_key_material()
+
+        headers = {
+            "typ": "vc+jwt",
+            "cty": "vc",
+            "kid": f"{iss}#key-1"
+        }
+
+        try:
+            eddsa_alg = get_default_algorithms()["EdDSA"]
+            private_key = eddsa_alg.from_jwk(raw_jwk_str)
+
+        except Exception as e:
+            raise ValueError(f"Failed to parse Ed25519 JWK: {e}")
+
+
+        dynamic_html = generate_universal_template(raw_vc)
+
+
+        enveloped_jwt = jwt.encode(
+            jwt_payload,
+            private_key,
+            algorithm="EdDSA",
+            headers=headers
+        )
+
+        untp_context = self.schema.context if self.schema.context else "https://test.uncefact.org/vocabulary/untp/core/0/"
+
+        wrapped_vc = {
+            "verifiableCredential": {
+                "@context": [
+                    "https://www.w3.org/ns/credentials/v2",
+                    str(untp_context)
+                ],
+                "type": "EnvelopedVerifiableCredential",
+                "id": f"data:application/vc+jwt,{enveloped_jwt}"
+            }
+        }
+
+        return ujson.dumps(wrapped_vc, escape_forward_slashes=False)
 
     def render(self, domain=""):
         if (_untp_type := self.is_untp()) is not None:
