@@ -233,55 +233,87 @@ class ImportSchemaForm(forms.Form):
 
 
 class ImportSchemaUrlForm(forms.Form):
-    schema = forms.CharField(label=_("Schema url reference"))
-    context = forms.CharField(label=_("Context url reference"))
+    schema_url = forms.URLField(label=_("Schema URL reference"))
+    context_url = forms.URLField(label=_("Context URL reference"), required=False)
 
     def clean(self):
-        schema = self.cleaned_data["schema"]
-        self.context = self.cleaned_data["context"]
+        cleaned_data = super().clean()
+        schema_url = cleaned_data.get("schema_url")
+        context_url = cleaned_data.get("context_url")
+
+        if not schema_url:
+            return cleaned_data
 
         try:
-            path= urlparse(schema).path
-            self.file_name = path.split("/")[-1]
-            if self.file_name[-5:] != ".json":
-                self.file_name += ".json"
-            self.schema = requests.get(schema).json()
+            path = urlparse(schema_url).path
+            file_name = path.split("/")[-1]
+            if not file_name.endswith(".json"):
+                file_name += ".json"
+            cleaned_data["file_name"] = file_name
         except Exception:
-             raise ValidationError(_("This schema not is a json file"))
+            raise ValidationError(_("This schema not is a json file"))
+
+        if Schemas.objects.filter(_name=schema_url).exists():
+            raise ValidationError(_("Schema exist!"))
 
         try:
-            res = requests.get(self.context)
-            assert 200 <= res.status_code < 300
-            res.json()
+            res = requests.get(schema_url, timeout=10)
+            res.raise_for_status()
+            schema_data = res.json()
+            cleaned_data["schema_data"] = json.dumps(schema_data)
         except Exception:
-             raise ValidationError(_("This context is not accessible"))
+            raise ValidationError(_("Could not download or parse the schema as a valid JSON file."))
+
+        if context_url:
+            try:
+                res = requests.get(context_url, timeout=10)
+                res.raise_for_status()
+                res.json()
+            except Exception:
+                raise ValidationError(_("The context URL is not accessible or is not valid JSON."))
 
         try:
-            assert credtools.validate_schema(self.schema)
-            assert self.schema.get('name')
-            assert self.schema.get('title')
+            assert credtools.validate_schema(schema_data)
         except Exception:
             raise ValidationError(_("This is not a valid schema!"))
 
-        if Schemas.objects.filter(_name=self.schema["name"]).exists():
-            raise ValidationError(_("Schema exist!"))
 
         return self.cleaned_data
 
     def save(self):
-        _name = json.dumps(self.schema.get("name"))
-        _description = json.dumps(self.schema.get("description"))
-        title = self.schema.get("title")
-        data = json.dumps(self.schema)
+        schema_url = self.cleaned_data["schema_url"]
+        context_url = self.cleaned_data.get("context_url", "")
+        schema_dict = json.loads(self.cleaned_data["schema_data"])
+        file_name = self.cleaned_data["file_name"]
+
+
+        raw_name = schema_dict.get("title") or schema_dict.get("name")
+        if not raw_name:
+            vc_types = schema_dict.get("properties", {}).get("type", {}).get("default", [])
+
+            if isinstance(vc_types, list) and vc_types:
+                if "VerifiableCredential" in vc_types:
+                    vc_types = ["VerifiableCredential"] + [t for t in vc_types if t != "VerifiableCredential"]
+
+                raw_name = " - ".join(vc_types)
+            else:
+                raw_name = file_name
+
+        raw_desc = schema_dict.get("description", "")
+        _description = raw_desc[:250] if raw_desc else None
+        _name = json.dumps([{"value": raw_name, "lang": "en"}])
+
         schema = Schemas.objects.create(
-            file_schema=self.file_name,
-            data=data,
+            file_schema=file_name,
+            data=self.cleaned_data["schema_data"],
             _name=_name,
             _description=_description,
-            type=title,
-            template_description=_description,
-            context=self.context
+            template_description=raw_desc,
+            context=context_url
         )
+        schema.validation_url = schema_url if schema_url else ""
+        schema.type = schema.get_type
+        schema.save()
 
         return schema
 
@@ -796,27 +828,38 @@ class ObjectDidImportForm(forms.Form):
         if not file_data or not schema or not issuer:
             return cleaned_data
 
-        # Check for existing credentials if not creating a new DID
-        subject_id = file_data.get("credentialSubject", {}).get("id")
-        if not subject_id:
-             raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject' with an 'id'."))
+        cred_subject = file_data.get("credentialSubject")
+        if not cred_subject:
+             raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject'."))
+
+        if isinstance(cred_subject, dict):
+            subjects = [cred_subject]
+        elif isinstance(cred_subject, list):
+            subjects = cred_subject
+        else:
+             raise ValidationError(_("'credentialSubject' must be an object or an array of objects."))
+
+        subject_ids = [sub.get("id") for sub in subjects if isinstance(sub, dict) and sub.get("id")]
+
+        if not subject_ids:
+             raise ValidationError(_("The 'credentialSubject' must contain at least one 'id'."))
 
         exists = VerificableCredential.objects.filter(
             schema=schema,
             issuer_did=issuer,
             status=VerificableCredential.Status.ISSUED,
-            subject_id=subject_id
+            subject_id__in=subject_ids
         ).exists()
 
         if exists and not create_did:
-            raise ValidationError(_("A credential for this subject already exists."))
+            raise ValidationError(_("A credential for one or more of these subjects already exists."))
 
-        # If creating a DID, ensure a method is selected
         if create_did and not cleaned_data.get('did_method'):
             self.add_error('did_method', _("This field is required when creating a new DID."))
 
-        return cleaned_data
+        cleaned_data['extracted_subject_ids'] = subject_ids
 
+        return cleaned_data
 
     def _create_did_if_needed(self):
         if not self.cleaned_data.get("create_did"):
@@ -879,13 +922,23 @@ class ObjectDidImportForm(forms.Form):
         schema = self.cleaned_data["schema"]
 
         if obj_did:
-            # If a new DID was created, update the subject ID in the data.
-            file_data["credentialSubject"]["id"] = obj_did.did
+            cred_subject = file_data.get("credentialSubject", {})
 
-        # Create and issue the credential.
+            if isinstance(cred_subject, dict):
+                cred_subject["id"] = obj_did.did
+
+            elif isinstance(cred_subject, list):
+                raise ValidationError(
+                    _("Cannot assign a single new DID to a credential containing multiple subjects. Please ensure the uploaded JSON already contains the correct IDs for each item, or upload them individually.")
+                )
+
         domain = f"https://{settings.DOMAIN}/"
         cred = self._create_credential(user, file_data, obj_did, issuer_did, schema, domain)
-        cred.issue(obj_did, domain)
+
+
+        issue_target_did = obj_did if obj_did else issuer_did
+        cred.issue(issue_target_did, domain)
+
         cred.save()
 
         return cred

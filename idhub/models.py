@@ -673,8 +673,42 @@ class Schemas(models.Model):
     _description = models.CharField(_("Description"), max_length=250, null=True, db_column='description')
     template_description = models.TextField(null=True)
     context = models.CharField(_('Context'), null=True, max_length=250)
+    validation_url = models.CharField(_('Validation URL'), max_length=500, blank=True, null=True)
 
     objects = SchemaManager()
+
+    def save(self, *args, **kwargs):
+        #calculate validation url given that sometimes it is not onto the $id field in the schema
+        if not self.validation_url:
+            schema_id = ""
+            schema_data = {}
+
+            try:
+                if self.data:
+                    schema_data = json.loads(self.data)
+            except Exception:
+                pass
+
+            json_id = schema_data.get("$id", "")
+            if json_id and str(json_id).startswith("http"):
+                schema_id = str(json_id)
+
+            elif self.file_schema and str(self.file_schema).startswith("http"):
+                schema_id = str(self.file_schema)
+
+            elif self.context and str(self.context).startswith("http"):
+                context_base = str(self.context)
+                if not context_base.endswith('/'):
+                    context_base += '/'
+                schema_id = urljoin(context_base, str(self.file_schema))
+
+            elif self.file_schema:
+                filename = str(self.file_schema)
+                schema_id = filename if filename.startswith("/") else f"/schemas/{filename}"
+
+            self.validation_url = schema_id
+
+        super().save(*args, **kwargs)
 
     @property
     def get_schema(self):
@@ -702,8 +736,7 @@ class Schemas(models.Model):
 
     @property
     def url(self):
-        sh = self.get_schema
-        return sh.get("$id", "")
+        return self.validation_url
 
     @property
     def get_type(self):
@@ -1073,40 +1106,66 @@ class VerificableCredential(models.Model):
         issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
+
+        did_parts = self.issuer_did.did.split(":")
+        if len(did_parts) >= 3 and did_parts[0] == "did" and did_parts[1] == "web":
+            original_domain = did_parts[2]
+            protocol = "http" if "localhost" in original_domain else "https"
+            base_url = f"{protocol}://{original_domain}"
+        else:
+            base_url = domain.rstrip('/')
+
+
         sid = self.id or 0
-        if self.eidas1_did:
-            cred_path = 'public/credentials'
-            sid = self.hash
-
-        url_id = "{}/{}/{}".format(
-            domain,
-            cred_path,
-            sid
-        )
-
+        url_id = f"{base_url}/{cred_path}/{sid}"
         org = Organization.objects.get(main=True)
 
-        # TODO support revocation
-        credential_status_id = 'https://revocation.not.supported/'
-        if self.issuer_did.type == DID.Types.WEB:
-            credential_status_id = self.issuer_did.did
-
-        _vc_type= self.schema.get_schema_types
+        _vc_type = self.schema.get_schema_types
         _context_urls = self.schema.get_context_uris
+
+        if not isinstance(_context_urls, list):
+            _context_urls = [_context_urls] if _context_urls else []
+
+        if self.schema.context:
+            schema_ctx = str(self.schema.context)
+            if not schema_ctx.startswith("http"):
+                schema_ctx = urljoin(base_url, schema_ctx)
+
+            if schema_ctx not in _context_urls:
+                _context_urls.append(schema_ctx)
+        else:
+            local_ctx = urljoin(domain, reverse("idhub:context"))
+            if local_ctx not in _context_urls:
+                _context_urls.append(local_ctx)
+
+        #Add jws context for validation compliance
+        jws_ctx = "https://w3id.org/security/suites/jws-2020/v1"
+        if jws_ctx not in _context_urls:
+            _context_urls.append(jws_ctx)
+
+        sec_v2_ctx = "https://w3id.org/security/v2"
+        if sec_v2_ctx not in _context_urls:
+            _context_urls.append(sec_v2_ctx)
 
         cred_subject = self.json_data.copy()
         if '@context' in cred_subject:
             del cred_subject['@context']
 
+        schema_id = ""
+        if self.schema.url and str(self.schema.url).startswith("http"):
+            schema_id = self.schema.url
+        elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
+            schema_id = str(self.schema.file_schema)
+        else:
+            schema_id = urljoin(domain, f"/schema/{self.schema.file_schema}")
+
         context = {
             'context': json.dumps(_context_urls),
-            'id_credential': str(sid),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
             "issuance_date": issuance_date,
             "name": getattr(org, "name", "") or "",
-            "credential_status_id": credential_status_id,
-            "schema_id": self.schema.url,
+            "schema_id": schema_id,
             "subject_id": self.id_string,
             "credential_subject": json.dumps(cred_subject),
             "type": json.dumps(_vc_type)
@@ -1121,6 +1180,20 @@ class VerificableCredential(models.Model):
             context['subject_did'] = subject_key['eth_subject_pub_key']
 
         return context
+
+
+    def render_untp(self, untp_type, domain=""):
+        context = self.get_context_untp(domain)
+        tmpl = get_template('credentials/base_untp.json')
+        d_ordered = ujson.loads(tmpl.render(context))
+
+        d_minimum = self.filter_dict(d_ordered)
+
+        if not self.is_didweb:
+            d_minimum.pop("credentialStatus", None)
+
+        return ujson.dumps(d_minimum, escape_forward_slashes=False)
+
 
     def render(self, domain=""):
         if (_untp_type := self.is_untp()) is not None:
@@ -1157,26 +1230,6 @@ class VerificableCredential(models.Model):
             d_minimum.pop("credentialStatus", None)
 
         return ujson.dumps(d_minimum)
-
-
-    def render_untp(self, untp_type, domain=""):
-        context = self.get_context_untp(domain)
-        tmpl = get_template('credentials/base_untp.json')
-        d_ordered = ujson.loads(tmpl.render(context))
-        url_context = urljoin(domain, reverse("idhub:context"))
-
-        if self.schema.context:
-            d_ordered["@context"].append(self.schema.context)
-        else:
-            url_context = urljoin(domain, reverse("idhub:context"))
-            d_ordered["@context"].append(url_context)
-
-        d_minimum = self.filter_dict(d_ordered)
-        # You can revoke only didweb
-        if not self.is_didweb:
-            d_minimum.pop("credentialStatus", None)
-
-        return ujson.dumps(d_minimum,  escape_forward_slashes=False)
 
     def get_issued_on(self):
         if self.issued_on:

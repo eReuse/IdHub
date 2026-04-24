@@ -1039,10 +1039,7 @@ class SchemasUploadView(SchemasMix, ImportExport, FormView):
 
     def form_valid(self, form):
         if "submitUrl" not in self.request.POST:
-            path = reverse_lazy("idhub:schema", args=[form.file_name])
             domain = "https://{}".format(self.request.get_host())
-            url = "{}{}".format(domain, path)
-            form.schema["$id"] = url
             schema = form.save(domain=domain)
         else:
             schema = form.save()
