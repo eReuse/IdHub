@@ -1218,14 +1218,21 @@ class VerificableCredential(models.Model):
             }
         ]
 
-        vc_id = raw_vc.pop("id", "")
+        org = Organization.objects.get(main=True)
+        raw_vc["issuer"] = {
+            "id": self.issuer_did.did,
+            "name": getattr(org, "name", "")
+        }
 
-        issuer_obj = raw_vc.pop("issuer", {})
+        vc_id = raw_vc.get("id", "")
+
+        issuer_obj = raw_vc.get("issuer", {})
         iss = issuer_obj.get("id") if isinstance(issuer_obj, dict) else self.issuer_did.did
 
-        valid_from_str = raw_vc.pop("validFrom", raw_vc.pop("issuanceDate", None))
+        valid_from_str = raw_vc.get("validFrom") or raw_vc.get("issuanceDate")
         if not valid_from_str:
-             valid_from_str = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
+            valid_from_str = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
+            raw_vc["validFrom"] = valid_from_str
 
         nbf_timestamp = int(datetime.datetime.strptime(valid_from_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
 
@@ -1234,10 +1241,10 @@ class VerificableCredential(models.Model):
             "iss": iss,
             "nbf": nbf_timestamp,
             "iat": nbf_timestamp,
-            "vc": raw_vc
+            "vc": raw_vc,
         }
 
-        valid_until_str = raw_vc.pop("validUntil", raw_vc.pop("expirationDate", None))
+        valid_until_str = raw_vc.get("validUntil") or raw_vc.get("expirationDate")
         if valid_until_str:
             exp_timestamp = int(datetime.datetime.strptime(valid_until_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
             jwt_payload["exp"] = exp_timestamp
@@ -1247,19 +1254,14 @@ class VerificableCredential(models.Model):
         headers = {
             "typ": "vc+jwt",
             "cty": "vc",
-            "kid": f"{iss}#key-1"
+            "kid": f"{iss}#owner"
         }
 
         try:
             eddsa_alg = get_default_algorithms()["EdDSA"]
             private_key = eddsa_alg.from_jwk(raw_jwk_str)
-
         except Exception as e:
             raise ValueError(f"Failed to parse Ed25519 JWK: {e}")
-
-
-        dynamic_html = generate_universal_template(raw_vc)
-
 
         enveloped_jwt = jwt.encode(
             jwt_payload,
@@ -1282,6 +1284,7 @@ class VerificableCredential(models.Model):
         }
 
         return ujson.dumps(wrapped_vc, escape_forward_slashes=False)
+
 
     def render(self, domain=""):
         if (_untp_type := self.is_untp()) is not None:

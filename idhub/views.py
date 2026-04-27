@@ -442,7 +442,7 @@ class PublicVerificationView(FormView):
         elif "DigitalFacilityRecord" in vc_types:
             schema_url = "https://test.uncefact.org/vocabulary/untp/dfr/untp-dfr-schema-0.6.0.json"
         elif "DigitalTraceabilityEvent" in vc_types:
-            schema_url = "https://test.uncefact.org/vocabulary/untp/dfr/untp-dfr-schema-0.6.0.json"
+            schema_url = "https://test.uncefact.org/vocabulary/untp/dte/untp-dte-schema-0.6.0.json"
 
         if schema_url:
             vc_dict["credentialSchema"] = {
