@@ -4,7 +4,7 @@ import uuid
 import logging
 import zlib
 import jwt
-import requests
+import base64
 
 import pyroaring
 from django.db.models import Q
@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
-from jwt.algorithms import get_default_algorithms
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from idhub.models import DID, VerificableCredential, Schemas, Context, ContextFile
 from idhub.email.views import NotifyActivateUserByEmail
@@ -350,7 +350,7 @@ class PublicVerificationView(FormView):
              results['steps'].append({"name": _("Verification Process"), "status": "Failed", "detail": str(e)})
 
     def _run_schema_validation(self, vc_dict, results):
-        vc_dict = self._inject_untp_0_0_6_missing_schema(vc_dict)
+        vc_dict = self._inject_untp_0_0_7_missing_schema(vc_dict)
 
         vc_str = json.dumps(vc_dict)
         schema_valid, schema_msg = verify_schema(vc_str, verify=True)
@@ -370,7 +370,6 @@ class PublicVerificationView(FormView):
                 results['html_template'] = render_methods[0].get("template")
 
         return schema_valid
-
 
     def _verify_enveloped(self, cred_data, results):
         """ experimental: UNTP JWT credentials """
@@ -392,14 +391,7 @@ class PublicVerificationView(FormView):
             if not did_doc:
                 raise ValueError(_("Failed to resolve DID Document for issuer: {}").format(issuer_did))
 
-            public_jwk = next((m.get("publicKeyJwk") for m in did_doc.get("verificationMethod", []) if m["id"] == kid), None)
-
-            if not public_jwk:
-                raise ValueError(_("Verification key not found in the issuer's DID document."))
-
-            eddsa_alg = get_default_algorithms()["EdDSA"]
-            public_key_obj = eddsa_alg.from_jwk(json.dumps(public_jwk))
-
+            public_key_obj = self._get_jwt_verify_key(kid, did_doc)
             decoded_payload = jwt.decode(jwt_string, public_key_obj, algorithms=["EdDSA"])
             trusted_vc = decoded_payload.get("vc", decoded_payload)
 
@@ -427,8 +419,44 @@ class PublicVerificationView(FormView):
         except Exception as e:
             results['steps'].append({"name": _("Verification Process"), "status": "Failed", "detail": str(e)})
 
+    def _get_jwt_verify_key(self, kid, did_document):
+        if not did_document or "verificationMethod" not in did_document:
+            raise ValueError(_("Invalid or empty DID Document provided."))
 
-    def _inject_untp_0_0_6_missing_schema(self, vc_dict):
+        target_method = None
+
+        for method in did_document["verificationMethod"]:
+            method_id = method.get("id", "")
+            if method_id == kid or method_id.endswith(f"#{kid.split('#')[-1]}"):
+                target_method = method
+                break
+
+        if not target_method and len(did_document["verificationMethod"]) == 1:
+            target_method = did_document["verificationMethod"][0]
+
+        if not target_method:
+            raise ValueError(_("Verification key matching '{}' not found in the DID document.").format(kid))
+
+        if "publicKeyJwk" in target_method:
+            x_b64 = target_method["publicKeyJwk"].get("x")
+            if not x_b64:
+                raise ValueError(_("publicKeyJwk is missing the 'x' coordinate."))
+
+            x_b64 += "=" * ((4 - len(x_b64) % 4) % 4)
+            raw_key_bytes = base64.urlsafe_b64decode(x_b64)
+
+        elif "publicKeyMultibase" in target_method:
+             # Requires base58 library
+            raw_key_bytes = base58.b58decode(target_method["publicKeyMultibase"][1:])
+        else:
+            raise ValueError(_("Verification method contains unsupported key format."))
+
+        try:
+            return Ed25519PublicKey.from_public_bytes(raw_key_bytes)
+        except Exception as e:
+            raise ValueError(_("Failed to parse Ed25519 public key bytes: {}").format(str(e)))
+
+    def _inject_untp_0_0_7_missing_schema(self, vc_dict):
         if "credentialSchema" in vc_dict:
             return vc_dict
 
@@ -437,12 +465,13 @@ class PublicVerificationView(FormView):
             vc_types = [vc_types]
 
         schema_url = None
+        #TODO: check for better way to do this
         if "DigitalProductPassport" in vc_types:
-            schema_url = "https://test.uncefact.org/vocabulary/untp/dpp/untp-dpp-schema-0.6.0.json"
+            schema_url = "https://untp.unece.org/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json"
         elif "DigitalFacilityRecord" in vc_types:
-            schema_url = "https://test.uncefact.org/vocabulary/untp/dfr/untp-dfr-schema-0.6.0.json"
+            schema_url = "https://untp.unece.org/artefacts/schema/v0.7.0/dfr/DigitalFacilityRecord.json"
         elif "DigitalTraceabilityEvent" in vc_types:
-            schema_url = "https://test.uncefact.org/vocabulary/untp/dte/untp-dte-schema-0.6.0.json"
+            schema_url = "https://untp.unece.org/artefacts/schema/v0.7.0/dte/DigitalTraceabilityEvent.json"
 
         if schema_url:
             vc_dict["credentialSchema"] = {
