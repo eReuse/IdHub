@@ -800,13 +800,22 @@ class Schemas(models.Model):
         return language_code
 
     def _get_name_by_language(self, names, lang_code):
+        if isinstance(names, str):
+            return names
+
+        if not names or not isinstance(names, list):
+            return str(names) if names else ""
+
         first = {}
         for name in names:
-            first = name
-            if name.get('lang') == lang_code:
-                return name.get('value', "")
+            if isinstance(name, dict):
+                first = name
+                if name.get('lang') == lang_code:
+                    return name.get('value', "")
+            elif isinstance(name, str):
+                return name
 
-        return first.get("value", "")
+        return first.get("value", "") if isinstance(first, dict) else ""
 
     def _is_catalan_code(self, language_code):
         return language_code == 'ca'
