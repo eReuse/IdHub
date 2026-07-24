@@ -41,3 +41,14 @@ class ErrorResponse(Schema):
     error: str
     details: Optional[str] = None
     path: Optional[List[str]] = None
+
+class SchemaInfo(Schema):
+    name: str
+    file_schema: str
+    description: Optional[str] = None
+    url: Optional[str] = None
+
+class ActiveUNTPSchemasResponse(Schema):
+    dpp: List[SchemaInfo]
+    dte: List[SchemaInfo]
+    dfr: List[SchemaInfo]

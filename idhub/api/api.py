@@ -11,11 +11,13 @@ from django.conf import settings
 from django.db import transaction
 from django.conf import settings
 from idhub.models import DID, Schemas, VerificableCredential
-from .schemas import UpdateServiceEndpointPayload, UpdateServiceEndpointResponse, CreateObjectDIDPayload, CreateObjectDIDResponse, IssueDPPayload, IssueTraceabilityPayload, IssueFacilityPayload, SignedCredentialResponse, ErrorResponse
+from .schemas import ActiveUNTPSchemasResponse, UpdateServiceEndpointPayload, UpdateServiceEndpointResponse, CreateObjectDIDPayload, CreateObjectDIDResponse, IssueDPPayload, IssueTraceabilityPayload, IssueFacilityPayload, SignedCredentialResponse, ErrorResponse
 from idhub.admin.forms import DIDForm
 from ninja.security import HttpBearer
 from webhook.models import Token
 from pyvckit.verify import verify_schema
+
+from idhub.services import CredentialIssuanceService
 
 api_v1 = NinjaAPI(version='1.0.0', title="IdHub v1 API")
 
@@ -139,17 +141,20 @@ def update_did_service_endpoint(request, payload: UpdateServiceEndpointPayload):
 def issue_dpp_credential(request, payload: IssueDPPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
 
-    #only one dpp service_endpoint at a time
+    # only one dpp service_endpoint at a time
     cleaned_subject = payload.credentialSubject.copy()
     subject_did_str = cleaned_subject.get("id")
     did_obj = DID.objects.filter(did=subject_did_str, is_product=True).first()
 
-
-    return process_credential_issuance(
-        request, payload.schema_name, cleaned_subject,
-        ["VerifiableCredential", "DigitalProductPassport"],
-        did_obj, issuer_did
+    status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+        user=request.user,
+        schema_name=payload.schema_name,
+        subject_data=cleaned_subject,
+        credential_type=["VerifiableCredential", "DigitalProductPassport"],
+        subject_did=did_obj,
+        issuer_did_obj=issuer_did
     )
+    return status_code, response_data
 
 
 @api_v1.post("issue-facility/",
@@ -158,12 +163,15 @@ def issue_dpp_credential(request, payload: IssueDPPayload):
 def issue_facility_credential(request, payload: IssueFacilityPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
 
-    return process_credential_issuance(
-        request, payload.schema_name, payload.credentialSubject,
-        ["VerifiableCredential", "DigitalFacilityRecord"],
-        #This is self_signing, should another reputable did sign this?
-        issuer_did, issuer_did
+    status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+        user=request.user,
+        schema_name=payload.schema_name,
+        subject_data=payload.credentialSubject,
+        credential_type=["VerifiableCredential", "DigitalFacilityRecord"],
+        subject_did=issuer_did, # This is self_signing
+        issuer_did_obj=issuer_did
     )
+    return status_code, response_data
 
 
 @api_v1.post("issue-traceability/",
@@ -173,62 +181,58 @@ def issue_traceability_credential(request, payload: IssueTraceabilityPayload):
     issuer_did = _find_issuer_did(payload.issuer_did, request.user)
     events_list = payload.credentialSubject
 
-    if not events_list:
-        raise ValueError('credentialSubject must be a non-empty list of events.')
+    # Improved Validation: Return standard 400 errors instead of crashing the thread with unhandled ValueErrors
+    if not events_list or not isinstance(events_list, list):
+        return 400, {"error": "credentialSubject must be a non-empty list of events."}
 
     first_event_id = events_list[0].get("id")
     if not first_event_id:
-        raise ValueError('The first event in the list must have a valid "id".')
+        return 400, {"error": 'The first event in the list must have a valid "id".'}
 
     did_obj = DID.objects.filter(did=first_event_id, is_product=True).first()
 
-    return process_credential_issuance(
-        request=request,
+    status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+        user=request.user,
         schema_name=payload.schema_name,
         subject_data=events_list,
         credential_type=["VerifiableCredential", "DigitalTraceabilityEvent"],
         subject_did=did_obj,
         issuer_did_obj=issuer_did
     )
+    return status_code, response_data
 
 
-def process_credential_issuance(
-    request,
-    schema_name: str,
-    subject_data: Any,
-    credential_type: List[str],
-    subject_did,
-    issuer_did_obj
-):
-    try:
-        schema = Schemas.objects.get(file_schema=schema_name)
-    except Schemas.DoesNotExist:
-        return 422, {'error': f"Schema '{schema_name}' does not exist."}
+@api_v1.get("schemas/untp/active/", response=ActiveUNTPSchemasResponse, summary="Get active UNTP schemas")
+def get_active_schemas(request):
+    """
+    Returns ONLY active schemas that are strictly compliant with the UNTP standard.
+    """
+    all_schemas = Schemas.objects.all()
 
-    with transaction.atomic():
+    response_data = {
+        "dpp": [],
+        "dte": [],
+        "dfr": []
+    }
 
-        domain = f"https://{settings.DOMAIN}/"
-        cred = VerificableCredential(
-            verified=True, user=request.user, json_data=subject_data,
-            issuer_did=issuer_did_obj, schema=schema,
-            type= credential_type
-        )
+    for schema in all_schemas:
+        untp_type = schema.is_untp
 
-        try:
-            rendered_json_str = cred.render(domain)
-            valid, error_details = verify_schema(rendered_json_str, verify=not settings.DEBUG)
+        if not untp_type:
+            continue
 
-            if not valid:
-                return 400, {'error': 'Schema validation failed.', 'details': error_details}
+        schema_info = {
+            "name": schema.file_schema,
+            "file_schema": schema.file_schema,
+            "description": schema._description,
+            "url": schema.validation_url
+        }
 
-            #For now force usage of subject did, not any other type of id
-            cred.issue(did=subject_did if subject_did else None, domain=domain)
-            cred.save()
+        if untp_type == "DigitalProductPassport":
+            response_data["dpp"].append(schema_info)
+        elif untp_type == "DigitalTraceabilityEvent":
+            response_data["dte"].append(schema_info)
+        elif untp_type == "DigitalFacilityRecord":
+            response_data["dfr"].append(schema_info)
 
-        except jsonschema.exceptions.ValidationError as e:
-            return 400, {'error': 'Schema validation failed.', 'details': e.message, 'path': list(e.path)}
-        except Exception as e:
-            logger.error(f"Issuance failed: {e}", exc_info=True)
-            return 500, {'error': 'Internal server error during credential signing.'}
-
-    return 201, {"credential": json.loads(cred.get_data())}
+    return response_data
