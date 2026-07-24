@@ -2,6 +2,7 @@ import os
 import json
 import ujson
 import pytz
+import uuid
 import hashlib
 import logging
 import datetime
@@ -23,6 +24,7 @@ from pyvckit.did import (
 from pyvckit.sign import sign
 from idhub.credential_renderer import generate_universal_template
 from pyvckit.verify import verify_signature, verify_schema
+from idhub.templates.pydantic import UNTPCredentialV0, IssuerV0, CredentialSchema
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
@@ -901,6 +903,7 @@ class VerificableCredential(models.Model):
     json_data = models.JSONField(null=False, default=dict)
     hash = models.CharField(max_length=260)
     subject_id = models.CharField(max_length=250, null=True)
+    vc_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.PositiveSmallIntegerField(
         _("Status"),
         choices=Status.choices,
@@ -1069,7 +1072,7 @@ class VerificableCredential(models.Model):
             issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
-        sid = self.id or 0
+        sid = self.vc_id or 0
         if self.eidas1_did:
             cred_path = 'public/credentials'
             sid = self.hash
@@ -1112,12 +1115,10 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
-    def get_context_untp(self, domain):
-        self.set_issue_date()
-        format = "%Y-%m-%dT%H:%M:%SZ"
-        issuance_date = self.issued_on.strftime(format)
 
-        cred_path = 'credentials'
+    def render_untp(self, untp_type: str, domain: str = "", version: str = "0.7.0"):
+        self.set_issue_date()
+        issuance_date = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         did_parts = self.issuer_did.did.split(":")
         if len(did_parts) >= 3 and did_parts[0] == "did" and did_parts[1] == "web":
@@ -1127,43 +1128,33 @@ class VerificableCredential(models.Model):
         else:
             base_url = domain.rstrip('/')
 
+        url_id = f"{base_url}/credentials/{str(self.vc_id)}"
 
-        sid = self.id or 0
-        url_id = f"{base_url}/{cred_path}/{sid}"
-        org = Organization.objects.get(main=True)
+        # fetch the Organization
+        org = Organization.objects.filter(main=True).first()
+        issuer_name = getattr(org, "name", "") if org else ""
 
-        _vc_type = self.schema.get_schema_types
         _context_urls = self.schema.get_context_uris
-
         if not isinstance(_context_urls, list):
             _context_urls = [_context_urls] if _context_urls else []
+
+        #  append unique contexts safely
+        def add_context(ctx_url):
+            if ctx_url and ctx_url not in _context_urls:
+                _context_urls.append(ctx_url)
 
         if self.schema.context:
             schema_ctx = str(self.schema.context)
             if not schema_ctx.startswith("http"):
                 schema_ctx = urljoin(base_url, schema_ctx)
-
-            if schema_ctx not in _context_urls:
-                _context_urls.append(schema_ctx)
+            add_context(schema_ctx)
         else:
-            local_ctx = urljoin(domain, reverse("idhub:context"))
-            if local_ctx not in _context_urls:
-                _context_urls.append(local_ctx)
+            add_context(urljoin(domain, reverse("idhub:context")))
 
-        #Add jws context for validation compliance
-        jws_ctx = "https://w3id.org/security/suites/jws-2020/v1"
-        if jws_ctx not in _context_urls:
-            _context_urls.append(jws_ctx)
+        add_context("https://w3id.org/security/suites/jws-2020/v1")
+        add_context("https://w3id.org/security/v2")
 
-        sec_v2_ctx = "https://w3id.org/security/v2"
-        if sec_v2_ctx not in _context_urls:
-            _context_urls.append(sec_v2_ctx)
-
-        cred_subject = self.json_data.copy()
-        if '@context' in cred_subject:
-            del cred_subject['@context']
-
-        schema_id = ""
+        # resolve Schema
         if self.schema.url and str(self.schema.url).startswith("http"):
             schema_id = self.schema.url
         elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
@@ -1171,42 +1162,58 @@ class VerificableCredential(models.Model):
         else:
             schema_id = urljoin(domain, f"/schema/{self.schema.file_schema}")
 
-        context = {
-            'context': json.dumps(_context_urls),
-            'vc_id': url_id,
-            'issuer_did': self.issuer_did.did,
-            "issuance_date": issuance_date,
-            "vc_name": "Idhub UNTP credential",
-            "issuer_name": getattr(org, "name", "") or "",
-            "schema_id": schema_id,
-            "subject_id": self.id_string,
-            "credential_subject": json.dumps(cred_subject),
-            "type": json.dumps(_vc_type)
-        }
+        cred_subject = self.json_data.copy()
 
+        # given that DTE's are a list instead of a single credential subject, differentiate it
+        if isinstance(cred_subject, dict):
+            cred_subject.pop('@context', None)
+
+            # inject subject DID dynamically based on the DID type
+            if self.subject_did:
+                if self.subject_did.type == DID.Types.WEBETH:
+                    subject_key = json.loads(self.subject_did.get_key_material())
+                    cred_subject['id'] = subject_key.get('eth_subject_pub_key')
+                else:
+                    cred_subject['id'] = self.subject_did.did
+            elif self.id_string:
+                cred_subject['id'] = self.id_string
+
+        elif isinstance(cred_subject, list):
+            for item in cred_subject:
+                if isinstance(item, dict):
+                    item.pop('@context', None)
+
+
+        issuer_payload = {
+            "id": self.issuer_did.did,
+            "name": issuer_name
+        }
         if self.issuer_did.type == DID.Types.WEBETH:
             issuer_key = json.loads(self.issuer_did.get_key_material())
-            context['issuer_id'] = issuer_key['eth_issuer_pub_key']
+            issuer_payload["id"] = issuer_key.get('eth_issuer_pub_key')
 
-        if self.subject_did and self.subject_did.type == DID.Types.WEBETH:
-            subject_key = json.loads(self.subject_did.get_key_material())
-            context['subject_did'] = subject_key['eth_subject_pub_key']
+        if version.startswith("0"):
+            vc_model = UNTPCredentialV0(
+                context=_context_urls,
+                type=self.schema.get_schema_types,
+                id=url_id,
+                issuer=IssuerV0(
+                    id=self.issuer_did.did,
+                    name=issuer_name
+                ),
+                validFrom=issuance_date,
+                credentialSubject=cred_subject,
+                credentialSchema=CredentialSchema(
+                    id=schema_id
+                )
+            )
+        elif version.startswith("1"):
+            # future implementation:
+            raise NotImplementedError("UNTP 1.0.0 not yet supported")
+        else:
+            raise ValueError(f"Unsupported UNTP version: {version}")
 
-        return context
-
-
-    def render_untp(self, untp_type, domain=""):
-        context = self.get_context_untp(domain)
-        tmpl = get_template('credentials/base_untp.json')
-        d_ordered = ujson.loads(tmpl.render(context))
-
-        d_minimum = self.filter_dict(d_ordered)
-
-        if not self.is_didweb:
-            d_minimum.pop("credentialStatus", None)
-
-        return ujson.dumps(d_minimum, escape_forward_slashes=False)
-
+        return vc_model.model_dump_json(by_alias=True, exclude_none=True)
 
     def generate_enveloped_jwt(self, domain=""):
         """
