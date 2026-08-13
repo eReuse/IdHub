@@ -751,8 +751,6 @@ class DIDForm(forms.ModelForm):
         return
 
 
-logger = logging.getLogger(__name__)
-
 class ObjectDidImportForm(forms.Form):
     create_did = forms.BooleanField(
         label=_("Create object DID?"),
@@ -762,10 +760,10 @@ class ObjectDidImportForm(forms.Form):
     did_method = forms.ChoiceField(
         choices=DID.Types.choices,
         label=_("Select DID method"),
-        required=False, # Not required if not creating a new DID
+        required=False, # not required if not creating a new DID
         help_text=_("Choose the DID method to be used when creating new object DIDs.")
     )
-    service_endpoint = forms.CharField(
+    service_endpoint = forms.URLField(
         label=_("Service Endpoint"),
         required=False,
         help_text=_("Enter a valid URI for the DPP service endpoint (optional).")
@@ -793,16 +791,6 @@ class ObjectDidImportForm(forms.Form):
         label=_("Upload object DIDs file"),
         help_text=_("Upload a JSON file containing the object DIDs to be imported.")
     )
-
-    def clean_service_endpoint(self):
-        value = self.cleaned_data.get('service_endpoint')
-        if value:
-            validator = URLValidator()
-            try:
-                validator(value)
-            except ValidationError:
-                raise ValidationError(_("Please enter a valid URI."))
-        return value
 
     def clean_file_import(self):
         uploaded_file = self.cleaned_data.get("file_import")
