@@ -795,15 +795,15 @@ class DidsView(Credentials, SingleTableView):
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
-        dids = DID.objects.filter(user__isnull=True)
+        dids = DID.objects.filter(user__isnull=True, is_product=False)
         if queryset is None:
             self.object_list = dids.filter(eidas1=False)
 
         context = super().get_context_data(**kwargs)
-        eidas1 = dids.filter(eidas1=True, is_product=False)
-        eidas2 = dids.filter(eidas1=False, is_product=False)
-        table_eidas1 = DIDTable(eidas1)
-        table_eidas2 = DIDTable(eidas2)
+        eidas1 = dids.filter(eidas1=True)
+        eidas2 = dids.filter(eidas1=False)
+        table_eidas1 = DIDTable(eidas1, exclude=("service_endpoint",))
+        table_eidas2 = DIDTable(eidas2, exclude=("service_endpoint",))
 
         RequestConfig(self.request).configure(table_eidas1)
         RequestConfig(self.request).configure(table_eidas2)
