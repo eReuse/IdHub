@@ -15,7 +15,6 @@ class IssuerV0(BaseModel):
     issuerAlsoKnownAs: Optional[List[str]] = None
 
 
-# This completely replaces your base_untp.json
 class UNTPCredentialV0(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -26,6 +25,5 @@ class UNTPCredentialV0(BaseModel):
     issuer: IssuerV0
     validFrom: str
 
-    # FIX: Accept either a single dictionary OR a list of dictionaries
     credentialSubject: Union[Dict[str, Any], List[Dict[str, Any]]]
     credentialSchema: CredentialSchema

@@ -16,6 +16,7 @@ from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from utils import certs, credtools
+from idhub.services import DIDService, CredentialIssuanceService
 from utils.sanitize_did import sanitize_didweb
 from idhub.models import (
     DID,
@@ -824,12 +825,17 @@ class ObjectDidImportForm(forms.Form):
             subjects = [cred_subject]
         elif isinstance(cred_subject, list):
             subjects = cred_subject
+            if create_did:
+                raise ValidationError(
+                    _("Cannot assign a single new DID to a credential containing multiple subjects. "
+                      "Please upload them individually.")
+                )
         else:
              raise ValidationError(_("'credentialSubject' must be an object or an array of objects."))
 
         subject_ids = [sub.get("id") for sub in subjects if isinstance(sub, dict) and sub.get("id")]
 
-        if not subject_ids:
+        if not subject_ids and not create_did:
              raise ValidationError(_("The 'credentialSubject' must contain at least one 'id'."))
 
         exists = VerificableCredential.objects.filter(
@@ -849,84 +855,60 @@ class ObjectDidImportForm(forms.Form):
 
         return cleaned_data
 
-    def _create_did_if_needed(self):
+    def _create_did_if_needed(self, user):
         if not self.cleaned_data.get("create_did"):
             return None
 
         file_data = self.cleaned_data["file_import"]
         label = file_data.get("id") or file_data.get("name") or "object-did"
 
-        obj_did = DID(
+        obj_did, _created = DIDService.get_or_create_product_did(
+            user=user,
+            did_type=int(self.cleaned_data["did_method"]),
             label=label,
-            type=DID.Types(int(self.cleaned_data["did_method"])),
-            is_product=True,
-            service_endpoint=self.cleaned_data["service_endpoint"]
+            service_endpoint=self.cleaned_data.get("service_endpoint", ""),
+            suffix_did_id=None
         )
-        obj_did.set_did()
-        obj_did.save()
 
         return obj_did
 
-
-    def _create_credential(self, user, file_data, subject_did, issuer_did, schema, domain):
-        subject_id = subject_did.did if subject_did else file_data["credentialSubject"]["id"]
-        credential_subject = file_data.get('credentialSubject', file_data)
-
-        cred = VerificableCredential(
-            verified=True,
-            user=user,
-            json_data=credential_subject,
-            subject_id=subject_id,
-            issuer_did=issuer_did,
-            schema=schema,
-        )
-        cred.set_type()
-
-        # Validate Credential against schema once it is fully formed, and then save
-        try:
-            rendered_json = cred.render(domain)
-            instance_to_validate = json.loads(rendered_json)
-            jsonschema.validate(
-                instance=instance_to_validate,
-                schema=json.loads(schema.data),
-                format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
-            )
-        except jsonschema.exceptions.ValidationError as err:
-            raise ValidationError(
-                _("JSON validation failed for the generated credential: %(error)s on path '%(path)s'"),
-                params={"error": err.message, "path": "/".join(map(str, err.path))}
-            )
-        except Exception as e:
-            logger.error(f"An unexpected error occurred during validation: {e}")
-            raise ValidationError(_("An unexpected error occurred during credential validation."))
-
-        return cred
-
     def save(self, user):
-        obj_did = self._create_did_if_needed()
+        obj_did = self._create_did_if_needed(user)
 
         file_data = self.cleaned_data["file_import"]
         issuer_did = self.cleaned_data["issuer"]
         schema = self.cleaned_data["schema"]
 
+        cred_subject = file_data.get("credentialSubject", {})
+
         if obj_did:
-            cred_subject = file_data.get("credentialSubject", {})
+            cred_subject["id"] = obj_did.did
 
-            if isinstance(cred_subject, dict):
-                cred_subject["id"] = obj_did.did
+        untp_type = schema.is_untp
+        credential_type = ["VerifiableCredential"]
+        if untp_type:
+            credential_type.append(untp_type)
 
-            elif isinstance(cred_subject, list):
-                raise ValidationError(
-                    _("Cannot assign a single new DID to a credential containing multiple subjects. Please ensure the uploaded JSON already contains the correct IDs for each item, or upload them individually.")
-                )
+        if untp_type == "DigitalFacilityRecord":
+            subject_did_obj = issuer_did
+        elif obj_did:
+            subject_did_obj = obj_did
+        else:
+            subject_id = cred_subject[0].get("id") if isinstance(cred_subject, list) else cred_subject.get("id")
+            subject_did_obj = DID.objects.filter(did=subject_id, is_product=True).first() if subject_id else None
 
-        domain = f"https://{settings.DOMAIN}/"
-        cred = self._create_credential(user, file_data, obj_did, issuer_did, schema, domain)
+        status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+            user=user,
+            schema_name=schema.file_schema,
+            subject_data=cred_subject,
+            credential_type=credential_type,
+            subject_did=subject_did_obj,
+            issuer_did_obj=issuer_did
+        )
 
+        if status_code not in [200, 201]:
+            error_msg = response_data.get("error", "Unknown error during credential issuance.")
+            details = response_data.get("details", "")
+            raise ValidationError(_(f"Issuance failed: {error_msg} {details}"))
 
-        issue_target_did = obj_did if obj_did else issuer_did
-        cred.issue(issue_target_did, domain)
-
-        cred.save()
-
-        return cred
+        return response_data

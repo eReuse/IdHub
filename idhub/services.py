@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db import transaction
 
 from pyvckit.sign import sign
+from idhub.models import DID
 from pyvckit.verify import verify_schema, verify_signature
 
 from idhub.models import Schemas, VerificableCredential
@@ -70,30 +71,57 @@ class CredentialIssuanceService:
                     logger.error(f"Cryptographic signing failed for DID {issuer_did_obj.did}: {sign_exc}", exc_info=True)
                     return 500, {'error': 'Internal server error during cryptographic signing.'}
 
-                # should these be avoided?
-                # post sign validations
-                post_valid, post_err = verify_schema(vc_str, verify=verify_env)
-                if not post_valid:
-                    logger.error(f"Post-sign schema validation failed: {post_err}")
-                    raise ValueError("The credential is not valid with this schema after signing.")
-
+                # should these post validation be avoided?
                 sig_valid, sig_err = verify_signature(vc_str, verify=verify_env)
                 if not sig_valid:
                     logger.error(f"Post-sign signature validation failed: {sig_err}")
                     raise ValueError("The generated cryptographic signature is invalid.")
 
-                # encrypt and save
-                cred.data = cred.user.encrypt_data(vc_str)
-                cred.status = VerificableCredential.Status.ISSUED
-                cred.save()
+
+                cred.issue(did=subject_did, domain=domain, save=True)
 
                 return 201, {"credential": json.loads(cred.get_data())}
 
-        except jsonschema.exceptions.ValidationError as e:
-            logger.warning(f"JSONSchema Validation Error: {e.message}")
-            return 400, {'error': 'Schema validation failed.', 'details': e.message, 'path': list(e.path)}
         except ValueError as e:
             return 400, {'error': str(e)}
         except Exception as e:
             logger.error(f"Issuance flow failed unexpectedly: {e}", exc_info=True)
             return 500, {'error': 'Internal server error during credential issuance.'}
+
+class DIDService:
+    @staticmethod
+    def get_or_create_product_did(
+        user,
+        did_type: int,
+        label: str,
+        service_endpoint: str = "",
+        suffix_did_id: str = None
+    ):
+        # check for existing did:web based on suffix
+        if did_type == DID.Types.WEB.value and suffix_did_id:
+            expected_did = f"did:web:{settings.DOMAIN}:{suffix_did_id}"
+            existing_did = DID.objects.filter(did=expected_did, is_product=True).first()
+
+            if existing_did:
+                if service_endpoint and existing_did.service_endpoint != service_endpoint:
+                    existing_did.service_endpoint = service_endpoint
+                    existing_did.save(update_fields=['service_endpoint'])
+                return existing_did, False  # false is that = not created, fetched existing
+
+        # create new DID
+        obj_did = DID(
+            user=user,
+            label=label,
+            type=did_type,
+            is_product=True,
+            service_endpoint=service_endpoint or ""
+        )
+
+        if suffix_did_id and did_type == DID.Types.WEB.value:
+            obj_did.did = expected_did
+        else:
+            obj_did.set_did()
+
+        obj_did.save()
+
+        return obj_did, True
