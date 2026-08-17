@@ -4,20 +4,14 @@ import json
 import logging
 import jsonschema
 from ninja import NinjaAPI
-from typing import List, Any, Optional
 
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
-from django.db import transaction
-from django.conf import settings
-from idhub.models import DID, Schemas, VerificableCredential
+from idhub.models import DID, Schemas
 from .schemas import ActiveUNTPSchemasResponse, UpdateServiceEndpointPayload, UpdateServiceEndpointResponse, CreateObjectDIDPayload, CreateObjectDIDResponse, IssueDPPayload, IssueTraceabilityPayload, IssueFacilityPayload, SignedCredentialResponse, ErrorResponse
-from idhub.admin.forms import DIDForm
 from ninja.security import HttpBearer
 from webhook.models import Token
-from pyvckit.verify import verify_schema
+from idhub.services import CredentialIssuanceService, DIDService
 
-from idhub.services import CredentialIssuanceService
 
 api_v1 = NinjaAPI(version='1.0.0', title="IdHub v1 API")
 
@@ -61,48 +55,22 @@ def _find_issuer_did(requested_did: str, user):
              auth=DatabaseTokenAuth())
 def create_object_did(request, payload: CreateObjectDIDPayload):
     try:
-        expected_did = f"did:web:{settings.DOMAIN}:{payload.suffix_did_id}"
-        existing_did = DID.objects.filter(did=expected_did, is_product=True).first()
+        obj_did, created = DIDService.get_or_create_product_did(
+            user=request.user,
+            did_type=DID.Types.WEB.value,
+            label=payload.label or f"device-{payload.suffix_did_id}",
+            service_endpoint=payload.service_endpoint,
+            suffix_did_id=payload.suffix_did_id
+        )
 
-        if existing_did:
-            if payload.service_endpoint and existing_did.service_endpoint != payload.service_endpoint:
-                existing_did.service_endpoint = payload.service_endpoint
-                existing_did.save(update_fields=['service_endpoint', ])
-
-            doc_json = json.loads(existing_did.didweb_document) if existing_did.didweb_document else {}
-            return 200, {
-                "did": existing_did.did,
-                "did_document": doc_json
-            }
-
-        form_data = {
-            'label': payload.label or f"device-{payload.suffix_did_id}",
-            'type': DID.Types.WEB.value,
-            'did': expected_did
-        }
-
-        unsaved_instance = DID(type=DID.Types.WEB)
-        form = DIDForm(data=form_data, instance=unsaved_instance)
-
-        if not form.is_valid():
-            return 400, {
-                "error": "Validation failed",
-                "details": json.dumps(form.errors.get_json_data())
-            }
-
-        form.instance.user = request.user
-        form.instance.is_product = True
-        form.instance.service_endpoint = payload.service_endpoint
-
-        obj_did = form.save(commit=True)
-        obj_did.set_did()
-        obj_did.save()
         doc_json = json.loads(obj_did.didweb_document) if obj_did.didweb_document else {}
+        status_code = 201 if created else 200
 
-        return 201, {
+        return status_code, {
             "did": obj_did.did,
             "did_document": doc_json
         }
+
     except Exception as e:
         logger.error(f"Failed to create Object DID: {e}", exc_info=True)
         return 500, {"error": "Internal server error during DID creation."}

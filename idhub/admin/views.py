@@ -1311,7 +1311,12 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
-            form.save(self.request.user)
+            try:
+                form.save(request.user)
+            except ValidationError as e:
+                form.add_error(None, e)
+                return render(request, 'template.html', {'form': form})
+
             messages.success(self.request, _("Object DPP created succesfuly."))
             return self.form_valid(form)
 
