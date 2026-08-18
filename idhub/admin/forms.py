@@ -252,16 +252,18 @@ class ImportSchemaUrlForm(forms.Form):
         except Exception:
             raise ValidationError(_("This schema not is a json file"))
 
-        if Schemas.objects.filter(_name=schema_url).exists():
-            raise ValidationError(_("Schema exist!"))
+        if Schemas.objects.filter(validation_url=schema_url).exists():
+            raise ValidationError(_("A Schema with this URL already exists!"))
 
         try:
             res = requests.get(schema_url, timeout=10)
             res.raise_for_status()
             schema_data = res.json()
             cleaned_data["schema_data"] = json.dumps(schema_data)
-        except Exception:
-            raise ValidationError(_("Could not download or parse the schema as a valid JSON file."))
+        except requests.RequestException:
+            raise ValidationError(_("Could not download the schema from the provided URL."))
+        except ValueError:
+            raise ValidationError(_("The downloaded schema is not a valid JSON file."))
 
         if context_url:
             try:
@@ -302,15 +304,15 @@ class ImportSchemaUrlForm(forms.Form):
         _description = raw_desc[:250] if raw_desc else None
         _name = json.dumps([{"value": raw_name, "lang": "en"}])
 
-        schema = Schemas.objects.create(
+        schema = Schemas(
             file_schema=file_name,
             data=self.cleaned_data["schema_data"],
             _name=_name,
             _description=_description,
             template_description=raw_desc,
-            context=context_url
+            context=context_url,
+            validation_url=schema_url,
         )
-        schema.validation_url = schema_url if schema_url else ""
         schema.type = schema.get_type
         schema.save()
 
@@ -759,7 +761,7 @@ class ObjectDidImportForm(forms.Form):
     did_method = forms.ChoiceField(
         choices=DID.Types.choices,
         label=_("Select DID method"),
-        required=False, # not required if not creating a new DID
+        required=False,
         help_text=_("Choose the DID method to be used when creating new object DIDs.")
     )
     service_endpoint = forms.URLField(
