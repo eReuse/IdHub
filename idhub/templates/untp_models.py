@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field, ConfigDict
 
