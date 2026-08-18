@@ -1,16 +1,18 @@
-#!/usr/bin/env python3
-
 import json
+import base64
+import jwt
 import logging
-import hashlib
+from datetime import datetime, timezone
+from urllib.parse import urlparse
 from typing import Any, List, Tuple
 
+from django.utils.translation import gettext_lazy as _
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+from pyvckit.verify import verify_schema, verify_signature, resolve_did
 from django.conf import settings
 from django.db import transaction
-
-from pyvckit.sign import sign
 from idhub.models import DID
-from pyvckit.verify import verify_schema, verify_signature
 
 from idhub.models import Schemas, VerificableCredential
 

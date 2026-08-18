@@ -1,8 +1,7 @@
 from ninja import Schema
 from typing import Dict, List, Any, Optional
-from pydantic import Field
+from pydantic import Field, HttpUrl
 
-class CreateObjectDIDPayload(Schema):
     #TODO: this parameter should be parametrized
     suffix_did_id: str = Field(
         ...,

@@ -23,7 +23,6 @@ from .views import (
     PasswordResetView,
     PasswordResetConfirmView,
     ServeDidView,
-    ServeDidRegistryView,
     SchemaView,
     ContextView,
     ContextFileView,

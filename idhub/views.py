@@ -1,9 +1,7 @@
-import base64
 import json
 import uuid
 import logging
 import zlib
-import jwt
 import base64
 
 import pyroaring
@@ -18,14 +16,13 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from idhub.models import DID, VerificableCredential, Schemas, Context, ContextFile
 from idhub.email.views import NotifyActivateUserByEmail
 from oidc4vp.models import Organization
 from .forms import VerificationForm
+from idhub.services import VerificationService
 
-from pyvckit.verify import verify_schema, verify_signature, resolve_did
 
 
 logger = logging.getLogger(__name__)
