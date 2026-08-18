@@ -179,7 +179,7 @@ def issue_traceability_credential(request, payload: IssueTraceabilityPayload):
     return status_code, response_data
 
 
-@api_v1.get("schemas/untp/active/", response=ActiveUNTPSchemasResponse, summary="Get active UNTP schemas")
+@api_v1.get("schemas/untp/active/", response=ActiveUNTPSchemasResponse, auth=DatabaseTokenAuth(),  summary="Get active UNTP schemas")
 def get_active_schemas(request):
     """
     Returns ONLY active schemas that are strictly compliant with the UNTP standard.

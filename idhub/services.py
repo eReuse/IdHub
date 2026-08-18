@@ -51,17 +51,15 @@ class CredentialIssuanceService:
                     subject_did=subject_did if subject_did else None
                 )
 
+                # pre verify schema  before doing intensive signing
                 rendered_json_str = cred.render(domain)
-
-                # verify schema
                 verify_env = not settings.DEBUG
-                valid, error_details = verify_schema(rendered_json_str, verify=verify_env)
 
+                valid, error_details = verify_schema(rendered_json_str, verify=verify_env)
                 if not valid:
                     logger.warning("Schema validation failed prior to signing.")
                     return 400, {'error': 'Schema validation failed prior to signing.', 'details': error_details}
 
-                # prepare cryptography signing
                 cred.set_issue_date()
                 cred.hash = hashlib.sha3_256(rendered_json_str.encode()).hexdigest()
                 key = issuer_did_obj.get_key_material()
