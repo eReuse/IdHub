@@ -143,8 +143,10 @@
 
                         <dt>{% translate "Issuer DID" %}</dt>
                         <dd>
-                            {% if results.issuer_id %}
-                                <a href="{{ results.issuer_id }}" target="_blank" class="text-decoration-none">{{ results.issuer_id }}</a>
+                            {% if results.issuer_url %}
+                                <a href="{{ results.issuer_url }}" target="_blank" class="text-decoration-none">{{ results.issuer_id }}</a>
+                            {% elif results.issuer_id %}
+                                <span class="text-break">{{ results.issuer_id }}</span>
                             {% else %}
                                 <em>{% translate "Unknown" %}</em>
                             {% endif %}
