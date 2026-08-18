@@ -116,13 +116,16 @@ class RequestCredentialForm(forms.Form):
             return
 
         if commit and self._domain:
-            cred.issue(did, domain=self._domain)
+            success, result = cred.issue(did, domain=self._domain)
+
+            if not success:
+                self.add_error(None, result)
+                return None
 
             # TODO checkbox "publish inmediately to DLT"
             #if did.type == DID.Types.WEBETH:
             #    cred.call_oracle()
 
-            cred.save()
             return cred
 
         return

@@ -1047,19 +1047,22 @@ class VerificableCredential(models.Model):
         vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
 
-        valid, _ = verify_schema(vc_str, verify=verify)
-
+        valid, err_details = verify_schema(vc_str, verify=verify)
         if not valid:
-            raise Exception(_("The credential is not valid with this schema"))
+            return False, _(f"The credential is not valid with this schema: {err_details}")
 
-        valid, _ = verify_signature(vc_str, verify=verify)
-
+        valid, err_details = verify_signature(vc_str, verify=verify)
         if not valid:
-            raise Exception(_("The credential is not valid"))
+            return False, _(f"The generated cryptographic signature is invalid: {err_details}")
 
         self.data = self.user.encrypt_data(vc_str)
-
         self.status = self.Status.ISSUED
+
+        if not save:
+            return True, vc
+
+        self.save()
+        return True, vc
 
     def set_issue_date(self):
         if not self.issued_on:
@@ -1116,30 +1119,33 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
-
-    def render_untp(self, untp_type: str, domain: str = "", version: str = "0.7.0"):
-        self.set_issue_date()
-        issuance_date = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
-
+    def _get_base_url(self, domain: str) -> str:
         did_parts = self.issuer_did.did.split(":")
         if len(did_parts) >= 3 and did_parts[0] == "did" and did_parts[1] == "web":
             original_domain = did_parts[2]
             protocol = "http" if "localhost" in original_domain else "https"
-            base_url = f"{protocol}://{original_domain}"
-        else:
-            base_url = domain.rstrip('/')
+            return f"{protocol}://{original_domain}"
+        return domain.rstrip('/')
 
-        url_id = f"{base_url}/credentials/{str(self.vc_id)}"
+    def _get_url_id(self, base_url: str) -> str:
+        return f"{base_url}/credentials/{str(self.vc_id)}"
 
-        # fetch the Organization
+    def _get_issuer_payload(self) -> dict:
         org = Organization.objects.filter(main=True).first()
         issuer_name = getattr(org, "name", "") if org else ""
 
+        issuer_id = self.issuer_did.did
+        if self.issuer_did.type == DID.Types.WEBETH:
+            issuer_key = json.loads(self.issuer_did.get_key_material())
+            issuer_id = issuer_key.get('eth_issuer_pub_key', issuer_id)
+
+        return {"id": issuer_id, "name": issuer_name}
+
+    def _get_unique_contexts(self, domain: str, base_url: str) -> list:
         _context_urls = self.schema.get_context_uris
         if not isinstance(_context_urls, list):
             _context_urls = [_context_urls] if _context_urls else []
 
-        #  append unique contexts safely
         def add_context(ctx_url):
             if ctx_url and ctx_url not in _context_urls:
                 _context_urls.append(ctx_url)
@@ -1155,52 +1161,48 @@ class VerificableCredential(models.Model):
         add_context("https://w3id.org/security/suites/jws-2020/v1")
         add_context("https://w3id.org/security/v2")
 
-        # resolve Schema
-        if self.schema.url and str(self.schema.url).startswith("http"):
-            schema_id = self.schema.url
-        elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
-            schema_id = str(self.schema.file_schema)
-        else:
-            schema_id = urljoin(domain, f"/schema/{self.schema.file_schema}")
+        return _context_urls
 
+    def _resolve_schema_id(self, domain: str) -> str:
+        if self.schema.url and str(self.schema.url).startswith("http"):
+            return self.schema.url
+        elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
+            return str(self.schema.file_schema)
+        return urljoin(domain, f"/schema/{self.schema.file_schema}")
+
+    def _prepare_credential_subject(self) -> dict | list:
         cred_subject = self.json_data.copy()
 
-        # given that DTE's are a list instead of a single credential subject, differentiate it
         if isinstance(cred_subject, dict):
             cred_subject.pop('@context', None)
-
-            # inject subject DID dynamically based on the DID type
-            if self.subject_did:
-                if self.subject_did.type == DID.Types.WEBETH:
-                    subject_key = json.loads(self.subject_did.get_key_material())
-                    cred_subject['id'] = subject_key.get('eth_subject_pub_key')
-                else:
-                    cred_subject['id'] = self.subject_did.did
-            elif self.id_string:
-                cred_subject['id'] = self.id_string
 
         elif isinstance(cred_subject, list):
             for item in cred_subject:
                 if isinstance(item, dict):
                     item.pop('@context', None)
 
+        return cred_subject
 
-        issuer_payload = {
-            "id": self.issuer_did.did,
-            "name": issuer_name
-        }
-        if self.issuer_did.type == DID.Types.WEBETH:
-            issuer_key = json.loads(self.issuer_did.get_key_material())
-            issuer_payload["id"] = issuer_key.get('eth_issuer_pub_key')
+    def render_untp(self, domain: str = "", version: str = "0.7.0"):
+        self.set_issue_date()
+        issuance_date = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        base_url = self._get_base_url(domain)
+        url_id = self._get_url_id(base_url)
+        context_urls = self._get_unique_contexts(domain, base_url)
+        schema_id = self._resolve_schema_id(domain)
+        issuer_payload = self._get_issuer_payload()
+
+        cred_subject = self._prepare_credential_subject()
 
         if version.startswith("0"):
             vc_model = UNTPCredentialV0(
-                context=_context_urls,
+                context=context_urls,
                 type=self.schema.get_schema_types,
                 id=url_id,
                 issuer=IssuerV0(
-                    id=self.issuer_did.did,
-                    name=issuer_name
+                    id=issuer_payload["id"],
+                    name=issuer_payload["name"]
                 ),
                 validFrom=issuance_date,
                 credentialSubject=cred_subject,
@@ -1209,7 +1211,6 @@ class VerificableCredential(models.Model):
                 )
             )
         elif version.startswith("1"):
-            # future implementation:
             raise NotImplementedError("UNTP 1.0.0 not yet supported")
         else:
             raise ValueError(f"Unsupported UNTP version: {version}")
@@ -1242,36 +1243,14 @@ class VerificableCredential(models.Model):
             "name": getattr(org, "name", "")
         }
 
-        vc_id = raw_vc.get("id", "")
-
         issuer_obj = raw_vc.get("issuer", {})
         iss = issuer_obj.get("id") if isinstance(issuer_obj, dict) else self.issuer_did.did
-
-        valid_from_str = raw_vc.get("validFrom") or raw_vc.get("issuanceDate")
-        if not valid_from_str:
-            valid_from_str = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
-            raw_vc["validFrom"] = valid_from_str
-
-        nbf_timestamp = int(datetime.datetime.strptime(valid_from_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
-
-        jwt_payload = {
-            "jti": vc_id,
-            "iss": iss,
-            "nbf": nbf_timestamp,
-            "iat": nbf_timestamp,
-            "vc": raw_vc,
-        }
-
-        valid_until_str = raw_vc.get("validUntil") or raw_vc.get("expirationDate")
-        if valid_until_str:
-            exp_timestamp = int(datetime.datetime.strptime(valid_until_str, "%Y-%m-%dT%H:%M:%SZ").timestamp())
-            jwt_payload["exp"] = exp_timestamp
 
         raw_jwk_str = self.issuer_did.get_key_material()
 
         headers = {
             "typ": "vc+jwt",
-            "cty": "vc",
+            "alg": "EdDSA",
             "kid": f"{iss}#owner"
         }
 
@@ -1282,19 +1261,16 @@ class VerificableCredential(models.Model):
             raise ValueError(f"Failed to parse Ed25519 JWK: {e}")
 
         enveloped_jwt = jwt.encode(
-            jwt_payload,
+            raw_vc,
             private_key,
             algorithm="EdDSA",
             headers=headers
         )
 
-        untp_context = self.schema.context if self.schema.context else "https://test.uncefact.org/vocabulary/untp/core/0/"
-
         wrapped_vc = {
             "verifiableCredential": {
                 "@context": [
-                    "https://www.w3.org/ns/credentials/v2",
-                    str(untp_context)
+                    "https://www.w3.org/ns/credentials/v2"
                 ],
                 "type": "EnvelopedVerifiableCredential",
                 "id": f"data:application/vc+jwt,{enveloped_jwt}"
