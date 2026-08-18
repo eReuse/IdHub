@@ -3,16 +3,21 @@ from typing import Dict, List, Any, Optional
 from pydantic import Field
 
 class CreateObjectDIDPayload(Schema):
+    #TODO: this parameter should be parametrized
     suffix_did_id: str = Field(
         ...,
+        min_length=1,
+        max_length=255,
         description="The unique suffix identifier to be appended to the DID method. This is the identifier part that goes after did:web:example.com:..."
     )
     service_endpoint: Optional[str] = Field(
         "",
+        max_length=2048,
         description="The initial service endpoint URL where the product passport can be resolved."
     )
     label: Optional[str] = Field(
         None,
+        max_length=255,
         description="An optional human-readable label or internal name for this DID."
     )
 
@@ -29,10 +34,14 @@ class CreateObjectDIDResponse(Schema):
 class UpdateServiceEndpointPayload(Schema):
     did: str = Field(
         ...,
+        min_length=1,
+        max_length=1024,
         description="The target Decentralized Identifier to update."
     )
     service_endpoint: str = Field(
         ...,
+        min_length=1,
+        max_length=2048,
         description="The new service endpoint URL to associate with this DID."
     )
 
@@ -53,10 +62,14 @@ class UpdateServiceEndpointResponse(Schema):
 class IssueDPPayload(Schema):
     schema_name: str = Field(
         ...,
+        min_length=1,
+        max_length=255,
         description="The specific UNTP Digital Product Passport (DPP) schema identifier to validate against."
     )
     issuer_did: str = Field(
         ...,
+        min_length=1,
+        max_length=1024,
         description="The Decentralized Identifier of the entity issuing the passport."
     )
     credentialSubject: Dict[str, Any] = Field(
@@ -67,10 +80,14 @@ class IssueDPPayload(Schema):
 class IssueFacilityPayload(Schema):
     schema_name: str = Field(
         ...,
+        min_length=1,
+        max_length=255,
         description="The specific UNTP Digital Facility Record (DFR) schema identifier to validate against."
     )
     issuer_did: str = Field(
         ...,
+        min_length=1,
+        max_length=1024,
         description="The Decentralized Identifier of the entity issuing the facility credential."
     )
     credentialSubject: Dict[str, Any] = Field(
@@ -81,14 +98,19 @@ class IssueFacilityPayload(Schema):
 class IssueTraceabilityPayload(Schema):
     schema_name: str = Field(
         ...,
+        min_length=1,
+        max_length=255,
         description="The specific UNTP Digital Traceability Event (DTE) schema identifier to validate against."
     )
     issuer_did: str = Field(
         ...,
+        min_length=1,
+        max_length=1024,
         description="The Decentralized Identifier of the entity issuing the traceability event."
     )
     credentialSubject: List[Dict[str, Any]] = Field(
         ...,
+        max_length=1000,
         description="A list of traceability events or lineage data points associated with the product journey."
     )
 
