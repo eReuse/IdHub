@@ -203,10 +203,7 @@ urlpatterns = [
     path('admin/object_dids/',
          views_admin.ObjectDidsView.as_view(), name='admin_object_dids'),
 
-    path('did-registry/<str:did_id>/did.json', ServeDidRegistryView, name="serve_registry_did"),
-
     path('.well-known/did.json', ServeDidView, kwargs={'did_id': None}, name='serve_root_did'),
-    path('<path:did_id>/did.json', ServeDidView, name='serve_did'),
 
     path('available/<str:did_id>/', AvailableDidView.as_view(), name="available_did"),
     path('schema/<str:file_name>', SchemaView, name="schema"),
@@ -214,5 +211,7 @@ urlpatterns = [
     path('context/<str:file_name>', ContextFileView, name="context_file"),
 
     path('verify/', PublicVerificationView.as_view(),
-         name="verification_portal_verify")
+         name="verification_portal_verify"),
+
+    path('<path:did_id>/did.json', ServeDidView, name='serve_did'),
 ]
