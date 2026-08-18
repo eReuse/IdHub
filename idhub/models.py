@@ -747,8 +747,14 @@ class Schemas(models.Model):
 
     @property
     def get_type(self):
-        sh = self.get_schema
-        return self.is_untp if self.is_untp else sh.get("title", "").title().replace(" ", "")
+        is_untp = self.is_untp
+        return is_untp if is_untp else sh.get("title", "").title().replace(" ", "")
+
+    def set_type(self, commit=False):
+        self.type = self.get_type
+
+        if commit:
+            self.save(update_fields=['type'])
 
     @property
     def get_schema_types(self):
@@ -763,22 +769,18 @@ class Schemas(models.Model):
     def get_context_uris(self):
         sh = self.get_schema
         if sh:
-            return sh.get("properties", "").get("@context", "").get("default", [])
+            sh.get("properties", {}).get("@context", {}).get("default", [])
 
     @property
     def is_untp(self):
         _vc_types = self.get_schema_types
-        _untp_types= [
+        _untp_types = [
             "DigitalConformityCredential",
             "DigitalProductPassport",
             "DigitalFacilityRecord",
             "DigitalTraceabilityEvent"
         ]
-
-        _untp_type = next(filter(lambda x: x in _vc_types, _untp_types), None)
-        if _untp_type:
-            self.type = _untp_type
-        return _untp_type
+        return next(filter(lambda x: x in _vc_types, _untp_types), None)
 
     @property
     def name(self, request=None):
@@ -1214,16 +1216,16 @@ class VerificableCredential(models.Model):
 
         return vc_model.model_dump_json(by_alias=True, exclude_none=True)
 
+
     def generate_enveloped_jwt(self, domain=""):
         """
         Experimental: grabs the raw UNTP credential, formats it into a W3C Enveloped VC payload,
-        and returns the fully signed JWT string.
+        and returns the fully signed JWT string according to VCDM 2.0 / vc-jose-cose.
         """
-        untp_type = self.is_untp()
-        if not untp_type:
+        if not self.is_untp:
             raise ValueError("This credential is not a UNTP type.")
 
-        raw_vc_str = self.render_untp(untp_type, domain)
+        raw_vc_str = self.render_untp(domain=domain)
         raw_vc = ujson.loads(raw_vc_str)
 
         dynamic_html = generate_universal_template(raw_vc)
@@ -1303,8 +1305,8 @@ class VerificableCredential(models.Model):
 
 
     def render(self, domain=""):
-        if (_untp_type := self.is_untp()) is not None:
-            return self.render_untp(_untp_type, domain)
+        if self.is_untp:
+            return self.render_untp(domain)
 
         context = self.get_context(domain)
         tmpl = get_template('credentials/base.json')
