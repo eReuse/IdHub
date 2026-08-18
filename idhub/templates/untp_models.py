@@ -20,7 +20,7 @@ class UNTPCredentialV0(BaseModel):
     context: List[str] = Field(alias="@context")
     type: List[str]
     id: str
-    name: str = "Idhub UNTP credential"
+    name: str = "Idhub UNTP 0.7.0  credential"
     issuer: IssuerV0
     validFrom: str
 

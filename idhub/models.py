@@ -589,6 +589,7 @@ class DID(models.Model):
     def get_did_document(self):
         key = json.loads(self.get_key_material())
         url, self.didweb_document = gen_did_document(self.did, key)
+        return url, self.didweb_document
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -597,7 +598,6 @@ class DID(models.Model):
         return Organization.objects.get(main=True)
 
     def get_path(self):
-
         didp = self.did.split(":")
         domain = didp[2]
         did_path = didp[3:]
@@ -691,7 +691,8 @@ class Schemas(models.Model):
             try:
                 if self.data:
                     schema_data = json.loads(self.data)
-            except Exception:
+            except Exception as e:
+                logger.info(f"Failed to parse JSON data for schema '{self.file_schema}': {e}")
                 pass
 
             json_id = schema_data.get("$id", "")
@@ -712,6 +713,9 @@ class Schemas(models.Model):
                 schema_id = filename if filename.startswith("/") else f"/schemas/{filename}"
 
             self.validation_url = schema_id
+
+        if not self.type:
+            self.type = self.get_type
 
         super().save(*args, **kwargs)
 
@@ -902,7 +906,7 @@ class VerificableCredential(models.Model):
     csv_data = models.TextField()
     json_data = models.JSONField(null=False, default=dict)
     hash = models.CharField(max_length=260)
-    subject_id = models.CharField(max_length=250, null=True)
+    subject_id = models.CharField(max_length=250, blank=True, default="")
     vc_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.PositiveSmallIntegerField(
         _("Status"),
@@ -1028,20 +1032,17 @@ class VerificableCredential(models.Model):
 
     def issue(self, did, domain, save=True):
         if self.status == self.Status.ISSUED:
-            return
+            return True, json.loads(self.user.decrypt_data(self.data))
 
         if did:
             self.subject_did = did
+
         self.set_issue_date()
-        # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
 
         key = self.issuer_did.get_key_material()
         credential = self.render(domain)
-
         verify = not settings.DEBUG
-        logger.error(verify)
-        logger.error("#######################3")
 
         vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)

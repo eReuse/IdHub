@@ -735,8 +735,8 @@ class CredentialJsonView(Credentials):
                     domain = f"https://{request.get_host()}"
                     jwt_string = self.object.generate_enveloped_jwt(domain)
 
-                response = HttpResponse(jwt_string, content_type="application/jwt")
-                response['Content-Disposition'] = 'attachment; filename="credential_jwt.json"'
+                response = HttpResponse(jwt_string, content_type="application/vc+jwt")
+                response['Content-Disposition'] = 'attachment; filename="credential.jwt"'
                 return response
 
             except Exception as e:
@@ -1307,19 +1307,15 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
     success_url = reverse_lazy("idhub:admin_dids")
     paginate_by = 5
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            try:
-                form.save(request.user)
-            except ValidationError as e:
-                form.add_error(None, e)
-                return render(request, 'template.html', {'form': form})
+    def form_valid(self, form):
+        try:
+            form.save(self.request.user)
+        except ValidationError as e:
+            form.add_error(None, e)
+            return self.form_invalid(form)
 
-            messages.success(self.request, _("Object DPP created succesfuly."))
-            return self.form_valid(form)
-
-        return self.form_invalid(form)
+        messages.success(self.request, _("Object DPP created successfully."))
+        return super().form_valid(form)
 
     def get_queryset(self):
         return DID.objects.filter(is_product=True).order_by("created_at")
