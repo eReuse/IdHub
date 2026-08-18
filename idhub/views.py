@@ -101,47 +101,6 @@ class PasswordResetView(auth_views.PasswordResetView):
         return HttpResponseRedirect(self.success_url)
 
 
-def ServeDidRegistryView(request, did_id):
-    domain = settings.DOMAIN
-    id_did = f'did:web:{domain}:did-registry:{did_id}'
-    did = get_object_or_404(DID, did=id_did)
-    # Deserialize the base DID from JSON storage
-    document = json.loads(did.didweb_document)
-    # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
-    #  entry to the DID document.
-    revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
-    revoked_credential_indexes = []
-    for credential in revoked_credentials:
-        revoked_credential_indexes.append(credential.id)
-        # revoked_credential_indexes.append(credential.revocationBitmapIndex)
-    # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
-    revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
-    encoded_revocation_bitmap = base64.b64encode(
-        zlib.compress(
-            revocation_bitmap.serialize()
-        )
-    ).decode('utf-8')
-    revocation_service = [{  # This is an object within a list.
-        "id": f"{id_did}#revocation",
-        "type": "RevocationBitmap2022",
-        "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
-    }]
-
-    if did.is_product and did.service_endpoint:
-        revocation_service.append({
-            "id": f"{id_did}#product",
-            "type": "ProductPassport",
-            "serviceEndpoint": did.service_endpoint
-        })
-
-    document["service"] = revocation_service
-    # Serialize the DID + Revocation list in preparation for sending
-    document = json.dumps(document)
-    retval = HttpResponse(document)
-    retval.headers["Content-Type"] = "application/json"
-    return retval
-
-
 def ServeDidView(request, did_id):
     domain = settings.DOMAIN
 
@@ -154,22 +113,14 @@ def ServeDidView(request, did_id):
     did = get_object_or_404(DID, did=id_did)
 
     if not did.didweb_document:
-        if did.key_material:
-            try:
-                document = did.get_did_document()
-            except Exception as e:
-                return JsonResponse({"error": "DID keys exist but document generation failed."}, status=500)
-        else:
-            return JsonResponse({"error": "DID exists but no document or keys have been generated."}, status=404)
-    else:
-        try:
-            document = json.loads(did.didweb_document)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "DID Document in database is corrupt or invalid JSON."}, status=500)
+        return JsonResponse({"error": "DID exists but no document is available locally."}, status=404)
 
+    try:
+        document = json.loads(did.didweb_document)
+    except json.JSONDecodeError as e:
+        logger.error(f"DID Document in database is corrupt for DID {did.did}: {e}")
+        return JsonResponse({"error": "DID Document in database is corrupt or invalid JSON."}, status=500)
 
-    # Deserialize the base DID from JSON storage
-    document = json.loads(did.didweb_document)
     # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
     #  entry to the DID document.
     revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)

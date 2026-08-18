@@ -605,10 +605,8 @@ class DID(models.Model):
         if settings.DOMAIN == domain:
             if not did_path:
                 return reverse("idhub:serve_root_did")
-            else:
-                path_str = "/".join(did_path)
-                if "registry" in self.did:
-                    return reverse("idhub:serve_registry_did", args=[path_str])
+
+            path_str = "/".join(did_path)
             return reverse("idhub:serve_did", args=[path_str])
 
         protocol = "https"
