@@ -146,14 +146,12 @@ def webhook_issue(request):
 
         cred.set_type()
         domain = "{}://{}".format(request.scheme, request.get_host())
-        vc_signed = cred.issue(did, domain=domain, save=save)
 
-        if not vc_signed:
-            return JsonResponse({'error': 'Invalid credential'}, status=400)
+        success, result = cred.issue(did, domain=domain, save=save)
+        if not success:
+            return JsonResponse({'error': result}, status=200)
 
-        return JsonResponse({'status': 'success', "data": vc_signed}, status=200)
-
-        return JsonResponse({'status': 'fail'}, status=200)
+        return JsonResponse({'status': 'success', "data": result}, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 

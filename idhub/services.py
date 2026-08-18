@@ -60,33 +60,17 @@ class CredentialIssuanceService:
                     logger.warning("Schema validation failed prior to signing.")
                     return 400, {'error': 'Schema validation failed prior to signing.', 'details': error_details}
 
-                cred.set_issue_date()
-                cred.hash = hashlib.sha3_256(rendered_json_str.encode()).hexdigest()
-                key = issuer_did_obj.get_key_material()
+                # issue() function will sign and validate the credential
+                success, result = cred.issue(did=subject_did, domain=domain, save=True)
+                if not success:
+                    return 400, {'error': 'Issuance failed', 'details': result}
 
-                try:
-                    vc = sign(rendered_json_str, key, issuer_did_obj.did, verify=verify_env)
-                    vc_str = json.dumps(vc)
-                except Exception as sign_exc:
-                    logger.error(f"Cryptographic signing failed for DID {issuer_did_obj.did}: {sign_exc}", exc_info=True)
-                    return 500, {'error': 'Internal server error during cryptographic signing.'}
+                return 201, {"credential": result}
 
-                # should these post validation be avoided?
-                sig_valid, sig_err = verify_signature(vc_str, verify=verify_env)
-                if not sig_valid:
-                    logger.error(f"Post-sign signature validation failed: {sig_err}")
-                    raise ValueError("The generated cryptographic signature is invalid.")
-
-
-                cred.issue(did=subject_did, domain=domain, save=True)
-
-                return 201, {"credential": json.loads(cred.get_data())}
-
-        except ValueError as e:
-            return 400, {'error': str(e)}
         except Exception as e:
             logger.error(f"Issuance flow failed unexpectedly: {e}", exc_info=True)
             return 500, {'error': 'Internal server error during credential issuance.'}
+
 
 class DIDService:
     @staticmethod
@@ -97,6 +81,7 @@ class DIDService:
         service_endpoint: str = "",
         suffix_did_id: str = None
     ):
+        expected_did = None
         # check for existing did:web based on suffix
         if did_type == DID.Types.WEB.value and suffix_did_id:
             expected_did = f"did:web:{settings.DOMAIN}:{suffix_did_id}"
@@ -117,7 +102,7 @@ class DIDService:
             service_endpoint=service_endpoint or ""
         )
 
-        if suffix_did_id and did_type == DID.Types.WEB.value:
+        if expected_did:
             obj_did.did = expected_did
         else:
             obj_did.set_did()
