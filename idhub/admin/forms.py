@@ -11,7 +11,6 @@ from urllib.parse import urlparse, urljoin
 from django.conf import settings
 from django.urls import reverse
 from django import forms
-from django.core.validators import URLValidator
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -20,7 +19,6 @@ from idhub.services import DIDService, CredentialIssuanceService
 from utils.sanitize_did import sanitize_didweb
 from idhub.models import (
     DID,
-    Schemas,
     ContextFile,
     File_datas,
     Membership,

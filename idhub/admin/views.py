@@ -10,7 +10,6 @@ from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import FormMixin
 from django.views.generic.edit import (
     CreateView,
     DeleteView,
