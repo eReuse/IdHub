@@ -24,7 +24,7 @@ from pyvckit.did import (
 from pyvckit.sign import sign
 from idhub.credential_renderer import generate_universal_template
 from pyvckit.verify import verify_signature, verify_schema
-from idhub.templates.pydantic import UNTPCredentialV0, IssuerV0, CredentialSchema
+from idhub.templates.untp_models import UNTPCredentialV0, IssuerV0, CredentialSchema
 
 from oidc4vp.models import Organization
 from idhub_auth.models import User
@@ -870,12 +870,6 @@ class ContextFile(models.Model):
     data = models.TextField(max_length=250)
     #TODO:could two schemas have same context?
     file_name = models.CharField(max_length=250, unique=False)
-    schema = models.ForeignKey(
-        Schemas,
-        on_delete=models.CASCADE,
-        related_name='context_file',
-    )
-
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
