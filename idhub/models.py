@@ -1136,13 +1136,20 @@ class VerificableCredential(models.Model):
         return {"id": issuer_id, "name": issuer_name}
 
     def _get_unique_contexts(self, domain: str, base_url: str) -> list:
-        _context_urls = self.schema.get_context_uris
-        if not isinstance(_context_urls, list):
-            _context_urls = [_context_urls] if _context_urls else []
+        _context_urls = ["https://www.w3.org/ns/credentials/v2"]
+
+        schema_contexts = self.schema.get_context_uris
+        if isinstance(schema_contexts, str):
+            schema_contexts = [schema_contexts]
+        elif not schema_contexts:
+            schema_contexts = []
 
         def add_context(ctx_url):
             if ctx_url and ctx_url not in _context_urls:
                 _context_urls.append(ctx_url)
+
+        for ctx in schema_contexts:
+            add_context(ctx)
 
         if self.schema.context:
             schema_ctx = str(self.schema.context)
