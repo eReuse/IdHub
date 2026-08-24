@@ -110,7 +110,7 @@ class SchemaInfo(Schema):
     name: str = Field(..., description="The internal identifier or short name of the schema.")
     file_schema: str = Field(..., description="The filename or internal path referencing the JSON Schema.")
     description: Optional[str] = Field(None, description="Explanation of what data this schema validates.")
-    url: Optional[HttpUrl] = Field(None, description="Canonical public URL for the schema definition.")
+    url: Optional[str] = Field(None, description="Canonical public URL for the schema definition.")
 
 
 class ActiveUNTPSchemasResponse(Schema):
