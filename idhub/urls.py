@@ -211,7 +211,7 @@ urlpatterns = [
     path('context/<str:file_name>', ContextFileView, name="context_file"),
 
     path('verify/', PublicVerificationView.as_view(),
-         name="verification_portal_verify"),
+         name="verify"),
 
     path('<path:did_id>/did.json', ServeDidView, name='serve_did'),
 ]
