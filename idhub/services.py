@@ -166,6 +166,28 @@ class VerificationService:
             "detail": detail
         })
 
+    @staticmethod
+    def _format_exception(e: Exception) -> str:
+        """Extracts a clean, human-readable message from complex nested exceptions (like JSON-LD errors)."""
+
+        if type(e).__name__ == "JsonLdError" or hasattr(e, 'code'):
+            code = getattr(e, 'code', '')
+            details = getattr(e, 'details', {})
+
+            if code == 'loading remote context failed':
+                url = details.get('url', 'Unknown URL')
+                return str(_("Failed to fetch remote JSON-LD context. The server might be down or inaccessible: {}")).format(url)
+
+            cause = getattr(e, 'cause', None)
+            if cause:
+                return f"JSON-LD Parsing Error: {type(cause).__name__}"
+
+        msg = str(e)
+        if msg.startswith("('") and msg.endswith("',)"):
+            msg = msg[2:-3]
+
+        return msg.split('\n')[0].strip()
+
     @classmethod
     def verify_document(cls, raw_str: str) -> dict:
         results = cls.empty_results()
@@ -187,15 +209,22 @@ class VerificationService:
 
     @classmethod
     def _parse_json(cls, raw: str, results: dict):
+        raw = raw.strip()
+
+        if raw.startswith("eyJ"):
+            cls.add_step(results, _("Format parsing"), True, _("Raw JWT string loaded."))
+            return {"type": "EnvelopedVerifiableCredential", "id": f"data:application/vc+jwt,{raw}"}
+
         try:
             doc = json.loads(raw)
             cls.add_step(results, _("Format parsing"), True, _("Valid JSON document loaded."))
 
             if "verifiableCredential" in doc:
+                doc["verifiableCredential"]["_was_unwrapped"] = True
                 return doc["verifiableCredential"]
             return doc
         except Exception:
-            cls.add_step(results, _("Format parsing"), False, _("Invalid JSON file."))
+            cls.add_step(results, _("Format parsing"), False, _("Invalid JSON or JWT file."))
             return None
 
     @classmethod
@@ -208,20 +237,25 @@ class VerificationService:
         if "EnvelopedVerifiableCredential" in raw_types or str(doc.get("id", "")).startswith("data:application/vc+jwt"):
             return cls._verify_jwt_branch(doc, results)
 
-        # or nomal open credential
+        # or normal open credential (JSON-LD)
         elif "proof" in doc:
             results['credential_type'] = f"JSON-LD Data Integrity ({', '.join(raw_types)})"
             try:
-                sig_valid, sig_msg = verify_signature(raw_str, verify=True)
+                if doc.pop("_was_unwrapped", False):
+                    string_to_verify = json.dumps(doc)
+                else:
+                    string_to_verify = raw_str
+
+                sig_valid, sig_msg = verify_signature(string_to_verify, verify=True)
                 if sig_valid:
                     cls.add_step(results, _("Cryptographic Integrity"), True, _("Signature is mathematically valid."))
                     return doc
                 else:
                     cls.add_step(results, _("Cryptographic Integrity"), False, _(f"Signature verification failed: {sig_msg}"))
             except Exception as e:
-                cls.add_step(results, _("Cryptographic Integrity"), False, str(e))
+                clean_msg = cls._format_exception(e)
+                cls.add_step(results, _("Cryptographic Integrity"), False, clean_msg)
             return None
-
         else:
             cls.add_step(results, _("Type detection"), False, _("Missing proof block or enveloped JWT URI."))
             return None
