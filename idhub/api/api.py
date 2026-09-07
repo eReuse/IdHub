@@ -68,7 +68,7 @@ def create_object_did(request, payload: CreateObjectDIDPayload):
             user=request.user,
             did_type=DID.Types.WEB.value,
             label=payload.label or f"device-{payload.suffix_did_id}",
-            service_endpoint=payload.service_endpoint,
+            service_endpoint=str(payload.service_endpoint) if payload.service_endpoint else None,
             suffix_did_id=payload.suffix_did_id
         )
 
@@ -77,7 +77,8 @@ def create_object_did(request, payload: CreateObjectDIDPayload):
 
         return status_code, {
             "did": obj_did.did,
-            "did_document": doc_json
+            "did_document": doc_json,
+            "service_endpoint": str(payload.service_endpoint) if payload.service_endpoint else None
         }
 
     except Exception as e:
@@ -91,26 +92,28 @@ def create_object_did(request, payload: CreateObjectDIDPayload):
              auth=DatabaseTokenAuth())
 def update_did_service_endpoint(request, payload: UpdateServiceEndpointPayload):
 
-    did_obj = DID.objects.filter(did=payload.did, user=request.user, is_product=True ).first()
+    did_obj = DID.objects.filter(did=payload.did, user=request.user, is_product=True).first()
 
     if not did_obj:
         return 404, {"error": "DID not found or you do not have permission to modify it."}
 
     try:
-        did_obj.service_endpoint = payload.service_endpoint
-        did_obj.save(update_fields=['service_endpoint', ])
+        endpoint_str = str(payload.service_endpoint) if payload.service_endpoint else ""
+        did_obj.service_endpoint = endpoint_str
+
+        DIDService.sync_endpoint_to_document(did_obj)
+        did_obj.save(update_fields=['service_endpoint', 'didweb_document'])
 
         return 200, {
             "success": True,
             "did": did_obj.did,
-            "service_endpoint": did_obj.service_endpoint
+            "service_endpoint": endpoint_str
         }
 
     except Exception as e:
         logger.error(f"Failed to update Service Endpoint: {e}", exc_info=True)
         return 500, {"error": "Internal server error updating the DID."}
 
-    
 
 @api_v1.post("issue-dpp/",
              response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
