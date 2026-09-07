@@ -38,15 +38,24 @@ class VerificationForm(forms.Form):
                 _("The file is too large. The maximum allowed size is 5MB.")
             )
 
-        if file.content_type not in self.ALLOWED_CONTENT_TYPES:
-            raise ValidationError(
-                _("Unsupported file format. Please upload a valid JSON, PDF, or JWT credential.")
-            )
-
         ext = os.path.splitext(file.name)[1].lower()
         if ext not in self.ALLOWED_EXTENSIONS:
             raise ValidationError(
                 _("Invalid file extension. Only .json, .pdf and .jwt are allowed.")
             )
+
+        generic_mimes = ['application/octet-stream', 'text/plain', '']
+
+        if file.content_type not in self.ALLOWED_CONTENT_TYPES and file.content_type not in generic_mimes:
+            raise ValidationError(
+                _("Unsupported file format. Please upload a valid JSON, PDF, or JWT credential.")
+            )
+
+        if ext in ['.json', '.jwt']:
+            try:
+                file.read().decode('utf-8')
+                file.seek(0)
+            except UnicodeDecodeError:
+                raise ValidationError(_("The file is not a valid UTF-8 encoded text file."))
 
         return file
