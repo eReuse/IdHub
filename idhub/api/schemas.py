@@ -21,22 +21,6 @@ class BaseIssuePayload(Schema):
     )
 
 
-class DIDEndpointBase(Schema):
-    """
-    base schema for service endpoint
-    """
-    did: str = Field(
-        ...,
-        min_length=1,
-        max_length=1024,
-        description="The target Decentralized Identifier."
-    )
-    service_endpoint: HttpUrl = Field(
-        ...,
-        description="The service endpoint URL associated with this DID."
-    )
-
-
 class CreateObjectDIDPayload(Schema):
     suffix_did_id: str = Field(
         ...,
@@ -55,19 +39,42 @@ class CreateObjectDIDPayload(Schema):
     )
 
 
+class UpdateServiceEndpointPayload(Schema):
+    did: str = Field(
+        ...,
+        min_length=1,
+        max_length=1024,
+        description="The target Decentralized Identifier."
+    )
+    service_endpoint: HttpUrl = Field(
+        ...,
+        description="The service endpoint URL associated with this DID."
+    )
+
 class CreateObjectDIDResponse(Schema):
+
     did: str = Field(..., description="The fully resolved Decentralized Identifier.")
     did_document: Dict[str, Any] = Field(..., description="The standard W3C DID Document.")
+    service_endpoint: Optional[str] = Field(
+        None,
+        description="The assigned service endpoint URL."
+    )
 
 
-class UpdateServiceEndpointPayload(DIDEndpointBase):
-    pass
-
-
-class UpdateServiceEndpointResponse(DIDEndpointBase):
+class UpdateServiceEndpointResponse(Schema):
     success: bool = Field(
         ...,
         description="Indicates whether the endpoint was successfully updated."
+    )
+    did: str = Field(
+        ...,
+        min_length=1,
+        max_length=1024,
+        description="The target Decentralized Identifier."
+    )
+    service_endpoint: str = Field(
+        ...,
+        description="The service endpoint URL associated with this DID."
     )
 
 

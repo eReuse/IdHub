@@ -74,6 +74,34 @@ class CredentialIssuanceService:
 
 class DIDService:
     @staticmethod
+    def sync_endpoint_to_document(obj_did: DID):
+        if not obj_did.didweb_document:
+            doc = {"@context": ["https://www.w3.org/ns/did/v1"], "id": obj_did.did}
+        else:
+            try:
+                doc = json.loads(obj_did.didweb_document)
+            except json.JSONDecodeError:
+                doc = {"@context": ["https://www.w3.org/ns/did/v1"], "id": obj_did.did}
+
+        if "service" in doc:
+            doc["service"] = [s for s in doc["service"] if s.get("type") != "ProductPassport"]
+        else:
+            doc["service"] = []
+
+        if obj_did.service_endpoint:
+            doc["service"].append({
+                "id": f"{obj_did.did}#product",
+                "type": "ProductPassport",
+                "serviceEndpoint": obj_did.service_endpoint
+            })
+
+        if not doc["service"]:
+            del doc["service"]
+
+        obj_did.didweb_document = json.dumps(doc)
+        return obj_did
+
+    @staticmethod
     def get_or_create_product_did(
         user,
         did_type: int,
@@ -90,8 +118,9 @@ class DIDService:
             if existing_did:
                 if service_endpoint and existing_did.service_endpoint != service_endpoint:
                     existing_did.service_endpoint = service_endpoint
-                    existing_did.save(update_fields=['service_endpoint'])
-                return existing_did, False  # false is that = not created, fetched existing
+                    DIDService.sync_endpoint_to_document(existing_did)
+                    existing_did.save(update_fields=['service_endpoint', 'didweb_document'])
+                return existing_did, False
 
         # create new DID
         obj_did = DID(
@@ -102,15 +131,17 @@ class DIDService:
             service_endpoint=service_endpoint or ""
         )
 
+        obj_did.set_did()
         if expected_did:
             obj_did.did = expected_did
-        else:
-            obj_did.set_did()
+
+        obj_did.get_did_document()
+
+        DIDService.sync_endpoint_to_document(obj_did)
 
         obj_did.save()
 
         return obj_did, True
-
 
 class VerificationService:
 
