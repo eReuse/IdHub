@@ -1233,7 +1233,7 @@ class VerificableCredential(models.Model):
         dynamic_html = generate_universal_template(raw_vc)
         raw_vc["renderMethod"] = [
             {
-                "type": "WebRenderingTemplate2022",
+                "type": ["RenderTemplate2024"],
                 "template": dynamic_html
             }
         ]
