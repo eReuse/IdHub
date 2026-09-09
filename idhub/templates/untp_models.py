@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field, ConfigDict
 
 class CredentialSchema(BaseModel):
-    type: str = "FullJsonSchemaValidator2021"
+    type: str = "https://w3id.org/security#FullJsonSchemaValidator2021"
     id: str
 
 

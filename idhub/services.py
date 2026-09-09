@@ -33,10 +33,17 @@ class CredentialIssuanceService:
         """
         try:
             schema = Schemas.objects.get(file_schema=schema_name)
+
+            # satisfy strict JSON-LD validators
+            absolute_iri = "https://w3id.org/security#FullJsonSchemaValidator2021"
+            if hasattr(schema, 'schema_type') and schema.schema_type == 'FullJsonSchemaValidator2021':
+                schema.schema_type = absolute_iri
+            elif hasattr(schema, 'type') and schema.type == 'FullJsonSchemaValidator2021':
+                schema.type = absolute_iri
+
         except Schemas.DoesNotExist:
             logger.warning(f"User {user.id} requested non-existent schema: {schema_name}")
             return 422, {'error': f"Schema '{schema_name}' does not exist."}
-
         try:
             with transaction.atomic():
                 domain = f"https://{settings.DOMAIN}/"
@@ -409,8 +416,7 @@ class VerificationService:
 
         if schema_url:
             vc_dict["credentialSchema"] = {
-                "type": "FullJsonSchemaValidator2021",
+                "type": "https://w3id.org/security#FullJsonSchemaValidator2021",
                 "id": schema_url
             }
-
         return vc_dict
