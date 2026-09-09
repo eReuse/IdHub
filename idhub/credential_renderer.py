@@ -1,8 +1,8 @@
 import re
-import json
+
+import re
 
 def generate_universal_template(raw_vc):
-
     css_styles = """
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
@@ -19,59 +19,70 @@ def generate_universal_template(raw_vc):
     </style>
     """
 
-    def walk_dict(data_dict, prefix=""):
+    def walk_dict(data_dict):
         html_lines = []
         for key, value in data_dict.items():
-            if key in ["@context", "type", "id"] and not prefix:
+            if key in ["@context", "type", "id"]:
                 continue
 
-            current_path = f"{prefix}.{key}" if prefix else key
             clean_name = re.sub('([A-Z])', r' \1', key).title()
 
             if isinstance(value, dict):
                 html_lines.append(f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-box-seam me-2"></i>{clean_name}</h4></div>')
                 html_lines.append('<div class="col-12"><div class="component-card"><div class="row g-3">')
-                html_lines.append(walk_dict(value, current_path))
+                html_lines.append(walk_dict(value))
                 html_lines.append('</div></div></div>')
 
             elif isinstance(value, list):
                 html_lines.append(f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-collection me-2"></i>{clean_name}</h4></div>')
-                html_lines.append(f"{{{{#each {current_path}}}}}")
                 html_lines.append('<div class="col-12"><div class="component-card"><div class="row g-3">')
 
-                if len(value) > 0 and isinstance(value[0], dict):
-                    html_lines.append(walk_dict(value[0], "this"))
-                else:
-                    html_lines.append('<div class="col-12 info-value fw-bold">{{this}}</div>')
+                for idx, item in enumerate(value):
+                    if isinstance(item, dict):
+                        if idx > 0:
+                            html_lines.append('<hr class="my-3 text-muted">')
+                        html_lines.append('<div class="col-12"><div class="row g-3">')
+                        html_lines.append(walk_dict(item))
+                        html_lines.append('</div></div>')
+                    else:
+                        html_lines.append(f'<div class="col-12 info-value fw-bold">{item}</div>')
 
                 html_lines.append('</div></div></div>')
-                html_lines.append("{{/each}}")
 
             else:
                 html_lines.append(f"""
                 <div class="col-md-6 col-lg-4">
                     <div class="info-row row">
                         <div class="col-12 info-label text-muted">{clean_name}</div>
-                        <div class="col-12 info-value fw-bold">{{{{{current_path}}}}}</div>
+                        <div class="col-12 info-value fw-bold">{value}</div>
                     </div>
                 </div>""")
 
         return "\n".join(html_lines)
 
-    # Build the dynamic HTML body
+    vc_id = raw_vc.get("id", "N/A")
+
+    types = raw_vc.get("type", [])
+    if isinstance(types, str):
+        types = [types]
+    types_html = "".join([f'<span class="badge bg-secondary me-1">{t}</span>' for t in types])
+
+    issuer = raw_vc.get("issuer", {})
+    issuer_id = issuer.get("id") if isinstance(issuer, dict) else issuer
+    if not issuer_id:
+        issuer_id = "N/A"
+
+    valid_from = raw_vc.get("validFrom") or raw_vc.get("issuanceDate", "N/A")
+
     subject_data = raw_vc.get("credentialSubject", {})
     if isinstance(subject_data, list):
-        subject_html = f"""
-        {{{{#each credentialSubject}}}}
-            <div class="component-card mb-4"><div class="row g-3">
-                {walk_dict(subject_data[0], "this")}
-            </div></div>
-        {{{{/each}}}}
-        """
+        subject_html_parts = []
+        for item in subject_data:
+            subject_html_parts.append(f'<div class="component-card mb-4"><div class="row g-3">{walk_dict(item)}</div></div>')
+        subject_html = "\n".join(subject_html_parts)
     else:
-        subject_html = walk_dict(subject_data, "credentialSubject")
+        subject_html = walk_dict(subject_data)
 
-    # wrap
     final_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,12 +103,12 @@ def generate_universal_template(raw_vc):
                 <h2 class="section-title">Details</h2>
                 <div class="info-row row">
                     <div class="col-md-4 info-label">Credential ID</div>
-                    <div class="col-md-8 info-value"><div class="hash-value">{{{{id}}}}</div></div>
+                    <div class="col-md-8 info-value"><div class="hash-value">{vc_id}</div></div>
                 </div>
                 <div class="info-row row mt-2">
                     <div class="col-md-4 info-label">Types</div>
                     <div class="col-md-8 info-value">
-                        {{{{#each type}}}}<span class="badge bg-secondary me-1">{{{{this}}}}</span>{{{{/each}}}}
+                        {types_html}
                     </div>
                 </div>
             </div>
@@ -106,11 +117,11 @@ def generate_universal_template(raw_vc):
                 <h2 class="section-title">Issuer Information</h2>
                 <div class="info-row row">
                     <div class="col-md-4 info-label">Issuer ID</div>
-                    <div class="col-md-8 info-value"><div class="hash-value">{{{{issuer.id}}}}</div></div>
+                    <div class="col-md-8 info-value"><div class="hash-value">{issuer_id}</div></div>
                 </div>
                 <div class="info-row row mt-2">
                     <div class="col-md-4 info-label">Valid From</div>
-                    <div class="col-md-8 info-value fw-bold">{{{{validFrom}}}}</div>
+                    <div class="col-md-8 info-value fw-bold">{valid_from}</div>
                 </div>
             </div>
         </div>
@@ -121,7 +132,7 @@ def generate_universal_template(raw_vc):
         </div>
 
         <footer>
-            <p class="mb-0">&copy; eReuse Verified Data Record</p>
+            <p class="mb-0">&copy; eReuse</p>
         </footer>
     </div>
 </body>

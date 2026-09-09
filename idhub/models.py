@@ -974,7 +974,20 @@ class VerificableCredential(models.Model):
     def get_datas(self):
         data = self.render()
         credential_subject = ujson.loads(data).get("credentialSubject", {})
-        return credential_subject.items()
+
+        if isinstance(credential_subject, dict):
+            return credential_subject.items()
+
+        # traceability events is a list
+        elif isinstance(credential_subject, list):
+            formatted_data = {}
+            for idx, item in enumerate(credential_subject, start=1):
+                if isinstance(item, dict):
+                    event_type = item.get("type", ["Event"])[0] if "type" in item else "Event"
+                    formatted_data[f"{event_type} #{idx}"] = item
+                else:
+                    formatted_data[f"Event #{idx}"] = item
+            return formatted_data.items()
 
     @property
     def is_webeth(self):
