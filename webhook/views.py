@@ -149,7 +149,7 @@ def webhook_issue(request):
 
         success, result = cred.issue(did, domain=domain, save=save)
         if not success:
-            return JsonResponse({'error': result}, status=200)
+            return JsonResponse({'error': result}, status=400)
 
         return JsonResponse({'status': 'success', "data": result}, status=200)
 
