@@ -2,8 +2,8 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 def sanitize_url(url):
@@ -11,7 +11,7 @@ def sanitize_url(url):
         r'^https://'
         #r'(localhost(?::\d+)?|[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+)'
         r'([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+)'
-        r'(?:/[a-zA-Z0-9-_.]+)*'
+        r'(?:/(?!\.+(?:/|$))[a-zA-Z0-9_.-]+)*'
         r'$'
     )
     return patron.fullmatch(url) is not None
@@ -20,7 +20,7 @@ def sanitize_url(url):
 def sanitize_path(path):
     patron = re.compile(
         r'^'
-        r'(?:/[a-zA-Z0-9-_.]+)*'
+        r'(?:/(?!\.+(?:/|$))[a-zA-Z0-9_.-]+)*'
         r'$'
     )
     return patron.fullmatch(path) is not None
@@ -30,8 +30,9 @@ def sanitize_didweb(did):
         raise ValidationError(_("This is not a correct DID web"))
 
     didp = did.split(":")
-    if len(didp) > 4:
-        raise ValidationError(_("Only one path level is allowed (e.g., did:web:domain:path). Deep paths are not permitted."))
+
+    if len(didp) < 3:
+        raise ValidationError(_("This is not a correct DID web"))
 
     did_domain = didp[:3]
     did_path = didp[3:]
@@ -50,14 +51,18 @@ def sanitize_didweb(did):
         url = f"https://{domain}/{url_path}/did.json"
         path_to_validate = f"/{url_path}/did.json"
 
-    #   expected 4 (optional 3 first parts) parts: did, web, domain, filename
-    if domain == settings.DOMAIN and len(didp) > 4:
-        raise ValidationError(_("You can't use path in the DID"))
-
-    if not sanitize_url(url) or not sanitize_path(path_to_validate):
-        raise ValidationError(_("Is not a valid url"))
+    if domain == settings.DOMAIN and len(didp) > 5:
+        raise ValidationError(_("Only a double  path level is permitted for this domain."))
 
     url_field = forms.URLField()
     url_field.clean(url)
+    if not sanitize_url(url) or not sanitize_path(path_to_validate):
+        raise ValidationError(_("Is not a valid url"))
+
+    try:
+        url_field = forms.URLField()
+        url_field.clean(url)
+    except ValidationError:
+        raise ValidationError(_("Is not a valid url"))
 
     return did
