@@ -1,20 +1,20 @@
-import json
 import base64
-import jwt
-import logging
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+import ipaddress
+import json
+import logging
+import socket
 from typing import Any, List, Tuple
+from urllib.parse import unquote, urlparse
 
-from django.utils.translation import gettext_lazy as _
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-
-from pyvckit.verify import verify_schema, verify_signature, resolve_did
 from django.conf import settings
 from django.db import transaction
-from idhub.models import DID
+from django.utils.translation import gettext_lazy as _
+import jwt
+from pyvckit.verify import resolve_did, verify_schema, verify_signature
 
-from idhub.models import Schemas, VerificableCredential
+from idhub.models import DID, Schemas, VerificableCredential
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +152,78 @@ class DIDService:
 
 class VerificationService:
 
+    # TODO: move this logic to pyvckit?
+    @classmethod
+    def validate_safe_host(cls, host: str, port: int = 443):
+        """
+        Verifies that a hostname does not resolve to private, loopback,
+        link-local, multicast, or non-global IP addresses (anti-SSRF).
+        """
+        if not host:
+            raise ValueError(_("Host name cannot be empty."))
+
+        clean_host = host.strip("[]")
+
+        try:
+            addr_info = socket.getaddrinfo(clean_host, port, type=socket.SOCK_STREAM)
+        except socket.gaierror:
+            raise ValueError(_(f"Unable to resolve host '{host}'."))
+
+        for item in addr_info:
+            ip_str = item[4][0]
+            ip_obj = ipaddress.ip_address(ip_str)
+
+            if (
+                ip_obj.is_private
+                or ip_obj.is_loopback
+                or ip_obj.is_reserved
+                or ip_obj.is_link_local
+                or ip_obj.is_multicast
+                or not ip_obj.is_global
+            ):
+                raise ValueError(
+                    _("Access to private, loopback, or reserved network addresses is prohibited.")
+                )
+
+    @classmethod
+    def validate_safe_did(cls, did: str):
+        """
+        Validates did:web hosts against internal network endpoints.
+        """
+        if not isinstance(did, str) or not did.startswith("did:web:"):
+            return
+
+        parts = did.split(":")
+        if len(parts) < 3:
+            raise ValueError(_("Malformed did:web string."))
+
+        raw_domain = unquote(parts[2])
+        parsed = urlsplit(f"//{raw_domain}")
+        host = parsed.hostname
+        port = parsed.port or 443
+
+        cls.validate_safe_host(host, port)
+
+    @classmethod
+    def validate_safe_contexts(cls, context_field: Any):
+        """
+        Validates remote JSON-LD context URLs against SSRF before pyld resolves them.
+        """
+        if isinstance(context_field, str):
+            urls = [context_field]
+        elif isinstance(context_field, list):
+            urls = [item for item in context_field if isinstance(item, str)]
+        elif isinstance(context_field, dict):
+            urls = [v for v in context_field.values() if isinstance(v, str)]
+        else:
+            urls = []
+
+        for url in urls:
+            if url.startswith("http://") or url.startswith("https://"):
+                parsed = urlsplit(url)
+                port = parsed.port or (80 if parsed.scheme == "http" else 443)
+                cls.validate_safe_host(parsed.hostname, port)
+
     @staticmethod
     def empty_results():
         return {
@@ -176,7 +248,6 @@ class VerificationService:
     @staticmethod
     def _format_exception(e: Exception) -> str:
         """Extracts a clean, human-readable message from complex nested exceptions (like JSON-LD errors)."""
-
         if type(e).__name__ == "JsonLdError" or hasattr(e, 'code'):
             code = getattr(e, 'code', '')
             details = getattr(e, 'details', {})
@@ -248,6 +319,18 @@ class VerificationService:
         elif "proof" in doc:
             results['credential_type'] = f"JSON-LD Data Integrity ({', '.join(raw_types)})"
             try:
+                if "@context" in doc:
+                    cls.validate_safe_contexts(doc["@context"])
+
+                proof = doc.get("proof", {})
+                verification_method = proof.get("verificationMethod", "") if isinstance(proof, dict) else ""
+                issuer_id = doc.get("issuer")
+                if isinstance(issuer_id, dict):
+                    issuer_id = issuer_id.get("id", "")
+
+                target_did = verification_method.split("#")[0] if verification_method else str(issuer_id)
+                cls.validate_safe_did(target_did)
+
                 if doc.pop("_was_unwrapped", False):
                     string_to_verify = json.dumps(doc)
                 else:
@@ -280,7 +363,12 @@ class VerificationService:
         try:
             unverified_header = jwt.get_unverified_header(jwt_string)
             kid = unverified_header.get("kid")
+            if not kid:
+                raise ValueError(_("Missing 'kid' parameter in JWT header."))
+
             issuer_did = kid.split("#")[0]
+
+            cls.validate_safe_did(issuer_did)
 
             did_doc = resolve_did(issuer_did)
             if not did_doc:
@@ -292,6 +380,9 @@ class VerificationService:
 
             if not trusted_vc:
                 raise ValueError(_("The token is mathematically valid, but the payload is empty."))
+
+            if "@context" in trusted_vc:
+                cls.validate_safe_contexts(trusted_vc["@context"])
 
             now = datetime.now(timezone.utc)
             valid_from_str = trusted_vc.get("validFrom") or trusted_vc.get("issuanceDate")
@@ -309,7 +400,8 @@ class VerificationService:
             cls.add_step(results, _("Cryptographic Integrity"), True, _("Ed25519 signature validated against issuer DID and dates are valid."))
 
             vc_types = trusted_vc.get("type", [])
-            if isinstance(vc_types, str): vc_types = [vc_types]
+            if isinstance(vc_types, str):
+                vc_types = [vc_types]
             results['credential_type'] = f"W3C Enveloped JWT ({', '.join(vc_types)})"
 
             return trusted_vc
@@ -406,7 +498,7 @@ class VerificationService:
             vc_types = [vc_types]
 
         schema_url = None
-        #TODO: check for better way to do this
+        # TODO: check for better way to do this
         if "DigitalProductPassport" in vc_types:
             schema_url = "https://untp.unece.org/artefacts/schema/v0.7.0/dpp/DigitalProductPassport.json"
         elif "DigitalFacilityRecord" in vc_types:
