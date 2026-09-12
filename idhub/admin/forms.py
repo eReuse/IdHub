@@ -884,7 +884,11 @@ class ObjectDidImportForm(forms.Form):
         cred_subject = file_data.get("credentialSubject", {})
 
         if obj_did:
-            cred_subject["id"] = obj_did.did
+            if isinstance(cred_subject, list):
+                if cred_subject and isinstance(cred_subject[0], dict):
+                    cred_subject[0]["id"] = obj_did.did
+            elif isinstance(cred_subject, dict):
+                cred_subject["id"] = obj_did.did
 
         untp_type = schema.is_untp
         credential_type = ["VerifiableCredential"]
