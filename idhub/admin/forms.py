@@ -1,33 +1,34 @@
-import json
 import base64
+import json
 import logging
-import requests
-import jsonschema
-import pandas as pd
+from urllib.parse import urljoin, urlparse
 
+from django import forms
+from django.conf import settings
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+import jsonschema
 from nacl.exceptions import CryptoError
 from openpyxl import load_workbook
-from urllib.parse import urlparse, urljoin
-from django.conf import settings
-from django.urls import reverse
-from django import forms
-from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-from utils import certs, credtools
-from idhub.services import DIDService, CredentialIssuanceService
-from utils.sanitize_did import sanitize_didweb
+import pandas as pd
+import requests
+
 from idhub.models import (
-    DID,
     ContextFile,
+    DID,
     File_datas,
     Membership,
     Schemas,
     UserRol,
-    VerificableCredential,
     VCTemplatePdf,
+    VerificableCredential,
 )
+from idhub.services import CredentialIssuanceService, DIDService
 from idhub_auth.models import User
+from utils import certs, credtools
+from utils.sanitize_did import sanitize_didweb
 
 
 logger = logging.getLogger(__name__)
@@ -775,6 +776,7 @@ class ObjectDidImportForm(forms.Form):
         label=_("Issuer DID"),
         help_text=_("Select the DID that will sign the Digital Product Passport (DPP).")
     )
+    #TODO: solve cayo's comment
     schema = forms.ModelChoiceField(
         queryset=Schemas.objects.filter(
             type__in=[

@@ -1,24 +1,25 @@
 import json
 import logging
 
-from ninja import NinjaAPI
-
-from webhook.models import Token
-from ninja.security import HttpBearer
-from idhub.models import DID, Schemas
 from django.core.exceptions import PermissionDenied
+from ninja import NinjaAPI
+from ninja.security import HttpBearer
+
+from idhub.models import DID, Schemas
 from idhub.services import CredentialIssuanceService, DIDService
+from webhook.models import Token
+
 from .schemas import (
     ActiveUNTPSchemasResponse,
-    UpdateServiceEndpointPayload,
-    UpdateServiceEndpointResponse,
     CreateObjectDIDPayload,
     CreateObjectDIDResponse,
+    ErrorResponse,
     IssueDPPayload,
-    IssueTraceabilityPayload,
     IssueFacilityPayload,
+    IssueTraceabilityPayload,
     SignedCredentialResponse,
-    ErrorResponse
+    UpdateServiceEndpointPayload,
+    UpdateServiceEndpointResponse,
 )
 
 

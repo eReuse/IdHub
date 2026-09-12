@@ -1,17 +1,17 @@
-import django_tables2 as tables
+from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
+import django_tables2 as tables
 
 from idhub.models import (
-        Rol,
-        Event,
-        Service,
-        VerificableCredential,
-        DID,
-        File_datas,
-        Schemas,
-        VCTemplatePdf,
+    DID,
+    Event,
+    File_datas,
+    Rol,
+    Schemas,
+    Service,
+    VCTemplatePdf,
+    VerificableCredential,
 )
 from idhub_auth.models import User
 

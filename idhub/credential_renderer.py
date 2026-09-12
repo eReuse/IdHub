@@ -1,7 +1,5 @@
 import re
 
-import re
-
 def generate_universal_template(raw_vc):
     css_styles = """
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" />

@@ -1,22 +1,21 @@
+from datetime import datetime
 import json
 import logging
+from uuid import uuid4
 
-from datetime import datetime
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.edit import DeleteView, CreateView
-from django.views.generic.base import View
 from django.core.cache import cache
 from django.http import JsonResponse
-from django_tables2 import SingleTableView
-from pyvckit.verify import verify_vp_signature, verify_signature
-from uuid import uuid4
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.edit import CreateView, DeleteView
 
+from django_tables2 import SingleTableView
 from idhub.mixins import AdminView
-from idhub_auth.models import User
 from idhub.models import DID, Schemas, VerificableCredential
+from idhub_auth.models import User
+from pyvckit.verify import verify_signature, verify_vp_signature
 from webhook.models import Token
 from webhook.tables import TokensTable
 
