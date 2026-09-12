@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import copy
 import datetime
 import hashlib
 import json
@@ -1197,7 +1198,7 @@ class VerificableCredential(models.Model):
         return urljoin(domain, f"/schema/{self.schema.file_schema}")
 
     def _prepare_credential_subject(self) -> dict | list:
-        cred_subject = self.json_data.deepcopy()
+        cred_subject = copy.deepcopy(self.json_data)
 
         if isinstance(cred_subject, dict):
             cred_subject.pop('@context', None)
