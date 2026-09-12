@@ -685,12 +685,15 @@ class Schemas(models.Model):
             schema_id = ""
             schema_data = {}
 
-            try:
-                if self.data:
+            if self.data:
+                try:
                     schema_data = json.loads(self.data)
-            except Exception as e:
-                logger.info(f"Failed to parse JSON data for schema '{self.file_schema}': {e}")
-                pass
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"Failed to parse JSON data for schema '{self.file_schema}': {e}")
+                    raise ValidationError(
+                        _("Invalid JSON data provided for schema '%(schema)s': %(error)s"),
+                        params={"schema": self.file_schema, "error": str(e)},
+                    )
 
             json_id = schema_data.get("$id", "")
             if json_id and str(json_id).startswith("http"):
@@ -703,7 +706,17 @@ class Schemas(models.Model):
                 context_base = str(self.context)
                 if not context_base.endswith('/'):
                     context_base += '/'
-                schema_id = urljoin(context_base, str(self.file_schema))
+
+                safe_filename = os.path.basename(str(self.file_schema))
+                proposed_url = urljoin(context_base, safe_filename)
+
+                url_validator = URLValidator()
+                try:
+                    url_validator(proposed_url)
+                    schema_id = proposed_url
+                except ValidationError:
+                    logger.warning(f"Constructed invalid validation_url: {proposed_url}. Falling back to local schema path.")
+                    schema_id = f"/schemas/{safe_filename}"
 
             elif self.file_schema:
                 filename = str(self.file_schema)
@@ -1184,7 +1197,7 @@ class VerificableCredential(models.Model):
         return urljoin(domain, f"/schema/{self.schema.file_schema}")
 
     def _prepare_credential_subject(self) -> dict | list:
-        cred_subject = self.json_data.copy()
+        cred_subject = self.json_data.deepcopy()
 
         if isinstance(cred_subject, dict):
             cred_subject.pop('@context', None)
