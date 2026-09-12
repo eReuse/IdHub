@@ -23,16 +23,21 @@ def generate_universal_template(raw_vc):
             if key in ["@context", "type", "id"]:
                 continue
 
-            clean_name = re.sub('([A-Z])', r' \1', key).title()
+            raw_name = re.sub(r'([A-Z])', r' \1', str(key)).title()
+            clean_name = html.escape(raw_name)
 
             if isinstance(value, dict):
-                html_lines.append(f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-box-seam me-2"></i>{clean_name}</h4></div>')
+                html_lines.append(
+                    f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-box-seam me-2"></i>{clean_name}</h4></div>'
+                )
                 html_lines.append('<div class="col-12"><div class="component-card"><div class="row g-3">')
                 html_lines.append(walk_dict(value))
                 html_lines.append('</div></div></div>')
 
             elif isinstance(value, list):
-                html_lines.append(f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-collection me-2"></i>{clean_name}</h4></div>')
+                html_lines.append(
+                    f'<div class="col-12"><h4 class="mt-4 mb-3" style="color: #545f71;"><i class="bi bi-collection me-2"></i>{clean_name}</h4></div>'
+                )
                 html_lines.append('<div class="col-12"><div class="component-card"><div class="row g-3">')
 
                 for idx, item in enumerate(value):
@@ -43,43 +48,50 @@ def generate_universal_template(raw_vc):
                         html_lines.append(walk_dict(item))
                         html_lines.append('</div></div>')
                     else:
-                        html_lines.append(f'<div class="col-12 info-value fw-bold">{item}</div>')
+                        escaped_item = html.escape(str(item))
+                        html_lines.append(f'<div class="col-12 info-value fw-bold">{escaped_item}</div>')
 
                 html_lines.append('</div></div></div>')
 
             else:
+                escaped_val = html.escape(str(value))
                 html_lines.append(f"""
                 <div class="col-md-6 col-lg-4">
                     <div class="info-row row">
                         <div class="col-12 info-label text-muted">{clean_name}</div>
-                        <div class="col-12 info-value fw-bold">{value}</div>
+                        <div class="col-12 info-value fw-bold">{escaped_val}</div>
                     </div>
                 </div>""")
 
         return "\n".join(html_lines)
 
-    vc_id = raw_vc.get("id", "N/A")
+    vc_id = html.escape(str(raw_vc.get("id", "N/A")))
 
     types = raw_vc.get("type", [])
     if isinstance(types, str):
         types = [types]
-    types_html = "".join([f'<span class="badge bg-secondary me-1">{t}</span>' for t in types])
+    types_html = "".join([f'<span class="badge bg-secondary me-1">{html.escape(str(t))}</span>' for t in types])
 
     issuer = raw_vc.get("issuer", {})
     issuer_id = issuer.get("id") if isinstance(issuer, dict) else issuer
     if not issuer_id:
         issuer_id = "N/A"
+    issuer_id_escaped = html.escape(str(issuer_id))
 
-    valid_from = raw_vc.get("validFrom") or raw_vc.get("issuanceDate", "N/A")
+    valid_from = html.escape(str(raw_vc.get("validFrom") or raw_vc.get("issuanceDate", "N/A")))
 
     subject_data = raw_vc.get("credentialSubject", {})
     if isinstance(subject_data, list):
         subject_html_parts = []
         for item in subject_data:
-            subject_html_parts.append(f'<div class="component-card mb-4"><div class="row g-3">{walk_dict(item)}</div></div>')
+            subject_html_parts.append(
+                f'<div class="component-card mb-4"><div class="row g-3">{walk_dict(item)}</div></div>'
+            )
         subject_html = "\n".join(subject_html_parts)
-    else:
+    elif isinstance(subject_data, dict):
         subject_html = walk_dict(subject_data)
+    else:
+        subject_html = f'<div class="col-12 info-value">{html.escape(str(subject_data))}</div>'
 
     final_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -115,7 +127,7 @@ def generate_universal_template(raw_vc):
                 <h2 class="section-title">Issuer Information</h2>
                 <div class="info-row row">
                     <div class="col-md-4 info-label">Issuer ID</div>
-                    <div class="col-md-8 info-value"><div class="hash-value">{issuer_id}</div></div>
+                    <div class="col-md-8 info-value"><div class="hash-value">{issuer_id_escaped}</div></div>
                 </div>
                 <div class="info-row row mt-2">
                     <div class="col-md-4 info-label">Valid From</div>
