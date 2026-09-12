@@ -1,67 +1,64 @@
-import os
 import io
 import json
-import pickle
 import logging
-import weasyprint
+import os
 from pathlib import Path
+import pickle
 from smtplib import SMTPException
-from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
+
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import (
-    CreateView,
-    DeleteView,
-    FormView,
-    UpdateView,
-)
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
-from django.http import HttpResponse
 from django.contrib import messages
 from django.core.cache import cache
-from utils import credtools
-from idhub_auth.models import User
-from idhub_auth.forms import ProfileForm
-from idhub.mixins import AdminView, Http403
-from idhub.email.views import NotifyActivateUserByEmail
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django_tables2 import RequestConfig, SingleTableMixin, SingleTableView
+import weasyprint
+
 from idhub.admin.forms import (
+    DIDForm,
     EncryptionKeyForm,
     ImportCertificateForm,
     ImportForm,
     ImportSchemaForm,
     ImportSchemaUrlForm,
     MembershipForm,
-    TermsConditionsForm,
+    ObjectDidImportForm,
     SchemaForm,
+    TermsConditionsForm,
     UserRolForm,
-    DIDForm,
-    ObjectDidImportForm
 )
 from idhub.admin.tables import (
-        DashboardTable,
-        UserTable,
-        RolesTable,
-        ServicesTable,
-        CredentialTable,
-        DIDTable,
-        DataTable,
-        TemplateTable,
-        VCTemplatePdfsTable,
+    CredentialTable,
+    DIDTable,
+    DashboardTable,
+    DataTable,
+    RolesTable,
+    ServicesTable,
+    TemplateTable,
+    UserTable,
+    VCTemplatePdfsTable,
 )
+from idhub.email.views import NotifyActivateUserByEmail
+from idhub.mixins import AdminView, Http403
 from idhub.models import (
     DID,
     Event,
     File_datas,
     Membership,
     Rol,
-    Service,
     Schemas,
+    Service,
     UserRol,
-    VerificableCredential,
     VCTemplatePdf,
+    VerificableCredential,
 )
+from idhub_auth.forms import ProfileForm
+from idhub_auth.models import User
+from utils import credtools
 
 
 logger = logging.getLogger(__name__)

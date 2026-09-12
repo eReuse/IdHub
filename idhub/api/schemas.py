@@ -1,5 +1,6 @@
+from typing import Any, Dict, List, Optional
+
 from ninja import Schema
-from typing import Dict, List, Any, Optional
 from pydantic import Field, HttpUrl
 
 

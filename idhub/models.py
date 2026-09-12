@@ -1,33 +1,32 @@
-import os
-import json
-import ujson
-import pytz
-import uuid
-import hashlib
-import logging
+from collections import OrderedDict
 import datetime
-import requests
+import hashlib
+import json
+import logging
+import os
+from urllib.parse import urljoin
+import uuid
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.db import models
+from django.template.loader import get_template
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 import jwt
 from jwt.algorithms import get_default_algorithms
-from collections import OrderedDict
-from urllib.parse import urljoin
-from django.db import models
-from django.conf import settings
-from django.urls import reverse
-from django.template.loader import get_template
-from django.utils.translation import gettext_lazy as _
-from pyvckit.did import (
-    generate_keys,
-    generate_did,
-    gen_did_document,
-)
+import pytz
+from pyvckit.did import gen_did_document, generate_did, generate_keys
 from pyvckit.sign import sign
-from idhub.credential_renderer import generate_universal_template
-from pyvckit.verify import verify_signature, verify_schema
-from idhub.templates.untp_models import UNTPCredentialV0, IssuerV0, CredentialSchema
+from pyvckit.verify import verify_schema, verify_signature
+import requests
+import ujson
 
-from oidc4vp.models import Organization
+from idhub.credential_renderer import generate_universal_template
+from idhub.templates.untp_models import CredentialSchema, IssuerV0, UNTPCredentialV0
 from idhub_auth.models import User
+from oidc4vp.models import Organization
 
 
 logger = logging.getLogger(__name__)
