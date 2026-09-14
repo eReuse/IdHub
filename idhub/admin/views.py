@@ -707,10 +707,7 @@ class CredentialView(Credentials):
 
 
 class CredentialJsonView(Credentials):
-
-    def get(self, request, *args, **kwargs):
-        self.check_valid_user()
-        pk = kwargs['pk']
+    def get(self, request, pk):
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
@@ -740,7 +737,11 @@ class CredentialJsonView(Credentials):
                 return response
 
             except Exception as e:
-                pass
+                logger.error(f"Failed to generate JWT credential for ID {pk}: {e}", exc_info=True)
+                return JsonResponse(
+                    {"error": _("Failed to generate enveloped JWT credential."), "details": str(e)},
+                    status=500
+                )
 
         response = HttpResponse(raw_data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename="credential.json"'

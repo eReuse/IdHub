@@ -1264,10 +1264,10 @@ class VerificableCredential(models.Model):
             }
         ]
 
-        org = Organization.objects.get(main=True)
+        org = Organization.objects.filter(main=True).first()
         raw_vc["issuer"] = {
             "id": self.issuer_did.did,
-            "name": getattr(org, "name", "")
+            "name": getattr(org, "name", "") if org else ""
         }
 
         issuer_obj = raw_vc.get("issuer", {})
