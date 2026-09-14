@@ -25,7 +25,7 @@ from idhub.models import (
     VCTemplatePdf,
     VerificableCredential,
 )
-from idhub.services import CredentialIssuanceService, DIDService
+from idhub.services import CredentialIssuanceService, DIDService, VerificationService
 from idhub_auth.models import User
 from utils import certs, credtools
 from utils.sanitize_did import sanitize_didweb
@@ -245,8 +245,8 @@ class ImportSchemaUrlForm(forms.Form):
             return cleaned_data
 
         try:
-            path = urlparse(schema_url).path
-            file_name = path.split("/")[-1]
+            parsed_schema = urlparse(schema_url)
+            file_name = parsed_schema.split("/")[-1]
             if not file_name.endswith(".json"):
                 file_name += ".json"
             cleaned_data["file_name"] = file_name
@@ -256,6 +256,12 @@ class ImportSchemaUrlForm(forms.Form):
         if Schemas.objects.filter(validation_url=schema_url).exists():
             raise ValidationError(_("A Schema with this URL already exists!"))
 
+        #validate schema URL
+        try:
+            port = parsed_schema.port or (443 if parsed_schema.scheme == "https" else 80)
+            VerificationService.validate_safe_host(parsed_schema.hostname, port)
+        except ValueError as e:
+            raise ValidationError(_(f"Invalid schema URL: {e}"))
         try:
             res = requests.get(schema_url, timeout=10)
             res.raise_for_status()

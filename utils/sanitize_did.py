@@ -37,7 +37,6 @@ def sanitize_didweb(did):
     did_domain = didp[:3]
     did_path = didp[3:]
 
-    didp = [x.lower() for x in did_domain] + did_path
     did = ":".join(didp)
     domain = didp[2]
 
@@ -54,8 +53,6 @@ def sanitize_didweb(did):
     if domain == settings.DOMAIN and len(didp) > 5:
         raise ValidationError(_("Only a double  path level is permitted for this domain."))
 
-    url_field = forms.URLField()
-    url_field.clean(url)
     if not sanitize_url(url) or not sanitize_path(path_to_validate):
         raise ValidationError(_("Is not a valid url"))
 
