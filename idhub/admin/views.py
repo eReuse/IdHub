@@ -1316,7 +1316,7 @@ class UNTPCredentialsView(AdminView, SingleTableMixin, FormView):
             form.add_error(None, e)
             return self.form_invalid(form)
 
-        messages.success(self.request, _("UNTP credential issued succesfuly."))
+        messages.success(self.request, _("UNTP credential issued successfully."))
         return super().form_valid(form)
 
     def get_queryset(self):

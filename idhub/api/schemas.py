@@ -6,7 +6,7 @@ from pydantic import Field, HttpUrl
 
 class BaseIssuePayload(Schema):
     """
-    base schema for all untps credencial issuance requests
+    base schema for all untp credentials issuance requests
     """
     schema_name: str = Field(
         ...,
