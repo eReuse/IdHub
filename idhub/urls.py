@@ -200,8 +200,8 @@ urlpatterns = [
          views_admin.VCTemplatePdfDeleteView.as_view(), name='admin_template_pdf_del'),
     path('admin/templates_pdf/<int:pk>/render/',
          views_admin.VCTemplatePdfRenderView.as_view(), name='admin_template_pdf_render'),
-    path('admin/object_dids/',
-         views_admin.ObjectDidsView.as_view(), name='admin_object_dids'),
+    path('admin/issue/untp',
+         views_admin.UNTPCredentialsView.as_view(), name='admin_issue_untp'),
 
     path('.well-known/did.json', ServeDidView, kwargs={'did_id': None}, name='serve_root_did'),
 
