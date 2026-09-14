@@ -759,11 +759,11 @@ class DIDForm(forms.ModelForm):
         return
 
 
-class ObjectDidImportForm(forms.Form):
+class UNTPCredentialImportForm(forms.Form):
     create_did = forms.BooleanField(
         label=_("Create object DID?"),
         required=False,
-        help_text=_("Check this if a new DID should be generated for the object.")
+        help_text=_("Check this if a new DID should be generated for the subject.")
     )
     did_method = forms.ChoiceField(
         choices=DID.Types.choices,
@@ -780,7 +780,7 @@ class ObjectDidImportForm(forms.Form):
         queryset=DID.objects.filter(user__isnull=True, is_product=False),
         empty_label=_("Select one"),
         label=_("Issuer DID"),
-        help_text=_("Select the DID that will sign the Digital Product Passport (DPP).")
+        help_text=_("Select the DID that will sign the UNTP credential.")
     )
     #TODO: solve cayo's comment
     schema = forms.ModelChoiceField(
@@ -798,7 +798,7 @@ class ObjectDidImportForm(forms.Form):
     )
     file_import = forms.FileField(
         label=_("Upload object DIDs file"),
-        help_text=_("Upload a JSON file containing the object DIDs to be imported.")
+        help_text=_("Upload a JSON file containing the UNTP credentialSubject.")
     )
 
     def clean_file_import(self):

@@ -26,7 +26,7 @@ from idhub.admin.forms import (
     ImportSchemaForm,
     ImportSchemaUrlForm,
     MembershipForm,
-    ObjectDidImportForm,
+    UNTPCredentialImportForm,
     SchemaForm,
     TermsConditionsForm,
     UserRolForm,
@@ -1298,14 +1298,14 @@ class VCTemplatePdfRenderView(AdminView, TemplateView):
         return pdf.write_pdf()
 
 
-class ObjectDidsView(AdminView, SingleTableMixin, FormView):
+class UNTPCredentialsView(AdminView, SingleTableMixin, FormView):
     template_name = "idhub/admin/import_dids.html"
     section = "Credential"
-    title = "Object DIDs"
-    subtitle = _('Identities (DIDs)')
+    title = _("Object DPP and UNTP Credentials")
+    subtitle = _("Upload credential subject data to issue UNTP credentials and generate object identities.")
     icon = 'bi bi-patch-check-fill'
     table_class = DIDTable
-    form_class = ObjectDidImportForm
+    form_class = UNTPCredentialImportForm
     success_url = reverse_lazy("idhub:admin_dids")
     paginate_by = 5
 
@@ -1316,7 +1316,7 @@ class ObjectDidsView(AdminView, SingleTableMixin, FormView):
             form.add_error(None, e)
             return self.form_invalid(form)
 
-        messages.success(self.request, _("Object DPP created successfully."))
+        messages.success(self.request, _("UNTP credential issued succesfuly."))
         return super().form_valid(form)
 
     def get_queryset(self):
