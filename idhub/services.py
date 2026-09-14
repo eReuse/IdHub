@@ -5,7 +5,7 @@ import json
 import logging
 import socket
 from typing import Any, List, Tuple
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse, urlsplit
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from django.conf import settings

@@ -3,6 +3,7 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from ninja import NinjaAPI
+from ninja.errors import HttpError
 from ninja.security import HttpBearer
 
 from idhub.models import DID, Schemas
@@ -42,22 +43,32 @@ class DatabaseTokenAuth(HttpBearer):
             token_obj = Token.objects.select_related('owner').get(
                 token=token_string, active=True
             )
+            if not token_obj.owner or not token_obj.owner.is_admin or not token_obj.owner.is_active:
+                logger.warning(f"Unauthorized token usage attempt by user: {token_obj.owner}")
+                return None
+
             request.user = token_obj.owner
+            request.token = token_obj
             return request.user
         except Exception as e:
             logger.warning(f"Authentication failed: {e}")
             return None
 
-
-def _find_issuer_did(requested_did: str, user):
+def _find_issuer_did(requested_did: str):
     if not requested_did:
-        raise ValueError(f"Requested Issuer DID '{requested_did}' not found on this server.")
+        raise HttpError(400, "Requested Issuer DID was not provided.")
 
-    issuer = DID.objects.filter(did=requested_did, user__isnull=True, is_product=False).first()
+    #TODO: associate token to dids, else a token bearer can access all org dids
+    issuer = DID.objects.filter(
+        did=requested_did,
+        user__isnull=True,
+        is_product=False
+    ).first()
+
     if not issuer:
-        raise PermissionDenied(f"You do not own the Issuer DID '{requested_did}' or it doesnt exist.")
-    return issuer
+        raise HttpError(404, f"Organization Issuer DID '{requested_did}' not found on this server.")
 
+    return issuer
 
 @api_v1.post("object-did/create/",
              response={200: CreateObjectDIDResponse, 201: CreateObjectDIDResponse, 400: ErrorResponse, 500: ErrorResponse},
@@ -120,7 +131,7 @@ def update_did_service_endpoint(request, payload: UpdateServiceEndpointPayload):
              response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
              summary="Issue Digital Product Passport", auth=DatabaseTokenAuth())
 def issue_dpp_credential(request, payload: IssueDPPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did, request.user)
+    issuer_did = _find_issuer_did(payload.issuer_did)
 
     # only one dpp service_endpoint at a time
     cleaned_subject = payload.credentialSubject.copy()
@@ -142,13 +153,14 @@ def issue_dpp_credential(request, payload: IssueDPPayload):
     response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
     summary="Issue Digital Facility Record", auth=DatabaseTokenAuth())
 def issue_facility_credential(request, payload: IssueFacilityPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did, request.user)
+    issuer_did = _find_issuer_did(payload.issuer_did)
 
     status_code, response_data = CredentialIssuanceService.issue_untp_credential(
         user=request.user,
         schema_name=payload.schema_name,
         subject_data=payload.credentialSubject,
         credential_type=["VerifiableCredential", "DigitalFacilityRecord"],
+        #TODO: check this workflow later to see if it makes sense
         subject_did=issuer_did, # This is self_signing
         issuer_did_obj=issuer_did
     )
@@ -159,7 +171,7 @@ def issue_facility_credential(request, payload: IssueFacilityPayload):
     response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
     summary="Issue Traceability Event Batch", auth=DatabaseTokenAuth())
 def issue_traceability_credential(request, payload: IssueTraceabilityPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did, request.user)
+    issuer_did = _find_issuer_did(payload.issuer_did)
     events_list = payload.credentialSubject
 
     # Improved Validation: Return standard 400 errors instead of crashing the thread with unhandled ValueErrors

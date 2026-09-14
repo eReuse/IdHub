@@ -246,11 +246,11 @@ class ImportSchemaUrlForm(forms.Form):
 
         try:
             parsed_schema = urlparse(schema_url)
-            file_name = parsed_schema.split("/")[-1]
+            file_name = parsed_schema.path.split("/")[-1]
             if not file_name.endswith(".json"):
                 file_name += ".json"
             cleaned_data["file_name"] = file_name
-        except Exception:
+        except (AttributeError, TypeError, ValueError):
             raise ValidationError(_("This schema not is a json file"))
 
         if Schemas.objects.filter(validation_url=schema_url).exists():
@@ -260,8 +260,9 @@ class ImportSchemaUrlForm(forms.Form):
         try:
             port = parsed_schema.port or (443 if parsed_schema.scheme == "https" else 80)
             VerificationService.validate_safe_host(parsed_schema.hostname, port)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             raise ValidationError(_(f"Invalid schema URL: {e}"))
+
         try:
             res = requests.get(schema_url, timeout=10)
             res.raise_for_status()
@@ -277,16 +278,21 @@ class ImportSchemaUrlForm(forms.Form):
                 res = requests.get(context_url, timeout=10)
                 res.raise_for_status()
                 res.json()
-            except Exception:
-                raise ValidationError(_("The context URL is not accessible or is not valid JSON."))
+            except requests.RequestException:
+                raise ValidationError(_("The context URL is not accessible."))
+            except ValueError:
+                raise ValidationError(_("The context URL is not a valid JSON file."))
 
         try:
-            assert credtools.validate_schema(schema_data)
-        except Exception:
+            if not credtools.validate_schema(schema_data):
+                raise ValidationError(_("This is not a valid schema!"))
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.warning(f"Schema validation error: {e}")
             raise ValidationError(_("This is not a valid schema!"))
 
-
-        return self.cleaned_data
+        return cleaned_data
 
     def save(self):
         schema_url = self.cleaned_data["schema_url"]
@@ -783,6 +789,7 @@ class UNTPCredentialImportForm(forms.Form):
         help_text=_("Select the DID that will sign the UNTP credential.")
     )
     #TODO: solve cayo's comment
+    #asd
     schema = forms.ModelChoiceField(
         queryset=Schemas.objects.filter(
             type__in=[
@@ -825,6 +832,8 @@ class UNTPCredentialImportForm(forms.Form):
         if not file_data or not schema or not issuer:
             return cleaned_data
 
+        if not isinstance(file_data, dict):
+            raise ValidationError(_("The uploaded file must be a JSON object."))
         cred_subject = file_data.get("credentialSubject")
         if not cred_subject:
              raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject'."))

@@ -34,11 +34,12 @@ def sanitize_didweb(did):
     if len(didp) < 3:
         raise ValidationError(_("This is not a correct DID web"))
 
-    did_domain = didp[:3]
+    did_domain = [x.lower() for x in didp[:3]]
     did_path = didp[3:]
 
+    didp = did_domain + did_path
     did = ":".join(didp)
-    domain = didp[2]
+    domain = did_domain[2]
 
     if not did_path:
         # base Level did
@@ -51,7 +52,7 @@ def sanitize_didweb(did):
         path_to_validate = f"/{url_path}/did.json"
 
     if domain == settings.DOMAIN and len(didp) > 5:
-        raise ValidationError(_("Only a double  path level is permitted for this domain."))
+        raise ValidationError(_("Only a double path level is permitted for this domain."))
 
     if not sanitize_url(url) or not sanitize_path(path_to_validate):
         raise ValidationError(_("Is not a valid url"))
