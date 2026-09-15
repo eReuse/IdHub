@@ -788,8 +788,6 @@ class UNTPCredentialImportForm(forms.Form):
         label=_("Issuer DID"),
         help_text=_("Select the DID that will sign the UNTP credential.")
     )
-    #TODO: solve cayo's comment
-    #asd
     schema = forms.ModelChoiceField(
         queryset=Schemas.objects.filter(
             type__in=[
@@ -838,21 +836,26 @@ class UNTPCredentialImportForm(forms.Form):
         if not cred_subject:
              raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject'."))
 
+        is_dte = schema.is_untp == "DigitalTraceabilityEvent"
         if isinstance(cred_subject, dict):
             subjects = [cred_subject]
         elif isinstance(cred_subject, list):
+            if not is_dte:
+                raise ValidationError(
+                    _("A list of credential subjects is only supported for Digital Traceability Events (DTE).")
+                )
             subjects = cred_subject
             if create_did:
                 raise ValidationError(
-                    _("Cannot assign a single new DID to a credential containing multiple subjects. "
-                      "Please upload them individually.")
+                    _("Cannot assign a single new DID to a credential containing multiple traceability events. "
+                      "Please upload them individually or ensure IDs are pre-defined.")
                 )
         else:
              raise ValidationError(_("'credentialSubject' must be an object or an array of objects."))
 
         subject_ids = [sub.get("id") for sub in subjects if isinstance(sub, dict) and sub.get("id")]
 
-        if not subject_ids and not create_did:
+        if not subject_ids and not create_did and not is_dte:
              raise ValidationError(_("The 'credentialSubject' must contain at least one 'id'."))
 
         exists = VerificableCredential.objects.filter(
@@ -869,7 +872,6 @@ class UNTPCredentialImportForm(forms.Form):
             self.add_error('did_method', _("This field is required when creating a new DID."))
 
         cleaned_data['extracted_subject_ids'] = subject_ids
-
         return cleaned_data
 
     def _create_did_if_needed(self, user):
@@ -898,6 +900,7 @@ class UNTPCredentialImportForm(forms.Form):
 
         cred_subject = file_data.get("credentialSubject", {})
 
+        # Handle object DID assignment safely
         if obj_did:
             if isinstance(cred_subject, list):
                 if cred_subject and isinstance(cred_subject[0], dict):
@@ -915,7 +918,12 @@ class UNTPCredentialImportForm(forms.Form):
         elif obj_did:
             subject_did_obj = obj_did
         else:
-            subject_id = cred_subject[0].get("id") if isinstance(cred_subject, list) else cred_subject.get("id")
+            # if DTE list, grab the first event's id if available
+            if isinstance(cred_subject, list) and cred_subject:
+                subject_id = cred_subject[0].get("id")
+            else:
+                subject_id = cred_subject.get("id")
+
             subject_did_obj = DID.objects.filter(did=subject_id, is_product=True).first() if subject_id else None
 
         status_code, response_data = CredentialIssuanceService.issue_untp_credential(
