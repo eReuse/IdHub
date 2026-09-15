@@ -1,22 +1,8 @@
+import html
 import re
+from django.template.loader import render_to_string
 
 def generate_universal_template(raw_vc):
-    css_styles = """
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-    <style>
-      body { font-size: 0.875rem; background-color: #f8f9fa; display: flex; flex-direction: column; min-height: 100vh; padding: 20px;}
-      .custom-container { background-color: #ffffff; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); padding: 30px; margin: 0 auto; max-width: 1200px; flex-grow: 1; }
-      .section-title { color: #7a9f4f; border-bottom: 2px solid #9cc666; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.5em; margin-top: 30px;}
-      .info-row { margin-bottom: 10px; align-items: baseline; }
-      .info-label { font-weight: bold; color: #545f71; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px;}
-      .info-value { color: #333; word-break: break-word; }
-      .hash-value { word-break: break-all; background-color: #f3f3f3; padding: 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid #e0e0e0; display: inline-block;}
-      .component-card { background-color: #f8f9fa; border-left: 4px solid #9cc666; margin-bottom: 15px; border-radius: 5px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
-      footer { background-color: #545f71; color: #ffffff; text-align: center; padding: 15px 0; margin-top: 40px; border-radius: 8px;}
-    </style>
-    """
-
     def walk_dict(data_dict):
         html_lines = []
         for key, value in data_dict.items():
@@ -93,59 +79,13 @@ def generate_universal_template(raw_vc):
     else:
         subject_html = f'<div class="col-12 info-value">{html.escape(str(subject_data))}</div>'
 
-    final_html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {css_styles}
-</head>
-<body>
-    <div class="custom-container">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom pb-3">
-            <h1 class="text-center text-md-start mb-0" style="color: #545f71;">
-                <i class="bi bi-shield-check me-2" style="color: #9cc666;"></i>Verified Credential
-            </h1>
-        </div>
+    context = {
+        "vc_id": vc_id,
+        "types_html": types_html,
+        "issuer_id_escaped": issuer_id_escaped,
+        "valid_from": valid_from,
+        "subject_html": subject_html,
+    }
 
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <h2 class="section-title">Details</h2>
-                <div class="info-row row">
-                    <div class="col-md-4 info-label">Credential ID</div>
-                    <div class="col-md-8 info-value"><div class="hash-value">{vc_id}</div></div>
-                </div>
-                <div class="info-row row mt-2">
-                    <div class="col-md-4 info-label">Types</div>
-                    <div class="col-md-8 info-value">
-                        {types_html}
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <h2 class="section-title">Issuer Information</h2>
-                <div class="info-row row">
-                    <div class="col-md-4 info-label">Issuer ID</div>
-                    <div class="col-md-8 info-value"><div class="hash-value">{issuer_id_escaped}</div></div>
-                </div>
-                <div class="info-row row mt-2">
-                    <div class="col-md-4 info-label">Valid From</div>
-                    <div class="col-md-8 info-value fw-bold">{valid_from}</div>
-                </div>
-            </div>
-        </div>
-
-        <h2 class="section-title mt-5">Subject Payload</h2>
-        <div class="row g-3">
-            {subject_html}
-        </div>
-
-        <footer>
-            <p class="mb-0">&copy; eReuse</p>
-        </footer>
-    </div>
-</body>
-</html>"""
-
+    final_html = render_to_string("credentials/universal_untp_template.html", context)
     return final_html.replace('    ', '').replace('\n', '')

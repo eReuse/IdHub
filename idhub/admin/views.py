@@ -9,7 +9,7 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -26,9 +26,9 @@ from idhub.admin.forms import (
     ImportSchemaForm,
     ImportSchemaUrlForm,
     MembershipForm,
-    UNTPCredentialImportForm,
     SchemaForm,
     TermsConditionsForm,
+    UNTPCredentialImportForm,
     UserRolForm,
 )
 from idhub.admin.tables import (
