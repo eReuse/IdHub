@@ -226,8 +226,8 @@ class ImportSchemaForm(forms.Form):
         schema.type = schema.get_type
         schema.save()
 
-        if url_context:
-            ContextFile.objects.create(schema=schema, **self.context)
+        if url_context and self.context:
+            ContextFile.objects.create(**self.context)
 
         return schema
 
