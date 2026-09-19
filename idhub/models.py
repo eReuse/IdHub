@@ -703,25 +703,12 @@ class Schemas(models.Model):
             elif self.file_schema and str(self.file_schema).startswith("http"):
                 schema_id = str(self.file_schema)
 
-            elif self.context and str(self.context).startswith("http"):
-                context_base = str(self.context)
-                if not context_base.endswith('/'):
-                    context_base += '/'
-
-                safe_filename = os.path.basename(str(self.file_schema))
-                proposed_url = urljoin(context_base, safe_filename)
-
-                url_validator = URLValidator()
-                try:
-                    url_validator(proposed_url)
-                    schema_id = proposed_url
-                except ValidationError:
-                    logger.warning(f"Constructed invalid validation_url: {proposed_url}. Falling back to local schema path.")
-                    schema_id = f"/schemas/{safe_filename}"
-
             elif self.file_schema:
                 filename = str(self.file_schema)
-                schema_id = filename if filename.startswith("/") else f"/schemas/{filename}"
+                try:
+                    schema_id = reverse("idhub:schema", args=[filename])
+                except Exception:
+                    schema_id = filename if filename.startswith("/") else f"/schema/{filename}"
 
             self.validation_url = schema_id
 
@@ -782,7 +769,8 @@ class Schemas(models.Model):
     def get_context_uris(self):
         sh = self.get_schema
         if sh:
-            sh.get("properties", {}).get("@context", {}).get("default", [])
+            return sh.get("properties", {}).get("@context", {}).get("default", [])
+        return []
 
     @property
     def is_untp(self):
@@ -1162,27 +1150,31 @@ class VerificableCredential(models.Model):
         return {"id": issuer_id, "name": issuer_name}
 
     def _get_unique_contexts(self, domain: str, base_url: str) -> list:
-        _context_urls = ["https://www.w3.org/ns/credentials/v2"]
-
         schema_contexts = self.schema.get_context_uris
         if isinstance(schema_contexts, str):
             schema_contexts = [schema_contexts]
         elif not schema_contexts:
             schema_contexts = []
 
+        _context_urls = []
+
+        for ctx in schema_contexts:
+            if ctx not in _context_urls:
+                _context_urls.append(ctx)
+
+        if "https://www.w3.org/ns/credentials/v2" not in _context_urls:
+            _context_urls.insert(0, "https://www.w3.org/ns/credentials/v2")
+
         def add_context(ctx_url):
             if ctx_url and ctx_url not in _context_urls:
                 _context_urls.append(ctx_url)
-
-        for ctx in schema_contexts:
-            add_context(ctx)
 
         if self.schema.context:
             schema_ctx = str(self.schema.context)
             if not schema_ctx.startswith("http"):
                 schema_ctx = urljoin(base_url, schema_ctx)
             add_context(schema_ctx)
-        else:
+        elif not schema_contexts:
             add_context(urljoin(domain, reverse("idhub:context")))
 
         add_context("https://w3id.org/security/suites/jws-2020/v1")
@@ -1195,7 +1187,9 @@ class VerificableCredential(models.Model):
             return self.schema.url
         elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
             return str(self.schema.file_schema)
-        return urljoin(domain, f"/schema/{self.schema.file_schema}")
+
+        path = reverse("idhub:schema", args=[str(self.schema.file_schema)])
+        return urljoin(domain, path)
 
     def _prepare_credential_subject(self) -> dict | list:
         cred_subject = copy.deepcopy(self.json_data)

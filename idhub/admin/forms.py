@@ -7,10 +7,10 @@ from django import forms
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 import jsonschema
-from nacl.exceptions import CryptoError
 from openpyxl import load_workbook
 import pandas as pd
 import requests
@@ -27,6 +27,7 @@ from idhub.models import (
 )
 from idhub.services import CredentialIssuanceService, DIDService, VerificationService
 from idhub_auth.models import User
+from nacl.exceptions import CryptoError
 from utils import certs, credtools
 from utils.sanitize_did import sanitize_didweb
 
@@ -892,52 +893,52 @@ class UNTPCredentialImportForm(forms.Form):
         return obj_did
 
     def save(self, user):
-        obj_did = self._create_did_if_needed(user)
+        with transaction.atomic():
+            obj_did = self._create_did_if_needed(user)
 
-        file_data = self.cleaned_data["file_import"]
-        issuer_did = self.cleaned_data["issuer"]
-        schema = self.cleaned_data["schema"]
+            file_data = self.cleaned_data["file_import"]
+            issuer_did = self.cleaned_data["issuer"]
+            schema = self.cleaned_data["schema"]
 
-        cred_subject = file_data.get("credentialSubject", {})
+            cred_subject = file_data.get("credentialSubject", {})
 
-        # Handle object DID assignment safely
-        if obj_did:
-            if isinstance(cred_subject, list):
-                if cred_subject and isinstance(cred_subject[0], dict):
-                    cred_subject[0]["id"] = obj_did.did
-            elif isinstance(cred_subject, dict):
-                cred_subject["id"] = obj_did.did
+            if obj_did:
+                if isinstance(cred_subject, list):
+                    if cred_subject and isinstance(cred_subject[0], dict):
+                        cred_subject[0]["id"] = obj_did.did
+                elif isinstance(cred_subject, dict):
+                    cred_subject["id"] = obj_did.did
 
-        untp_type = schema.is_untp
-        credential_type = ["VerifiableCredential"]
-        if untp_type:
-            credential_type.append(untp_type)
+            untp_type = schema.is_untp
+            credential_type = ["VerifiableCredential"]
+            if untp_type:
+                credential_type.append(untp_type)
 
-        if untp_type == "DigitalFacilityRecord":
-            subject_did_obj = issuer_did
-        elif obj_did:
-            subject_did_obj = obj_did
-        else:
-            # if DTE list, grab the first event's id if available
-            if isinstance(cred_subject, list) and cred_subject:
-                subject_id = cred_subject[0].get("id")
+            if untp_type == "DigitalFacilityRecord":
+                subject_did_obj = issuer_did
+            elif obj_did:
+                subject_did_obj = obj_did
             else:
-                subject_id = cred_subject.get("id")
+                # if DTE list, grab the first event's credential subject id
+                if isinstance(cred_subject, list) and cred_subject:
+                    subject_id = cred_subject[0].get("id")
+                else:
+                    subject_id = cred_subject.get("id")
 
-            subject_did_obj = DID.objects.filter(did=subject_id, is_product=True).first() if subject_id else None
+                subject_did_obj = DID.objects.filter(did=subject_id, is_product=True).first() if subject_id else None
 
-        status_code, response_data = CredentialIssuanceService.issue_untp_credential(
-            user=user,
-            schema_name=schema.file_schema,
-            subject_data=cred_subject,
-            credential_type=credential_type,
-            subject_did=subject_did_obj,
-            issuer_did_obj=issuer_did
-        )
+            status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+                user=user,
+                schema_name=schema.file_schema,
+                subject_data=cred_subject,
+                credential_type=credential_type,
+                subject_did=subject_did_obj,
+                issuer_did_obj=issuer_did
+            )
 
-        if status_code not in [200, 201]:
-            error_msg = response_data.get("error", "Unknown error during credential issuance.")
-            details = response_data.get("details", "")
-            raise ValidationError(_(f"Issuance failed: {error_msg} {details}"))
+            if status_code not in [200, 201]:
+                error_msg = response_data.get("error", "Unknown error during credential issuance.")
+                details = response_data.get("details", "")
+                raise ValidationError(_(f"Issuance failed: {error_msg} {details}"))
 
-        return response_data
+            return response_data
