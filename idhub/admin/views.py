@@ -9,15 +9,15 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
-from django_tables2 import RequestConfig, SingleTableMixin, SingleTableView
-import weasyprint
 
+from django_tables2 import RequestConfig, SingleTableMixin, SingleTableView
 from idhub.admin.forms import (
     DIDForm,
     EncryptionKeyForm,
@@ -59,6 +59,7 @@ from idhub.models import (
 from idhub_auth.forms import ProfileForm
 from idhub_auth.models import User
 from utils import credtools
+import weasyprint
 
 
 logger = logging.getLogger(__name__)
