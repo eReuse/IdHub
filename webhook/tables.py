@@ -1,7 +1,8 @@
-import django_tables2 as tables
-from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+import django_tables2 as tables
 
 from webhook.models import Token
 
@@ -26,24 +27,10 @@ class ButtonRemoveColumn(tables.Column):
 
 
 class TokensTable(tables.Table):
-    delete = ButtonRemoveColumn(
-            verbose_name=_("Delete"),
-            linkify={
-                "viewname": "webhook:delete_token",
-                "args": [tables.A("pk")]
-            },
-            orderable=False
-    )
-    # active = tables.Column(linkify=lambda record: reverse("webhook:status_token", kwargs={"pk": record.pk}))
-    active = tables.Column(
-            linkify={
-                "viewname": "webhook:status_token",
-                "args": [tables.A("pk")]
-            }
-    )
-
-    token = tables.Column(verbose_name=_("Token"), empty_values=())
-    label = tables.Column(verbose_name=_("Label"), empty_values=())
+    token = tables.Column(verbose_name=_("Token UUID"), orderable=False)
+    allowed_dids = tables.Column(verbose_name=_("Allowed DIDs"), empty_values=(), orderable=False)
+    active = tables.Column(verbose_name=_("Status"))
+    actions = tables.Column(verbose_name=_("Actions"), empty_values=(), orderable=False)
 
     # def render_view_user(self):
     #     return format_html('<i class="bi bi-eye"></i>')
@@ -68,17 +55,74 @@ class TokensTable(tables.Table):
     #     )
 
     #     return (queryset, True)
+    #
+    def render_token(self, value):
+        token_str = str(value)
+        short_token = f"{token_str[:8]}...{token_str[-4:]}"
+        return format_html(
+            '''
+            <div class="d-inline-flex align-items-center gap-2">
+                <code class="text-dark bg-light px-2 py-1 rounded border" title="{0}">{1}</code>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary copy-token-btn"
+                        data-token="{0}"
+                        title="{2}">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+            ''',
+            token_str,
+            short_token,
+            _("Copy to clipboard")
+        )
+
+    def render_actions(self, record):
+        edit_url = reverse("webhook:token_edit", args=[record.pk])
+        return format_html(
+            '''
+            <a href="{}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                {}
+            </a>
+            ''',
+            edit_url,
+            _("Edit")
+        )
+
+    def render_active(self, value):
+        if value:
+            return format_html('<span class="badge bg-success">{}</span>', _("Active"))
+        return format_html('<span class="badge bg-danger">{}</span>', _("Disabled"))
+
+    def render_allowed_dids(self, record):
+        dids = list(record.allowed_dids.all())
+
+        if not dids:
+            return format_html(
+                '<span class="badge bg-secondary text-light" title="{}">{}</span>',
+                _("This token has no access to any DIDs"),
+                _("None (No Access)")
+            )
+
+        max_visible = 2
+        visible_dids = dids[:max_visible]
+        extra_count = len(dids) - max_visible
+
+        badges = []
+        for d in visible_dids:
+            display_text = d.label if hasattr(d, 'label') and d.label else d.did.split(':')[-1]
+            badges.append(
+                f'<span class="badge bg-light text-dark border me-1" title="{d.did}">{display_text}</span>'
+            )
+
+        html_output = "".join(badges)
+
+        if extra_count > 0:
+            all_dids_str = ", ".join([d.did for d in dids])
+            html_output += f'<span class="badge bg-info text-dark" title="{all_dids_str}">+{extra_count} more</span>'
+
+        return mark_safe(f'<div class="d-flex flex-wrap gap-1">{html_output}</div>')
 
     class Meta:
         model = Token
+        fields = ("label", "token", "allowed_dids", "active", "actions")
         template_name = "idhub/custom_table.html"
-        fields = ("token", "label", "active")
-
-    def render_active(self, value):
-        """
-        Render icons custom based on active value
-        """
-        if value:  # if `active` is True
-            return format_html('<i class="bi bi-toggle-on text-primary"></i>')
-        else:  # if `active` is False
-            return format_html('<i class="bi bi-toggle-off text-danger"></i>')
