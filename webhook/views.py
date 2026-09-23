@@ -19,7 +19,7 @@ from idhub_auth.models import User
 from webhook.models import Token
 from webhook.tables import TokensTable
 
-from .forms import TokenForm
+from .forms import TokenCreateForm, TokenUpdateForm
 
 
 logger = logging.getLogger(__name__)
@@ -216,7 +216,7 @@ class TokenNewView(AdminView, CreateView):
     title = "Token"
     template_name = "new_token.html"
     model = Token
-    form_class = TokenForm
+    form_class = TokenCreateForm
     success_url = reverse_lazy('webhook:tokens')
     # def get(self, request, *args, **kwargs):
     #     self.check_valid_user()
@@ -238,5 +238,5 @@ class TokenUpdateView(AdminView, UpdateView):
     icon = 'bi bi-pencil'
     template_name = "new_token.html"
     model = Token
-    form_class = TokenForm
+    form_class = TokenUpdateForm
     success_url = reverse_lazy('webhook:tokens')
