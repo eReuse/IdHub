@@ -12,4 +12,5 @@ urlpatterns = [
     path('tokens/new', views.TokenNewView.as_view(), name='new_token'),
     path('tokens/<int:pk>/del', views.TokenDeleteView.as_view(), name='delete_token'),
     path('tokens/<int:pk>/status', views.TokenStatusView.as_view(), name='status_token'),
+    path('tokens/<int:pk>/edit/', views.TokenUpdateView.as_view(), name='token_edit'),
 ]
