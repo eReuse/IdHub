@@ -54,21 +54,21 @@ class DatabaseTokenAuth(HttpBearer):
             logger.warning(f"Authentication failed: {e}")
             return None
 
-def _find_issuer_did(requested_did: str):
+def _find_issuer_did(requested_did: str, request):
     if not requested_did:
-        raise HttpError(400, "Requested Issuer DID was not provided.")
+        raise ValueError(f"Requested Issuer DID '{requested_did}' not found on this server.")
 
-    #TODO: associate token to dids, else a token bearer can access all org dids
-    issuer = DID.objects.filter(
-        did=requested_did,
-        user__isnull=True,
-        is_product=False
-    ).first()
-
+    issuer = DID.objects.filter(did=requested_did, user__isnull=True, is_product=False).first()
     if not issuer:
-        raise HttpError(404, f"Organization Issuer DID '{requested_did}' not found on this server.")
+        raise PermissionDenied(f"You do not own the Issuer DID '{requested_did}' or it doesnt exist.")
+
+    token = getattr(request, 'auth_token', None)
+    if token is not None:
+        if not token.allowed_dids.filter(id=issuer.id).exists():
+            raise PermissionDenied(f"This API token is not authorized to use the Issuer DID '{requested_did}'.")
 
     return issuer
+
 
 @api_v1.post("object-did/create/",
              response={200: CreateObjectDIDResponse, 201: CreateObjectDIDResponse, 400: ErrorResponse, 500: ErrorResponse},
@@ -131,7 +131,7 @@ def update_did_service_endpoint(request, payload: UpdateServiceEndpointPayload):
              response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
              summary="Issue Digital Product Passport", auth=DatabaseTokenAuth())
 def issue_dpp_credential(request, payload: IssueDPPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did)
+    issuer_did = _find_issuer_did(payload.issuer_did, request)
 
     # only one dpp service_endpoint at a time
     cleaned_subject = payload.credentialSubject.copy()
@@ -153,7 +153,7 @@ def issue_dpp_credential(request, payload: IssueDPPayload):
     response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
     summary="Issue Digital Facility Record", auth=DatabaseTokenAuth())
 def issue_facility_credential(request, payload: IssueFacilityPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did)
+    issuer_did = _find_issuer_did(payload.issuer_did, request)
 
     status_code, response_data = CredentialIssuanceService.issue_untp_credential(
         user=request.user,
@@ -171,7 +171,7 @@ def issue_facility_credential(request, payload: IssueFacilityPayload):
     response={201: SignedCredentialResponse, 400: ErrorResponse, 422: ErrorResponse, 500: ErrorResponse},
     summary="Issue Traceability Event Batch", auth=DatabaseTokenAuth())
 def issue_traceability_credential(request, payload: IssueTraceabilityPayload):
-    issuer_did = _find_issuer_did(payload.issuer_did)
+    issuer_did = _find_issuer_did(payload.issuer_did, request)
     events_list = payload.credentialSubject
 
     # Improved Validation: Return standard 400 errors instead of crashing the thread with unhandled ValueErrors
