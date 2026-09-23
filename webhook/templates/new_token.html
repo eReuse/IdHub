@@ -1,34 +1,105 @@
 {% extends "idhub/base_admin.html" %}
 {% load i18n %}
+{% load django_bootstrap5 %}
 
 {% block content %}
-<h3>
-  <i class="{{ icon }}"></i>
-  {{ subtitle }}
-</h3>
-{% load django_bootstrap5 %}
-<form role="form" method="post">
-{% csrf_token %}
-{% if form.errors %}
-<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-  <div class="icon"><span class="mdi mdi-close-circle-o"></span></div>
-  <div class="message">
-    {% for field, error in form.errors.items %}
-      {{ error }}<br />
-    {% endfor %}
-    <button class="btn-close" type="button" data-dismiss="alert" aria-label="Close"></button>
-  </div>
-</div>
-{% endif %}
-<div class="row">
-  <div class="col-sm-4">
-    {% bootstrap_form form %}
-  </div>
-</div>
-<div class="form-actions-no-box">
-  <a class="btn btn-grey" href="{% url 'webhook:tokens' %}">{% translate "Cancel" %}</a>
-  <input class="btn btn-green-admin" type="submit" name="submit" value="{% translate 'Save' %}" />
+<div class="d-flex align-items-center mb-4">
+  <h3 class="mb-0">
+    {{ subtitle }}
+  </h3>
 </div>
 
-</form>
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <form role="form" method="post">
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+
+      <div class="row">
+        <div class="col-lg-6">
+          {% bootstrap_field form.label %}
+
+          {% if form.instance.pk %}
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">{% translate "Token UUID" %}</label>
+            <div class="input-group">
+              <input type="text" class="form-control font-monospace bg-light" value="{{ form.instance.token }}" readonly id="token-raw-input">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold d-block">{% translate "Status" %}</label>
+            {% for radio in form.active %}
+              <div class="form-check form-check-inline">
+                {{ radio.tag }}
+                <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+              </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">{{ form.allowed_dids.label }}</label>
+            <div class="p-3 border rounded bg-light" style="max-height: 220px; overflow-y: auto;">
+              {{ form.allowed_dids }}
+            </div>
+            {% if form.allowed_dids.help_text %}
+              <div class="form-text text-muted mt-1">{{ form.allowed_dids.help_text }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+        <div>
+          <a class="btn btn-outline-secondary me-2" href="{% url 'webhook:tokens' %}">{% translate "Cancel" %}</a>
+          <button class="btn btn-green-admin" type="submit" name="submit">
+            {% translate 'Save changes' %}
+          </button>
+        </div>
+
+        {% if form.instance.pk %}
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete-token">
+          <i class="bi bi-trash me-1"></i> {% translate "Delete Token" %}
+        </button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if form.instance.pk %}
+<div class="modal fade" id="confirm-delete-token" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="confirmDeleteLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{% translate "Delete Token" %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% translate "Are you sure you want to permanently delete this webhook token? Any service relying on it will immediately lose access." %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+        <a href="{% url 'webhook:delete_token' form.instance.pk %}" class="btn btn-danger">
+          {% translate "Confirm Delete" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
 {% endblock %}
