@@ -748,6 +748,7 @@ class Schemas(models.Model):
     @property
     def get_type(self):
         is_untp = self.is_untp
+        sh = self.get_schema
         return is_untp if is_untp else sh.get("title", "").title().replace(" ", "")
 
     def set_type(self, commit=False):
@@ -781,7 +782,7 @@ class Schemas(models.Model):
             "DigitalFacilityRecord",
             "DigitalTraceabilityEvent"
         ]
-        return next(filter(lambda x: x in _vc_types, _untp_types), None)
+        return next(filter(lambda x: x in _vc_types, _untp_types), False)
 
     @property
     def name(self, request=None):
@@ -1040,12 +1041,20 @@ class VerificableCredential(models.Model):
 
     def issue(self, did, domain, save=True):
         if self.status == self.Status.ISSUED:
-            return True, json.loads(self.user.decrypt_data(self.data))
+            if self.data:
+                return True, json.loads(self.user.decrypt_data(self.data))
+            return True, _("Already issued")
 
         if did:
             self.subject_did = did
 
-        self.set_issue_date()
+        # different date for w3c v1 and v2
+        if self.schema.is_untp:
+            self.set_issue_date()
+        else:
+            self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
+
+        # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
 
         key = self.issuer_did.get_key_material()
@@ -1067,10 +1076,10 @@ class VerificableCredential(models.Model):
         self.status = self.Status.ISSUED
 
         if not save:
-            return True, vc
+            return True, vc_str
 
         self.save()
-        return True, vc
+        return True, vc_str
 
     def set_issue_date(self):
         if not self.issued_on:
@@ -1113,7 +1122,7 @@ class VerificableCredential(models.Model):
             'email': self.user.email,
             'organisation': org.name or '',
             'credential_status_id': credential_status_id,
-            'type': self.schema.get_type
+            'type': json.dumps(["VerifiableCredential", self.schema.get_type])
         }
 
         if self.issuer_did.type == DID.Types.WEBETH:
@@ -1302,7 +1311,7 @@ class VerificableCredential(models.Model):
 
 
     def render(self, domain=""):
-        if self.is_untp:
+        if self.schema.is_untp:
             return self.render_untp(domain)
 
         context = self.get_context(domain)
