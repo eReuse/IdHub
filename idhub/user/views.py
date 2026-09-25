@@ -547,7 +547,7 @@ class CredentialsRequestView(MyWallet, FormView):
             cred = form.save()
         except Exception as err:
             logger.error(err)
-            messages.error(self.request, err)
+            messages.error(self.request, str(err))
             return redirect(self.success_url)
 
         if cred:
@@ -557,10 +557,9 @@ class CredentialsRequestView(MyWallet, FormView):
             url = self.request.session.pop('next_url', None)
             if url:
                 return redirect(url)
+            return redirect(self.success_url)
         else:
-            messages.error(self.request, _("The credential does not exist!"))
-        return super().form_valid(form)
-
+            return self.form_invalid(form)
 
 class DemandAuthorizationView(MyWallet, FormView):
     template_name = "idhub/user/credentials_presentation.html"
