@@ -7,6 +7,6 @@ profile = "black"
 
 [project]
 name = "IdHub"
-version = "v0"
+version = "v2026.1"
 description = "Manage and issue verifiable credentials"
 readme = "README.md"
