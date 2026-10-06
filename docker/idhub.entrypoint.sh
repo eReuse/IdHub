@@ -103,7 +103,7 @@ init_db() {
                 gosu ${APP_USER} ./manage.py init_admin "${INIT_ADMIN_EMAIL}" "${INIT_ADMIN_PASSWORD}"
         fi
 
-        if [ -f "${OIDC_ORGS:-}" ]; then
+        if [ -n "${OIDC_ORGS:-}" ] && [ -f "${OIDC_ORGS:-}" ]; then
                 config_oidc4vp
         else
                 echo "Note: skipping oidc4vp config"
@@ -149,7 +149,19 @@ _set() {
         key="${1}"
         value="${2}"
         domain="${3}"
-        sqlite3 db.sqlite3 "update oidc4vp_organization set ${key}='${value}' where domain='${domain}';"
+        # TODO generalize to pure SQL
+        if [ "${DB_TYPE:-}" = "postgres" ]; then
+                echo "ERROR: not implemented"
+                # TODO check this:
+#                psql "${TODO_DATABASE_URL}" -v ON_ERROR_STOP=1 \
+#                     -v key="${key}" -v value="${value}" -v domain="${domain}" <<'EOF'
+#update oidc4vp_organization set :"key" = :'value' where domain = :'domain';
+#EOF
+        elif [ "${DB_TYPE:-}" = "sqlite" ]; then
+                sqlite3 db.sqlite3 "update oidc4vp_organization set ${key}='${value}' where domain='${domain}';"
+        else
+                echo "ERROR: not supported"
+        fi
 }
 
 _get() {
