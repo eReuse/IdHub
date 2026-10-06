@@ -60,7 +60,7 @@ services:
       - ${DOCKER_IDHUB_MEDIA_ROOT}:${IDHUB_MEDIA_ROOT:-/media/}
 
   idhub-postgres:
-    profiles: [postgres]
+    profiles: [idhub-postgres]
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     # src https://github.com/docker-library/postgres
     image: postgres:17
