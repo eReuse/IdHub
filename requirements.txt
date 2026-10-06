@@ -37,7 +37,8 @@ jsonpath_ng==1.6.1
 pyroaring==0.4.5
 coverage==7.4.3
 gunicorn==21.2.0
-git+https://github.com/ereuse/pyvckit.git@path_level_did_resolver
+pyvckit==0.0.21
 psycopg2-binary==2.9.10
 xlsxwriter==3.2.3
 pyjwt==2.12.1
+requests-cache==1.3.3
