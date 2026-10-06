@@ -1,4 +1,4 @@
-import {TEST_SITE, TEST_ADMIN_USER, TEST_ADMIN_PASSWD, TEST_USER, TEST_USER_PASSWD} from './config'
+import { TEST_SITE } from './config';
 
 // optional flow (only first time per idhub service start)
 export async function set_org_key(page) {
