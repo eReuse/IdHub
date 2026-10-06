@@ -12,6 +12,7 @@ const VIDEO = process.env.VIDEO === 'y';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 60000, // global timeout
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -26,6 +27,10 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    // Highlight-start
+    ignoreHTTPSErrors: true,
+    baseURL: 'https://localhost:3000',
+
     // https://github.com/microsoft/playwright/issues/10855
     viewport: { width: 1280, height: 720},
     //video: VIDEO === 'on' ? 'on' : 'off',
