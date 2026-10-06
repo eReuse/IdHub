@@ -218,8 +218,20 @@ def SchemaView(request, file_name):
 
 
 def ContextView(request):
-    ctx = Context.get_context()
-    retval = HttpResponse(ctx)
+    ctx_raw = Context.get_context()
+
+    try:
+        ctx_dict = json.loads(ctx_raw)
+
+        # intercept empty context and inject a safe fallback
+        if ctx_dict.get("@context") == {}:
+            ctx_dict["@context"] = {"@version": 1.1}
+
+        ctx_safe = json.dumps(ctx_dict)
+    except (ValueError, TypeError):
+        ctx_safe = ctx_raw
+
+    retval = HttpResponse(ctx_safe)
     retval.headers["Content-Type"] = "application/json"
     return retval
 
