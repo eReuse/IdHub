@@ -76,7 +76,7 @@ by default does not use rproxy nor letsencrypt"
   sqlite    minimalist solution"
         if echo "${IDHUB_DB_TYPE_REQUEST}" | grep -q 'postgres' ; then
                 echo "postgres docker profile detected, adding to COMPOSE_PROFILES env var"
-                COMPOSE_PROFILES_REQUEST="${COMPOSE_PROFILES_REQUEST},postgres"
+                COMPOSE_PROFILES_REQUEST="${COMPOSE_PROFILES_REQUEST},idhub-postgres"
         fi
 
         use_env_var DOCKER_ALWAYS_BUILD_REQUEST 'false' 'Use false for production and true for development'
