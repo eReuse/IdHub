@@ -4,9 +4,3 @@ target-version = ['py311']
 
 [tool.isort]
 profile = "black"
-
-[project]
-name = "IdHub"
-version = "v2026.1.2"
-description = "Manage and issue verifiable credentials"
-readme = "README.md"
