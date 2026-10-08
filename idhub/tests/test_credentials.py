@@ -2,11 +2,13 @@ import os
 import json
 
 from pathlib import Path
-from django.test import TestCase
+from unittest.mock import patch
+from django.test import Client, TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.urls import reverse
 from django.conf import settings
+from pyvckit.sign import create_loader
 
 from idhub_auth.models import User
 from idhub.models import DID, Schemas, VerificableCredential
@@ -19,7 +21,7 @@ PILOTS = [
     "federation-membership",
     "membership-card",
     "financial-vulnerability",
-    "e-operator-claim",
+    "ereuse-role",
 ]
 
 class KeyFirstTimeTest(TestCase):
@@ -97,8 +99,30 @@ class CredentialsViewTest(TestCase):
         settings.ENABLE_EMAIL = False
         settings.LANGUAGE_CODE = 'en'
 
+        self.serve_own_contexts()
         self.admin_login()
         self.create_schemas()
+
+    def serve_own_contexts(self):
+        """The signed credential points its @context at this very host, which
+        is not resolvable by name, so serve it through the test client."""
+        local = Client()
+        prefix = "https://{}".format(self.org.name)
+
+        def loader(url, options={}, verify=True):
+            if not url.startswith(prefix):
+                return create_loader(url, options, verify)
+
+            response = local.get(url[len(prefix):])
+            return {
+                "contextUrl": None,
+                "document": json.loads(response.content),
+                "documentUrl": url,
+            }
+
+        patcher = patch('pyvckit.sign.create_loader', loader)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def user_login(self):
         self.client.login(email='user1@example.org',
@@ -120,6 +144,8 @@ class CredentialsViewTest(TestCase):
     def create_schemas(self):
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
         for x in schemas_files:
+            if not x.endswith('.json'):
+                continue
             if Schemas.objects.filter(file_schema=x).exists():
                 continue
             self._create_schemas(x)
@@ -183,7 +209,7 @@ class CredentialsViewTest(TestCase):
 
     def _upload_data_membership(self, fileschema):
         did = self.create_did()
-        schema = Schemas.objects.get(file_schema__contains=fileschema)
+        schema = Schemas.objects.get(file_schema='{}.json'.format(fileschema))
         url = reverse('idhub:admin_import_add')
         
         response = self.client.get(url)
@@ -217,7 +243,7 @@ class CredentialsViewTest(TestCase):
     def _user_require_credentail(self, fileschema):
         self.admin_login()
         self._upload_data_membership(fileschema)
-        schema = Schemas.objects.get(file_schema__contains=fileschema)
+        schema = Schemas.objects.get(file_schema='{}.json'.format(fileschema))
         cred = VerificableCredential.objects.get(schema=schema)
         url = reverse('idhub:user_credentials_request')
         did = self.create_did(user=self.user)
