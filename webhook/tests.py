@@ -43,11 +43,22 @@ class AdminDashboardViewTest(TestCase):
 
     def test_new_token(self):
         response = self.client.get('/webhook/tokens/new', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Token.objects.count(), 0)
+
+        response = self.client.post(
+            '/webhook/tokens/new',
+            data={"label": "Test token"},
+            follow=True
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Token.objects.count(), 1)
 
         tk = Token.objects.first()
+        self.assertEqual(tk.label, "Test token")
+        self.assertTrue(tk.token)
+        self.assertTrue(tk.active)
         url = "/webhook/tokens/{}/del".format(tk.id)
         response = self.client.get(url, follow=True)
 
