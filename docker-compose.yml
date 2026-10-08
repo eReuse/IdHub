@@ -63,7 +63,8 @@ services:
     profiles: [postgres]
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     # src https://github.com/docker-library/postgres
-    image: postgres:17
+    # TODO version mismatch postgres v15 en bookworm vs v17 que había aquí
+    image: postgres:15
     environment:
       - POSTGRES_DB=${IDHUB_POSTGRES_NAME}
       - POSTGRES_USER=${IDHUB_POSTGRES_USER}
