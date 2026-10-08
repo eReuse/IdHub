@@ -666,22 +666,29 @@ class DIDForm(forms.ModelForm):
         model = DID
         fields = ['label', 'type', 'did']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['did'].required = False
+
     def clean(self):
         data = self.cleaned_data
         label = data.get("label")
         typ = DID.Types(int(data.get("type")))
-        self._did = data.get("did")
+        self._did = data.get("did") or ""
+        is_web = typ in [DID.Types.WEB, DID.Types.WEBETH]
 
-        if typ in [DID.Types.WEB, DID.Types.WEBETH]:
+        if is_web:
+            if not self._did:
+                raise ValidationError(_("This field is required"))
             self._did = sanitize_didweb(self._did)
 
-        if DID.objects.filter(did=self._did).first():
-            raise ValidationError(_("This DID exist already"))
+            if DID.objects.filter(did=self._did).first():
+                raise ValidationError(_("This DID exist already"))
 
         if DID.objects.filter(label=label, user__isnull=True).first():
             raise ValidationError(_("This Label exist already"))
 
-        if not self.instance.is_web:
+        if not is_web:
             self.instance = DID(
                 type=typ,
                 label=label
