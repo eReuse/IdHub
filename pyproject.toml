@@ -4,3 +4,18 @@ target-version = ['py311']
 
 [tool.isort]
 profile = "black"
+
+[tool.coverage.run]
+branch = true
+source = ["idhub", "idhub_auth", "oidc4vp", "promotion", "utils", "webhook"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/tests.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
