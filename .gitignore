@@ -7,3 +7,6 @@ status_data
 
 # pyvckit cache
 cache_context.json
+
+.coverage
+htmlcov/

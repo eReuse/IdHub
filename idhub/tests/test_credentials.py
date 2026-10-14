@@ -1,19 +1,13 @@
-import os
 import json
 
 from pathlib import Path
-from unittest.mock import patch
-from django.test import Client, TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.cache import cache
 from django.urls import reverse
 from django.conf import settings
-from pyvckit.sign import create_loader
 
-from idhub_auth.models import User
 from idhub.models import DID, Schemas, VerificableCredential
-from oidc4vp.models import Organization
-
+from test_support import factories
+from test_support.base import IdHubTestCase
 
 
 PILOTS = [
@@ -24,41 +18,17 @@ PILOTS = [
     "ereuse-role",
 ]
 
-class KeyFirstTimeTest(TestCase):
-    def setUp(self):
-        cache.set("KEY_DIDS", '')
-        self.user = User.objects.create_user(
-            email='user1@example.org',
-            password='testpass12',
-        )
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.org = Organization.objects.create(name="testserver", main=True)
-
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
-        settings.LANGUAGE_CODE = 'en'
-
-    def set_cache(self):
-        cache.set("KEY_DIDS", '1234', None)
-
-    def user_login(self):
-        self.client.login(email='user1@example.org',
-                          password='testpass12')
-    def admin_login(self):
-        self.client.login(email='adminuser@example.org',
-                          password='adminpass12')
+class KeyFirstTimeTest(IdHubTestCase):
+    USER_EMAIL = 'user1@example.org'
+    KEY_DIDS = ''
 
     def test_user_without_key(self):
-        cache.set("KEY_DIDS", '')
         self.user_login()
         response = self.client.get(reverse('idhub:user_dashboard'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('idhub:user_waiting'))
 
     def test_admin_without_key(self):
-        cache.set("KEY_DIDS", '')
         self.admin_login()
         response = self.client.get(reverse('idhub:admin_dashboard'))
         self.assertEqual(response.status_code, 302)
@@ -75,109 +45,27 @@ class KeyFirstTimeTest(TestCase):
         response = self.client.post(reverse('idhub:encryption_key'), data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('idhub:admin_dashboard'))
-        cache.set("KEY_DIDS", '')
 
-class CredentialsViewTest(TestCase):
+
+class CredentialsViewTest(IdHubTestCase):
+    USER_EMAIL = 'user1@example.org'
 
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        self.user = User.objects.create_user(
-            email='user1@example.org',
-            password='testpass12',
-        )
-        self.user.accept_gdpr=True
-        self.user.save()
-
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
-        self.org = Organization.objects.create(name="testserver", main=True)
-
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
-        settings.LANGUAGE_CODE = 'en'
-
-        self.serve_own_contexts()
+        super().setUp()
         self.admin_login()
         self.create_schemas()
 
-    def serve_own_contexts(self):
-        """The signed credential points its @context at this very host, which
-        is not resolvable by name, so serve it through the test client."""
-        local = Client()
-        prefix = "https://{}".format(self.org.name)
-
-        def loader(url, options={}, verify=True):
-            if not url.startswith(prefix):
-                return create_loader(url, options, verify)
-
-            response = local.get(url[len(prefix):])
-            return {
-                "contextUrl": None,
-                "document": json.loads(response.content),
-                "documentUrl": url,
-            }
-
-        patcher = patch('pyvckit.sign.create_loader', loader)
-        patcher.start()
-        self.addCleanup(patcher.stop)
-
-    def user_login(self):
-        self.client.login(email='user1@example.org',
-                          password='testpass12')
-    def admin_login(self):
-        self.client.login(email='adminuser@example.org',
-                          password='adminpass12')
-        
     def create_did(self, label="Default", user=None):
-        did = DID.objects.create(
-            label="Default",
-            type=DID.Types.KEY.value,
-            user=user
-        )
-        did.set_did()
-        did.save()
-        return did
+        return factories.make_did(label=label, user=user)
 
     def create_schemas(self):
-        schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        for x in schemas_files:
-            if not x.endswith('.json'):
-                continue
-            if Schemas.objects.filter(file_schema=x).exists():
-                continue
-            self._create_schemas(x)
-
-        s = Schemas.objects
+        factories.make_schemas()
         for p in PILOTS:
             f = "{}.json".format(p)
-            self.assertTrue(s.filter(file_schema = f).exists())
-
-    def _create_schemas(self, file_name):
-        data = self.open_file(file_name)
-        ldata = json.loads(data)
-        title = ldata.get('title')
-
-        _name = json.dumps(ldata.get('name', ''))
-        _description = json.dumps(ldata.get('description', ''))
-
-        Schemas.objects.create(
-            file_schema=file_name,
-            data=data,
-            type=title,
-            _name=_name,
-            _description=_description
-        )
+            self.assertTrue(Schemas.objects.filter(file_schema=f).exists())
 
     def open_file(self, file_name):
-        data = ''
-        filename = Path(settings.SCHEMAS_DIR).joinpath(file_name)
-        with filename.open() as schema_file:
-            data = schema_file.read()
-
-        return data
+        return Path(settings.SCHEMAS_DIR).joinpath(file_name).read_text()
 
     def test_admin_create_did_key(self):
         self.admin_login()

@@ -4,29 +4,16 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
-from django.core.cache import cache
 from django.core.exceptions import FieldError
 
 from idhub_auth.models import User
 from idhub.admin.tables import DashboardTable, UserTable, TemplateTable
 from idhub.models import Event, Membership, Rol, UserRol, Service, Schemas
-from oidc4vp.models import Organization
+from test_support.base import IdHubBaseTestCase, IdHubTestCase
 
 
-class AdminDashboardTableTest(TestCase):
-    def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
-        self.org = Organization.objects.create(name="testserver", main=True)
-        settings.LANGUAGE_CODE = 'en'
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
+class AdminDashboardTableTest(IdHubTestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -79,10 +66,10 @@ class AdminDashboardTableTest(TestCase):
         pass
 
 
-class UserTableTest(TestCase):
+class UserTableTest(IdHubBaseTestCase):
 
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
+        super().setUp()
         self.user1 = User.objects.create(email="user1@example.com")
         self.user2 = User.objects.create(email="user2@example.com")
         Membership.objects.create(user=self.user1,
@@ -111,10 +98,10 @@ class UserTableTest(TestCase):
         self.assertIn("Role 1", str(rendered_column))
 
 
-class TemplateTableTest(TestCase):
+class TemplateTableTest(IdHubBaseTestCase):
 
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
+        super().setUp()
         self.table = TemplateTable(Schemas.objects.all())
         self.create_schemas(amount=3)
 

@@ -1,0 +1,38 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    {
+      "Ed25519VerificationKey2018": "https://w3id.org/security#Ed25519VerificationKey2018",
+      "publicKeyJwk": {
+        "@id": "https://w3id.org/security#publicKeyJwk",
+        "@type": "@json"
+      }
+    }
+  ],
+  "id": "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu",
+  "verificationMethod": [
+    {
+      "id": "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu#owner",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu",
+      "publicKeyJwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "gKIXNThHofvn5E9XXpxUGlZcDU8GSDqo6U-SfighQ9g"
+      }
+    }
+  ],
+  "authentication": [
+    "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu#owner"
+  ],
+  "assertionMethod": [
+    "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu#owner"
+  ],
+  "service": [
+    {
+      "id": "did:web:idhub.pangea.org:dids:z6Mko7ParpJZzBopW48DY8125Tcz9hMCaH7YzteWKnFcVzhu#revocation",
+      "type": "RevocationBitmap2022",
+      "serviceEndpoint": "data:application/octet-stream;base64,eJyzMmAAAwADKABr"
+    }
+  ]
+}
