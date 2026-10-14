@@ -191,16 +191,32 @@ class ImportSchemaForm(forms.Form):
                     raise ValidationError(_("This context is no a valid jsonld"))
 
         try:
-            assert credtools.validate_schema(self.schema)
-            assert self.schema.get('name')
-            assert self.schema.get('title')
-        except Exception:
+            if not credtools.validate_schema(self.schema):
+                raise ValidationError(_("This is not a valid schema!"))
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.warning(f"Schema validation error: {e}")
             raise ValidationError(_("This is not a valid schema!"))
 
-        if Schemas.objects.filter(file_schema=self.file_name).exists():
+        raw_name = self._extract_schema_name()
+        if Schemas.objects.filter(_name=json.dumps([{"value": raw_name, "lang": "en"}])).exists() or \
+           Schemas.objects.filter(file_schema=self.file_name).exists():
             raise ValidationError(_("Schema exist!"))
 
         return data
+
+    def _extract_schema_name(self):
+        raw_name = self.schema.get("title") or self.schema.get("name")
+        if not raw_name:
+            vc_types = self.schema.get("properties", {}).get("type", {}).get("default", [])
+            if isinstance(vc_types, list) and vc_types:
+                if "VerifiableCredential" in vc_types:
+                    vc_types = ["VerifiableCredential"] + [t for t in vc_types if t != "VerifiableCredential"]
+                raw_name = " - ".join(vc_types)
+            else:
+                raw_name = self.file_name
+        return raw_name
 
     def save(self, domain=None, commit=True):
         _name = json.dumps(self.schema.get("name"))
