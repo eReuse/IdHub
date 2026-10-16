@@ -136,17 +136,14 @@ class CredentialAccessorsTest(CredentialTestCase):
 
 
 class FilterDictTest(CredentialTestCase):
-    def test_drops_zero_and_false_along_with_the_empty_values(self):
-        # This is why a credentialSubject field whose value is 0 or False
-        # silently disappears from the issued credential: filter_dict keeps
-        # whatever is truthy, not whatever is present.
+    def test_keeps_zero_and_false_and_drops_the_empty_values(self):
         cred = self.make_credential()
         self.assertEqual(
             cred.filter_dict({
                 'zero': 0, 'false': False, 'empty': '', 'none': None,
                 'list': [], 'kept': 'yes',
             }),
-            {'kept': 'yes'},
+            {'zero': 0, 'false': False, 'kept': 'yes'},
         )
 
     def test_drops_dicts_that_end_up_empty(self):
@@ -162,11 +159,19 @@ class GetContextTest(CredentialTestCase):
         cred = self.make_credential()
         context = cred.get_context(DOMAIN)
 
-        self.assertEqual(context['vc_id'], '{}/credentials/{}'.format(DOMAIN, cred.id))
-        self.assertEqual(context['id_credential'], str(cred.id))
+        # The url is keyed by vc_id, a UUID, so it no longer leaks the
+        # primary key.
+        self.assertEqual(
+            context['vc_id'], '{}/credentials/{}'.format(DOMAIN, cred.vc_id)
+        )
+        self.assertEqual(context['id_credential'], str(cred.vc_id))
+        self.assertNotEqual(str(cred.vc_id), str(cred.id))
         self.assertEqual(context['issuer_did'], self.issuer_did.did)
         self.assertEqual(context['organisation'], 'Test Org')
-        self.assertEqual(context['type'], 'MembershipCard')
+        self.assertEqual(
+            json.loads(context['type']),
+            ['VerifiableCredential', 'MembershipCard'],
+        )
 
     def test_is_empty_where_the_credential_is_not_issued_yet(self):
         context = self.make_credential().get_context(DOMAIN)
@@ -297,38 +302,45 @@ class IssueTest(CredentialTestCase):
             hashlib.sha3_256(cred.render(DOMAIN).encode()).hexdigest(),
         )
 
-    def test_save_false_returns_the_signature_but_still_mutates(self):
-        # save=False only skips writing `data` and `status`; subject_did,
-        # issued_on and hash are already set by then. The name suggests a
-        # dry run, and it is not one.
+    def test_save_false_mutates_the_instance_but_does_not_persist(self):
+        # save=False is not a dry run: it only skips the write to the
+        # database. The instance is fully issued in memory.
         cred = self.make_credential()
-        signed = cred.issue(self.subject_did, DOMAIN, save=False)
+        success, signed = cred.issue(self.subject_did, DOMAIN, save=False)
 
+        self.assertTrue(success)
         self.assertIn('proof', json.loads(signed))
-        self.assertEqual(cred.status, VerificableCredential.Status.ENABLED)
-        self.assertEqual(cred.data, '')
+        self.assertEqual(cred.status, VerificableCredential.Status.ISSUED)
+        self.assertTrue(cred.data)
         self.assertEqual(cred.subject_did, self.subject_did)
         self.assertIsNotNone(cred.issued_on)
         self.assertTrue(cred.hash)
 
-    def test_issuing_twice_is_a_silent_no_op(self):
+        stored = VerificableCredential.objects.get(pk=cred.pk)
+        self.assertEqual(stored.status, VerificableCredential.Status.ENABLED)
+        self.assertEqual(stored.data, '')
+
+    def test_issuing_twice_hands_back_what_is_already_stored(self):
         cred = self.make_credential()
         cred.issue(self.subject_did, DOMAIN)
         issued_on, data = cred.issued_on, cred.data
 
         other_did = factories.make_did(label='other', user=self.user)
-        self.assertIsNone(cred.issue(other_did, DOMAIN))
+        success, result = cred.issue(other_did, DOMAIN)
 
+        self.assertTrue(success)
+        self.assertEqual(result, json.loads(cred.get_data()))
         self.assertEqual(cred.issued_on, issued_on)
         self.assertEqual(cred.data, data)
         self.assertEqual(cred.subject_did, self.subject_did)
 
-    def test_a_row_that_breaks_the_schema_fails_after_mutating(self):
+    def test_a_row_that_breaks_the_schema_is_reported_after_mutating(self):
         cred = self.make_credential(row={'organisation': 'Test Org'})
 
-        with self.assertRaises(Exception):
-            cred.issue(self.subject_did, DOMAIN)
+        success, error = cred.issue(self.subject_did, DOMAIN)
 
+        self.assertFalse(success)
+        self.assertIn('not valid with this schema', str(error))
         # Half-issued: not ISSUED and without data, but already stamped.
         self.assertEqual(cred.status, VerificableCredential.Status.ENABLED)
         self.assertEqual(cred.data, '')

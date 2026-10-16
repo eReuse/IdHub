@@ -35,8 +35,15 @@ class SanitizeUrlTest(SimpleTestCase):
         self.assertFalse(sanitize_url('https://idhub.example.org\n'))
         self.assertFalse(sanitize_url('https://idhub.example.org/a\x00'))
 
-    def test_rejects_dot_in_path(self):
-        self.assertFalse(sanitize_url('https://idhub.example.org/a.json'))
+    def test_accepts_dot_in_path(self):
+        # Required so that the /did.json suffix of a did:web validates.
+        self.assertTrue(sanitize_url('https://idhub.example.org/a.json'))
+        self.assertTrue(sanitize_url('https://idhub.example.org/a/did.json'))
+
+    def test_still_rejects_dot_only_segments(self):
+        self.assertFalse(sanitize_url('https://idhub.example.org/../a'))
+        self.assertFalse(sanitize_url('https://idhub.example.org/./a'))
+        self.assertFalse(sanitize_url('https://idhub.example.org/a/..'))
 
     def test_rejects_port(self):
         self.assertFalse(sanitize_url('https://idhub.example.org:3000'))
@@ -66,8 +73,9 @@ class SanitizePathTest(SimpleTestCase):
         self.assertFalse(sanitize_path('/..'))
         self.assertFalse(sanitize_path('/a/../b'))
 
-    def test_rejects_dot_in_segment(self):
-        self.assertFalse(sanitize_path('/a.json'))
+    def test_accepts_dot_in_segment(self):
+        self.assertTrue(sanitize_path('/a.json'))
+        self.assertTrue(sanitize_path('/a/did.json'))
 
     def test_rejects_trailing_slash(self):
         self.assertFalse(sanitize_path('/a/'))
@@ -101,14 +109,19 @@ class SanitizeDidWebTest(SimpleTestCase):
         did = 'did:web:{}:did-registry'.format(OWN_DOMAIN)
         self.assertEqual(sanitize_didweb(did), did)
 
-    def test_own_domain_requires_exactly_one_path_segment(self):
-        self.assertInvalid(
+    def test_own_domain_accepts_up_to_a_double_path_level(self):
+        for did in (
             'did:web:{}'.format(OWN_DOMAIN),
-            "You can't use path in the DID",
-        )
-        self.assertInvalid(
+            'did:web:{}:a'.format(OWN_DOMAIN),
             'did:web:{}:a:b'.format(OWN_DOMAIN),
-            "You can't use path in the DID",
+        ):
+            with self.subTest(did=did):
+                self.assertEqual(sanitize_didweb(did), did)
+
+    def test_own_domain_refuses_a_deeper_path(self):
+        self.assertInvalid(
+            'did:web:{}:a:b:c'.format(OWN_DOMAIN),
+            "Only a double path level is permitted for this domain.",
         )
 
     def test_accepts_other_domain_with_path(self):
@@ -119,14 +132,10 @@ class SanitizeDidWebTest(SimpleTestCase):
         did = 'did:web:{}:a:b'.format(OTHER_DOMAIN)
         self.assertEqual(sanitize_didweb(did), did)
 
-    def test_rejects_any_domain_without_path(self):
-        # did:web:<domain> is valid per the W3C spec (it resolves to
-        # /.well-known/did.json), but here it is always rejected: the
-        # resulting path is "/" and sanitize_path discards it.
-        self.assertInvalid(
-            'did:web:{}'.format(OTHER_DOMAIN),
-            "Is not a valid url",
-        )
+    def test_accepts_any_domain_without_path(self):
+        # A base level did:web resolves to /.well-known/did.json, per the spec.
+        did = 'did:web:{}'.format(OTHER_DOMAIN)
+        self.assertEqual(sanitize_didweb(did), did)
 
     def test_lowercases_the_domain_only(self):
         did = sanitize_didweb('did:web:OTHER.EXAMPLE.COM:PaTh')
@@ -134,8 +143,8 @@ class SanitizeDidWebTest(SimpleTestCase):
 
     def test_own_domain_comparison_is_case_insensitive(self):
         self.assertInvalid(
-            'did:web:IDHUB.EXAMPLE.ORG:a:b',
-            "You can't use path in the DID",
+            'did:web:IDHUB.EXAMPLE.ORG:a:b:c',
+            "Only a double path level is permitted for this domain.",
         )
 
     def test_rejects_traversal_in_path(self):

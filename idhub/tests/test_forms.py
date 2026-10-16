@@ -5,18 +5,17 @@ The happy path of most of these forms is already covered through the views
 was missing is the other half: the error branches, which is where the
 surprises are.
 
-Three of them turn a missing field into a crash instead of a form error,
+Several of them turn a missing field into a crash instead of a form error,
 because ``clean()`` subscripts ``cleaned_data`` for a field that failed its
-own validation and is therefore absent. ``DIDForm`` is not usable on its own
-at all: it leans on the half-built instance that ``DidRegisterView`` keeps in
-the session, and without it the first did:web it is given raises from the
-crypto layer. And ``ImportSchemaUrlForm`` compares a schema name against a
-column that stores it json-encoded, so its duplicate check never fires.
+own validation and is therefore absent.
 """
 import json
 
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
+
+import requests
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.packaging.custom import StringProperty
@@ -35,6 +34,7 @@ from idhub.admin.forms import (
     MembershipForm,
     UserRolForm,
 )
+from idhub.services import VerificationService
 from idhub.models import (
     DID,
     ContextFile,
@@ -255,9 +255,11 @@ class ImportSchemaFormTest(IdHubTestCase):
         schema = form.save(domain='https://{}'.format(settings.DOMAIN))
 
         context = ContextFile.objects.get()
-        self.assertEqual(context.schema, schema)
         self.assertEqual(context.file_name, CONTEXT_FILE)
         self.assertIn(CONTEXT_FILE, schema.context)
+        self.assertTrue(schema.context.startswith(
+            'https://{}'.format(settings.DOMAIN)
+        ))
 
     def test_a_context_that_is_not_json_is_refused(self):
         form = self.form(schema=self.schema_bytes(), context=b'not json')
@@ -265,31 +267,42 @@ class ImportSchemaFormTest(IdHubTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(errors(form), ['This context is no a valid jsonld'])
 
-    def test_a_context_file_name_already_in_use_is_refused(self):
-        other = factories.make_schema(SCHEMA_FILE)
-        ContextFile.objects.create(
-            schema=other, file_name=CONTEXT_FILE, data='{}'
-        )
+    def test_a_context_file_name_already_in_use_is_reused(self):
+        # A context name that is taken is no longer refused: the stored row
+        # wins, the upload is dropped, and both schemas point at the same url.
+        factories.make_schema(SCHEMA_FILE)
+        stored = ContextFile.objects.create(file_name=CONTEXT_FILE, data='{}')
         form = self.form(
             schema=self.schema_bytes(file_name=OTHER_SCHEMA_FILE),
             context=read_context(),
             schema_name=OTHER_SCHEMA_FILE,
         )
 
-        self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This context exist'])
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        schema = form.save(domain='https://{}'.format(settings.DOMAIN))
+
+        self.assertEqual([c.pk for c in ContextFile.objects.all()], [stored.pk])
+        self.assertEqual(ContextFile.objects.get().data, '{}')
+        self.assertIn(CONTEXT_FILE, schema.context)
 
 
 class ImportSchemaUrlFormTest(IdHubTestCase):
     """The same thing by url, which is what the pilot deployments use."""
+
+    def setUp(self):
+        super().setUp()
+        # validate_safe_host resolves the host for real; the suite is offline.
+        patcher = patch.object(VerificationService, 'validate_safe_host')
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def form(self, **data):
         return ImportSchemaUrlForm(data=data)
 
     def valid_data(self, **overrides):
         data = {
-            'schema': '{}/vc_schemas/{}'.format(REMOTE, SCHEMA_FILE),
-            'context': '{}/context/{}'.format(REMOTE, CONTEXT_FILE),
+            'schema_url': '{}/vc_schemas/{}'.format(REMOTE, SCHEMA_FILE),
+            'context_url': '{}/context/{}'.format(REMOTE, CONTEXT_FILE),
         }
         data.update(overrides)
         return data
@@ -301,68 +314,71 @@ class ImportSchemaUrlFormTest(IdHubTestCase):
         self.assertTrue(form.is_valid(), form.errors.as_text())
         schema = form.save()
         self.assertEqual(schema.file_schema, SCHEMA_FILE)
-        self.assertEqual(schema.context, data['context'])
+        self.assertEqual(schema.context, data['context_url'])
+        self.assertEqual(schema.validation_url, data['schema_url'])
 
-    def test_a_missing_context_crashes_instead_of_being_reported(self):
-        with self.assertRaises(KeyError):
-            self.form(**self.valid_data(context='')).is_valid()
+    def test_the_context_url_is_optional(self):
+        form = self.form(**self.valid_data(context_url=''))
 
-    def test_a_url_nothing_answers_is_reported_as_not_being_json(self):
-        form = self.form(**self.valid_data(
-            schema='{}/vc_schemas/nothing-here.json'.format(REMOTE)
-        ))
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        self.assertEqual(form.save().context, '')
+
+    def test_the_schema_url_is_required(self):
+        form = self.form(**self.valid_data(schema_url=''))
 
         self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This schema not is a json file'])
+        self.assertEqual(form.errors['schema_url'], ['This field is required.'])
+
+    def test_a_schema_url_nothing_answers_is_reported(self):
+        with patch('idhub.admin.forms.requests.get',
+                   side_effect=requests.RequestException):
+            form = self.form(**self.valid_data())
+
+            self.assertFalse(form.is_valid())
+        self.assertEqual(
+            errors(form),
+            ['Could not download the schema from the provided URL.'],
+        )
 
     def test_a_context_url_nothing_answers_is_reported(self):
         form = self.form(**self.valid_data(
-            context='{}/context/nothing-here.jsonld'.format(REMOTE)
+            context_url='{}/context/nothing-here.jsonld'.format(REMOTE)
         ))
 
-        self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This context is not accessible'])
+        with patch('idhub.admin.forms.requests.get',
+                   side_effect=self.schema_ok_context_down):
+            self.assertFalse(form.is_valid())
+        self.assertEqual(errors(form), ['The context URL is not accessible.'])
+
+    def schema_ok_context_down(self, url, **kwargs):
+        if '/context/' in url:
+            raise requests.RequestException
+        return requests.Session().get(url, **kwargs)
 
     def test_a_url_without_an_extension_gets_json_appended(self):
         # The name the schema is filed under comes from the url, not from the
         # document, so an extensionless url still produces a .json row.
         form = self.form(**self.valid_data(
-            schema='https://w3id.org/security/v2'
+            schema_url='https://w3id.org/security/v2'
         ))
 
-        self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This is not a valid schema!'])
-        self.assertEqual(form.file_name, 'v2.json')
-
-    def test_importing_the_same_schema_twice_is_never_detected(self):
-        # The guard looks for _name=schema["name"], but the column stores
-        # json.dumps of that value, so the two never compare equal and the
-        # same schema can be imported again and again.
-        for _ in range(2):
-            form = self.form(**self.valid_data())
-            self.assertTrue(form.is_valid(), form.errors.as_text())
-            form.save()
-
-        self.assertEqual(Schemas.objects.filter(file_schema=SCHEMA_FILE).count(), 2)
-
-    def test_the_duplicate_guard_does_fire_on_a_json_encoded_name(self):
-        # Proof that the check itself works and only the encoding is wrong.
-        name = json.loads(factories.read_schema(SCHEMA_FILE))['name']
-        Schemas.objects.create(
-            file_schema='whatever.json', data='{}', _name=json.dumps(name)
-        )
-        form = self.form(**self.valid_data())
-
         self.assertTrue(form.is_valid(), form.errors.as_text())
+        self.assertEqual(form.cleaned_data['file_name'], 'v2.json')
 
-        Schemas.objects.all().delete()
-        Schemas.objects.create(
-            file_schema='whatever.json', data='{}', _name=name
-        )
+    def test_importing_the_same_schema_twice_is_refused(self):
+        # The duplicate guard compares validation_url, which is the column
+        # save() writes verbatim, so the second import is caught.
+        form = self.form(**self.valid_data())
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        form.save()
+
         form = self.form(**self.valid_data())
 
         self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['Schema exist!'])
+        self.assertEqual(
+            errors(form), ['A Schema with this URL already exists!']
+        )
+        self.assertEqual(Schemas.objects.filter(file_schema=SCHEMA_FILE).count(), 1)
 
 
 class ImportFormErrorsTest(IdHubTestCase):
@@ -614,14 +630,24 @@ class DIDFormTest(IdHubTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(errors(form), ['This is not a correct DID web'])
 
-    def test_a_path_under_our_own_domain_is_refused(self):
-        # The .well-known layout only has room for one segment.
+    def test_a_double_path_under_our_own_domain_is_accepted(self):
         form = self.form(
             label='Ours', type=DID.Types.WEB, did=self.web_did(path='dids:abc'),
         )
 
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+
+    def test_a_deeper_path_under_our_own_domain_is_refused(self):
+        form = self.form(
+            label='Ours', type=DID.Types.WEB,
+            did=self.web_did(path='dids:abc:xyz'),
+        )
+
         self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ["You can't use path in the DID"])
+        self.assertEqual(
+            errors(form),
+            ['Only a double path level is permitted for this domain.'],
+        )
 
     def test_a_domain_without_a_dot_is_refused(self):
         form = self.form(
@@ -659,16 +685,16 @@ class DIDFormTest(IdHubTestCase):
         with self.assertRaises(TypeError):
             self.form(label='Ours').is_valid()
 
-    def test_the_form_is_unusable_without_the_view_that_feeds_it(self):
-        # Used on a bare DID() the way a ModelForm normally would be, the
-        # first did:web raises from the crypto layer: get_did_document()
-        # needs the key material nobody generated.
+    def test_the_form_no_longer_needs_the_view_that_feeds_it(self):
+        # It used to raise from the crypto layer on a bare DID(), because
+        # get_did_document() was called with key material nobody had
+        # generated. Now it stands on its own as a plain ModelForm.
         form = DIDForm(data={
             'label': 'Ours', 'type': DID.Types.WEB, 'did': self.web_did(),
         })
 
-        with self.assertRaises(ValueError):
-            form.is_valid()
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        self.assertEqual(form.save().did, self.web_did())
 
 
 class MembershipFormTest(IdHubTestCase):

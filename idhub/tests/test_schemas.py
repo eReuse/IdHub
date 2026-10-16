@@ -96,8 +96,10 @@ class SchemaAccessorsTest(IdHubTestCase):
                 self.assertEqual(schema.get_type, type)
 
     def test_accessors_on_an_empty_schema(self):
+        # url is now the stored validation_url, which save() fills in; on an
+        # instance that was never saved it is None.
         schema = Schemas(data='')
-        self.assertEqual((schema.url, schema.get_type), ('', ''))
+        self.assertEqual((schema.url, schema.get_type), (None, ''))
 
     def test_get_credential_subject_schema_is_a_standalone_json_schema(self):
         subject = self.schema.get_credential_subject_schema()
@@ -214,19 +216,18 @@ class LazyBackfillTest(IdHubTestCase):
             json.loads(factories.read_schema(SCHEMA_FILE))['description'],
         )
 
-    def test_the_backfilled_name_is_a_python_repr_and_cannot_be_read_back(self):
-        # _update_model_field assigns the parsed list to a text column, so the
-        # database ends up with "[{'value': ...}]" instead of json. On the
-        # next read json.loads fails, the bare except swallows it, and
-        # _get_name_by_language iterates the string character by character.
+    def test_the_backfilled_name_is_a_python_repr_that_reads_back_verbatim(self):
+        # _update_model_field still assigns the parsed list to a text column,
+        # so the database ends up with "[{'value': ...}]" instead of json.
+        # Reading it back no longer crashes, because _get_name_by_language
+        # hands a string straight through: what comes out is the repr itself.
         schema = self.make_schema()
         schema.name
 
         stored = Schemas.objects.get(pk=schema.pk)._name
         with self.assertRaises(json.JSONDecodeError):
             json.loads(stored)
-        with self.assertRaises(AttributeError):
-            Schemas.objects.get(pk=schema.pk).name
+        self.assertEqual(Schemas.objects.get(pk=schema.pk).name, stored)
 
     def test_an_empty_schema_is_never_written_to(self):
         schema = Schemas.objects.create(file_schema='e.json', data='', type='x')

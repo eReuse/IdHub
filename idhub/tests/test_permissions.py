@@ -40,8 +40,10 @@ PUBLIC = {
     'context_file',
     'schema',
     'serve_did',
-    'serve_registry_did',
+    'serve_root_did',
     'public_credential_json',
+    # PublicVerificationView is a plain FormView, with no login mixin.
+    'verify',
 }
 
 # Protected with a bare @login_required, which defaults to a login url this
@@ -60,6 +62,7 @@ GUARDED = [
     'admin_dids_new',
     'admin_import',
     'admin_import_add',
+    'admin_issue_untp',
     'admin_new_template_pdf',
     'admin_people',
     'admin_people_list',

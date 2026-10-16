@@ -34,7 +34,7 @@ def revoked_indexes(response):
 
 
 class ServeDidTest(IdHubTestCase):
-    """``/.well-known/<id>/did.json``: the DID document plus its revocations."""
+    """``/<path>/did.json``: the DID document plus its revocations."""
 
     def setUp(self):
         super().setUp()
@@ -53,7 +53,9 @@ class ServeDidTest(IdHubTestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['Content-Type'], 'application/json')
+        self.assertEqual(
+            response.headers['Content-Type'], 'application/did+ld+json'
+        )
         self.assertEqual(json.loads(response.content)['id'], self.did.did)
 
     def test_the_stored_document_is_served_untouched_except_for_the_service(self):
@@ -109,64 +111,6 @@ class ServeDidTest(IdHubTestCase):
         self.assertFalse(hasattr(credential, 'revocationBitmapIndex'))
 
 
-class ServeDidRegistryTest(IdHubTestCase):
-    """``/did-registry/<id>/did.json``: the same code, a different prefix."""
-
-    DID_ID = 'abc123'
-
-    def make_registry_did(self):
-        did_string = 'did:web:testserver:did-registry:' + self.DID_ID
-        did = DID(
-            label='Registry',
-            type=DID.Types.WEB,
-            did=did_string,
-            didweb_document=json.dumps({'id': did_string}),
-        )
-        did.set_key_material('{}')
-        did.save()
-        return did
-
-    def test_a_registry_did_is_served_with_its_revocation_service(self):
-        self.make_registry_did()
-
-        response = self.client.get(
-            reverse('idhub:serve_registry_did', args=[self.DID_ID])
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(revocation_service(response)['type'], 'RevocationBitmap2022')
-
-    def test_the_duplicated_code_builds_the_same_revocation_list(self):
-        did = self.make_registry_did()
-        schema = factories.make_schema('membership-card.json')
-        credential = factories.make_credential(self.user, schema, did)
-        credential.status = VerificableCredential.Status.REVOKED
-        credential.save()
-
-        response = self.client.get(
-            reverse('idhub:serve_registry_did', args=[self.DID_ID])
-        )
-
-        self.assertEqual(revoked_indexes(response), {credential.id})
-
-    def test_a_registry_did_nobody_registered_is_a_404(self):
-        response = self.client.get(
-            reverse('idhub:serve_registry_did', args=['nothing-here'])
-        )
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_no_did_this_instance_creates_can_ever_reach_this_route(self):
-        # set_did() only moves the base url out of /.well-known/ when the
-        # serve_did route does not contain it, and it does. So the whole view
-        # is unreachable with the current urls: thirty lines duplicated from
-        # ServeDidView for a prefix nothing produces.
-        did = factories.make_did(label='Web', type=DID.Types.WEB)
-
-        self.assertNotIn(':did-registry:', did.did)
-        self.assertIn('.well-known', did.get_path())
-
-
 class SchemaTest(IdHubTestCase):
     """``/schema/<file_name>``: what ``credentialSchema`` points at."""
 
@@ -208,7 +152,9 @@ class ContextTest(IdHubTestCase):
     def test_an_instance_with_no_terms_still_answers_a_valid_context(self):
         response = self.client.get(reverse('idhub:context'))
 
-        self.assertEqual(json.loads(response.content), {'@context': {}})
+        self.assertEqual(
+            json.loads(response.content), {'@context': {'@version': 1.1}}
+        )
 
     def test_the_terms_resolve_against_pangea_and_not_this_deployment(self):
         # Context.get_context() defaults its domain to idhub.pangea.org, and
@@ -228,11 +174,7 @@ class ContextFileTest(IdHubTestCase):
     """``/context/<file_name>``: the uploaded contexts of imported schemas."""
 
     def test_the_file_is_served_as_json_without_logging_in(self):
-        ContextFile.objects.create(
-            file_name='custom.jsonld',
-            data='{"a": 1}',
-            schema=factories.make_schema('membership-card.json'),
-        )
+        ContextFile.objects.create(file_name='custom.jsonld', data='{"a": 1}')
 
         response = self.client.get(
             reverse('idhub:context_file', args=['custom.jsonld'])

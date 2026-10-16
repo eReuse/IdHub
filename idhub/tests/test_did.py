@@ -119,10 +119,11 @@ class DidWebTest(IdHubTestCase):
         self.assertEqual(domain, 'testserver')
         self.assertEqual(len(identifier), 6)
 
-    def test_set_did_never_takes_the_path_branch(self):
-        # set_did() only rewrites the base url when serve_did is not under
-        # .well-known, and it always is, so the DID gets no path segment.
-        self.assertIn('.well-known', reverse('idhub:serve_did', args=['a']))
+    def test_set_did_now_takes_the_path_branch(self):
+        # serve_did no longer hangs off .well-known, so set_did() does rewrite
+        # the base url. The route carries no prefix of its own, so what is
+        # stripped is empty and the DID still ends up with a single segment.
+        self.assertNotIn('.well-known', reverse('idhub:serve_did', args=['a']))
         self.assertEqual(len(self.did.did.split(':')), 4)
 
     def test_set_did_fills_the_did_document(self):
@@ -130,10 +131,14 @@ class DidWebTest(IdHubTestCase):
         self.assertIn('https://www.w3.org/ns/did/v1', document['@context'])
         self.assertEqual(document['id'], self.did.did)
 
-    def test_get_did_document_mutates_instead_of_returning(self):
+    def test_get_did_document_returns_the_url_and_the_document(self):
         self.did.didweb_document = ''
-        self.assertIsNone(self.did.get_did_document())
-        self.assertEqual(json.loads(self.did.didweb_document)['id'], self.did.did)
+
+        url, document = self.did.get_did_document()
+
+        self.assertEqual(document, self.did.didweb_document)
+        self.assertEqual(json.loads(document)['id'], self.did.did)
+        self.assertTrue(url.endswith('/did.json'))
 
     def test_get_path_for_our_own_domain(self):
         identifier = self.did.did.split(':')[-1]
@@ -143,13 +148,9 @@ class DidWebTest(IdHubTestCase):
 
     def test_get_path_for_a_foreign_domain(self):
         expected = {
-            'did:web:example.org:abc':
-                'https://example.org/.well-known/abc/did.json',
+            'did:web:example.org:abc': 'https://example.org/abc/did.json',
             'did:web:example.org:a:b': 'https://example.org/a/b/did.json',
-            # No path segment: the W3C default is /.well-known/did.json, but
-            # this lands on the join branch instead. Unreachable from the
-            # form, which rejects path-less did:web.
-            'did:web:example.org': 'https://example.org/did.json',
+            'did:web:example.org': 'https://example.org/.well-known/did.json',
         }
         for raw, path in expected.items():
             with self.subTest(did=raw):
@@ -157,10 +158,10 @@ class DidWebTest(IdHubTestCase):
                 self.assertEqual(did.get_path(), path)
 
     def test_get_path_on_a_did_key_is_meaningless(self):
-        # 'did:key:' and 'did:web:' are both 8 characters, so the did:web
-        # branch happily builds a url out of the multibase key.
+        # get_path() splits on ':' without looking at the method, so the
+        # multibase key is taken for a domain.
         did = DID(label='k', type=DID.Types.KEY, did='did:key:z6MkAbc')
-        self.assertEqual(did.get_path(), 'https://z6MkAbc/did.json')
+        self.assertEqual(did.get_path(), 'https://z6MkAbc/.well-known/did.json')
 
 
 @override_settings(API_DLT_URL='http://dlt.example.org')

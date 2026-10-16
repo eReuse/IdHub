@@ -23,6 +23,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.management import CommandError, call_command
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -393,16 +394,19 @@ class DemoDataTest(IdHubBaseTestCase):
 
     @override_settings(DEMO_CREATE_SCHEMAS=True)
     def test_a_file_that_is_not_json_at_all_aborts_the_whole_bootstrap(self):
-        # _create_schemas() does catch the parse error, but SchemaManager
-        # .create() parses `data` again to walk allOf, and that one is
-        # unguarded: an editor swap file or a README in schemas/ stops the
-        # container from coming up, after the admin and the DID are already
-        # created.
+        # _create_schemas() does catch the parse error, but Schemas.save()
+        # rejects the row afterwards. The message is legible now, yet the
+        # listing is still unfiltered: an editor swap file or a README in
+        # schemas/ stops the container from coming up, after the admin and
+        # the DID are already created.
         directory = self.write_schemas_dir('notes.txt', 'remember to delete me')
 
         with override_settings(SCHEMAS_DIR=directory):
-            with self.assertRaises(json.JSONDecodeError):
+            with self.assertRaises(ValidationError) as ctx:
                 run('demo_data')
+
+        self.assertIn("Invalid JSON data provided for schema 'notes.txt'",
+                      str(ctx.exception))
 
     def write_schemas_dir(self, name, content):
         import tempfile
