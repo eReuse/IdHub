@@ -15,10 +15,17 @@ about: the commands read ``INIT_ADMIN_*``, ``OIDC_ORGS``,
 ``CREATE_TEST_USERS`` and ``DEMO_CREATE_SCHEMAS`` straight from the
 environment.
 """
+import builtins
+import io
 import json
 
 from io import StringIO
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import Mock, mock_open, patch
+
+import requests
+
+from nacl.exceptions import CryptoError
 
 from django.conf import settings
 from django.core import mail
@@ -29,8 +36,10 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import override_settings
 
-from idhub.management.commands import demo_data, init_org
-from idhub.models import DID, Event, Rol, Schemas, Service, UserRol
+from idhub.management.commands import demo_data, demo_data_dpp, init_org
+from idhub.models import (
+    DID, Event, Rol, Schemas, Service, UserRol, VerificableCredential,
+)
 from idhub_auth.models import User
 from oidc4vp.models import Organization
 from test_support import factories
@@ -482,23 +491,302 @@ class DemoDataTest(IdHubBaseTestCase):
         return str(path)
 
 
+REAL_OPEN = builtins.open
+REAL_REQUESTS_GET = requests.get
+
+# What the DLT answers to /registerUser. DID.set_did() asserts the lengths,
+# 80 and 42, before storing them.
+OPERATOR_TOKEN = 't' * 80
+OPERATOR_ADDRESS = '0x' + 'a' * 40
+# /getTa, the address of the Trusted Accreditation Organization.
+TAO_ADDRESS = '0x' + 'b' * 40
+CHAIN_ID = 1337
+
+ADMIN_TOKEN = 'admin-api-token'
+
+
+def dlt_answer(payload):
+    return Mock(json=Mock(return_value=payload))
+
+
+class SharedFile(io.StringIO):
+    """A file of the /shared volume, readable after its ``with`` block."""
+
+    def close(self):
+        pass
+
+
+@override_settings(API_DLT_URL='http://dlt.example.org')
 class DemoDataDppTest(IdHubBaseTestCase):
     """``demo_data_dpp``: the DPP extra that runs right after ``demo_data``.
 
-    The command cannot be exercised end to end from a test: ``create_did()``
-    asks for a ``WEBETH`` DID and ``DID.set_did()`` then posts to
-    ``{API_DLT_URL}/registerUser``, ``handle()`` writes the operator token to
-    ``/shared/$OPERATOR_TOKEN_FILE`` and the credential is handed to the
-    oracle. What is pinned here is everything that happens before that first
-    network call, because that is what stops a container from coming up.
+    The command only makes sense inside the DPP docker-compose: every DID it
+    creates is a ``WEBETH`` one, so ``DID.set_did()`` registers it against
+    ``$API_DLT_URL``; ``handle()`` writes the operator token to
+    ``/shared/$OPERATOR_TOKEN_FILE``; and the credential is handed to the
+    oracle, which reads the admin token from that same volume. The three are
+    faked here -the DLT by dispatching on the URL, the volume by intercepting
+    ``open()``- so that the bootstrap can be run to the end and what it leaves
+    behind asserted, because a demo deployment is this command succeeding.
     """
+
+    # The command has 'admin@example.org' and 'user1@example.org' written into
+    # handle(), and looks the organization up by the domain demo_data gave it.
+    DOMAIN = demo_data_dpp.Command.DOMAIN
+
+    def setUp(self):
+        super().setUp()
+        self.shared = {}
+        self.posted = []
+        self.org = Organization.objects.create(
+            name=self.DOMAIN, domain=self.DOMAIN, main=True
+        )
+        self.admin = factories.make_user(
+            'admin@example.org', 'adminpass12', admin=True
+        )
+        self.user1 = factories.make_user(
+            'user1@example.org', 'userpass12', accept_gdpr=False
+        )
+        self.schema = factories.make_schema('organization-membership-dlt.json')
+
+    # -- the fakes ---------------------------------------------------------
+
+    def fake_open(self, path, mode='r', *args, **kwargs):
+        if isinstance(path, str) and path.startswith('/shared/'):
+            if 'w' in mode:
+                self.shared[path] = handle = SharedFile()
+                return handle
+            return SharedFile(ADMIN_TOKEN + '\n')
+        return REAL_OPEN(path, mode, *args, **kwargs)
+
+    def fake_post(self, url, *args, **kwargs):
+        self.posted.append(url)
+        if url.endswith('/registerUser'):
+            return dlt_answer({'data': {
+                'api_token': OPERATOR_TOKEN, 'eth_pub_key': OPERATOR_ADDRESS,
+            }})
+        return dlt_answer({'Status': 'Success'})
+
+    def fake_get(self, url, *args, **kwargs):
+        if url.endswith('/getTa'):
+            return dlt_answer({'data': {'root_pub_key': TAO_ADDRESS}})
+        if url.endswith('/getChainId'):
+            return dlt_answer({'data': {'chain_id': CHAIN_ID}})
+        # The JSON-LD @context loader of pyld goes through requests.get too,
+        # and it has to keep reaching the offline fixtures.
+        return REAL_REQUESTS_GET(url, *args, **kwargs)
+
+    def dlt(self):
+        """Everything the command needs that is not in this machine.
+
+        The order matters: the tests that pin a crash take a prefix of this
+        list, so each one is the bootstrap missing exactly one piece.
+        """
+        return [
+            patch('idhub.models.requests.post', side_effect=self.fake_post),
+            patch('idhub.models.requests.get', side_effect=self.fake_get),
+            patch.dict('os.environ', {
+                'OPERATOR_TOKEN_FILE': 'operator-token.txt',
+                'ADMIN_TOKEN_FILE': 'api-connector_admin-token.txt',
+            }),
+            patch('builtins.open', side_effect=self.fake_open),
+        ]
+
+    def run_dpp(self, patches=None):
+        for patcher in (self.dlt() if patches is None else patches):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        return run('demo_data_dpp')
+
+    # -- what the bootstrap leaves behind ----------------------------------
+
+    def issued_credential(self):
+        cred = VerificableCredential.objects.get()
+        return cred, json.loads(cred.get_data())
+
+    def test_the_vault_password_of_a_demo_is_hardcoded(self):
+        self.run_dpp()
+
+        self.assertEqual(cache.get('KEY_DIDS'), 'DEMO')
+
+    def test_both_dids_are_registered_on_the_dlt(self):
+        self.run_dpp()
+
+        self.assertEqual(
+            [url for url in self.posted if url.endswith('/registerUser')],
+            ['http://dlt.example.org/registerUser'] * 2,
+        )
+        self.assertEqual(
+            [(did.label, did.type, did.user_id)
+             for did in DID.objects.order_by('id')],
+            [('dpp', DID.Types.WEBETH, None),
+             ('dpp', DID.Types.WEBETH, self.user1.id)],
+        )
+
+    def test_the_issuer_did_is_the_organizations_and_the_other_is_user1s(self):
+        # create_did() is called once without a user, which makes an
+        # organizational DID encrypted with the organization vault, and once
+        # for user1, which makes a personal one.
+        self.run_dpp()
+
+        issuer = DID.objects.get(user=None)
+        subject = DID.objects.get(user=self.user1)
+        self.assertTrue(issuer.did.startswith('did:web:'))
+        self.assertEqual(
+            json.loads(subject.get_key_material())['eth_api_token'],
+            OPERATOR_TOKEN,
+        )
+
+    def test_the_operator_token_is_written_to_the_shared_volume(self):
+        # This is the whole point of the command: the devicehub side of the
+        # compose waits for that file to appear.
+        self.run_dpp()
+
+        self.assertEqual(
+            {path: handle.getvalue() for path, handle in self.shared.items()},
+            {'/shared/operator-token.txt': OPERATOR_TOKEN + '\n'},
+        )
+
+    def test_the_consent_of_user1_is_accepted_on_their_behalf(self):
+        self.run_dpp()
+
+        self.user1.refresh_from_db()
+        self.assertTrue(self.user1.accept_gdpr)
+
+    def test_the_vault_of_user1_is_created_by_their_did(self):
+        # Nothing calls set_encrypted_sensitive_data() for user1: the vault
+        # appears because DID.set_key_material() makes one for whoever owns
+        # the DID, encrypted with KEY_DIDS and not with the user's password.
+        self.run_dpp()
+
+        self.user1.refresh_from_db()
+        self.assertTrue(self.user1.encrypted_sensitive_data)
+        self.assertTrue(self.user1.decrypt_sensitive_data())
+
+    def test_the_credential_is_issued_and_signed(self):
+        self.run_dpp()
+
+        cred, data = self.issued_credential()
+        self.assertEqual(cred.status, VerificableCredential.Status.ISSUED)
+        self.assertEqual(cred.user, self.user1)
+        self.assertTrue(cred.verified)
+        self.assertEqual(data['proof']['type'], 'Ed25519Signature2018')
+
+    def test_the_subject_of_the_credential_is_the_ether_address(self):
+        # get_context() swaps the DID of a did:webeth subject for its Ethereum
+        # public key, which is what the DLT contracts can act on.
+        self.run_dpp()
+
+        _, data = self.issued_credential()
+        self.assertEqual(data['credentialSubject']['id'], OPERATOR_ADDRESS)
+
+    def test_the_role_and_the_email_of_the_hardcoded_row_are_carried_over(self):
+        self.run_dpp()
+
+        _, data = self.issued_credential()
+        self.assertEqual(data['credentialSubject']['role'], 'operator')
+        self.assertEqual(
+            data['credentialSubject']['email'], 'user1@example.org'
+        )
+
+    def test_the_address_of_the_accreditation_organization_is_lost(self):
+        """The TAO address never reaches the credential it accredits.
+
+        ``credentialSubject.issuer_id`` is "Issuer (TAO) ether address" in
+        organization-membership-dlt.json, and ``get_context`` does compute it
+        for a did:webeth issuer (``idhub/models.py:1130``). But ``render()``
+        only ever loads ``credentials/base.json``, which has no issuer_id, and
+        then copies into credentialSubject only the columns of the CSV row:
+        the per-schema template that did read it is no longer used by
+        anything. So the membership credential of the DLT pilot goes out
+        without saying which organization accredited it.
+        """
+        self.run_dpp()
+
+        cred, data = self.issued_credential()
+        self.assertNotIn('issuer_id', data['credentialSubject'])
+        self.assertEqual(
+            cred.get_context('https://testserver/')['issuer_id'], TAO_ADDRESS
+        )
+
+    def test_the_oracle_is_called_once_the_credential_is_signed(self):
+        self.run_dpp()
+
+        self.assertEqual(self.posted[-3:], [
+            'http://dlt.example.org/oracle',
+            'http://dlt.example.org/mintTokens',
+            'http://dlt.example.org/allowTokens',
+        ])
+
+    # -- where it breaks ---------------------------------------------------
+
+    def test_a_did_of_the_admin_is_left_unreadable(self):
+        """The command destroys key material it did not create.
+
+        ``handle()`` calls ``set_encrypted_sensitive_data()`` on
+        admin@example.org unconditionally, and that generates a new random
+        vault key and a new salt. Any DID already owned by that account was
+        encrypted with the old one and cannot be decrypted again, by anybody.
+        """
+        did = factories.make_did(label='Old', user=self.admin)
+
+        self.run_dpp()
+
+        with self.assertRaises(CryptoError):
+            DID.objects.get(pk=did.pk).get_key_material()
+
+    def test_the_admin_vault_is_replaced_on_every_run(self):
+        self.admin.set_encrypted_sensitive_data()
+        self.admin.save()
+        before = (self.admin.encrypted_sensitive_data, self.admin.salt)
+
+        self.run_dpp()
+
+        self.admin.refresh_from_db()
+        self.assertNotEqual(
+            (self.admin.encrypted_sensitive_data, self.admin.salt), before
+        )
+
+    def test_a_failed_issuance_is_not_noticed(self):
+        # cred.issue() hands back (False, reason) for a row that does not
+        # satisfy the schema, and handle() throws the pair away: the credential
+        # stays ENABLED and empty, and the oracle is called all the same.
+        with patch.object(VerificableCredential, 'issue',
+                          return_value=(False, 'not valid')), \
+             patch.object(VerificableCredential, 'call_oracle') as oracle:
+            self.run_dpp()
+
+        cred = VerificableCredential.objects.get()
+        self.assertEqual(cred.status, VerificableCredential.Status.ENABLED)
+        self.assertEqual(cred.data, '')
+        oracle.assert_called_once_with()
+
+    def test_a_failed_issuance_dies_inside_the_oracle(self):
+        # And without that patch the container comes down on a JSON error
+        # about an empty string, three calls away from the real cause.
+        with patch.object(VerificableCredential, 'issue',
+                          return_value=(False, 'not valid')):
+            with self.assertRaises(json.JSONDecodeError):
+                self.run_dpp()
+
+    def test_running_it_twice_piles_up_dids_and_credentials(self):
+        self.run_dpp()
+
+        run('demo_data_dpp')  # the fakes of the first run are still up
+
+        self.assertEqual(DID.objects.count(), 4)
+        self.assertEqual(VerificableCredential.objects.count(), 2)
+
+    # -- the ways a container fails to come up -----------------------------
 
     def test_without_the_demo_admin_it_crashes_on_a_none(self):
         # handle() takes the admin from filter(...).first() and never looks at
         # the result, so running demo_data_dpp on a deployment that was not
         # seeded by demo_data aborts with an AttributeError and no explanation.
+        self.admin.delete()
+
         with self.assertRaises(AttributeError) as caught:
-            run('demo_data_dpp')
+            self.run_dpp()
 
         self.assertIn('set_encrypted_sensitive_data', str(caught.exception))
 
@@ -507,19 +795,137 @@ class DemoDataDppTest(IdHubBaseTestCase):
         # Unlike demo_data, this one has 'admin@example.org' written into
         # handle(): a demo deployment that sets INIT_ADMIN_EMAIL to anything
         # else gets the same crash as an empty database.
+        self.admin.delete()
         factories.make_user('boss@example.org', 'bosspass12345', admin=True)
 
         with self.assertRaises(AttributeError):
-            run('demo_data_dpp')
+            self.run_dpp()
+
+    def test_without_the_main_organization_it_crashes_on_the_first_did(self):
+        # handle() looks the organization up twice, with filter(...).first()
+        # both times, and never reads the result. What needs it is the
+        # organizational DID: DID.get_organization() is a bare get(main=True).
+        self.org.delete()
+
+        with self.assertRaises(Organization.DoesNotExist):
+            self.run_dpp()
 
     def test_the_credential_needs_the_dlt_schema_to_be_loaded(self):
         # create_credential() goes for organization-membership-dlt.json with a
         # bare get(): if DEMO_CREATE_SCHEMAS was off, or that file is not in
         # SCHEMAS_DIR, the command dies here too.
-        from idhub.management.commands.demo_data_dpp import Command
+        self.schema.delete()
 
         with self.assertRaises(Schemas.DoesNotExist):
-            Command().create_credential()
+            self.run_dpp()
+
+    def test_without_the_shared_volume_it_crashes(self):
+        # The path is '/shared/' + os.environ[...], absolute and hardcoded, so
+        # the command cannot run anywhere but inside its container.
+        patches = self.dlt()[:3]
+
+        with self.assertRaises(FileNotFoundError) as caught:
+            self.run_dpp(patches)
+
+        self.assertIn('/shared/operator-token.txt', str(caught.exception))
+
+    def test_without_the_token_file_in_the_environment_it_crashes(self):
+        # The entrypoint exports OPERATOR_TOKEN_FILE only in the DPP branch;
+        # a KeyError is what a demo deployment gets if it is missing.
+        patches = self.dlt()[:2]
+
+        with self.assertRaises(KeyError) as caught:
+            self.run_dpp(patches)
+
+        self.assertIn('OPERATOR_TOKEN_FILE', str(caught.exception))
+
+    def test_a_dlt_that_is_not_there_stops_the_bootstrap(self):
+        patches = [
+            patch('idhub.models.requests.post',
+                  side_effect=requests.ConnectionError('connection refused')),
+            patch.dict('os.environ', {'OPERATOR_TOKEN_FILE': 'op.txt'}),
+        ]
+
+        with self.assertRaises(requests.ConnectionError):
+            self.run_dpp(patches)
+
+    def test_a_dlt_that_answers_a_short_token_is_a_bare_assertion(self):
+        # set_did() checks the two lengths with plain asserts, which say
+        # nothing about which DID or which deployment is involved -and which
+        # python -O would skip altogether.
+        patches = [
+            patch('idhub.models.requests.post', return_value=dlt_answer(
+                {'data': {'api_token': 'too-short', 'eth_pub_key': '0x0'}}
+            )),
+            patch.dict('os.environ', {'OPERATOR_TOKEN_FILE': 'op.txt'}),
+        ]
+
+        with self.assertRaises(AssertionError) as caught:
+            self.run_dpp(patches)
+
+        self.assertEqual(str(caught.exception), 'api_token has invalid length')
+
+    # -- the pieces on their own -------------------------------------------
+
+    def test_create_did_makes_an_organizational_webeth_did_labelled_dpp(self):
+        for patcher in self.dlt()[:2]:
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+        did = demo_data_dpp.Command().create_did()
+
+        self.assertEqual((did.label, did.type, did.user), ('dpp', 3, None))
+        self.assertEqual(
+            json.loads(did.get_key_material())['eth_chainid'], CHAIN_ID
+        )
+
+    def test_create_credential_builds_an_operator_membership_for_user1(self):
+        command = demo_data_dpp.Command()
+        command.user1_email = 'user1@example.org'
+        command.user1 = self.user1
+        command.admin_did = factories.make_did(label='issuer')
+
+        cred = command.create_credential()
+
+        self.assertEqual(json.loads(cred.csv_data),
+                         {'role': 'operator', 'email': 'user1@example.org'})
+        self.assertEqual(cred.type, 'OrganizationMembership(Dlt)')
+        self.assertTrue(cred.verified)
+        self.assertIsNone(cred.eidas1_did)
+
+    def test_the_request_credential_helper_points_at_a_file_that_cannot_exist(self):
+        """``_request_credential()`` is dead code, and broken twice over.
+
+        Nothing calls it. If anything did, it builds the path of the example
+        spreadsheet from ``Path(__file__).parent.parent.parent``, which is
+        ``idhub/`` and not the root of the repository where ``examples/``
+        lives, and names the file ``'{}.xlsx'.format(fileschema)`` with a
+        fileschema that already ends in ``.json``.
+        """
+        with self.assertRaises(FileNotFoundError) as caught:
+            demo_data_dpp.Command()._request_credential()
+
+        self.assertIn('idhub/examples/excel_examples/'
+                      'organization-membership-dlt.json.xlsx',
+                      str(caught.exception))
+
+    def test_the_request_credential_helper_does_nothing_even_if_it_runs(self):
+        # With the file read faked and the three attributes handle() would
+        # have set, it still issues nothing: the form is built without
+        # user= and without domain=, so RequestCredentialForm.save() finds no
+        # credential of its own and returns before issuing.
+        self.run_dpp()
+        command = demo_data_dpp.Command()
+        command.user1 = self.user1
+        command.user1_did = DID.objects.get(user=self.user1)
+        cred = VerificableCredential.objects.get()
+
+        with patch.object(Path, 'open', mock_open(read_data=b'xlsx')):
+            self.assertIsNone(command._request_credential())
+
+        self.assertEqual(VerificableCredential.objects.count(), 1)
+        self.assertEqual(cred.issued_on,
+                         VerificableCredential.objects.get().issued_on)
 
 
 class CreateExampleDataTest(IdHubBaseTestCase):
