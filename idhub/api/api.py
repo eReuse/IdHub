@@ -1,12 +1,16 @@
 import json
 import logging
+import os
 
 from django.core.exceptions import PermissionDenied
-from ninja import NinjaAPI
-from ninja.errors import HttpError
+from ninja import NinjaAPI, File
 from ninja.security import HttpBearer
+from ninja.files import UploadedFile
 
-from idhub.models import DID, Schemas
+from datetime import datetime
+from django.core.cache import cache
+from idhub.services import CredentialIssuanceService, DIDService, VerificationService
+from idhub.models import DID, Schemas, VerificableCredential
 from idhub.services import CredentialIssuanceService, DIDService
 from webhook.models import Token
 
@@ -21,6 +25,8 @@ from .schemas import (
     SignedCredentialResponse,
     UpdateServiceEndpointPayload,
     UpdateServiceEndpointResponse,
+    VerificationResultResponse,
+    WebhookPayload,
 )
 
 
@@ -229,3 +235,118 @@ def get_active_schemas(request):
             response_data["dfr"].append(schema_info)
 
     return response_data
+
+
+@api_v1.post("webhook/sign/",
+             response={200: dict, 400: dict, 401: dict},
+             auth=DatabaseTokenAuth(),
+             summary="Sign and issue a hardware credential (Legacy Webhook)")
+def webhook_issue(request, payload: WebhookPayload):
+    user = request.user
+
+    if not cache.get("KEY_DIDS") or not user.accept_gdpr:
+        return 400, {'error': 'Temporary out of service'}
+
+    typ = payload.type
+    jvc = payload.data
+
+    did = DID.objects.filter(user__isnull=True, is_product=False).first()
+    if not did:
+        return 400, {'error': 'Invalid DID'}
+
+    clean_typ = typ.replace(" ", "")
+    schema = (
+        Schemas.objects.filter(type__iexact=typ).first()
+        or Schemas.objects.filter(type__iexact=clean_typ).first()
+        or Schemas.objects.filter(file_schema__icontains=typ).first()
+    )
+    if not schema:
+        return 400, {'error': f"Invalid credential: Schema for type '{typ}' not found."}
+
+    try:
+        jvc["operatorId"] = jvc.get("operator_id", "--")
+        timestamp = jvc.get("timestamp", str(datetime.now()))
+
+        if jvc.get("type") == "Snapshot":
+            if jvc.get("erase"):
+                jvc["type"] = "dataDeletion"
+            else:
+                jvc["type"] = "hardwareList"
+
+        dmidecode = jvc.get("data", {}).get("dmidecode", '""')
+        inxi = jvc.get("data", {}).get("inxi", '""')
+        smartctl = jvc.get("data", {}).get("smartctl", '""')
+
+        jvc["evidence"] = [
+            {"type": "HardwareList", "operation": "dmidecode", "output": dmidecode, "timestamp": timestamp},
+            {"type": "HardwareList", "operation": "smartctl", "output": smartctl, "timestamp": timestamp},
+            {"type": "HardwareList", "operation": "inxi", "output": inxi, "timestamp": timestamp}
+        ]
+        vc_str = json.dumps(jvc)
+    except Exception as err:
+        logger.error(f"Hardware evidence generation failed: {err}")
+        vc_str = json.dumps(jvc)
+
+    cred = VerificableCredential(
+        csv_data=vc_str,
+        issuer_did=did,
+        schema=schema,
+        user=user,
+        verified=True
+    )
+
+    cred.set_type()
+
+    scheme = "https" if request.is_secure() or "localhost" in request.get_host() else request.scheme
+    domain = f"{scheme}://{request.get_host()}"
+
+    success, result = cred.issue(did, domain=domain, save=payload.save)
+
+    if not success:
+        return 400, {'error': str(result)}
+
+    return 200, {'status': 'success', 'data': result}
+
+
+@api_v1.post("webhook/verify/",
+             response={200: VerificationResultResponse, 400: ErrorResponse, 401: ErrorResponse},
+             auth=DatabaseTokenAuth(),
+             summary="Verify a Verifiable Credential file (JSON, PDF?, JWT)")
+def webhook_verify(request, file_import: UploadedFile = File(...)):
+    user = request.user
+
+    if not cache.get("KEY_DIDS") or not user.accept_gdpr:
+        return 400, {'error': 'Temporary out of service'}
+
+    # file Upload Validations
+    MAX_UPLOAD_SIZE = 5242880
+    ALLOWED_EXTENSIONS = ['.json', '.pdf', '.jwt']
+    ALLOWED_CONTENT_TYPES = [
+        'application/json',
+        'application/ld+json',
+        'application/pdf',
+        'application/jwt',
+        'application/vc+jwt',
+        'application/octet-stream',
+        'text/plain',
+        ''
+    ]
+
+    if file_import.size > MAX_UPLOAD_SIZE:
+        return 400, {"error": "The file is too large. The maximum allowed size is 5MB."}
+
+    ext = os.path.splitext(file_import.name)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        return 400, {"error": "Invalid file extension. Only .json, .pdf and .jwt are allowed."}
+
+    if file_import.content_type not in ALLOWED_CONTENT_TYPES:
+        return 400, {"error": "Unsupported file format. Please upload a valid JSON, PDF, or JWT credential."}
+
+    try:
+        file_content = file_import.read().decode('utf-8')
+    except UnicodeDecodeError:
+        return 400, {"error": "The file is not a valid UTF-8 encoded text file."}
+
+    results = VerificationService.verify_document(file_content)
+
+    return 200, results
