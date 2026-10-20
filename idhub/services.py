@@ -228,7 +228,7 @@ class VerificationService:
     def empty_results():
         return {
             'steps': [],
-            'credential_type': _('Unknown'),
+            'credential_type': str(_('Unknown')),
             'issuer_name': None,
             'issuer_id': None,
             'issuer_url': None,
@@ -240,9 +240,9 @@ class VerificationService:
     @staticmethod
     def add_step(results, name, status, detail):
         results['steps'].append({
-            "name": name,
+            "name": str(name),
             "status": "Success" if status else "Failed",
-            "detail": detail
+            "detail": str(detail)
         })
 
     @staticmethod
