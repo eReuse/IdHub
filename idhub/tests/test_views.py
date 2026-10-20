@@ -1,34 +1,14 @@
-from django.test import TestCase, RequestFactory
-from django.core.cache import cache
+from django.test import RequestFactory
 from django.urls import reverse
-from django.conf import settings
 
 from idhub_auth.models import User
 from idhub.models import Event
-from oidc4vp.models import Organization
 from idhub.admin.views import PeopleListView
+from test_support import factories
+from test_support.base import IdHubTestCase
 
 
-class AdminDashboardViewTest(TestCase):
-
-    def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        self.user = User.objects.create_user(
-            email='normaluser@example.org',
-            password='testpass12',
-        )
-        self.user.accept_gdpr=True
-        self.user.save()
-
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
-        self.org = Organization.objects.create(name="testserver", main=True)
-
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
+class AdminDashboardViewTest(IdHubTestCase):
 
     def test_view_url_exists_at_desired_location(self):
         response = self.client.get('/admin/dashboard/', follow=True)
@@ -70,9 +50,7 @@ class AdminDashboardViewTest(TestCase):
 
     def test_admin_event_filtering(self):
         # Create a test admin user
-        admin_user = User.objects.create_superuser(email='admin@example.org', password='test')
-        admin_user.accept_gdpr = True
-        admin_user.save()
+        factories.make_user('admin@example.org', 'test', admin=True)
         self.client.login(email='admin@example.org', password='test')
 
         # Create test events, including some that should not be visible to admins
@@ -96,37 +74,23 @@ class AdminDashboardViewTest(TestCase):
 
     def test_access_control_accepted_when_admin(self):
         # Access as an admin
-        admin_user = User.objects.create_superuser(email='admin@example.org', password='test')
-        admin_user.accept_gdpr=True
-        admin_user.save()
+        factories.make_user('admin@example.org', 'test', admin=True)
         self.client.login(email='admin@example.org', password='test')
         response = self.client.get('/admin/dashboard/')
         self.assertEqual(response.status_code, 200)
 
 
-class PeopleListViewTest(TestCase):
+class PeopleListViewTest(IdHubTestCase):
 
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        # Set up a RequestFactory to create mock requests
+        super().setUp()
         self.factory = RequestFactory()
-
-        # Create some user instances for testing
-        self.user = User.objects.create_user(email='normaluser@example.org',
-                                             password='testpass12')
-        self.user.accept_gdpr=True
-        self.user.save()
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
 
         # Create a request object for the view
         self.request = self.factory.get(reverse('idhub:admin_people_list'))
 
         self.request.user = self.admin_user
-        self.client.login(email='adminuser@example.org', password='adminpass12')
+        self.admin_login()
         self.request.session = self.client.session
 
     def test_template_used(self):
@@ -151,17 +115,16 @@ class PeopleListViewTest(TestCase):
         self.assertEqual(queryset.count(), 2)
 
 
-class UserDashboardViewTests(TestCase):
+class UserDashboardViewTests(IdHubTestCase):
+    USER_EMAIL = 'regular@example.org'
+    USER_PASSWORD = 'password'
+    ADMIN_EMAIL = 'admin@example.org'
+    ADMIN_PASSWORD = 'password'
+
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        # Create test users
-        self.admin_user = User.objects.create_superuser('admin@example.org', 'password')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
-        self.regular_user = User.objects.create_user('regular@example.org', 'password')
-        self.regular_user.accept_gdpr=True
-        self.regular_user.save()
-        
+        super().setUp()
+        self.regular_user = self.user
+
         # Create events visible to users
         self.visible_events_types = [
             Event.Types.EV_USR_WELCOME,

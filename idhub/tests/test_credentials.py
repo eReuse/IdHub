@@ -1,17 +1,13 @@
-import os
 import json
 
 from pathlib import Path
-from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.cache import cache
 from django.urls import reverse
 from django.conf import settings
 
-from idhub_auth.models import User
 from idhub.models import DID, Schemas, VerificableCredential
-from oidc4vp.models import Organization
-
+from test_support import factories
+from test_support.base import IdHubTestCase
 
 
 PILOTS = [
@@ -19,44 +15,20 @@ PILOTS = [
     "federation-membership",
     "membership-card",
     "financial-vulnerability",
-    "e-operator-claim",
+    "ereuse-role",
 ]
 
-class KeyFirstTimeTest(TestCase):
-    def setUp(self):
-        cache.set("KEY_DIDS", '')
-        self.user = User.objects.create_user(
-            email='user1@example.org',
-            password='testpass12',
-        )
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.org = Organization.objects.create(name="testserver", main=True)
-
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
-        settings.LANGUAGE_CODE = 'en'
-
-    def set_cache(self):
-        cache.set("KEY_DIDS", '1234', None)
-
-    def user_login(self):
-        self.client.login(email='user1@example.org',
-                          password='testpass12')
-    def admin_login(self):
-        self.client.login(email='adminuser@example.org',
-                          password='adminpass12')
+class KeyFirstTimeTest(IdHubTestCase):
+    USER_EMAIL = 'user1@example.org'
+    KEY_DIDS = ''
 
     def test_user_without_key(self):
-        cache.set("KEY_DIDS", '')
         self.user_login()
         response = self.client.get(reverse('idhub:user_dashboard'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('idhub:user_waiting'))
 
     def test_admin_without_key(self):
-        cache.set("KEY_DIDS", '')
         self.admin_login()
         response = self.client.get(reverse('idhub:admin_dashboard'))
         self.assertEqual(response.status_code, 302)
@@ -73,85 +45,27 @@ class KeyFirstTimeTest(TestCase):
         response = self.client.post(reverse('idhub:encryption_key'), data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('idhub:admin_dashboard'))
-        cache.set("KEY_DIDS", '')
 
-class CredentialsViewTest(TestCase):
+
+class CredentialsViewTest(IdHubTestCase):
+    USER_EMAIL = 'user1@example.org'
 
     def setUp(self):
-        cache.set("KEY_DIDS", '1234', None)
-        self.user = User.objects.create_user(
-            email='user1@example.org',
-            password='testpass12',
-        )
-        self.user.accept_gdpr=True
-        self.user.save()
-
-        self.admin_user = User.objects.create_superuser(
-                email='adminuser@example.org',
-                password='adminpass12')
-        self.admin_user.accept_gdpr=True
-        self.admin_user.save()
-        self.org = Organization.objects.create(name="testserver", main=True)
-
-        settings.DOMAIN = self.org.name
-        settings.ENABLE_EMAIL = False
-        settings.LANGUAGE_CODE = 'en'
-
+        super().setUp()
         self.admin_login()
         self.create_schemas()
 
-    def user_login(self):
-        self.client.login(email='user1@example.org',
-                          password='testpass12')
-    def admin_login(self):
-        self.client.login(email='adminuser@example.org',
-                          password='adminpass12')
-        
     def create_did(self, label="Default", user=None):
-        did = DID.objects.create(
-            label="Default",
-            type=DID.Types.KEY.value,
-            user=user
-        )
-        did.set_did()
-        did.save()
-        return did
+        return factories.make_did(label=label, user=user)
 
     def create_schemas(self):
-        schemas_files = os.listdir(settings.SCHEMAS_DIR)
-        for x in schemas_files:
-            if Schemas.objects.filter(file_schema=x).exists():
-                continue
-            self._create_schemas(x)
-
-        s = Schemas.objects
+        factories.make_schemas()
         for p in PILOTS:
             f = "{}.json".format(p)
-            self.assertTrue(s.filter(file_schema = f).exists())
-
-    def _create_schemas(self, file_name):
-        data = self.open_file(file_name)
-        ldata = json.loads(data)
-        title = ldata.get('title')
-
-        _name = json.dumps(ldata.get('name', ''))
-        _description = json.dumps(ldata.get('description', ''))
-
-        Schemas.objects.create(
-            file_schema=file_name,
-            data=data,
-            type=title,
-            _name=_name,
-            _description=_description
-        )
+            self.assertTrue(Schemas.objects.filter(file_schema=f).exists())
 
     def open_file(self, file_name):
-        data = ''
-        filename = Path(settings.SCHEMAS_DIR).joinpath(file_name)
-        with filename.open() as schema_file:
-            data = schema_file.read()
-
-        return data
+        return Path(settings.SCHEMAS_DIR).joinpath(file_name).read_text()
 
     def test_admin_create_did_key(self):
         self.admin_login()
@@ -183,7 +97,7 @@ class CredentialsViewTest(TestCase):
 
     def _upload_data_membership(self, fileschema):
         did = self.create_did()
-        schema = Schemas.objects.get(file_schema__contains=fileschema)
+        schema = Schemas.objects.get(file_schema='{}.json'.format(fileschema))
         url = reverse('idhub:admin_import_add')
         
         response = self.client.get(url)
@@ -217,7 +131,7 @@ class CredentialsViewTest(TestCase):
     def _user_require_credentail(self, fileschema):
         self.admin_login()
         self._upload_data_membership(fileschema)
-        schema = Schemas.objects.get(file_schema__contains=fileschema)
+        schema = Schemas.objects.get(file_schema='{}.json'.format(fileschema))
         cred = VerificableCredential.objects.get(schema=schema)
         url = reverse('idhub:user_credentials_request')
         did = self.create_did(user=self.user)
