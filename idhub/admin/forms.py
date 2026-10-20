@@ -1,32 +1,35 @@
-import json
 import base64
+import json
 import logging
-import requests
-import jsonschema
-import pandas as pd
+from urllib.parse import urljoin, urlparse
 
-from nacl.exceptions import CryptoError
-from openpyxl import load_workbook
-from urllib.parse import urlparse, urljoin
-from django.conf import settings
-from django.urls import reverse
 from django import forms
+from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from utils import certs, credtools
-from utils.sanitize_did import sanitize_didweb
+from django.db import transaction
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+import jsonschema
+from openpyxl import load_workbook
+import pandas as pd
+import requests
+
 from idhub.models import (
-    DID,
     ContextFile,
+    DID,
     File_datas,
     Membership,
     Schemas,
     UserRol,
-    VerificableCredential,
     VCTemplatePdf,
+    VerificableCredential,
 )
+from idhub.services import CredentialIssuanceService, DIDService, VerificationService
 from idhub_auth.models import User
+from nacl.exceptions import CryptoError
+from utils import certs, credtools
+from utils.sanitize_did import sanitize_didweb
 
 
 logger = logging.getLogger(__name__)
@@ -162,6 +165,7 @@ class ImportSchemaForm(forms.Form):
         data = self.cleaned_data["schema_import"]
         context = self.cleaned_data["context_import"]
         self.context = {}
+        self.context_instance = {}
 
         try:
             self.file_name = data.name
@@ -169,110 +173,178 @@ class ImportSchemaForm(forms.Form):
         except Exception:
              raise ValidationError(_("This schema not is a json file"))
 
-        if context and ContextFile.objects.filter(file_name=context.name).exists():
-            raise ValidationError(_("This context exist"))
+        #TODO: multiple schemas can have same context.
+        if context:
+            exists = ContextFile.objects.filter(file_name=context.name).first()
+            if exists:
+                self.context_instance = exists
+                logger.info(_("Context already exists"))
+            else:
+                try:
+                    self.context["file_name"] = context.name
+                    self.context["data"] = context.read()
+                except Exception:
+                    pass
+                try:
+                    self.context["data"] = json.dumps(json.loads(self.context["data"]))
+                except Exception:
+                    raise ValidationError(_("This context is no a valid jsonld"))
 
         try:
-            self.context["file_name"] = context.name
-            self.context["data"] = context.read()
-        except Exception:
-            pass
-
-        try:
-            if context:
-                self.context["data"] = json.dumps(json.loads(self.context["data"]))
-        except Exception:
-            raise ValidationError(_("This context is no a valid jsonld"))
-
-        try:
-            assert credtools.validate_schema(self.schema)
-            assert self.schema.get('name')
-            assert self.schema.get('title')
-        except Exception:
+            if not credtools.validate_schema(self.schema):
+                raise ValidationError(_("This is not a valid schema!"))
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.warning(f"Schema validation error: {e}")
             raise ValidationError(_("This is not a valid schema!"))
 
-        if Schemas.objects.filter(file_schema=self.file_name).exists():
+        raw_name = self._extract_schema_name()
+        if Schemas.objects.filter(_name=json.dumps([{"value": raw_name, "lang": "en"}])).exists() or \
+           Schemas.objects.filter(file_schema=self.file_name).exists():
             raise ValidationError(_("Schema exist!"))
 
         return data
 
+    def _extract_schema_name(self):
+        raw_name = self.schema.get("title") or self.schema.get("name")
+        if not raw_name:
+            vc_types = self.schema.get("properties", {}).get("type", {}).get("default", [])
+            if isinstance(vc_types, list) and vc_types:
+                if "VerifiableCredential" in vc_types:
+                    vc_types = ["VerifiableCredential"] + [t for t in vc_types if t != "VerifiableCredential"]
+                raw_name = " - ".join(vc_types)
+            else:
+                raw_name = self.file_name
+        return raw_name
+
     def save(self, domain=None, commit=True):
         _name = json.dumps(self.schema.get("name"))
         _description = json.dumps(self.schema.get("description"))
-        title = self.schema.get("title")
         data = json.dumps(self.schema)
         url_context = None
 
-        if self.context and domain:
-            file_name = self.context["file_name"]
-            url_context = urljoin(domain, reverse("idhub:context_file", args=[file_name]))
+        if (self.context or self.context_instance) and domain:
+            file_name = (
+                self.context_instance.file_name
+                if self.context_instance
+                else self.context["file_name"]
+            )
 
-        schema = Schemas.objects.create(
+            url_context = urljoin(domain, reverse("idhub:context_file", args=[file_name]))
+        schema = Schemas(
             file_schema=self.file_name,
             data=data,
             _name=_name,
             _description=_description,
-            type=title,
             template_description=_description,
             context=url_context
         )
+        schema.type = schema.get_type
+        schema.save()
 
-        if url_context:
-            ContextFile.objects.create(schema=schema, **self.context)
+        if url_context and self.context:
+            ContextFile.objects.create(**self.context)
 
         return schema
 
 
 class ImportSchemaUrlForm(forms.Form):
-    schema = forms.CharField(label=_("Schema url reference"))
-    context = forms.CharField(label=_("Context url reference"))
+    schema_url = forms.URLField(label=_("Schema URL reference"))
+    context_url = forms.URLField(label=_("Context URL reference"), required=False)
 
     def clean(self):
-        schema = self.cleaned_data["schema"]
-        self.context = self.cleaned_data["context"]
+        cleaned_data = super().clean()
+        schema_url = cleaned_data.get("schema_url")
+        context_url = cleaned_data.get("context_url")
+
+        if not schema_url:
+            return cleaned_data
 
         try:
-            path= urlparse(schema).path
-            self.file_name = path.split("/")[-1]
-            if self.file_name[-5:] != ".json":
-                self.file_name += ".json"
-            self.schema = requests.get(schema).json()
-        except Exception:
-             raise ValidationError(_("This schema not is a json file"))
+            parsed_schema = urlparse(schema_url)
+            file_name = parsed_schema.path.split("/")[-1]
+            if not file_name.endswith(".json"):
+                file_name += ".json"
+            cleaned_data["file_name"] = file_name
+        except (AttributeError, TypeError, ValueError):
+            raise ValidationError(_("This schema not is a json file"))
+
+        if Schemas.objects.filter(validation_url=schema_url).exists():
+            raise ValidationError(_("A Schema with this URL already exists!"))
+
+        #validate schema URL
+        try:
+            port = parsed_schema.port or (443 if parsed_schema.scheme == "https" else 80)
+            VerificationService.validate_safe_host(parsed_schema.hostname, port)
+        except (ValueError, TypeError) as e:
+            raise ValidationError(_(f"Invalid schema URL: {e}"))
 
         try:
-            res = requests.get(self.context)
-            assert 200 <= res.status_code < 300
-            res.json()
-        except Exception:
-             raise ValidationError(_("This context is not accessible"))
+            res = requests.get(schema_url, timeout=10)
+            res.raise_for_status()
+            schema_data = res.json()
+            cleaned_data["schema_data"] = json.dumps(schema_data)
+        except requests.RequestException:
+            raise ValidationError(_("Could not download the schema from the provided URL."))
+        except ValueError:
+            raise ValidationError(_("The downloaded schema is not a valid JSON file."))
+
+        if context_url:
+            try:
+                res = requests.get(context_url, timeout=10)
+                res.raise_for_status()
+                res.json()
+            except requests.RequestException:
+                raise ValidationError(_("The context URL is not accessible."))
+            except ValueError:
+                raise ValidationError(_("The context URL is not a valid JSON file."))
 
         try:
-            assert credtools.validate_schema(self.schema)
-            assert self.schema.get('name')
-            assert self.schema.get('title')
-        except Exception:
+            if not credtools.validate_schema(schema_data):
+                raise ValidationError(_("This is not a valid schema!"))
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.warning(f"Schema validation error: {e}")
             raise ValidationError(_("This is not a valid schema!"))
 
-        if Schemas.objects.filter(_name=self.schema["name"]).exists():
-            raise ValidationError(_("Schema exist!"))
-
-        return self.cleaned_data
+        return cleaned_data
 
     def save(self):
-        _name = json.dumps(self.schema.get("name"))
-        _description = json.dumps(self.schema.get("description"))
-        title = self.schema.get("title")
-        data = json.dumps(self.schema)
-        schema = Schemas.objects.create(
-            file_schema=self.file_name,
-            data=data,
+        schema_url = self.cleaned_data["schema_url"]
+        context_url = self.cleaned_data.get("context_url", "")
+        schema_dict = json.loads(self.cleaned_data["schema_data"])
+        file_name = self.cleaned_data["file_name"]
+
+
+        raw_name = schema_dict.get("title") or schema_dict.get("name")
+        if not raw_name:
+            vc_types = schema_dict.get("properties", {}).get("type", {}).get("default", [])
+
+            if isinstance(vc_types, list) and vc_types:
+                if "VerifiableCredential" in vc_types:
+                    vc_types = ["VerifiableCredential"] + [t for t in vc_types if t != "VerifiableCredential"]
+
+                raw_name = " - ".join(vc_types)
+            else:
+                raw_name = file_name
+
+        raw_desc = schema_dict.get("description", "")
+        _description = raw_desc[:250] if raw_desc else None
+        _name = json.dumps([{"value": raw_name, "lang": "en"}])
+
+        schema = Schemas(
+            file_schema=file_name,
+            data=self.cleaned_data["schema_data"],
             _name=_name,
             _description=_description,
-            type=title,
-            template_description=_description,
-            context=self.context
+            template_description=raw_desc,
+            context=context_url,
+            validation_url=schema_url,
         )
+        schema.type = schema.get_type
+        schema.save()
 
         return schema
 
@@ -660,7 +732,6 @@ class ImportCertificateForm(forms.Form):
             self.pfx_file, self._pss.encode('utf-8')
         )
 
-
 class DIDForm(forms.ModelForm):
     class Meta:
         model = DID
@@ -691,7 +762,8 @@ class DIDForm(forms.ModelForm):
         self.instance.label = label
         if self.instance.did != self._did:
             self.instance.did = self._did
-            self.instance.get_did_document()
+            if self.instance.key_material:
+                self.instance.get_did_document()
             if settings.DOMAIN != self._did.split(":")[2]:
                 self.instance.available = False
 
@@ -708,3 +780,181 @@ class DIDForm(forms.ModelForm):
             return self.instance
 
         return
+
+
+class UNTPCredentialImportForm(forms.Form):
+    create_did = forms.BooleanField(
+        label=_("Create object DID?"),
+        required=False,
+        help_text=_("Check this if a new DID should be generated for the subject.")
+    )
+    did_method = forms.ChoiceField(
+        choices=DID.Types.choices,
+        label=_("Select DID method"),
+        required=False,
+        help_text=_("Choose the DID method to be used when creating new object DIDs.")
+    )
+    service_endpoint = forms.URLField(
+        label=_("Service Endpoint"),
+        required=False,
+        help_text=_("Enter a valid URI for the DPP service endpoint (optional).")
+    )
+    issuer = forms.ModelChoiceField(
+        queryset=DID.objects.filter(user__isnull=True, is_product=False),
+        empty_label=_("Select one"),
+        label=_("Issuer DID"),
+        help_text=_("Select the DID that will sign the UNTP credential.")
+    )
+    schema = forms.ModelChoiceField(
+        queryset=Schemas.objects.filter(
+            type__in=[
+                "DigitalConformityCredential",
+                "DigitalProductPassport",
+                "DigitalFacilityRecord",
+                "DigitalTraceabilityEvent",
+            ]
+        ),
+        empty_label=_("Select one"),
+        label=_("UNTP schema"),
+        help_text=_("Select which UNTP schema this credential must comply with.")
+    )
+    file_import = forms.FileField(
+        label=_("Upload object DIDs file"),
+        help_text=_("Upload a JSON file containing the UNTP credentialSubject.")
+    )
+
+    def clean_file_import(self):
+        uploaded_file = self.cleaned_data.get("file_import")
+        if not uploaded_file:
+            return None
+
+        try:
+            file_content = uploaded_file.read().decode('utf-8')
+            return json.loads(file_content)
+        except json.JSONDecodeError:
+            raise ValidationError(_("Invalid JSON file. Please ensure the file is correctly formatted."))
+        except UnicodeDecodeError:
+            raise ValidationError(_("File is not UTF-8 encoded. Please save the file as UTF-8."))
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file_data = cleaned_data.get('file_import')
+        schema = cleaned_data.get('schema')
+        issuer = cleaned_data.get('issuer')
+        create_did = cleaned_data.get('create_did')
+
+        if not file_data or not schema or not issuer:
+            return cleaned_data
+
+        if not isinstance(file_data, dict):
+            raise ValidationError(_("The uploaded file must be a JSON object."))
+        cred_subject = file_data.get("credentialSubject")
+        if not cred_subject:
+             raise ValidationError(_("The uploaded JSON must contain a 'credentialSubject'."))
+
+        is_dte = schema.is_untp == "DigitalTraceabilityEvent"
+        if isinstance(cred_subject, dict):
+            subjects = [cred_subject]
+        elif isinstance(cred_subject, list):
+            if not is_dte:
+                raise ValidationError(
+                    _("A list of credential subjects is only supported for Digital Traceability Events (DTE).")
+                )
+            subjects = cred_subject
+            if create_did:
+                raise ValidationError(
+                    _("Cannot assign a single new DID to a credential containing multiple traceability events. "
+                      "Please upload them individually or ensure IDs are pre-defined.")
+                )
+        else:
+             raise ValidationError(_("'credentialSubject' must be an object or an array of objects."))
+
+        subject_ids = [sub.get("id") for sub in subjects if isinstance(sub, dict) and sub.get("id")]
+
+        if not subject_ids and not create_did and not is_dte:
+             raise ValidationError(_("The 'credentialSubject' must contain at least one 'id'."))
+
+        exists = VerificableCredential.objects.filter(
+            schema=schema,
+            issuer_did=issuer,
+            status=VerificableCredential.Status.ISSUED,
+            subject_id__in=subject_ids
+        ).exists()
+
+        if exists and not create_did:
+            raise ValidationError(_("A credential for one or more of these subjects already exists."))
+
+        if create_did and not cleaned_data.get('did_method'):
+            self.add_error('did_method', _("This field is required when creating a new DID."))
+
+        cleaned_data['extracted_subject_ids'] = subject_ids
+        return cleaned_data
+
+    def _create_did_if_needed(self, user):
+        if not self.cleaned_data.get("create_did"):
+            return None
+
+        file_data = self.cleaned_data["file_import"]
+        label = file_data.get("id") or file_data.get("name") or "object-did"
+
+        obj_did, _created = DIDService.get_or_create_product_did(
+            user=user,
+            did_type=int(self.cleaned_data["did_method"]),
+            label=label,
+            service_endpoint=self.cleaned_data.get("service_endpoint", ""),
+            suffix_did_id=None
+        )
+
+        return obj_did
+
+    def save(self, user):
+        with transaction.atomic():
+            obj_did = self._create_did_if_needed(user)
+
+            file_data = self.cleaned_data["file_import"]
+            issuer_did = self.cleaned_data["issuer"]
+            schema = self.cleaned_data["schema"]
+
+            cred_subject = file_data.get("credentialSubject", {})
+
+            if obj_did:
+                if isinstance(cred_subject, list):
+                    if cred_subject and isinstance(cred_subject[0], dict):
+                        cred_subject[0]["id"] = obj_did.did
+                elif isinstance(cred_subject, dict):
+                    cred_subject["id"] = obj_did.did
+
+            untp_type = schema.is_untp
+            credential_type = ["VerifiableCredential"]
+            if untp_type:
+                credential_type.append(untp_type)
+
+            if untp_type == "DigitalFacilityRecord":
+                subject_did_obj = issuer_did
+            elif obj_did:
+                subject_did_obj = obj_did
+            else:
+                # if DTE list, grab the first event's credential subject id
+                if isinstance(cred_subject, list) and cred_subject:
+                    subject_id = cred_subject[0].get("id")
+                else:
+                    subject_id = cred_subject.get("id")
+
+                subject_did_obj = DID.objects.filter(did=subject_id, is_product=True).first() if subject_id else None
+
+            status_code, response_data = CredentialIssuanceService.issue_untp_credential(
+                user=user,
+                schema_name=schema.file_schema,
+                subject_data=cred_subject,
+                credential_type=credential_type,
+                subject_did=subject_did_obj,
+                issuer_did_obj=issuer_did
+            )
+
+            if status_code not in [200, 201]:
+                error_msg = response_data.get("error", "Unknown error during credential issuance.")
+                details = response_data.get("details", "")
+                raise ValidationError(_(f"Issuance failed: {error_msg} {details}"))
+
+            return response_data

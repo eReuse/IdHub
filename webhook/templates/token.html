@@ -3,12 +3,43 @@
 {% load render_table from django_tables2 %}
 
 {% block content %}
-<h3>
-  <i class="{{ icon }}"></i>
-  {{ subtitle }}
-</h3>
-{% render_table table %}
-<div class="form-actions-no-box">
-    <a class="btn btn-green-admin" href="{% url 'webhook:new_token' %}">{% translate "Generate a new token" %} <i class="bi bi-plus"></i></a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="mb-0">
+    {{ subtitle }}
+  </h3>
+  <a class="btn btn-green-admin d-inline-flex align-items-center gap-1" href="{% url 'webhook:new_token' %}">
+    {% translate "New token" %}
+  </a>
 </div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-0">
+    <div class="table-responsive p-3">
+      {% render_table table %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.copy-token-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const token = this.getAttribute('data-token');
+            const icon = this.querySelector('i');
+
+            navigator.clipboard.writeText(token).then(() => {
+                icon.classList.remove('bi-clipboard');
+                icon.classList.add('bi-check-lg', 'text-success');
+                setTimeout(() => {
+                    icon.classList.remove('bi-check-lg', 'text-success');
+                    icon.classList.add('bi-clipboard');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy token:', err);
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

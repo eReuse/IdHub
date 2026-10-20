@@ -129,6 +129,11 @@
                 </a>
                 <ul class="flex-column mb-2 ul_sidebar accordion-collapse {% if section == 'Credential' %}expanded{% else %}collapse{% endif %}" id="credential" data-bs-parent="#sidebarMenu">
                   <li class="nav-item">
+                    <a class="nav-link{% if path == 'admin_issue_untp' %} active2{% endif %}" href="{% url 'idhub:admin_issue_untp' %}">
+                      {% trans 'UNTP credentials' %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a class="nav-link{% if path == 'admin_credentials' %} active2{% endif %}" href="{% url 'idhub:admin_credentials' %}">
                       {% trans 'View credentials' %}
                     </a>
@@ -149,10 +154,16 @@
                         </a>
                       </li>
                     </ul>
+
                   </li>
                   <li class="nav-item">
                     <a id="wallet" class="nav-link{% if path == 'tokens' %} active2{% endif %}" href="{% url 'webhook:tokens' %}">
                       {% trans "Webhook Tokens" %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link text-primary" href=" {% url 'idhub:verify' %}"  target="_blank" rel="noopener noreferrer">
+                      {% trans 'Verify credential' %} <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.85em;"></i>
                     </a>
                   </li>
                 </ul>

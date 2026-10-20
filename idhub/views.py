@@ -1,24 +1,28 @@
-import base64
 import json
 import uuid
 import logging
 import zlib
+import base64
 
 import pyroaring
 from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
+from django.views.generic import FormView
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 
 from idhub.models import DID, VerificableCredential, Schemas, Context, ContextFile
 from idhub.email.views import NotifyActivateUserByEmail
 from oidc4vp.models import Organization
+from .forms import VerificationForm
+from idhub.services import VerificationService
+
 
 
 logger = logging.getLogger(__name__)
@@ -97,45 +101,26 @@ class PasswordResetView(auth_views.PasswordResetView):
         return HttpResponseRedirect(self.success_url)
 
 
-def ServeDidRegistryView(request, did_id):
-    domain = settings.DOMAIN
-    id_did = f'did:web:{domain}:did-registry:{did_id}'
-    did = get_object_or_404(DID, did=id_did)
-    # Deserialize the base DID from JSON storage
-    document = json.loads(did.didweb_document)
-    # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
-    #  entry to the DID document.
-    revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
-    revoked_credential_indexes = []
-    for credential in revoked_credentials:
-        revoked_credential_indexes.append(credential.id)
-        # revoked_credential_indexes.append(credential.revocationBitmapIndex)
-    # TODO: Conditionally add "service" to DID document only if the DID has issued any VC
-    revocation_bitmap = pyroaring.BitMap(revoked_credential_indexes)
-    encoded_revocation_bitmap = base64.b64encode(
-        zlib.compress(
-            revocation_bitmap.serialize()
-        )
-    ).decode('utf-8')
-    revocation_service = [{  # This is an object within a list.
-        "id": f"{id_did}#revocation",
-        "type": "RevocationBitmap2022",
-        "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
-    }]
-    document["service"] = revocation_service
-    # Serialize the DID + Revocation list in preparation for sending
-    document = json.dumps(document)
-    retval = HttpResponse(document)
-    retval.headers["Content-Type"] = "application/json"
-    return retval
-
-
 def ServeDidView(request, did_id):
     domain = settings.DOMAIN
-    id_did = f'did:web:{domain}:{did_id}'
+
+    if not did_id or did_id == ".well-known":
+        id_did = f'did:web:{domain}'
+    else:
+        did_path = did_id.replace("/", ":")
+        id_did = f'did:web:{domain}:{did_path}'
+
     did = get_object_or_404(DID, did=id_did)
-    # Deserialize the base DID from JSON storage
-    document = json.loads(did.didweb_document)
+
+    if not did.didweb_document:
+        return JsonResponse({"error": "DID exists but no document is available locally."}, status=404)
+
+    try:
+        document = json.loads(did.didweb_document)
+    except json.JSONDecodeError as e:
+        logger.error(f"DID Document in database is corrupt for DID {did.did}: {e}")
+        return JsonResponse({"error": "DID Document in database is corrupt or invalid JSON."}, status=500)
+
     # Has this DID issued any Verifiable Credentials? If so, we need to add a Revocation List "service"
     #  entry to the DID document.
     revoked_credentials = did.vcredentials.filter(status=VerificableCredential.Status.REVOKED)
@@ -155,11 +140,19 @@ def ServeDidView(request, did_id):
         "type": "RevocationBitmap2022",
         "serviceEndpoint": f"data:application/octet-stream;base64,{encoded_revocation_bitmap}"
     }]
+
+    if did.is_product and did.service_endpoint:
+        revocation_service.append({
+            "id": f"{id_did}#product",
+            "type": "ProductPassport",
+            "serviceEndpoint": did.service_endpoint
+        })
+
     document["service"] = revocation_service
     # Serialize the DID + Revocation list in preparation for sending
     document = json.dumps(document)
     retval = HttpResponse(document)
-    retval.headers["Content-Type"] = "application/json"
+    retval.headers["Content-Type"] = "application/did+ld+json"
     return retval
 
 
@@ -225,8 +218,20 @@ def SchemaView(request, file_name):
 
 
 def ContextView(request):
-    ctx = Context.get_context()
-    retval = HttpResponse(ctx)
+    ctx_raw = Context.get_context()
+
+    try:
+        ctx_dict = json.loads(ctx_raw)
+
+        # intercept empty context and inject a safe fallback
+        if ctx_dict.get("@context") == {}:
+            ctx_dict["@context"] = {"@version": 1.1}
+
+        ctx_safe = json.dumps(ctx_dict)
+    except (ValueError, TypeError):
+        ctx_safe = ctx_raw
+
+    retval = HttpResponse(ctx_safe)
     retval.headers["Content-Type"] = "application/json"
     return retval
 
@@ -236,3 +241,24 @@ def ContextFileView(request, file_name):
     retval = HttpResponse(context.data)
     retval.headers["Content-Type"] = "application/json"
     return retval
+
+
+class PublicVerificationView(FormView):
+    template_name = 'idhub/verification_portal.html'
+    form_class = VerificationForm
+
+    def form_valid(self, form):
+        upload = form.cleaned_data['file_import']
+        file_content = upload.read().decode('utf-8')
+
+        results = VerificationService.verify_document(file_content)
+
+        return self.render_to_response(self.get_context_data(form=form, results=results))
+
+    def form_invalid(self, form):
+        detail = " ".join(form.errors.get('file_import', form.non_field_errors()))
+
+        results = VerificationService.empty_results()
+        VerificationService.add_step(results, _("File validation"), False, detail)
+
+        return self.render_to_response(self.get_context_data(form=form, results=results))

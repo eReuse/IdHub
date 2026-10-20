@@ -1,69 +1,42 @@
-// TODO move this tests to different files according to the feature they cover
-
 import { test, expect } from '@playwright/test';
+import { login, accept_data_protection } from './helpers/flows';
+import { TEST_SITE, TEST_ADMIN_USER, TEST_ADMIN_PASSWD, TEST_USER, TEST_USER_PASSWD } from './helpers/config';
 
-const TEST_SITE = process.env.TEST_SITE || 'http://127.0.0.1:9001'
+test.describe('Authentication Redirects', () => {
 
-const TEST_ADMIN_USER = process.env.TEST_ADMIN_USER || 'admin@example.org'
-const TEST_ADMIN_PASSWD = process.env.TEST_PASSWD || 'admin'
+    test('admin wants url, but login is required', async ({ page }) => {
+        await page.goto(`${TEST_SITE}/admin/wallet/identities/`);
+        await page.getByPlaceholder('Email address').fill(TEST_ADMIN_USER);
+        await page.getByPlaceholder('Password').fill(TEST_ADMIN_PASSWD);
+        await page.getByPlaceholder('Password').press('Enter');
 
-const TEST_USER = process.env.TEST_USER || 'user1@example.org'
-const TEST_USER_PASSWD = process.env.TEST_PASSWD || '1234'
+        await accept_data_protection(page);
+        await expect(page.locator('h1')).toContainText('Credential management');
+    });
 
-// optional page (decrypt)
-// src https://playwright.dev/docs/locators#matching-one-of-the-two-alternative-locators
-async function accept_data_protection(page) {
-        // TODO cannot be, because of this inconsistency: Data Protection (user) vs Data protection (admin)
-        //const data_protection = await page.getByRole('heading', { name: 'Data protection', exact: true })
-        const data_protection = await page.getByRole('heading', { name: 'Data protection' })
-        if (await data_protection.isVisible()) {
-                await page.locator('#id_accept_privacy').check();
-                await page.locator('#id_accept_legal').check();
-                await page.locator('#id_accept_cookies').check();
-                await page.getByRole('link', { name: 'Confirm' }).click();
-        }
-}
+    test('when admin user goes to login, redirect to admin dashboard', async ({ page }) => {
+        await login(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
+        await accept_data_protection(page);
+        await expect(page.locator('h1')).toContainText('Dashboard');
+        await expect(page).toHaveURL(/admin\/dashboard/);
+    });
 
-async function put_login_credentials(page, email, passwd) {
-    await page.getByPlaceholder('Email address').click();
-    await page.getByPlaceholder('Email address').fill(email);
-    await page.getByPlaceholder('Password').fill(passwd);
-    await page.getByPlaceholder('Password').press('Enter');
-}
+    test('when user goes to login, redirect to dashboard of user', async ({ page }) => {
+        await login(page, TEST_USER, TEST_USER_PASSWD);
+        await accept_data_protection(page);
+        await expect(page).toHaveURL(/user\/dashboard/);
+    });
 
-test('admin wants url, but login is required', async ({ page }) => {
-    test.setTimeout(0)
-    await page.goto(`${TEST_SITE}/admin/wallet/identities/`);
-    await put_login_credentials(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
-    await accept_data_protection(page);
-    await expect(page.locator('h1')).toContainText('Credential management');
-});
+    test('user tries admin url, should redirect to dashboard of user', async ({ page }) => {
+        await page.goto(`${TEST_SITE}/admin/wallet/identities/`);
+        await page.getByPlaceholder('Email address').fill(TEST_USER);
+        await page.getByPlaceholder('Password').fill(TEST_USER_PASSWD);
+        await page.getByPlaceholder('Password').press('Enter');
 
+        await accept_data_protection(page);
+        await expect(page).toHaveURL(/user\/dashboard/);
+        // DEBUG
+        //await page.pause();
 
-test('when admin user goes to login, redirect to admin dashboard', async ({ page }) => {
-    test.setTimeout(0)
-    await page.goto(`${TEST_SITE}/login/`);
-    await put_login_credentials(page, TEST_ADMIN_USER, TEST_ADMIN_PASSWD);
-    await accept_data_protection(page);
-    await expect(page.locator('h1')).toContainText('Dashboard');
-    await expect(page).toHaveURL(new RegExp('admin/dashboard'));
-});
-
-test('when user goes to login, redirect to dashboard of user', async ({ page }) => {
-    test.setTimeout(0)
-    await page.goto(`${TEST_SITE}/login/`);
-    await put_login_credentials(page, TEST_USER, TEST_USER_PASSWD);
-    await accept_data_protection(page);
-    await expect(page).toHaveURL(new RegExp('user/dashboard'));
-});
-
-test('user tries url from admin, should go to dashboard of user', async ({ page }) => {
-    test.setTimeout(0)
-    await page.goto(`${TEST_SITE}/admin/wallet/identities/`);
-    await put_login_credentials(page, TEST_USER, TEST_USER_PASSWD);
-    await accept_data_protection(page);
-    await expect(page).toHaveURL(new RegExp('user/dashboard'));
-
-    // DEBUG
-    //await page.pause();
+    });
 });

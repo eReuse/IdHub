@@ -1,67 +1,65 @@
-import os
 import io
 import json
-import pickle
 import logging
-import weasyprint
+import os
 from pathlib import Path
+import pickle
 from smtplib import SMTPException
-from django_tables2 import SingleTableView, RequestConfig
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import (
-    CreateView,
-    DeleteView,
-    FormView,
-    UpdateView,
-)
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
-from django.http import HttpResponse
 from django.contrib import messages
 from django.core.cache import cache
-from utils import credtools
-from idhub_auth.models import User
-from idhub_auth.forms import ProfileForm
-from idhub.mixins import AdminView, Http403
-from idhub.email.views import NotifyActivateUserByEmail
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+
+from django_tables2 import RequestConfig, SingleTableMixin, SingleTableView
 from idhub.admin.forms import (
+    DIDForm,
     EncryptionKeyForm,
     ImportCertificateForm,
     ImportForm,
     ImportSchemaForm,
     ImportSchemaUrlForm,
     MembershipForm,
-    TermsConditionsForm,
     SchemaForm,
+    TermsConditionsForm,
+    UNTPCredentialImportForm,
     UserRolForm,
-    DIDForm
 )
 from idhub.admin.tables import (
-        DashboardTable,
-        UserTable,
-        RolesTable,
-        ServicesTable,
-        CredentialTable,
-        DIDTable,
-        DataTable,
-        TemplateTable,
-        VCTemplatePdfsTable,
+    CredentialTable,
+    DIDTable,
+    DashboardTable,
+    DataTable,
+    RolesTable,
+    ServicesTable,
+    TemplateTable,
+    UserTable,
+    VCTemplatePdfsTable,
 )
+from idhub.email.views import NotifyActivateUserByEmail
+from idhub.mixins import AdminView, Http403
 from idhub.models import (
     DID,
     Event,
     File_datas,
     Membership,
     Rol,
-    Service,
     Schemas,
+    Service,
     UserRol,
-    VerificableCredential,
     VCTemplatePdf,
+    VerificableCredential,
 )
+from idhub_auth.forms import ProfileForm
+from idhub_auth.models import User
+from utils import credtools
+import weasyprint
 
 
 logger = logging.getLogger(__name__)
@@ -710,16 +708,44 @@ class CredentialView(Credentials):
 
 
 class CredentialJsonView(Credentials):
-
-    def get(self, request, *args, **kwargs):
-        self.check_valid_user()
-        pk = kwargs['pk']
+    def get(self, request, pk):
         self.object = get_object_or_404(
             VerificableCredential,
             pk=pk,
         )
-        response = HttpResponse(self.object.get_data(), content_type="application/json")
-        response['Content-Disposition'] = 'attachment; filename={}'.format("credential.json")
+
+        raw_data = self.object.get_data()
+        if request.GET.get('format') == 'jwt':
+            try:
+                cred_dict = json.loads(raw_data)
+                jwt_string = ""
+
+                vc_wrapper = cred_dict.get("verifiableCredential", {})
+                if vc_wrapper.get("type") == "EnvelopedVerifiableCredential":
+                    data_uri = vc_wrapper.get("id", "")
+                    if "data:application/vc+jwt," in data_uri:
+                        jwt_string = data_uri.split("data:application/vc+jwt,")[1]
+
+                if not jwt_string:
+                    domain = f"https://{request.get_host()}"
+                    env_json_str = self.object.generate_enveloped_jwt(domain)
+
+                    env_dict = json.loads(env_json_str)
+                    jwt_string = env_dict["verifiableCredential"]["id"].split("data:application/vc+jwt,")[1]
+
+                response = HttpResponse(jwt_string, content_type="application/vc+jwt")
+                response['Content-Disposition'] = 'attachment; filename="credential.jwt"'
+                return response
+
+            except Exception as e:
+                logger.error(f"Failed to generate JWT credential for ID {pk}: {e}", exc_info=True)
+                return JsonResponse(
+                    {"error": _("Failed to generate enveloped JWT credential."), "details": str(e)},
+                    status=500
+                )
+
+        response = HttpResponse(raw_data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename="credential.json"'
         return response
 
 
@@ -771,15 +797,15 @@ class DidsView(Credentials, SingleTableView):
 
     def get_context_data(self, **kwargs):
         queryset = kwargs.pop('object_list', None)
-        dids = DID.objects.filter(user__isnull=True)
+        dids = DID.objects.filter(user__isnull=True, is_product=False)
         if queryset is None:
             self.object_list = dids.filter(eidas1=False)
 
         context = super().get_context_data(**kwargs)
         eidas1 = dids.filter(eidas1=True)
         eidas2 = dids.filter(eidas1=False)
-        table_eidas1 = DIDTable(eidas1)
-        table_eidas2 = DIDTable(eidas2)
+        table_eidas1 = DIDTable(eidas1, exclude=("service_endpoint",))
+        table_eidas2 = DIDTable(eidas2, exclude=("service_endpoint",))
 
         RequestConfig(self.request).configure(table_eidas1)
         RequestConfig(self.request).configure(table_eidas2)
@@ -1038,10 +1064,7 @@ class SchemasUploadView(SchemasMix, ImportExport, FormView):
 
     def form_valid(self, form):
         if "submitUrl" not in self.request.POST:
-            path = reverse_lazy("idhub:schema", args=[form.file_name])
             domain = "https://{}".format(self.request.get_host())
-            url = "{}{}".format(domain, path)
-            form.schema["$id"] = url
             schema = form.save(domain=domain)
         else:
             schema = form.save()
@@ -1274,3 +1297,28 @@ class VCTemplatePdfRenderView(AdminView, TemplateView):
         data = self.object.data.read()
         pdf = weasyprint.HTML(string=data)
         return pdf.write_pdf()
+
+
+class UNTPCredentialsView(AdminView, SingleTableMixin, FormView):
+    template_name = "idhub/admin/import_dids.html"
+    section = "Credential"
+    title = _("Object DPP and UNTP Credentials")
+    subtitle = _("Upload credential subject data to issue UNTP credentials and generate object identities.")
+    icon = 'bi bi-patch-check-fill'
+    table_class = DIDTable
+    form_class = UNTPCredentialImportForm
+    success_url = reverse_lazy("idhub:admin_dids")
+    paginate_by = 5
+
+    def form_valid(self, form):
+        try:
+            form.save(self.request.user)
+        except ValidationError as e:
+            form.add_error(None, e)
+            return self.form_invalid(form)
+
+        messages.success(self.request, _("UNTP credential issued successfully."))
+        return super().form_valid(form)
+
+    def get_queryset(self):
+        return DID.objects.filter(is_product=True).order_by("created_at")

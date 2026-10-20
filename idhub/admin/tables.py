@@ -1,17 +1,17 @@
-import django_tables2 as tables
+from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
+import django_tables2 as tables
 
 from idhub.models import (
-        Rol,
-        Event,
-        Service,
-        VerificableCredential,
-        DID,
-        File_datas,
-        Schemas,
-        VCTemplatePdf,
+    DID,
+    Event,
+    File_datas,
+    Rol,
+    Schemas,
+    Service,
+    VCTemplatePdf,
+    VerificableCredential,
 )
 from idhub_auth.models import User
 
@@ -204,6 +204,9 @@ class CredentialTable(tables.Table):
 class DIDTable(tables.Table):
     created_at = tables.Column(verbose_name="Date")
     did = tables.Column(verbose_name="ID")
+
+    service_endpoint = tables.Column(verbose_name="Endpoint", orderable=False)
+
     edit_did = ButtonColumn(
             linkify={
                 "viewname": "idhub:admin_dids_edit",
@@ -212,12 +215,14 @@ class DIDTable(tables.Table):
             orderable=False,
             verbose_name="Edit"
             )
+
     delete_template_code = """<a class="text-danger"
                             href="javascript:void()"
                             data-bs-toggle="modal"
                             data-bs-target="#confirm-delete-{{ record.id }}"
                             title="Remove"
                             ><i class="bi bi-trash"></i></a>"""
+
     delete_did = tables.TemplateColumn(template_code=delete_template_code,
                                        orderable=False,
                                        verbose_name="Delete")
@@ -237,10 +242,18 @@ class DIDTable(tables.Table):
     def render_edit_did(self):
         return format_html('<i class="bi bi-pencil-square"></i>')
 
+    def render_service_endpoint(self, value):
+        if value:
+            return format_html(
+                '<a href="{}" target="_blank" title="{}" class="text-primary"><i class="bi bi-box-arrow-up-right"></i></a>',
+                value, value
+            )
+        return "-"
+
     class Meta:
         model = DID
         template_name = "idhub/custom_table.html"
-        fields = ("created_at", "label", "did", "edit_did", "delete_did")
+        fields = ("created_at", "label", "did", "service_endpoint", "edit_did", "delete_did")
 
 
 class DataTable(tables.Table):

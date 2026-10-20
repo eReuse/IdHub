@@ -1,28 +1,33 @@
-import os
-import json
-import ujson
-import pytz
-import hashlib
-import logging
-import datetime
-import requests
 from collections import OrderedDict
+import copy
+import datetime
+import hashlib
+import json
+import logging
+import os
 from urllib.parse import urljoin
-from django.db import models
-from django.conf import settings
-from django.urls import reverse
-from django.template.loader import get_template
-from django.utils.translation import gettext_lazy as _
-from pyvckit.did import (
-    generate_keys,
-    generate_did,
-    gen_did_document,
-)
-from pyvckit.sign import sign
-from pyvckit.verify import verify_signature, verify_schema
+import uuid
 
-from oidc4vp.models import Organization
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.db import models
+from django.template.loader import get_template
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+import jwt
+from jwt.algorithms import get_default_algorithms
+import pytz
+from pyvckit.did import gen_did_document, generate_did, generate_keys
+from pyvckit.sign import sign
+from pyvckit.verify import verify_schema, verify_signature
+import requests
+import ujson
+
+from idhub.credential_renderer import generate_universal_template
+from idhub.templates.untp_models import CredentialSchema, IssuerV0, UNTPCredentialV0
 from idhub_auth.models import User
+from oidc4vp.models import Organization
 
 
 logger = logging.getLogger(__name__)
@@ -480,6 +485,8 @@ class DID(models.Model):
     # '{"kty":"OKP","crv":"Ed25519","x":"oB2cPGFx5FX4dtS1Rtep8ac6B__61HAP_RtSzJdPxqs","d":"OJw80T1CtcqV0hUcZdcI-vYNBN1dlubrLaJa0_se_gU"}'
     key_material = models.TextField()
     eidas1 = models.BooleanField(default=False)
+    is_product = models.BooleanField(default=False)
+    service_endpoint = models.CharField(_('Service URI endpoint'), blank=True, max_length=250)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -582,6 +589,7 @@ class DID(models.Model):
     def get_did_document(self):
         key = json.loads(self.get_key_material())
         url, self.didweb_document = gen_did_document(self.did, key)
+        return url, self.didweb_document
 
     def get_key(self):
         return json.loads(self.key_material)
@@ -590,17 +598,23 @@ class DID(models.Model):
         return Organization.objects.get(main=True)
 
     def get_path(self):
-        if settings.DOMAIN == self.did.split(":")[2]:
-            did_id = self.did.split(':')[-1]
-            if "registry" in self.did:
-                return reverse("idhub:serve_registry_did", args=[did_id])
-            return reverse("idhub:serve_did", args=[did_id])
+        didp = self.did.split(":")
+        domain = didp[2]
+        did_path = didp[3:]
 
-        sdid = self.did[8:].split(":")
-        if len(sdid) == 2:
-            return "https://{}/.well-known/{}/did.json".format(*sdid)
+        if settings.DOMAIN == domain:
+            if not did_path:
+                return reverse("idhub:serve_root_did")
 
-        return "https://{}/did.json".format("/".join(sdid))
+            path_str = "/".join(did_path)
+            return reverse("idhub:serve_did", args=[path_str])
+
+        protocol = "https"
+        if not did_path:
+            return f"{protocol}://{domain}/.well-known/did.json"
+
+        url_path = "/".join(did_path)
+        return f"{protocol}://{domain}/{url_path}/did.json"
 
     def has_link(self):
         linked_types = [self.Types.WEB, self.Types.WEBETH]
@@ -610,6 +624,9 @@ class DID(models.Model):
 
     def get_type(self):
         return self.Types(self.type)
+
+    def __str__(self):
+        return self.did
 
 
 class Context(models.Model):
@@ -659,8 +676,46 @@ class Schemas(models.Model):
     _description = models.CharField(_("Description"), max_length=250, null=True, db_column='description')
     template_description = models.TextField(null=True)
     context = models.CharField(_('Context'), null=True, max_length=250)
+    validation_url = models.CharField(_('Validation URL'), max_length=500, blank=True, null=True)
 
     objects = SchemaManager()
+
+    def save(self, *args, **kwargs):
+        #calculate validation url given that sometimes it is not onto the $id field in the schema
+        if not self.validation_url:
+            schema_id = ""
+            schema_data = {}
+
+            if self.data:
+                try:
+                    schema_data = json.loads(self.data)
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"Failed to parse JSON data for schema '{self.file_schema}': {e}")
+                    raise ValidationError(
+                        _("Invalid JSON data provided for schema '%(schema)s': %(error)s"),
+                        params={"schema": self.file_schema, "error": str(e)},
+                    )
+
+            json_id = schema_data.get("$id", "")
+            if json_id and str(json_id).startswith("http"):
+                schema_id = str(json_id)
+
+            elif self.file_schema and str(self.file_schema).startswith("http"):
+                schema_id = str(self.file_schema)
+
+            elif self.file_schema:
+                filename = str(self.file_schema)
+                try:
+                    schema_id = reverse("idhub:schema", args=[filename])
+                except Exception:
+                    schema_id = filename if filename.startswith("/") else f"/schema/{filename}"
+
+            self.validation_url = schema_id
+
+        if not self.type:
+            self.type = self.get_type
+
+        super().save(*args, **kwargs)
 
     @property
     def get_schema(self):
@@ -688,13 +743,46 @@ class Schemas(models.Model):
 
     @property
     def url(self):
-        sh = self.get_schema
-        return sh.get("$id", "")
+        return self.validation_url
 
     @property
     def get_type(self):
+        is_untp = self.is_untp
         sh = self.get_schema
-        return sh.get("title", "").title().replace(" ", "")
+        return is_untp if is_untp else sh.get("title", "").title().replace(" ", "")
+
+    def set_type(self, commit=False):
+        self.type = self.get_type
+
+        if commit:
+            self.save(update_fields=['type'])
+
+    @property
+    def get_schema_types(self):
+        sh = self.get_schema
+        properties = sh.get("properties", {})
+        type_info = properties.get("type", {}) if isinstance(properties, dict) else {}
+        if isinstance(type_info, dict):
+            return type_info.get("default", [])
+        return []
+
+    @property
+    def get_context_uris(self):
+        sh = self.get_schema
+        if sh:
+            return sh.get("properties", {}).get("@context", {}).get("default", [])
+        return []
+
+    @property
+    def is_untp(self):
+        _vc_types = self.get_schema_types
+        _untp_types = [
+            "DigitalConformityCredential",
+            "DigitalProductPassport",
+            "DigitalFacilityRecord",
+            "DigitalTraceabilityEvent"
+        ]
+        return next(filter(lambda x: x in _vc_types, _untp_types), False)
 
     @property
     def name(self, request=None):
@@ -720,13 +808,22 @@ class Schemas(models.Model):
         return language_code
 
     def _get_name_by_language(self, names, lang_code):
+        if isinstance(names, str):
+            return names
+
+        if not names or not isinstance(names, list):
+            return str(names) if names else ""
+
         first = {}
         for name in names:
-            first = name
-            if name.get('lang') == lang_code:
-                return name.get('value', "")
+            if isinstance(name, dict):
+                first = name
+                if name.get('lang') == lang_code:
+                    return name.get('value', "")
+            elif isinstance(name, str):
+                return name
 
-        return first.get("value", "")
+        return first.get("value", "") if isinstance(first, dict) else ""
 
     def _is_catalan_code(self, language_code):
         return language_code == 'ca'
@@ -764,19 +861,17 @@ class Schemas(models.Model):
     def get_data(self):
         return json.loads(self.data)
 
+    def __str__(self):
+        return self.file_schema
+
 
 class ContextFile(models.Model):
     """
     This context is linked to a schema and is uploaded when upload a schema
     """
     data = models.TextField(max_length=250)
-    file_name = models.CharField(max_length=250, unique=True)
-    schema = models.ForeignKey(
-        Schemas,
-        on_delete=models.CASCADE,
-        related_name='context_file',
-    )
-
+    #TODO:could two schemas have same context?
+    file_name = models.CharField(max_length=250, unique=False)
 
 class VCTemplate(models.Model):
     wkit_template_id = models.CharField(max_length=250)
@@ -805,7 +900,10 @@ class VerificableCredential(models.Model):
     issued_on = models.DateTimeField(_("Issued on"), null=True)
     data = models.TextField()
     csv_data = models.TextField()
+    json_data = models.JSONField(null=False, default=dict)
     hash = models.CharField(max_length=260)
+    subject_id = models.CharField(max_length=250, blank=True, default="")
+    vc_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.PositiveSmallIntegerField(
         _("Status"),
         choices=Status.choices,
@@ -863,6 +961,9 @@ class VerificableCredential(models.Model):
     def get_description(self):
         return self.schema._description or ''
 
+    def is_untp(self):
+        return self.schema.is_untp
+
     def description(self):
         return self.schema.get_schema.get("description")
 
@@ -875,7 +976,20 @@ class VerificableCredential(models.Model):
     def get_datas(self):
         data = self.render()
         credential_subject = ujson.loads(data).get("credentialSubject", {})
-        return credential_subject.items()
+
+        if isinstance(credential_subject, dict):
+            return credential_subject.items()
+
+        # traceability events is a list
+        elif isinstance(credential_subject, list):
+            formatted_data = {}
+            for idx, item in enumerate(credential_subject, start=1):
+                if isinstance(item, dict):
+                    event_type = item.get("type", ["Event"])[0] if "type" in item else "Event"
+                    formatted_data[f"{event_type} #{idx}"] = item
+                else:
+                    formatted_data[f"Event #{idx}"] = item
+            return formatted_data.items()
 
     @property
     def is_webeth(self):
@@ -927,10 +1041,18 @@ class VerificableCredential(models.Model):
 
     def issue(self, did, domain, save=True):
         if self.status == self.Status.ISSUED:
-            return
+            if self.data:
+                return True, json.loads(self.user.decrypt_data(self.data))
+            return True, _("Already issued")
 
-        self.subject_did = did
-        self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
+        if did:
+            self.subject_did = did
+
+        # different date for w3c v1 and v2
+        if self.schema.is_untp:
+            self.set_issue_date()
+        else:
+            self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
@@ -938,25 +1060,30 @@ class VerificableCredential(models.Model):
         key = self.issuer_did.get_key_material()
         credential = self.render(domain)
         verify = not settings.DEBUG
+
         vc = sign(credential, key, self.issuer_did.did, verify=verify)
         vc_str = json.dumps(vc)
 
-        valid, _ = verify_schema(vc_str, verify=verify)
-
+        valid, err_details = verify_schema(vc_str, verify=verify)
         if not valid:
-            raise Exception(_("The credential is not valid with this schema"))
+            return False, _(f"The credential is not valid with this schema: {err_details}")
 
-        valid, _ = verify_signature(vc_str, verify=verify)
-
+        valid, err_details = verify_signature(vc_str, verify=verify)
         if not valid:
-            raise Exception(_("The credential is not valid"))
-
-        if not save:
-            return vc_str
+            return False, _(f"The generated cryptographic signature is invalid: {err_details}")
 
         self.data = self.user.encrypt_data(vc_str)
-
         self.status = self.Status.ISSUED
+
+        if not save:
+            return True, vc_str
+
+        self.save()
+        return True, vc_str
+
+    def set_issue_date(self):
+        if not self.issued_on:
+            self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
     def get_context(self, domain):
         d = json.loads(self.csv_data)
@@ -966,7 +1093,7 @@ class VerificableCredential(models.Model):
             issuance_date = self.issued_on.strftime(format)
 
         cred_path = 'credentials'
-        sid = self.id or 0
+        sid = self.vc_id or 0
         if self.eidas1_did:
             cred_path = 'public/credentials'
             sid = self.hash
@@ -995,7 +1122,7 @@ class VerificableCredential(models.Model):
             'email': self.user.email,
             'organisation': org.name or '',
             'credential_status_id': credential_status_id,
-            'type': self.schema.get_type
+            'type': json.dumps(["VerifiableCredential", self.schema.get_type])
         }
 
         if self.issuer_did.type == DID.Types.WEBETH:
@@ -1009,8 +1136,184 @@ class VerificableCredential(models.Model):
         context.update(d)
         return context
 
+    def _get_base_url(self, domain: str) -> str:
+        did_parts = self.issuer_did.did.split(":")
+        if len(did_parts) >= 3 and did_parts[0] == "did" and did_parts[1] == "web":
+            original_domain = did_parts[2]
+            protocol = "http" if "localhost" in original_domain else "https"
+            return f"{protocol}://{original_domain}"
+        return domain.rstrip('/')
+
+    def _get_url_id(self, base_url: str) -> str:
+        return f"{base_url}/credentials/{str(self.vc_id)}"
+
+    def _get_issuer_payload(self) -> dict:
+        org = Organization.objects.filter(main=True).first()
+        issuer_name = getattr(org, "name", "") if org else ""
+
+        issuer_id = self.issuer_did.did
+        if self.issuer_did.type == DID.Types.WEBETH:
+            issuer_key = json.loads(self.issuer_did.get_key_material())
+            issuer_id = issuer_key.get('eth_issuer_pub_key', issuer_id)
+
+        return {"id": issuer_id, "name": issuer_name}
+
+    def _get_unique_contexts(self, domain: str, base_url: str) -> list:
+        schema_contexts = self.schema.get_context_uris
+        if isinstance(schema_contexts, str):
+            schema_contexts = [schema_contexts]
+        elif not schema_contexts:
+            schema_contexts = []
+
+        _context_urls = []
+
+        for ctx in schema_contexts:
+            if ctx not in _context_urls:
+                _context_urls.append(ctx)
+
+        if "https://www.w3.org/ns/credentials/v2" not in _context_urls:
+            _context_urls.insert(0, "https://www.w3.org/ns/credentials/v2")
+
+        def add_context(ctx_url):
+            if ctx_url and ctx_url not in _context_urls:
+                _context_urls.append(ctx_url)
+
+        if self.schema.context:
+            schema_ctx = str(self.schema.context)
+            if not schema_ctx.startswith("http"):
+                schema_ctx = urljoin(base_url, schema_ctx)
+            add_context(schema_ctx)
+        elif not schema_contexts:
+            add_context(urljoin(domain, reverse("idhub:context")))
+
+        add_context("https://w3id.org/security/suites/jws-2020/v1")
+        add_context("https://w3id.org/security/v2")
+
+        return _context_urls
+
+    def _resolve_schema_id(self, domain: str) -> str:
+        if self.schema.url and str(self.schema.url).startswith("http"):
+            return self.schema.url
+        elif self.schema.file_schema and str(self.schema.file_schema).startswith("http"):
+            return str(self.schema.file_schema)
+
+        path = reverse("idhub:schema", args=[str(self.schema.file_schema)])
+        return urljoin(domain, path)
+
+    def _prepare_credential_subject(self) -> dict | list:
+        cred_subject = copy.deepcopy(self.json_data)
+
+        if isinstance(cred_subject, dict):
+            cred_subject.pop('@context', None)
+
+        elif isinstance(cred_subject, list):
+            for item in cred_subject:
+                if isinstance(item, dict):
+                    item.pop('@context', None)
+
+        return cred_subject
+
+    def render_untp(self, domain: str = "", version: str = "0.7.0"):
+        self.set_issue_date()
+        issuance_date = self.issued_on.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        base_url = self._get_base_url(domain)
+        url_id = self._get_url_id(base_url)
+        context_urls = self._get_unique_contexts(domain, base_url)
+        schema_id = self._resolve_schema_id(domain)
+        issuer_payload = self._get_issuer_payload()
+
+        cred_subject = self._prepare_credential_subject()
+
+        if version.startswith("0"):
+            vc_model = UNTPCredentialV0(
+                context=context_urls,
+                type=self.schema.get_schema_types,
+                id=url_id,
+                issuer=IssuerV0(
+                    id=issuer_payload["id"],
+                    name=issuer_payload["name"]
+                ),
+                validFrom=issuance_date,
+                credentialSubject=cred_subject,
+                credentialSchema=CredentialSchema(
+                    id=schema_id
+                )
+            )
+        elif version.startswith("1"):
+            raise NotImplementedError("UNTP 1.0.0 not yet supported")
+        else:
+            raise ValueError(f"Unsupported UNTP version: {version}")
+
+        return vc_model.model_dump_json(by_alias=True, exclude_none=True)
+
+
+    def generate_enveloped_jwt(self, domain=""):
+        """
+        Experimental: grabs the raw UNTP credential, formats it into a W3C Enveloped VC payload,
+        and returns the fully signed JWT string according to VCDM 2.0 / vc-jose-cose.
+        """
+        if not self.is_untp:
+            raise ValueError("This credential is not a UNTP type.")
+
+        raw_vc_str = self.render_untp(domain=domain)
+        raw_vc = ujson.loads(raw_vc_str)
+
+        dynamic_html = generate_universal_template(raw_vc)
+        raw_vc["renderMethod"] = [
+            {
+                "type": ["RenderTemplate2024"],
+                "template": dynamic_html
+            }
+        ]
+
+        org = Organization.objects.filter(main=True).first()
+        raw_vc["issuer"] = {
+            "id": self.issuer_did.did,
+            "name": getattr(org, "name", "") if org else ""
+        }
+
+        issuer_obj = raw_vc.get("issuer", {})
+        iss = issuer_obj.get("id") if isinstance(issuer_obj, dict) else self.issuer_did.did
+
+        raw_jwk_str = self.issuer_did.get_key_material()
+
+        headers = {
+            "typ": "vc+jwt",
+            "alg": "EdDSA",
+            "kid": f"{iss}#owner"
+        }
+
+        try:
+            eddsa_alg = get_default_algorithms()["EdDSA"]
+            private_key = eddsa_alg.from_jwk(raw_jwk_str)
+        except Exception as e:
+            raise ValueError(f"Failed to parse Ed25519 JWK: {e}")
+
+        enveloped_jwt = jwt.encode(
+            raw_vc,
+            private_key,
+            algorithm="EdDSA",
+            headers=headers
+        )
+
+        wrapped_vc = {
+            "verifiableCredential": {
+                "@context": [
+                    "https://www.w3.org/ns/credentials/v2"
+                ],
+                "type": "EnvelopedVerifiableCredential",
+                "id": f"data:application/vc+jwt,{enveloped_jwt}"
+            }
+        }
+
+        return ujson.dumps(wrapped_vc, escape_forward_slashes=False)
+
 
     def render(self, domain=""):
+        if self.schema.is_untp:
+            return self.render_untp(domain)
+
         context = self.get_context(domain)
         tmpl = get_template('credentials/base.json')
         d_ordered = ujson.loads(tmpl.render(context))
@@ -1053,13 +1356,15 @@ class VerificableCredential(models.Model):
         self.type = self.schema.get_type
 
     def filter_dict(self, dic):
+        #Quotes "", or '' are giving some trouble in jsonschema.validate
+        filtered_cases = [False, 0]
         new_dict = OrderedDict()
         for key, value in dic.items():
             if isinstance(value, dict):
                 new_value = self.filter_dict(value)
                 if new_value:
                     new_dict[key] = new_value
-            elif value:
+            elif value or value in filtered_cases:
                 new_dict[key] = value
         return new_dict
 
