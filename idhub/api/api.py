@@ -308,7 +308,7 @@ def webhook_issue(request, payload: WebhookPayload):
     return 200, {'status': 'success', 'data': result}
 
 
-@api_v1.post("webhook/verify/",
+@api_v1.post("verify/",
              response={200: VerificationResultResponse, 400: ErrorResponse, 401: ErrorResponse},
              auth=DatabaseTokenAuth(),
              summary="Verify a Verifiable Credential file (JSON, PDF?, JWT)")
