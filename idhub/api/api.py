@@ -308,28 +308,22 @@ def webhook_issue(request, payload: WebhookPayload):
     return 200, {'status': 'success', 'data': result}
 
 
-@api_v1.post("verify/",
+@api_v1.post("webhook/verify/",
              response={200: VerificationResultResponse, 400: ErrorResponse, 401: ErrorResponse},
              auth=DatabaseTokenAuth(),
-             summary="Verify a Verifiable Credential file (JSON, PDF?, JWT)")
+             summary="Verify a Verifiable Credential file (JSON, PDF, JWT)")
 def webhook_verify(request, file_import: UploadedFile = File(...)):
     user = request.user
 
     if not cache.get("KEY_DIDS") or not user.accept_gdpr:
         return 400, {'error': 'Temporary out of service'}
 
-    # file Upload Validations
-    MAX_UPLOAD_SIZE = 5242880
+    MAX_UPLOAD_SIZE = 5242880  # 5MB
     ALLOWED_EXTENSIONS = ['.json', '.pdf', '.jwt']
     ALLOWED_CONTENT_TYPES = [
-        'application/json',
-        'application/ld+json',
-        'application/pdf',
-        'application/jwt',
-        'application/vc+jwt',
-        'application/octet-stream',
-        'text/plain',
-        ''
+        'application/json', 'application/ld+json', 'application/pdf',
+        'application/jwt', 'application/vc+jwt', 'application/octet-stream',
+        'text/plain', ''
     ]
 
     if file_import.size > MAX_UPLOAD_SIZE:
@@ -340,13 +334,18 @@ def webhook_verify(request, file_import: UploadedFile = File(...)):
         return 400, {"error": "Invalid file extension. Only .json, .pdf and .jwt are allowed."}
 
     if file_import.content_type not in ALLOWED_CONTENT_TYPES:
-        return 400, {"error": "Unsupported file format. Please upload a valid JSON, PDF, or JWT credential."}
+        return 400, {"error": "Unsupported file format."}
 
-    try:
-        file_content = file_import.read().decode('utf-8')
-    except UnicodeDecodeError:
-        return 400, {"error": "The file is not a valid UTF-8 encoded text file."}
+    file_bytes = file_import.read()
 
-    results = VerificationService.verify_document(file_content)
+    if ext == '.pdf' or file_import.content_type == 'application/pdf':
+        results = VerificationService.verify_pdf(file_bytes)
+    else:
+        try:
+            file_content = file_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            return 400, {"error": "The file is not a valid UTF-8 encoded text file."}
+
+        results = VerificationService.verify_document(file_content)
 
     return 200, results

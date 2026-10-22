@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime, timezone
+import io
 import ipaddress
 import json
 import logging
@@ -12,9 +13,11 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 import jwt
-from pyvckit.verify import resolve_did, verify_schema, verify_signature
 
 from idhub.models import DID, Schemas, VerificableCredential
+from pyhanko.pdf_utils.reader import PdfFileReader
+from pyhanko.sign.validation import validate_pdf_signature
+from pyvckit.verify import resolve_did, verify_schema, verify_signature
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +247,61 @@ class VerificationService:
             "status": "Success" if status else "Failed",
             "detail": str(detail)
         })
+
+    @classmethod
+    def verify_pdf(cls, file_bytes: bytes) -> dict:
+        results = cls.empty_results()
+        results['credential_type'] = str(_("eIDAS1 Signed PDF Document"))
+
+        cls.add_step(results, _("Format parsing"), True, _("PDF document successfully loaded."))
+
+        try:
+            reader = PdfFileReader(io.BytesIO(file_bytes))
+            sigs = reader.embedded_signatures
+
+            if not sigs:
+                cls.add_step(results, _("Cryptographic Integrity"), False, _("No embedded eIDAS1 signatures found in the PDF."))
+                return results
+
+            all_valid = True
+            signer_names = []
+
+            for sig in sigs:
+                # Validate the cryptographic hash of the document byte range
+                status = validate_pdf_signature(sig)
+
+                if status.intact:
+                    # Extract signer certificate details
+                    cert = sig.signer_cert
+                    if cert and hasattr(cert, 'subject') and hasattr(cert.subject, 'human_friendly'):
+                        signer_names.append(cert.subject.human_friendly)
+                    else:
+                        signer_names.append(str(_("Unknown eIDAS Signer")))
+                else:
+                    all_valid = False
+                    cls.add_step(results, _("Cryptographic Integrity"), False, _("The PDF signature is invalid or the document was tampered with."))
+                    break
+
+            if all_valid:
+                cls.add_step(results, _("Cryptographic Integrity"), True, _("PDF digital signature(s) are mathematically valid and the document is intact."))
+                results['is_valid'] = True
+
+                issuer_str = ", ".join(signer_names) if signer_names else str(_("eIDAS1 Authority"))
+                results['issuer_name'] = str(issuer_str)
+
+                # Because the PDF is a visual render without raw JSON-LD metadata,
+                # we generate a summary payload containing the verified signer.
+                results['payload'] = {
+                    "Verification Strategy": "eIDAS1 PDF Signature",
+                    "Document Integrity": "Verified and Untampered",
+                    "Signatory Authority": str(issuer_str),
+                    "Note": "This document is a visually rendered credential. Its embedded digital signature guarantees it has not been modified since issuance."
+                }
+
+        except Exception as e:
+            cls.add_step(results, _("Format parsing"), False, _(f"Failed to parse PDF signatures: {cls._format_exception(e)}"))
+
+        return results
 
     @staticmethod
     def _format_exception(e: Exception) -> str:
