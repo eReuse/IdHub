@@ -3,6 +3,7 @@ import uuid
 import logging
 import zlib
 import base64
+import os
 
 import pyroaring
 from django.db.models import Q
@@ -249,9 +250,24 @@ class PublicVerificationView(FormView):
 
     def form_valid(self, form):
         upload = form.cleaned_data['file_import']
-        file_content = upload.read().decode('utf-8')
 
-        results = VerificationService.verify_document(file_content)
+        file_bytes = upload.read()
+        ext = os.path.splitext(upload.name)[1].lower()
+
+        if ext == '.pdf' or upload.content_type == 'application/pdf':
+            results = VerificationService.verify_pdf(file_bytes)
+        else:
+            try:
+                file_content = file_bytes.decode('utf-8')
+                results = VerificationService.verify_document(file_content)
+            except UnicodeDecodeError:
+                results = VerificationService.empty_results()
+                VerificationService.add_step(
+                    results,
+                    str(_("Format parsing")),
+                    False,
+                    str(_("The file is not a valid UTF-8 encoded text file."))
+                )
 
         return self.render_to_response(self.get_context_data(form=form, results=results))
 
@@ -259,6 +275,6 @@ class PublicVerificationView(FormView):
         detail = " ".join(form.errors.get('file_import', form.non_field_errors()))
 
         results = VerificationService.empty_results()
-        VerificationService.add_step(results, _("File validation"), False, detail)
+        VerificationService.add_step(results, str(_("File validation")), False, str(detail))
 
         return self.render_to_response(self.get_context_data(form=form, results=results))

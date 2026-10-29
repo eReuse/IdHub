@@ -125,3 +125,23 @@ class ActiveUNTPSchemasResponse(Schema):
     dpp: List[SchemaInfo] = Field(..., description="List of active schemas for Digital Product Passports (DPP).")
     dte: List[SchemaInfo] = Field(..., description="List of active schemas for Digital Traceability Events (DTE).")
     dfr: List[SchemaInfo] = Field(..., description="List of active schemas for Digital Facility Records (DFR).")
+
+class WebhookPayload(Schema):
+    type: str = Field(..., description="The type of the credential or presentation.")
+    data: Dict[str, Any] = Field(..., description="The raw credential or presentation payload.")
+    save: bool = Field(True, description="Whether to save the issued credential to the database.")
+
+class VerificationStepSchema(Schema):
+    name: str = Field(..., description="Name of the verification step.")
+    status: str = Field(..., description="Status of the step (e.g., Success, Failed).")
+    detail: str = Field(..., description="Detailed output or error message.")
+
+class VerificationResultResponse(Schema):
+    is_valid: bool = Field(..., description="Overall verification result (True if all checks passed).")
+    credential_type: str = Field(..., description="Detected credential format and type.")
+    issuer_name: Optional[str] = Field(None, description="Extracted issuer name.")
+    issuer_id: Optional[str] = Field(None, description="Extracted issuer DID or identifier.")
+    issuer_url: Optional[str] = Field(None, description="Resolvable URL for the issuer if applicable.")
+    payload: Optional[Dict[str, Any]] = Field(None, description="Decoded credential subject payload.")
+    html_template: Optional[str] = Field(None, description="Embedded HTML render template, if present.")
+    steps: List[VerificationStepSchema] = Field(..., description="Detailed verification execution steps.")

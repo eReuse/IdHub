@@ -1054,6 +1054,7 @@ class VerificableCredential(models.Model):
         else:
             self.issued_on = datetime.datetime.now().astimezone(pytz.utc)
 
+
         # hash of credential without sign
         self.hash = hashlib.sha3_256(self.render(domain).encode()).hexdigest()
 
@@ -1111,7 +1112,9 @@ class VerificableCredential(models.Model):
         if self.issuer_did.type == DID.Types.WEB:
             credential_status_id = self.issuer_did.did
 
-        context = {
+        context = d.copy() if isinstance(d, dict) else {}
+
+        context.update({
             'id_credential': str(sid),
             'vc_id': url_id,
             'issuer_did': self.issuer_did.did,
@@ -1122,8 +1125,8 @@ class VerificableCredential(models.Model):
             'email': self.user.email,
             'organisation': org.name or '',
             'credential_status_id': credential_status_id,
-            'type': json.dumps(["VerifiableCredential", self.schema.get_type])
-        }
+            'type': self.schema.get_type
+        })
 
         if self.issuer_did.type == DID.Types.WEBETH:
             issuer_key = json.loads(self.issuer_did.get_key_material())
@@ -1133,7 +1136,6 @@ class VerificableCredential(models.Model):
             subject_key = json.loads(self.subject_did.get_key_material())
             context['subject_did'] = subject_key['eth_subject_pub_key']
 
-        context.update(d)
         return context
 
     def _get_base_url(self, domain: str) -> str:
