@@ -30,18 +30,17 @@ class UserView(LoginRequiredMixin):
         'user_terms_and_conditions',
         'user_gdpr',
         'user_waiting',
-        'user_waiting',
         'encryption_key',
     ]
 
-    def get(self, request, *args, **kwargs):
-        if settings.ENABLE_DOMAIN_CHECKER:
+    def dispatch(self, request, *args, **kwargs):
+        if settings.enable_domain_checker:
             err_txt = "User domain is {} which does not match server domain {}".format(
-                request.get_host(), settings.DOMAIN
+                request.get_host(), settings.domain
             )
-            assert request.get_host() == settings.DOMAIN, err_txt
-        self.admin_validated = cache.get("KEY_DIDS")
-        response = super().get(request, *args, **kwargs)
+            assert request.get_host() == settings.domain, err_txt
+
+        self.admin_validated = cache.get("key_dids")
 
         if not self.admin_validated:
             actual_path = resolve(self.request.path).url_name
@@ -54,29 +53,19 @@ class UserView(LoginRequiredMixin):
                     return redirect(reverse_lazy("idhub:encryption_key"))
 
         url = self.check_gdpr()
+        if url:
+            return url
 
-        return url or response
-
-    def post(self, request, *args, **kwargs):
-        if settings.ENABLE_DOMAIN_CHECKER:
-            err_txt = "User domain is {} which does not match server domain {}".format(
-                request.get_host(), settings.DOMAIN
-            )
-            assert request.get_host() == settings.DOMAIN, err_txt
-        self.admin_validated = cache.get("KEY_DIDS")
-        response = super().post(request, *args, **kwargs)
-        url = self.check_gdpr()
-
-        return url or response
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         org = Organization.objects.filter(main=True).first()
         context = super().get_context_data(**kwargs)
         context.update({
-            'title': self.title,
-            'subtitle': self.subtitle,
-            'icon': self.icon,
-            'section': self.section,
+            'title': getattr(self, 'title', ''),
+            'subtitle': getattr(self, 'subtitle', ''),
+            'icon': getattr(self, 'icon', ''),
+            'section': getattr(self, 'section', ''),
             'path': resolve(self.request.path).url_name,
             'user': self.request.user,
             'wallet': self.wallet,
@@ -93,19 +82,16 @@ class UserView(LoginRequiredMixin):
                 url = reverse_lazy("idhub:admin_terms_and_conditions")
             if resolve(self.request.path).url_name not in self.path_terms:
                 return redirect(url)
+        return None
 
 
 class AdminView(UserView):
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         if self.check_valid_user():
             return redirect(reverse_lazy('idhub:user_dashboard'))
-        return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        if self.check_valid_user():
-            return redirect(reverse_lazy('idhub:user_dashboard'))
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def check_valid_user(self):
         if not self.request.user.is_admin:
@@ -115,3 +101,5 @@ class AdminView(UserView):
 
         if self.request.session.get("2fauth"):
             raise Http403()
+
+        return False

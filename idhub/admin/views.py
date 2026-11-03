@@ -113,10 +113,13 @@ class EncryptionKeyView(AdminView, FormView):
 class DobleFactorAuthView(AdminView, View):
     url = reverse_lazy('idhub:admin_dashboard')
 
-    def get(self, request, *args, **kwargs):
+    # overwrite adminview function so 2fauth works
+    def check_valid_user(self):
         if not self.request.user.is_admin:
             raise Http403()
+        return False
 
+    def get(self, request, *args, **kwargs):
         if not self.request.session.get("2fauth"):
             return redirect(self.url)
 
@@ -125,7 +128,6 @@ class DobleFactorAuthView(AdminView, View):
             return redirect(self.url)
 
         return redirect(reverse_lazy("idhub:login"))
-
 
 class DashboardView(AdminView, SingleTableView):
     template_name = "idhub/admin/dashboard.html"
@@ -234,7 +236,6 @@ class PeopleView(People, TemplateView):
 class PeopleActivateView(PeopleView):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -256,7 +257,6 @@ class PeopleActivateView(PeopleView):
 class PeopleDeleteView(PeopleView):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -276,15 +276,11 @@ class PeopleEditView(People, FormView):
     form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
-        return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.user = get_object_or_404(User, pk=self.pk)
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -352,15 +348,11 @@ class PeopleMembershipRegisterView(People, FormView):
     model = Membership
     success_url = reverse_lazy('idhub:admin_people_list')
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
-        return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.user = get_object_or_404(User, pk=self.pk)
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form(self):
         form = super().get_form()
@@ -396,17 +388,11 @@ class PeopleMembershipEditView(People, FormView):
     model = Membership
     success_url = reverse_lazy('idhub:admin_people_list')
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
-        self.user = self.object.user
-        return super().get(request, *args, **kwargs)
+        self.user = get_object_or_404(User, pk=self.pk)
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
-        self.user = self.object.user
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form(self):
         form = super().get_form()
@@ -430,7 +416,6 @@ class PeopleMembershipDeleteView(PeopleView):
     model = Membership
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -450,15 +435,11 @@ class PeopleRolRegisterView(People, FormView):
     form_class = UserRolForm
     model = UserRol
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
-        return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.user = get_object_or_404(User, pk=self.pk)
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
@@ -486,15 +467,11 @@ class PeopleRolEditView(People, FormView):
     form_class = UserRolForm
     model = UserRol
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
-        return super().get(request, *args, **kwargs)
+        self.user = get_object_or_404(User, pk=self.pk)
 
-    def post(self, request, *args, **kwargs):
-        self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -518,7 +495,6 @@ class PeopleRolDeleteView(PeopleView):
     model = UserRol
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         user = self.object.user
@@ -585,7 +561,6 @@ class RolDeleteView(AccessControl):
     model = Rol
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -662,7 +637,6 @@ class ServiceDeleteView(AccessControl):
     model = Service
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
 
@@ -753,7 +727,6 @@ class RevokeCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -773,7 +746,6 @@ class DeleteCredentialsView(Credentials):
     success_url = reverse_lazy('idhub:admin_credentials')
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         pk = kwargs['pk']
         self.object = get_object_or_404(
             VerificableCredential,
@@ -889,7 +861,6 @@ class DidDeleteView(Credentials, DeleteView):
     success_url = reverse_lazy('idhub:admin_dids')
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         Event.set_EV_ORG_DID_DELETED_BY_ADMIN(self.object)
@@ -942,7 +913,6 @@ class SchemasView(SchemasMix, SingleTableView):
 class SchemasDeleteView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         issued = VerificableCredential.Status.ISSUED
         self.object = get_object_or_404(
@@ -957,7 +927,6 @@ class SchemasDeleteView(SchemasMix):
 class SchemasDownloadView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
 
@@ -969,7 +938,6 @@ class SchemasDownloadView(SchemasMix):
 class TemplateExcelDownloadView(SchemasMix):
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(Schemas, pk=self.pk)
         output = io.BytesIO()
@@ -1101,7 +1069,6 @@ class SchemasEnableAddView(SchemasMix):
     section = 'Templates'
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.file_name = kwargs['file_schema']
         schemas_files = os.listdir(settings.SCHEMAS_DIR)
         if self.file_name not in schemas_files:
@@ -1209,7 +1176,6 @@ class ImportDeleteView(AdminView, DeleteView):
     model = File_datas
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         self.object.delete()
@@ -1261,7 +1227,6 @@ class VCTemplatePdfDeleteView(AdminView, DeleteView):
     model = VCTemplatePdf
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         self.object.delete()
@@ -1274,7 +1239,6 @@ class VCTemplatePdfRenderView(AdminView, TemplateView):
     template_name = "idhub/admin/new_template_pdf.html"
 
     def get(self, request, *args, **kwargs):
-        self.check_valid_user()
         self.pk = kwargs['pk']
         self.object = get_object_or_404(self.model, pk=self.pk)
         return self.render_pdf()
