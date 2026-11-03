@@ -696,7 +696,7 @@ class DidDeleteView(MyWallet, DeleteView):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object = get_object_or_404(self.model, pk=self.pk, user=self.request.user)
         Event.set_EV_DID_DELETED(self.object)
         self.object.delete()
         messages.success(self.request, _('DID delete successfully'))
@@ -712,7 +712,7 @@ class CallOracleView(MyWallet, View):
 
     def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.object = get_object_or_404(self.model, pk=self.pk)
+        self.object = get_object_or_404(self.model, pk=self.pk, user=self.request.user)
         Event.set_EV_USR_CRED_TO_DLT(self.object)
         try:
             self.object.call_oracle()
