@@ -278,11 +278,15 @@ class PeopleEditView(People, FormView):
     form_class = ProfileForm
     success_url = reverse_lazy('idhub:admin_people_list')
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -350,11 +354,15 @@ class PeopleMembershipRegisterView(People, FormView):
     model = Membership
     success_url = reverse_lazy('idhub:admin_people_list')
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form(self):
         form = super().get_form()
@@ -437,11 +445,15 @@ class PeopleRolRegisterView(People, FormView):
     form_class = UserRolForm
     model = UserRol
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
         self.user = get_object_or_404(User, pk=self.pk)
+        return super().get(request, *args, **kwargs)
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.user = get_object_or_404(User, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         self.object = self.model(user=self.user)
@@ -469,11 +481,15 @@ class PeopleRolEditView(People, FormView):
     form_class = UserRolForm
     model = UserRol
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.pk = kwargs['pk']
-        self.user = get_object_or_404(User, pk=self.pk)
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().get(request, *args, **kwargs)
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.object = get_object_or_404(self.model, pk=self.pk)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
