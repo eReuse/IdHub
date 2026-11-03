@@ -14,6 +14,7 @@ from django.views.generic import FormView
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import login as auth_login
 from django.utils.translation import gettext_lazy as _
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
@@ -55,23 +56,33 @@ class LoginView(auth_views.LoginView):
         user = form.get_user()
         auth_login(self.request, user)
 
-        next_url = self.request.POST.get('next')
-        if next_url:
-            return redirect(next_url)
-
         if user.is_anonymous:
             return redirect(reverse_lazy("idhub:login"))
+
+        next_url = self.request.POST.get('next') or self.request.GET.get('next')
+
+        # domain validation
+        url_is_safe = url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        )
+
+        if not url_is_safe:
+            next_url = None
+
 
         if user.is_admin:
             if settings.ENABLE_2FACTOR_AUTH:
                 self.request.session["2fauth"] = str(uuid.uuid4())
+                if next_url:
+                    self.request.session['next_after_2fa'] = str(next_url)
                 return redirect(reverse_lazy('idhub:confirm_send_2f'))
 
-            return redirect(reverse_lazy('idhub:admin_dashboard'))
+            return redirect(next_url or reverse_lazy('idhub:admin_dashboard'))
 
         # is user
-        return redirect(reverse_lazy('idhub:user_dashboard'))
-
+        return redirect(next_url or reverse_lazy('idhub:user_dashboard'))
 
 class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
     template_name = 'auth/password_reset_confirm.html'

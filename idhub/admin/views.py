@@ -125,7 +125,9 @@ class DobleFactorAuthView(AdminView, View):
 
         if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
             self.request.session.pop("2fauth", None)
-            return redirect(self.url)
+            next_url = self.request.session.pop('next_after_2fa', self.url)
+
+            return redirect(next_url)
 
         return redirect(reverse_lazy("idhub:login"))
 
