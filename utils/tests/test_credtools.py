@@ -367,23 +367,35 @@ class SchemaToXlsCommentTest(TempDirMixin, SimpleTestCase):
         with self.assertRaises(KeyError), quiet():
             credtools.schema_to_xls_comment(schema, self.path('out.xlsx'))
 
-    def test_exports_every_repo_schema_except_device_snapshot(self):
-        # The KeyError above is not theoretical: device-snapshot-v1.json
-        # declares "array" properties, which is why TemplateExcelDownloadView
-        # answers "You cannot download an excel template of this scheme".
+    # The schemas of the repo that have no Excel template, and why. Both
+    # exceptions are caught by TemplateExcelDownloadView, which answers "You
+    # cannot download an excel template of this scheme" and points to the API.
+    NOT_EXPORTABLE = {
+        # The KeyError of test_rejects_types_outside_string_date_integer is
+        # not theoretical: this schema declares "array" properties.
+        'device-snapshot-v1.json': KeyError,
+        # The UNTP 0.7.0 passport (f3615ec7) declares no
+        # credentialSubject.required, so the IndexError of
+        # test_requires_a_required_list. UNTP credentials are issued
+        # through the API, not from a spreadsheet.
+        'DigitalProductPassport.json': IndexError,
+    }
+
+    def test_exports_every_repo_schema_except_the_known_ones(self):
         for name in sorted(os.listdir('schemas')):
             if not name.endswith('.json'):
                 continue
-            with self.subTest(schema=name), open(os.path.join('schemas', name)) as f:
-                schema = json.load(f)
-            buffer = io.BytesIO()
-            if name == 'device-snapshot-v1.json':
-                with self.assertRaises(KeyError), quiet():
-                    credtools.schema_to_xls_comment(schema, buffer)
-            else:
-                with quiet():
-                    self.assertTrue(credtools.schema_to_xls_comment(schema, buffer))
-                self.assertTrue(buffer.getvalue().startswith(b'PK'))
+            with self.subTest(schema=name):
+                with open(os.path.join('schemas', name)) as f:
+                    schema = json.load(f)
+                buffer = io.BytesIO()
+                if name in self.NOT_EXPORTABLE:
+                    with self.assertRaises(self.NOT_EXPORTABLE[name]), quiet():
+                        credtools.schema_to_xls_comment(schema, buffer)
+                else:
+                    with quiet():
+                        self.assertTrue(credtools.schema_to_xls_comment(schema, buffer))
+                    self.assertTrue(buffer.getvalue().startswith(b'PK'))
 
 
 class CsvToJsonTest(TempDirMixin, SimpleTestCase):

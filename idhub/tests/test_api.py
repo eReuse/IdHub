@@ -18,10 +18,13 @@ import json
 from unittest.mock import patch
 
 from django.core.exceptions import PermissionDenied
+from django.core.files.uploadedfile import SimpleUploadedFile
 from ninja.errors import ConfigError
 
 from idhub.api.api import DatabaseTokenAuth, _find_issuer_did
-from idhub.models import DID, Schemas
+from idhub.forms import VerificationForm
+from idhub.models import DID, Schemas, VerificableCredential
+from idhub.services import VerificationService
 from test_support import factories
 from test_support.base import IdHubTestCase
 from webhook.models import Token
@@ -868,3 +871,538 @@ class ActiveUntpSchemasTest(ApiTestCase):
         self.assertEqual(
             self.get_schemas()['dpp'][0]['url'], schema.validation_url
         )
+
+
+SIGN_PATH = '/api/v1/webhook/sign/'
+VERIFY_PATH = '/api/v1/webhook/verify/'
+
+SNAPSHOT_SCHEMA = 'device-snapshot-v1.json'
+
+# What workbench-script posts: the snapshot of one machine. operator_id and
+# the three command outputs are the keys webhook_issue rewrites.
+SNAPSHOT = {
+    'uuid': '0f2b2d57-6a14-4b94-8f5f-2b64f7a7d1c2',
+    'type': 'hardwareList',
+    'software': 'workbench-script',
+    'timestamp': '2024-06-11T14:41:12Z',
+    'operator_id': 'abcdefghij1234567890',
+    'data': {'dmidecode': 'dmi output', 'inxi': 'inxi output',
+             'smartctl': 'smartctl output'},
+}
+
+UNAUTHORIZED = {'detail': 'Unauthorized'}
+OUT_OF_SERVICE = {'error': 'Temporary out of service'}
+
+
+class WebhookSignTestCase(ApiTestCase):
+    """POST webhook/sign/: what workbench-script calls to sign a snapshot.
+
+    Nothing is patched: the subject is the credential that comes out, so the
+    snapshot is really rendered, signed and validated against its schema.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.schema = factories.make_schema(SNAPSHOT_SCHEMA)
+        self.did = factories.make_did(label='Issuer')
+        # The token owner is the user that issues, and encrypt_data() needs
+        # the per-user key that make_user leaves unset.
+        self.admin_user.set_encrypted_sensitive_data()
+        self.admin_user.save()
+
+    def snapshot(self, **changes):
+        data = json.loads(json.dumps(SNAPSHOT))
+        for key, value in changes.items():
+            if value is None:
+                data.pop(key, None)
+            else:
+                data[key] = value
+        return data
+
+    def sign(self, data=None, type=None, **extra):
+        payload = {
+            'type': self.schema.type if type is None else type,
+            'data': self.snapshot() if data is None else data,
+        }
+        payload.update(extra)
+        return self.post(SIGN_PATH, payload)
+
+    def signed(self, response):
+        self.assertEqual(response.status_code, 200, response.content)
+        body = response.json()
+        self.assertEqual(body['status'], 'success')
+        return json.loads(body['data'])
+
+
+class WebhookSignTest(WebhookSignTestCase):
+    """The HTTP contract, one row per way of calling the endpoint.
+
+    Two rows of the contract are left out on purpose: a token wrapped in
+    quotes and a token with no owner. Both answer 401 today, but whether that
+    is the intended behaviour is an open question for workbench-script, and a
+    test would turn it into the norm. DatabaseTokenAuthTest already covers
+    the no-owner case for the API as a whole.
+    """
+
+    def raw_post(self, body, **headers):
+        return self.client.post(
+            SIGN_PATH, data=body, content_type='application/json', **headers
+        )
+
+    def test_the_requests_that_never_reach_the_view(self):
+        valid = json.dumps({'type': self.schema.type, 'data': SNAPSHOT})
+        rows = [
+            ('no authorization header', lambda: self.raw_post(valid),
+             401, UNAUTHORIZED),
+            ('no bearer prefix',
+             lambda: self.raw_post(valid, HTTP_AUTHORIZATION=str(self.token.token)),
+             401, UNAUTHORIZED),
+            ('unknown token',
+             lambda: self.raw_post(valid, **self.bearer('0cc7bb5a-1d7e-4f6e-9a0f-2b0d5e4a1c33')),
+             401, UNAUTHORIZED),
+            ('token that is not a uuid',
+             lambda: self.raw_post(valid, **self.bearer('not-a-uuid')),
+             401, UNAUTHORIZED),
+            ('body that does not parse',
+             lambda: self.raw_post('{not json', **self.bearer()),
+             400, {'detail': 'Cannot parse request body'}),
+        ]
+        for label, call, status, body in rows:
+            with self.subTest(label):
+                response = call()
+                self.assertEqual(response.status_code, status)
+                self.assertEqual(response.json(), body)
+
+        self.assertFalse(VerificableCredential.objects.exists())
+
+    def test_a_get_is_405_in_plain_text(self):
+        response = self.client.get(SIGN_PATH, **self.bearer())
+
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.content, b'Method not allowed')
+
+    def test_the_payload_is_validated_by_pydantic(self):
+        rows = [
+            ('empty body', {}, ['body', 'payload', 'type'], 'missing'),
+            ('no data', {'type': self.schema.type}, ['body', 'payload', 'data'], 'missing'),
+            ('data that is not a dict', {'type': self.schema.type, 'data': [1]},
+             ['body', 'payload', 'data'], 'dict_type'),
+        ]
+        for label, payload, loc, kind in rows:
+            with self.subTest(label):
+                response = self.post(SIGN_PATH, payload)
+                self.assertEqual(response.status_code, 422)
+                errors = response.json()['detail']
+                self.assertIn((loc, kind), [(e['loc'], e['type']) for e in errors])
+
+    def test_an_inactive_token_is_refused(self):
+        self.token.active = False
+        self.token.save()
+
+        response = self.sign()
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+
+    def test_a_token_owned_by_a_plain_user_is_refused(self):
+        self.token.owner = self.user
+        self.token.save()
+
+        self.assertEqual(self.sign().status_code, 401)
+
+    def test_without_the_encryption_key_the_service_is_out(self):
+        self.set_key_dids(None)
+
+        response = self.sign()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), OUT_OF_SERVICE)
+
+    def test_an_owner_who_has_not_accepted_the_terms_takes_it_down_too(self):
+        self.admin_user.accept_gdpr = False
+        self.admin_user.save()
+
+        response = self.sign()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), OUT_OF_SERVICE)
+
+    def test_without_an_organization_did_there_is_nothing_to_sign_with(self):
+        self.did.delete()
+
+        response = self.sign()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'error': 'Invalid DID'})
+
+    def test_a_did_that_belongs_to_a_user_is_not_borrowed(self):
+        self.did.delete()
+        factories.make_did(label='Wallet', user=self.user)
+
+        self.assertEqual(self.sign().json(), {'error': 'Invalid DID'})
+
+    def test_an_unknown_type_is_a_400_that_names_it(self):
+        response = self.sign(type='NoSuchSchema')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {'error': "Invalid credential: Schema for type 'NoSuchSchema' not found."},
+        )
+
+    def test_a_snapshot_without_an_operator_can_never_be_signed(self):
+        """The fallback for a missing operator_id is '--', and the schema asks
+        operatorId for at least ten characters: the placeholder is the one
+        value guaranteed to fail validation."""
+        response = self.sign(data=self.snapshot(operator_id=None))
+
+        self.assertEqual(response.status_code, 400)
+        error = response.json()['error']
+        self.assertTrue(
+            error.startswith('The credential is not valid with this schema:'), error
+        )
+        self.assertIn("'--' is too short", error)
+        self.assertFalse(VerificableCredential.objects.exists())
+
+    def test_the_happy_path_answers_200_with_the_signed_credential(self):
+        response = self.sign()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(sorted(response.json()), ['data', 'status'])
+        self.assertIn('proof', self.signed(response))
+
+
+class WebhookSignHappyPathTest(WebhookSignTestCase):
+    """The shape of the credential that comes out, and what is stored."""
+
+    def test_by_default_the_credential_is_stored(self):
+        """save defaults to True and now does save: the old view read the
+        None that issue() used to return as a failure."""
+        vc = self.signed(self.sign())
+
+        stored = VerificableCredential.objects.get()
+        self.assertEqual(stored.status, VerificableCredential.Status.ISSUED)
+        self.assertEqual(stored.schema, self.schema)
+        self.assertEqual(stored.issuer_did, self.did)
+        self.assertEqual(stored.user, self.admin_user)
+        self.assertEqual(json.loads(self.admin_user.decrypt_data(stored.data)), vc)
+
+    def test_asking_not_to_save_returns_the_credential_and_stores_nothing(self):
+        vc = self.signed(self.sign(save=False))
+
+        self.assertIn('proof', vc)
+        self.assertFalse(VerificableCredential.objects.exists())
+
+    def test_the_command_outputs_become_the_evidence_at_the_root(self):
+        """W3C puts evidence at the root of the credential, not inside the
+        subject, which is not what reading webhook_issue suggests: it writes
+        the key into the snapshot that becomes the subject."""
+        vc = self.signed(self.sign(save=False))
+
+        self.assertEqual(
+            [(e['type'], e['operation'], e['output'], e['timestamp'])
+             for e in vc['evidence']],
+            [('HardwareList', 'dmidecode', 'dmi output', SNAPSHOT['timestamp']),
+             ('HardwareList', 'smartctl', 'smartctl output', SNAPSHOT['timestamp']),
+             ('HardwareList', 'inxi', 'inxi output', SNAPSHOT['timestamp'])],
+        )
+        self.assertNotIn('evidence', vc['credentialSubject'])
+
+    def test_the_raw_command_output_does_not_reach_the_subject(self):
+        subject = self.signed(self.sign(save=False))['credentialSubject']
+
+        self.assertEqual(
+            sorted(subject),
+            ['id', 'operatorId', 'software', 'timestamp', 'type', 'uuid'],
+        )
+        self.assertEqual(subject['uuid'], SNAPSHOT['uuid'])
+        self.assertEqual(subject['software'], 'workbench-script')
+        self.assertEqual(subject['timestamp'], SNAPSHOT['timestamp'])
+
+    def test_the_underscored_operator_id_is_renamed_for_the_schema(self):
+        subject = self.signed(self.sign(save=False))['credentialSubject']
+
+        self.assertEqual(subject['operatorId'], SNAPSHOT['operator_id'])
+
+    def test_a_snapshot_with_no_command_output_still_gets_three_evidences(self):
+        vc = self.signed(self.sign(data=self.snapshot(data=None), save=False))
+
+        self.assertEqual([e['output'] for e in vc['evidence']], ['""', '""', '""'])
+
+    def test_the_credential_is_issued_to_the_issuer_itself(self):
+        vc = self.signed(self.sign(save=False))
+
+        self.assertEqual(vc['issuer']['id'], self.did.did)
+        self.assertEqual(vc['credentialSubject']['id'], self.did.did)
+
+    def test_the_id_is_a_fresh_uuid_under_the_request_host(self):
+        first = self.signed(self.sign(save=False))['id']
+        second = self.signed(self.sign(save=False))['id']
+
+        pattern = (r'^http://testserver/credentials/'
+                   r'[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$')
+        self.assertRegex(first, pattern)
+        self.assertRegex(second, pattern)
+        self.assertNotEqual(first, second)
+
+
+class WebhookSnapshotTypeTest(WebhookSignTestCase):
+    """The rewrite of data.type: only the literal 'Snapshot' is touched."""
+
+    def subject_type(self, **changes):
+        vc = self.signed(self.sign(data=self.snapshot(**changes), save=False))
+        return vc['credentialSubject']['type']
+
+    def test_the_rewrite_table(self):
+        rows = [
+            ({'type': 'Snapshot', 'erase': True}, 'dataDeletion'),
+            ({'type': 'Snapshot', 'erase': False}, 'hardwareList'),
+            ({'type': 'Snapshot'}, 'hardwareList'),
+            ({'type': 'hardwareList'}, 'hardwareList'),
+            ({'type': 'dataDeletion'}, 'dataDeletion'),
+            # erase only matters for 'Snapshot': it does not turn a
+            # hardwareList into a dataDeletion.
+            ({'type': 'hardwareList', 'erase': True}, 'hardwareList'),
+        ]
+        for changes, expected in rows:
+            with self.subTest(**changes):
+                self.assertEqual(self.subject_type(**changes), expected)
+
+    def test_any_other_type_is_left_as_it_comes_and_the_schema_judges_it(self):
+        response = self.sign(data=self.snapshot(type='snapshot'))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("'snapshot' is not one of", response.json()['error'])
+
+
+class WebhookSchemeTest(WebhookSignTestCase):
+    """The scheme of the domain the credential is rendered under."""
+
+    def test_testserver_over_plain_http_is_http(self):
+        vc = self.signed(self.sign(save=False))
+
+        self.assertTrue(vc['id'].startswith('http://testserver/'), vc['id'])
+
+    def test_a_secure_request_is_https(self):
+        response = self.post(
+            SIGN_PATH,
+            {'type': self.schema.type, 'data': self.snapshot(), 'save': False},
+            secure=True,
+        )
+
+        self.assertTrue(self.signed(response)['id'].startswith('https://testserver/'))
+
+    def test_localhost_is_https_even_over_plain_http(self):
+        with self.settings(ALLOWED_HOSTS=['testserver', 'localhost']):
+            response = self.post(
+                SIGN_PATH,
+                {'type': self.schema.type, 'data': self.snapshot(), 'save': False},
+                HTTP_HOST='localhost',
+            )
+
+        vc = self.signed(response)
+        self.assertTrue(vc['id'].startswith('https://localhost/'), vc['id'])
+        contexts = [c for c in vc['@context'] if isinstance(c, str)]
+        self.assertFalse(
+            [c for c in contexts if c.startswith('http://localhost')], contexts
+        )
+
+
+class WebhookSchemaLookupTest(WebhookSignTestCase):
+    """The three lookups the type goes through, in this order:
+    type__iexact, the same with the spaces removed, file_schema__icontains."""
+
+    def test_the_type_is_matched_without_regard_to_case(self):
+        self.signed(self.sign(type='devicesnapshotv1', save=False))
+
+    def test_a_type_written_with_spaces_is_matched(self):
+        self.signed(self.sign(type='Device Snapshot V1', save=False))
+
+    def test_a_piece_of_the_file_name_is_matched(self):
+        self.signed(self.sign(type='device-snapshot', save=False))
+
+    def test_any_short_string_found_in_a_file_name_picks_a_schema(self):
+        """The last lookup is a substring of the file name, so 'json' -or a
+        single letter- matches every schema there is: the type stops meaning
+        anything as soon as it is not an exact title."""
+        for typ in ('json', 'e', '-'):
+            with self.subTest(type=typ):
+                self.signed(self.sign(type=typ, save=False))
+
+    def test_a_loose_type_can_pick_a_schema_that_has_nothing_to_do(self):
+        """With another schema on file, 'membership' signs the snapshot
+        against the membership card: the error is a validation failure of the
+        wrong schema, not the 'not found' the client would expect."""
+        factories.make_schema('membership-card.json')
+
+        response = self.sign(type='membership', save=False)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(
+            response.json()['error'].startswith(
+                'The credential is not valid with this schema:'
+            ),
+            response.json(),
+        )
+
+
+class WebhookVerifyTest(ApiTestCase):
+    """POST webhook/verify/: a credential file, checked like the portal does.
+
+    The file is validated with VerificationForm, whose rules are tested in
+    test_verification_form.py; here it is enough that each one is applied and
+    comes out as a 400 with the ErrorResponse shape. VerificationService is
+    tested in test_services.py.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # The SSRF guard resolves the hosts of @context and did:web: nothing
+        # here should go out to the network.
+        self.patched('idhub.services.VerificationService.validate_safe_host')
+
+    def upload(self, name='credential.json', content=b'{}',
+               content_type='application/json', token=None):
+        return self.client.post(
+            VERIFY_PATH,
+            data={'file_import': SimpleUploadedFile(name, content, content_type=content_type)},
+            **self.bearer(token),
+        )
+
+    def error(self, message):
+        return {'error': message, 'details': None, 'path': None}
+
+    def test_without_a_token_it_is_refused(self):
+        response = self.client.post(VERIFY_PATH, data={
+            'file_import': SimpleUploadedFile('c.json', b'{}', content_type='application/json'),
+        })
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+
+    def test_without_the_encryption_key_the_service_is_out(self):
+        self.set_key_dids(None)
+
+        response = self.upload()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), self.error('Temporary out of service'))
+
+    def test_an_owner_who_has_not_accepted_the_terms_takes_it_down_too(self):
+        self.admin_user.accept_gdpr = False
+        self.admin_user.save()
+
+        self.assertEqual(self.upload().json(), self.error('Temporary out of service'))
+
+    def test_a_request_with_no_file_is_a_422(self):
+        response = self.client.post(VERIFY_PATH, data={}, **self.bearer())
+
+        self.assertEqual(response.status_code, 422)
+        errors = response.json()['detail']
+        self.assertIn((['file', 'file_import'], 'missing'),
+                      [(e['loc'], e['type']) for e in errors])
+
+    def test_the_rules_of_the_verification_form_are_applied(self):
+        rows = [
+            ('too large',
+             {'content': b'a' * (VerificationForm.MAX_UPLOAD_SIZE + 1)},
+             'The file is too large. The maximum allowed size is 5MB.'),
+            ('extension',
+             {'name': 'credential.txt'},
+             'Invalid file extension. Only .json, .pdf and .jwt are allowed.'),
+            ('content type',
+             {'content_type': 'image/png'},
+             'Unsupported file format. Please upload a valid JSON, PDF, or JWT credential.'),
+            ('not utf-8',
+             {'content': b'\xff\xfe\x00'},
+             'The file is not a valid UTF-8 encoded text file.'),
+        ]
+        verify = self.patched('idhub.api.api.VerificationService.verify_document')
+        for label, kwargs, message in rows:
+            with self.subTest(label):
+                response = self.upload(**kwargs)
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.json(), self.error(message))
+        verify.assert_not_called()
+
+    def test_a_json_file_that_is_not_a_credential_is_a_200_that_says_so(self):
+        response = self.upload(content=b'not json at all')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertFalse(body['is_valid'])
+        self.assertEqual(
+            [(s['name'], s['status']) for s in body['steps']],
+            [('Format parsing', 'Failed')],
+        )
+
+    def signed_credential(self):
+        user = self.user
+        user.set_encrypted_sensitive_data()
+        user.save()
+        credential = factories.make_issued_credential(user)
+        return json.loads(user.decrypt_data(credential.data))
+
+    def test_a_credential_this_instance_signed_verifies(self):
+        content = json.dumps(self.signed_credential()).encode()
+
+        response = self.upload(content=content)
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body['is_valid'], body['steps'])
+        self.assertTrue(body['steps'])
+        self.assertEqual({s['status'] for s in body['steps']}, {'Success'})
+
+    def test_a_tampered_credential_is_a_200_with_is_valid_false(self):
+        credential = self.signed_credential()
+        credential['credentialSubject']['firstName'] = 'Tampered'
+
+        response = self.upload(content=json.dumps(credential).encode())
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertFalse(body['is_valid'])
+        self.assertIn(('Cryptographic Integrity', 'Failed'),
+                      [(s['name'], s['status']) for s in body['steps']])
+
+    def test_a_pdf_goes_to_the_eidas1_branch(self):
+        verify_pdf = self.patched(
+            'idhub.api.api.VerificationService.verify_pdf',
+            return_value={**VerificationService.empty_results(), 'is_valid': True},
+        )
+        verify_document = self.patched(
+            'idhub.api.api.VerificationService.verify_document'
+        )
+        content = b'%PDF-1.4\xff\xfe binary'
+
+        rows = (('signed.pdf', 'application/pdf', content),
+                ('signed.pdf', 'application/octet-stream', content),
+                # The content type alone also routes to the PDF branch.
+                ('signed.json', 'application/pdf', b'%PDF-1.4 text only'))
+        for name, content_type, body in rows:
+            with self.subTest(name=name, content_type=content_type):
+                verify_pdf.reset_mock()
+                response = self.upload(name=name, content=body,
+                                       content_type=content_type)
+                self.assertEqual(response.status_code, 200, response.content)
+                self.assertTrue(response.json()['is_valid'])
+                verify_pdf.assert_called_once_with(body)
+
+        verify_document.assert_not_called()
+
+    def test_a_binary_file_named_json_is_refused_even_if_it_says_pdf(self):
+        """The form checks UTF-8 by extension, before the content type
+        decides the branch: a .json is always text, whatever it claims. The
+        inline checks this endpoint had before sent it to verify_pdf."""
+        verify_pdf = self.patched('idhub.api.api.VerificationService.verify_pdf')
+
+        response = self.upload(name='signed.json', content=b'%PDF-1.4\xff\xfe',
+                               content_type='application/pdf')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            self.error('The file is not a valid UTF-8 encoded text file.'),
+        )
+        verify_pdf.assert_not_called()

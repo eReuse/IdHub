@@ -13,11 +13,14 @@ The last class goes through the view, because the contract of the form only
 makes sense against what the view does with what the form lets through.
 """
 
+from unittest.mock import patch
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 
 from idhub.forms import VerificationForm
+from idhub.services import VerificationService
 
 
 TOO_LARGE = VerificationForm.MAX_UPLOAD_SIZE + 1
@@ -169,8 +172,8 @@ class Utf8Test(VerificationFormTestCase):
 
     def test_a_pdf_is_not_checked_for_being_text(self):
         """The UTF-8 guard only covers .json and .jwt, which leaves out the one
-        extension that is binary by definition. See the view tests below for
-        what that costs."""
+        extension that is binary by definition: a PDF goes on to the eIDAS1
+        branch of the view, see the view tests below."""
         self.assertAccepted(name='credential.pdf', content=b'%PDF-1.4\xff\xfe',
                             content_type='application/pdf')
 
@@ -205,12 +208,25 @@ class VerificationViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Format parsing')
 
-    def test_uploading_a_pdf_crashes_the_public_portal(self):
-        """The form accepts .pdf and application/pdf, and the help text invites
-        it, but form_valid() does upload.read().decode('utf-8') and
-        VerificationService only knows JSON and bare JWTs. Any real PDF -every
-        one of them has binary streams- is an unhandled UnicodeDecodeError on
-        an unauthenticated endpoint."""
-        with self.assertRaises(UnicodeDecodeError):
-            self.post(name='credential.pdf', content=b'%PDF-1.4\xff\xfe',
-                      content_type='application/pdf')
+    def test_a_pdf_goes_to_the_eidas1_branch_and_is_not_decoded(self):
+        """Until bbcbc89 form_valid() decoded every upload as UTF-8, so any
+        real PDF was an unhandled UnicodeDecodeError on this unauthenticated
+        endpoint. Now a .pdf, or anything sent as application/pdf, is handed
+        as bytes to VerificationService.verify_pdf."""
+        for name, content_type in (('credential.pdf', 'application/pdf'),
+                                   ('credential.pdf', 'application/octet-stream')):
+            with self.subTest(name=name, content_type=content_type):
+                with patch('idhub.views.VerificationService.verify_pdf',
+                           wraps=VerificationService.verify_pdf) as verify_pdf:
+                    response = self.post(name=name, content=b'%PDF-1.4\xff\xfe',
+                                         content_type=content_type)
+                self.assertEqual(response.status_code, 200)
+                verify_pdf.assert_called_once_with(b'%PDF-1.4\xff\xfe')
+                self.assertContains(response, 'eIDAS1 Signed PDF Document')
+
+    def test_a_broken_pdf_is_reported_as_a_failed_step_not_raised(self):
+        response = self.post(name='credential.pdf', content=b'%PDF-1.4\xff\xfe',
+                             content_type='application/pdf')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Failed to parse PDF signatures')

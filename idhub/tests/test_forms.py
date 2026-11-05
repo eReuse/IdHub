@@ -337,17 +337,24 @@ class ImportSchemaFormTest(IdHubTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(errors(form), ['This schema not is a json file'])
 
-    def test_a_schema_without_a_title_is_refused(self):
+    def test_a_schema_without_a_title_is_accepted(self):
+        """Since f0b7f1d4 neither title nor name is required: only
+        credtools.validate_schema has to pass. UNTP schemas have no title."""
         form = self.form(schema=self.schema_bytes(title=None))
 
-        self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This is not a valid schema!'])
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        schema = form.save()
+        self.assertEqual(schema.file_schema, SCHEMA_FILE)
 
-    def test_a_schema_without_a_name_is_refused(self):
+    def test_a_schema_without_a_name_is_accepted_and_stored_with_a_null_name(self):
+        """The form falls back to title, the types or the file name for the
+        duplicate check (_extract_schema_name), but save() does not use that
+        fallback: _name is stored as the json literal null."""
         form = self.form(schema=self.schema_bytes(name=None))
 
-        self.assertFalse(form.is_valid())
-        self.assertEqual(errors(form), ['This is not a valid schema!'])
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+        schema = form.save()
+        self.assertEqual(schema._name, 'null')
 
     def test_the_same_file_name_twice_is_refused(self):
         factories.make_schema(SCHEMA_FILE)
