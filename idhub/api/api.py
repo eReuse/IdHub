@@ -9,6 +9,7 @@ from ninja.files import UploadedFile
 
 from datetime import datetime
 from django.core.cache import cache
+from idhub.forms import VerificationForm
 from idhub.services import CredentialIssuanceService, DIDService, VerificationService
 from idhub.models import DID, Schemas, VerificableCredential
 from idhub.services import CredentialIssuanceService, DIDService
@@ -318,34 +319,21 @@ def webhook_verify(request, file_import: UploadedFile = File(...)):
     if not cache.get("KEY_DIDS") or not user.accept_gdpr:
         return 400, {'error': 'Temporary out of service'}
 
-    MAX_UPLOAD_SIZE = 5242880  # 5MB
-    ALLOWED_EXTENSIONS = ['.json', '.pdf', '.jwt']
-    ALLOWED_CONTENT_TYPES = [
-        'application/json', 'application/ld+json', 'application/pdf',
-        'application/jwt', 'application/vc+jwt', 'application/octet-stream',
-        'text/plain', ''
-    ]
+    # Same gate as the public /verify/ portal: size, extension, content type
+    # and, for .json and .jwt, that the bytes decode as UTF-8.
+    form = VerificationForm(data={}, files={'file_import': file_import})
+    if not form.is_valid():
+        errors = form.errors.get('file_import') or form.non_field_errors()
+        return 400, {"error": str(errors[0])}
 
-    if file_import.size > MAX_UPLOAD_SIZE:
-        return 400, {"error": "The file is too large. The maximum allowed size is 5MB."}
+    upload = form.cleaned_data['file_import']
+    file_bytes = upload.read()
+    ext = os.path.splitext(upload.name)[1].lower()
 
-    ext = os.path.splitext(file_import.name)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        return 400, {"error": "Invalid file extension. Only .json, .pdf and .jwt are allowed."}
-
-    if file_import.content_type not in ALLOWED_CONTENT_TYPES:
-        return 400, {"error": "Unsupported file format."}
-
-    file_bytes = file_import.read()
-
-    if ext == '.pdf' or file_import.content_type == 'application/pdf':
+    if ext == '.pdf' or upload.content_type == 'application/pdf':
         results = VerificationService.verify_pdf(file_bytes)
     else:
-        try:
-            file_content = file_bytes.decode('utf-8')
-        except UnicodeDecodeError:
-            return 400, {"error": "The file is not a valid UTF-8 encoded text file."}
-
-        results = VerificationService.verify_document(file_content)
+        # The form has already checked that a .json or .jwt is valid UTF-8.
+        results = VerificationService.verify_document(file_bytes.decode('utf-8'))
 
     return 200, results
