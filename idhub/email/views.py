@@ -22,7 +22,10 @@ class NotifyActivateUserByEmail:
         Define a new context with a token for put in a email
         when send a email for add a new password  
         """
-        protocol = 'https' if self.request.is_secure() else 'http'
+        #protocol = 'https' if self.request.is_secure() else 'http'
+        #force https so it works with nginx proper
+        protocol = 'https'
+
         current_site = get_current_site(self.request)
         site_name = current_site.name
         domain = current_site.domain
