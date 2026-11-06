@@ -105,6 +105,12 @@ class EncryptionKeyView(AdminView, FormView):
 
         return super().get(request, *args, **kwargs)
 
+    def get_success_url(self):
+        next_url = self.request.session.pop('next_after_enc', None)
+        if next_url:
+            return next_url
+        return str(self.success_url)
+
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)

@@ -34,13 +34,16 @@ class UserView(LoginRequiredMixin):
     ]
 
     def dispatch(self, request, *args, **kwargs):
-        if settings.enable_domain_checker:
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
+        if getattr(settings, 'ENABLE_DOMAIN_CHECKER', False):
             err_txt = "User domain is {} which does not match server domain {}".format(
                 request.get_host(), settings.domain
             )
             assert request.get_host() == settings.domain, err_txt
 
-        self.admin_validated = cache.get("key_dids")
+        self.admin_validated = cache.get("KEY_DIDS")
 
         if not self.admin_validated:
             actual_path = resolve(self.request.path).url_name
@@ -49,7 +52,9 @@ class UserView(LoginRequiredMixin):
                     return redirect(reverse_lazy("idhub:user_waiting"))
 
             if self.request.user.is_admin:
-                if actual_path != 'encryption_key':
+                allowed_admin_paths = ['encryption_key', 'admin_2fauth', 'confirm_send_2f']
+                if actual_path not in allowed_admin_paths:
+                    self.request.session['next_after_enc'] = self.request.get_full_path()
                     return redirect(reverse_lazy("idhub:encryption_key"))
 
         url = self.check_gdpr()
@@ -88,6 +93,8 @@ class UserView(LoginRequiredMixin):
 class AdminView(UserView):
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         if self.check_valid_user():
             return redirect(reverse_lazy('idhub:user_dashboard'))
 
