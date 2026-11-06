@@ -56,6 +56,8 @@ class LoginView(auth_views.LoginView):
         user = form.get_user()
         auth_login(self.request, user)
 
+        self.request.session.pop("2fa_passed", None)
+
         if user.is_anonymous:
             return redirect(reverse_lazy("idhub:login"))
 

@@ -106,7 +106,8 @@ class AdminView(UserView):
             messages.error(self.request, txt)
             return True
 
-        if self.request.session.get("2fauth"):
-            raise Http403()
+        if settings.ENABLE_2FACTOR_AUTH:
+            if not self.request.session.get("2fa_passed"):
+                raise Http403()
 
         return False

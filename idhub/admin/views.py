@@ -131,11 +131,14 @@ class DobleFactorAuthView(AdminView, View):
 
         if self.request.session.get("2fauth") == str(kwargs.get("admin2fauth")):
             self.request.session.pop("2fauth", None)
-            next_url = self.request.session.pop('next_after_2fa', self.url)
 
+            self.request.session["2fa_passed"] = True
+
+            next_url = self.request.session.pop('next_after_2fa', self.url)
             return redirect(next_url)
 
         return redirect(reverse_lazy("idhub:login"))
+
 
 class DashboardView(AdminView, SingleTableView):
     template_name = "idhub/admin/dashboard.html"
